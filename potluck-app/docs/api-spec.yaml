@@ -1,0 +1,835 @@
+openapi: 3.1.1
+info:
+  title: Potluck API
+  version: "0.2.0"
+servers:
+  - url: http://localhost:3000/api/v1
+paths:
+  /auth/signup:
+    post:
+      summary: Sign up
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignUp" }
+      responses:
+        "201": { description: Created }
+        "400": { description: Validation error }
+  /auth/login:
+    post:
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Login" }
+      responses:
+        "200": { description: OK }
+        "401": { description: Invalid credentials }
+  /auth/logout:
+    post:
+      summary: Log out (access-token in Authorization header)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Logged out }
+
+  /locations:
+    get:
+      summary: Search / list locations
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Location" }
+    post:
+      summary: Resolve or create a location row
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Location" }
+      responses:
+        "201": { description: Created / existing row returned }
+
+  /events:
+    post:
+      summary: Create an event with initial items
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EventCreate" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventWithItems" }
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+    get:
+      description: "List events I host or attend"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - name: status
+          in: query
+          description: Optional filter by event status
+          schema:
+            $ref: "#/components/schemas/EventStatus"
+        - name: startsAfter
+          in: query
+          description: Filter events whose start time is after the given timestamp
+          schema:
+            type: string
+            format: date-time
+        - name: startsBefore
+          in: query
+          description: Filter events whose start time is before the given timestamp
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedEventSummary"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+  /events/{eventId}:
+    parameters: [{ $ref: "#/components/parameters/eventId" }]
+    get:
+      summary: Get single event with items & participants
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventFull" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+    patch:
+      summary: Host updates event details
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EventUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventFull" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+    delete:
+      summary: Delete / cancel event
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: No Content }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/publish:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Publish a **draft** event (draft → published)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Published
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventFull" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/cancel:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Cancel a **published** event (published → cancelled)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EventCancel" }
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventFull" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/complete:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Mark a **published** event as completed
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventFull" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/items:
+    parameters: [{ $ref: "#/components/parameters/eventId" }]
+    get:
+      summary: List items for event
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Item" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+    post:
+      summary: Add an item slot to the event
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Item" }
+      responses:
+        "200":
+          description: Completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ItemCreate" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/items/{itemId}:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - $ref: "#/components/parameters/itemId"
+    get:
+      summary: Get single item
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Item" }
+    put:
+      summary: Update name/category/per-guest qty
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ItemUpdate" }
+      responses:
+        "200": { description: Updated }
+    delete:
+      summary: Delete item slot
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Deleted }
+
+  /events/{eventId}/items/{itemId}/assign:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - $ref: "#/components/parameters/itemId"
+    post:
+      summary: Assign item (self or specified user)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ItemAssign" }
+      responses:
+        "200": { description: Assigned }
+    delete:
+      summary: Unassign item
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Unassigned }
+  # /events/{eventId}/participants: Invite or List Participants
+  /events/{eventId}/participants:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      summary: Invite a user or self-RSVP
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ParticipantAdd" }
+      responses:
+        "201": { description: Participant added }
+        "400": { $ref: "#/components/responses/BadRequestError" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+    get:
+      summary: List all participants in an event
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Participant" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  # /events/{eventId}/participants/{partId}: Get/Update/Kick/Leave
+  /events/{eventId}/participants/{partId}:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - $ref: "#/components/parameters/partId"
+    get:
+      summary: Get details of a participant (including RSVP)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Participant details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Participant" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+    put:
+      summary: Update RSVP or participant details
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ParticipantUpdate" }
+      responses:
+        "200":
+          description: RSVP updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Participant" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+    delete:
+      summary: Remove (kick/leave) a participant
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Participant removed }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  # (Optional) Bulk invite
+  /events/{eventId}/participants/bulk:
+    post:
+      summary: Bulk invite participants (host only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invites:
+                  type: array
+                  items: { $ref: "#/components/schemas/ParticipantBulkAdd" }
+      responses:
+        "201": { description: Participants added }
+        "400": { $ref: "#/components/responses/BadRequestError" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": { $ref: "#/components/responses/ConflictError" }
+
+  # (Optional) Re-send invite
+  /events/{eventId}/participants/{partId}/resend:
+    post:
+      summary: Re-send invite (host only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Invite resent }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  # ---------- Subscription catalog ----------
+  /billing/plans:
+    get:
+      summary: List active pricing plans
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BillingPlan" }
+
+  # ---------- Checkout for a new / upgraded subscription ----------
+  /billing/checkout/subscription:
+    post:
+      summary: Start Stripe Checkout for a plan
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_id]
+              properties:
+                plan_id: { type: string } # Stripe price ID
+      responses:
+        "200":
+          description: Checkout URL created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutSession" }
+
+  # ---------- Current user's subscription ----------
+  /billing/subscriptions:
+    get:
+      summary: Get my active / past subscriptions
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Subscription" }
+
+  # ---------- Stripe webhook (no auth) ----------
+  /billing/webhook/stripe:
+    post:
+      summary: Stripe webhook endpoint
+      description: |
+        Handles checkout.session.*, invoice.*, payment_intent.* events.
+        Stripe signs the payload; verify in the handler.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { description: "Stripe event object", type: object }
+      responses:
+        "200": { description: Received }
+
+  # ---------- Participant cost-share ----------
+  /events/{eventId}/pay:
+    parameters: [{ $ref: "#/components/parameters/eventId" }]
+    post:
+      summary: Create a payment for my share of the event
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount_cents:
+                  type: integer
+                  minimum: 1
+                  description: >
+                    Optional override. If omitted, backend
+                    uses the suggested split.
+      responses:
+        "200":
+          description: Checkout URL created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutSession" }
+
+  /events/{eventId}/payments:
+    parameters: [{ $ref: "#/components/parameters/eventId" }]
+    get:
+      summary: List all participant payments for an event
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/EventPayment" }
+  /_internal/schema-id-param:
+    get:
+      summary: Dummy endpoint to emit IdParam schema for codegen/validation
+      responses:
+        "200":
+          description: Returns IdParam object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventIdParam"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: Maximum number of records to return
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+    offset:
+      name: offset
+      in: query
+      description: Offset for pagination
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    eventId:
+      name: eventId
+      in: path
+      required: true
+      description: Event ID
+      schema:
+        type: string
+        format: uuid
+    itemId:
+      name: itemId
+      in: path
+      required: true
+      description: Item ID
+      schema:
+        type: string
+        format: uuid
+    partId:
+      name: partId
+      in: path
+      required: true
+      description: Participant ID
+      schema:
+        type: string
+        format: uuid
+
+
+  schemas:
+    # ── Auth ───────────────────────────────────
+    SignUp:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 6 }
+        displayName: { type: string }
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    # ── Location ───────────────────────────────
+    Location:
+      type: object
+      required: [name]
+      properties:
+        place_id: { type: string }
+        name: { type: string }
+        formatted_address: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+
+    # ── Items ──────────────────────────────────
+    ItemCreate:
+      type: object
+      required: [name, per_guest_qty]
+      properties:
+        name: { type: string }
+        category: { type: string }
+        per_guest_qty: { type: number, minimum: 0.01 }
+    ItemUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ItemCreate"
+      description: All fields optional for patch
+    ItemAssign:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+          description: Optional machine-readable error code
+    # ── Event ──────────────────────────────────
+    EventIdParam:
+      type: object
+      required: [eventId]
+      properties:
+        eventId: { type: string, format: uuid }
+
+    EventCreate:
+      type: object
+      required: [title, event_date, min_guests, meal_type, location, items]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        event_date: { type: string, format: date-time }
+        min_guests: { type: integer, minimum: 1 }
+        max_guests: { type: integer }
+        meal_type: { type: string, enum: [veg, nonveg, mixed] }
+        location: { $ref: "#/components/schemas/Location" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ItemCreate" }
+
+    EventWithItems:
+      type: object
+      properties:
+        event:
+          type: object # TBD,   kept loose for now
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/ItemCreate" }
+    EventSummary:
+      type: object
+      required: [id, title, event_date, attendee_count, meal_type]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        event_date: { type: string, format: date-time }
+        attendee_count: { type: integer }
+        meal_type: { type: string, enum: [veg, nonveg, mixed] }
+    PaginatedEventSummary:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventSummary"
+        nextOffset:
+          type: integer
+        totalCount:
+          type: integer
+    EventStatus:
+      type: string
+      enum: [draft, published, cancelled, completed]
+    EventCore:
+      allOf:
+        - $ref: "#/components/schemas/EventCreate"
+        - type: object
+          required: [id, attendee_count, created_by]
+          properties:
+            id: { type: string, format: uuid }
+            attendee_count: { type: integer }
+            created_by: { type: string, format: uuid }
+
+    EventFull:
+      type: object
+      required: [event, items, participants]
+      properties:
+        event: { $ref: "#/components/schemas/EventCore" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Item" }
+        participants:
+          type: array
+          items: { $ref: "#/components/schemas/Participant" }
+
+    EventUpdate:
+      allOf:
+        - $ref: "#/components/schemas/EventCreate"
+      required: [] # all fields optional for PATCH/PUT semantics
+
+    # ── Participants ───────────────────────────
+    ParticipantAdd:
+      type: object
+      required: [user_id]
+      properties:
+        user_id: { type: string, format: uuid }
+        status:
+          { type: string, enum: [invited, pending, accepted, declined, maybe] }
+    ParticipantUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          { type: string, enum: [invited, pending, accepted, declined, maybe] }
+    Participant:
+      allOf:
+        - $ref: "#/components/schemas/ParticipantAdd"
+        - type: object
+          properties:
+            id: { type: string, format: uuid }
+            joined_at: { type: string, format: date-time }
+    ParticipantBulkAdd:
+      type: object
+      required:
+        - invites
+      properties:
+        invites:
+          type: array
+          description: List of participants to invite
+          items:
+            $ref: '#/components/schemas/ParticipantAdd'
+    Item:
+      allOf:
+        - $ref: "#/components/schemas/ItemCreate"
+        - type: object
+          required: [id, required_qty]
+          properties:
+            id: { type: string, format: uuid }
+            required_qty: { type: number }
+            assigned_to: { type: string, format: uuid }
+    BillingPlan:
+      type: object
+      required: [id, name, amount_cents, currency, interval]
+      properties:
+        id: { type: string } # Stripe price ID
+        name: { type: string }
+        amount_cents: { type: integer }
+        currency: { type: string, example: usd }
+        interval: { type: string, enum: [month, year] }
+        is_active: { type: boolean }
+
+    PaymentIntentResponse:
+      type: object
+      required: [checkout_url]
+      properties:
+        checkout_url: { type: string, format: uri }
+    Subscription:
+      type: object
+      required: [id, plan_id, status, current_period_end]
+      properties:
+        id: { type: string, format: uuid }
+        plan_id: { type: string }
+        status:
+          type: string
+          enum: [active, trialing, past_due, canceled, incomplete]
+        current_period_end: { type: string, format: date-time }
+    CheckoutSession:
+      type: object
+      required: [checkout_url]
+      properties:
+        checkout_url: { type: string, format: uri }
+
+    EventCancel:
+      type: object
+      description: >
+        Payload required when the host cancels a published event.
+        Servers must record the reason for audit purposes and may include it
+        in guest notifications.
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: Human-readable explanation shown to participants
+          minLength: 3
+          maxLength: 255
+        notifyGuests:
+          type: boolean
+          description: |
+            If true (default), backend sends cancellation emails / push
+            notifications. Hosts can suppress notifications for private events.
+          default: true
+    EventPayment:
+      type: object
+      required: [id, user_id, amount_cents, status]
+      properties:
+        id: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        amount_cents: { type: integer }
+        currency: { type: string, example: usd }
+        status: { type: string, enum: [pending, paid, refunded] }
+        created_at: { type: string, format: date-time }
+  responses:
+    UnauthorizedError:
+      description: Access token missing or invalid
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+    ForbiddenError:
+      description: The caller lacks permission
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+    NotFoundError: # <-- new
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+    ConflictError:
+      description: Request conflicts with current resource state
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+    BadRequestError:
+      description: Request conflicts with current resource state
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\.690740f0f41f9cd22112af8ab4b389d22f443d4b-audit.json",
+    "files": [
+        {
+            "date": 1751004044290,
+            "name": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\error-2025-06-27.log",
+            "hash": "09606870b0350f5b79b1a13e8c4159ccce51a90da6d0a804a12c3b7b0b7d5678"
+        },
+        {
+            "date": 1751123172061,
+            "name": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\error-2025-06-28.log",
+            "hash": "63dfa687cd628da82a1c15660830f1fc972826afb388b42c6ae12a818cd7e0eb"
+        },
+        {
+            "date": 1751261571687,
+            "name": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\error-2025-06-30.log",
+            "hash": "7bef01042dfea9183204fb34a53b72de5916744593f6f374e06f6691780811fb"
+        }
+    ],
+    "hashType": "sha256"
+}

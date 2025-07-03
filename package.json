@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "supabase": "^2.26.9"
+  },
+  "dependencies": {
+    "docker": "^1.0.0"
+  }
+}
