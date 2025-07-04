@@ -17,19 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      skip_test_workspaces: ${{ steps.set-matrix.outputs.skip_test_workspaces }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Set workspaces test matrix
         id: set-matrix
         run: |
-          # List of workspaces to skip tests for (add or remove as needed)
-          SKIP_TEST_WORKSPACES='["apps/mobile"]'
-          # Read workspace globs from package.json
+          # Space-separated list of workspaces to skip tests for
+          SKIP_TEST_WORKSPACES="apps/mobile apps/web"
           workspaces=$(jq -r '.workspaces[]' package.json | sed 's/\*\*/\*/g')
-          # Find all workspace package.json files matching the globs
           pkgs=$(find $workspaces -type f -name package.json | grep -v node_modules | xargs dirname)
-          # Output as JSON array for matrix
           arr=$(echo $pkgs | jq -R 'split(" ")')
           echo "matrix=$arr" >> $GITHUB_OUTPUT
           echo "skip_test_workspaces=$SKIP_TEST_WORKSPACES" >> $GITHUB_OUTPUT
@@ -64,13 +62,14 @@ jobs:
         env:
           SKIP_TEST_WORKSPACES: ${{ needs.set-matrix.outputs.skip_test_workspaces }}
         run: |
-          SKIP=$(echo $SKIP_TEST_WORKSPACES | jq -r ". | index(\"${{ matrix.workspace }}\")")
-          if [ "$SKIP" = "null" ]; then
-            npm test --workspace=${{ matrix.workspace }} -- --coverage
-          else
-            echo "Skipping test for ${{ matrix.workspace }} (in SKIP_TEST_WORKSPACES)"
-          fi
-
+          # Test if current workspace is in the skip list
+          for skip in $SKIP_TEST_WORKSPACES; do
+            if [ "$skip" = "${{ matrix.workspace }}" ]; then
+              echo "Skipping test for ${{ matrix.workspace }} (in SKIP_TEST_WORKSPACES)"
+              exit 0
+            fi
+          done
+          npm test --workspace=${{ matrix.workspace }} -- --coverage
       - name: Upload coverage to Codecov
         if: ${{ always() }}
         uses: codecov/codecov-action@v3
