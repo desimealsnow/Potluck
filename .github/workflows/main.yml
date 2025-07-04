@@ -2,31 +2,38 @@ name: CI / CD Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - release/**
+    branches: [main, 'release/**']
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 env:
   NODE_ENV: test
 
+#######################################################################
+# 0️⃣  Dynamically build the workspace matrix + skip-list
+#######################################################################
 jobs:
   set-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      skip_test_workspaces: ${{ steps.set-matrix.outputs.skip_test_workspaces }}
+      matrix:              ${{ steps.collect.outputs.matrix }}
+      skip_test_workspaces: ${{ steps.collect.outputs.skip_test_workspaces }}
     steps:
       - uses: actions/checkout@v3
-      - name: Set workspaces test matrix
-        id: set-matrix
-        run: |
-          # 1  Space-separated workspaces you want to SKIP tests for
-          SKIP_TEST_WORKSPACES="apps/mobile apps/web apps/server"
 
-          # 2  Collect all workspace folders that contain a package.json
+      - id: collect
+        name: Build workspace matrix & skip list
+        shell: bash
+        run: |
+          ############################################################
+          # 1.  Workspaces to SKIP when running tests
+          ############################################################
+          SKIP_TEST_WORKSPACES="apps/mobile apps/web apps/server"
+          echo "skip_test_workspaces=${SKIP_TEST_WORKSPACES}" >> "$GITHUB_OUTPUT"
+
+          ############################################################
+          # 2.  Resolve workspace globs from package.json → directories
+          ############################################################
           dirs=()
           for glob in $(jq -r '.workspaces[]' package.json); do
             for dir in $glob; do
@@ -34,24 +41,24 @@ jobs:
             done
           done
 
-          # 3  Unique + compact JSON array for matrix (no newlines)
-          json_arr=$(printf '%s\n' "${dirs[@]}" \
-                     | sort -u \
-                     | jq -R . \
-                     | jq -cs '.')      # <- -c = compact (single-line) !
+          ############################################################
+          # 3.  Unique, compact JSON array for the matrix
+          ############################################################
+          json_arr=$(printf '%s\n' "${dirs[@]}" | sort -u | jq -R . | jq -cs .)
+          echo "matrix=${json_arr}" >> "$GITHUB_OUTPUT"
 
-          # 4  Write outputs (exactly one line each, no extra spaces)
-          printf "matrix=%s\n"             "$json_arr"           >> "$GITHUB_OUTPUT"
-          printf "skip_test_workspaces=%s\n" "$SKIP_TEST_WORKSPACES" >> "$GITHUB_OUTPUT"
-
+#######################################################################
+# 1️⃣  Build, Lint, Type-check & (optionally) Test every workspace
+#######################################################################
   build-and-test:
-    name: Build, Lint, Typecheck & Test (All Workspaces)
+    name: Lint · Type-check · Test (${{ matrix.workspace }})
     runs-on: ubuntu-latest
     needs: set-matrix
     strategy:
       matrix:
         node-version: [18.x]
         workspace: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -59,68 +66,89 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      # ──────────────────────────────
+      # ↓ Non-blocking Lint
+      # ──────────────────────────────
       - name: Lint (non-blocking)
-        continue-on-error: true          # ✅ job continues even if ESLint finds errors
-        run: npm run lint --workspace=apps/server
+        continue-on-error: true
+        run: |
+          npm run lint --workspace=${{ matrix.workspace }} || true
 
-      - name: Typecheck (non-blocking)
-        continue-on-error: true          # ✅ job continues even if ESLint finds errors
-        run: npm run typecheck --workspace=${{ matrix.workspace }}
+      # ──────────────────────────────
+      # ↓ Non-blocking Type-check
+      # ──────────────────────────────
+      - name: Type-check (non-blocking)
+        continue-on-error: true
+        run: |
+          npm run typecheck --workspace=${{ matrix.workspace }} || true
 
+      # ──────────────────────────────
+      # ↓ Conditionally run tests
+      # ──────────────────────────────
       - name: Conditionally test
         env:
           SKIP_TEST_WORKSPACES: ${{ needs.set-matrix.outputs.skip_test_workspaces }}
         run: |
-          # Test if current workspace is in the skip list
+          # Skip if workspace is in the skip list
           for skip in $SKIP_TEST_WORKSPACES; do
             if [ "$skip" = "${{ matrix.workspace }}" ]; then
-              echo "Skipping test for ${{ matrix.workspace }} (in SKIP_TEST_WORKSPACES)"
+              echo "Skipping tests for ${{ matrix.workspace }}"
               exit 0
             fi
           done
-          npm test --workspace=${{ matrix.workspace }} -- --coverage
+
+          # Run test if script exists; ignore if absent
+          if npm pkg get scripts.test --workspace=${{ matrix.workspace }} | grep -qv null; then
+            npm test --workspace=${{ matrix.workspace }} -- --coverage
+          else
+            echo "No test script for ${{ matrix.workspace }} – skipping."
+          fi
+
+      # ──────────────────────────────
+      # ↓ Upload coverage (always runs)
+      # ──────────────────────────────
       - name: Upload coverage to Codecov
-        if: ${{ always() }}
+        if: always()
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   # 2️⃣ Deploy to Staging (just connect + optional ping)
-  deploy-staging:
-    name: Deploy to Staging
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+  # deploy-staging:
+  #   name: Deploy to Staging
+  #   needs: build-and-test
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
 
-      - name: Authenticate with Supabase
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: npx supabase@latest login --service-role
+  #     - name: Authenticate with Supabase
+  #       env:
+  #         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  #         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  #       run: npx supabase@latest login --service-role
 
-      # ── SKIPPING MIGRATIONS ─────────────────────────────
-      # - name: Run DB migrations
-      #   run: supabase db push
-      # ───────────────────────────────────────────────────
+  #     # ── SKIPPING MIGRATIONS ─────────────────────────────
+  #     # - name: Run DB migrations
+  #     #   run: supabase db push
+  #     # ───────────────────────────────────────────────────
 
-      - name: (Optional) Ping DB
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }} # e.g. postgres://...
-        run: |
-          echo "select now();" | supabase db query --db-url "$SUPABASE_DB_URL"
+  #     - name: (Optional) Ping DB
+  #       env:
+  #         SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }} # e.g. postgres://...
+  #       run: |
+  #         echo "select now();" | supabase db query --db-url "$SUPABASE_DB_URL"
 
-      - name: Deploy Edge Functions (skip if none yet)
-        if: ${{ env.DEPLOY_EDGE_FUNCTIONS != 'false' }}
-        run: npx supabase@latest functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+  #     - name: Deploy Edge Functions (skip if none yet)
+  #       if: ${{ env.DEPLOY_EDGE_FUNCTIONS != 'false' }}
+  #       run: npx supabase@latest functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
 
   # 3️⃣ Deploy to Production (same pattern)
   # deploy-production:
