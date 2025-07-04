@@ -24,18 +24,36 @@ jobs:
         id: set-matrix
         run: |
           SKIP_TEST_WORKSPACES="apps/mobile apps/web"
+
+          # Get all workspace globs from package.json (as lines)
           workspaces=$(jq -r '.workspaces[]' package.json)
+
           dirs=()
           for glob in $workspaces; do
+            # Remove any blank lines, extra whitespace
+            glob=$(echo "$glob" | xargs)
+            [ -z "$glob" ] && continue
+
+            # Use 'find' for all matching subfolders (handle globs like apps/*)
             for dir in $glob; do
+              dir=$(echo "$dir" | xargs)
+              [ -z "$dir" ] && continue
               if [ -f "$dir/package.json" ]; then
                 dirs+=("$dir")
               fi
             done
           done
-          json_arr=$(printf '%s\n' "${dirs[@]}" | jq -R . | jq -s .)
+
+          # Remove duplicates and blanks (safety)
+          unique_dirs=($(printf "%s\n" "${dirs[@]}" | sort -u | grep -v '^$'))
+
+          # Create JSON array
+          json_arr=$(printf '%s\n' "${unique_dirs[@]}" | jq -R . | jq -s .)
+
+          # Output for GitHub Actions (no indentation, no leading spaces)
           echo "matrix=$json_arr" >> $GITHUB_OUTPUT
           echo "skip_test_workspaces=$SKIP_TEST_WORKSPACES" >> $GITHUB_OUTPUT
+
 
   build-and-test:
     name: Build, Lint, Typecheck & Test (All Workspaces)
