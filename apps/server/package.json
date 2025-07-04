@@ -11,7 +11,10 @@
     "start": "cross-env NODE_ENV=production tsx watch src/index.ts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,json,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,json,md}\"",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.41.0",

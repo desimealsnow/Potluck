@@ -9,9 +9,14 @@ export const createApp = () => {
   app.use(express.json());
 
   /* ---------- API namespaces ---------- */
-app.use('/api/v1/auth',      authRouter);
-app.use('/api/v1/events',    eventRoutes);   // items & participants come with it
-app.use('/api/v1/locations', locationRoutes);
+  app.use('/api/v1/auth',      authRouter);
+  app.use('/api/v1/events',    eventRoutes);   // items & participants come with it
+  app.use('/api/v1/locations', locationRoutes);
+
+  /* ---------- Health check route ---------- */
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+  });
 
   /* ---------- Global error handler ---------- */
   app.use(errorHandler);

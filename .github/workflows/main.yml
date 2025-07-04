@@ -88,25 +88,33 @@ jobs:
           npm run typecheck --workspace=${{ matrix.workspace }} || true
 
       # ──────────────────────────────
-      # ↓ Conditionally run tests
+      # ↓ Conditionally run Vitest
       # ──────────────────────────────
-      - name: Conditionally test
+      - name: Conditionally test with Vitest
         env:
           SKIP_TEST_WORKSPACES: ${{ needs.set-matrix.outputs.skip_test_workspaces }}
         run: |
-          # Skip if workspace is in the skip list
+          # Skip whole test phase for selected workspaces
           for skip in $SKIP_TEST_WORKSPACES; do
             if [ "$skip" = "${{ matrix.workspace }}" ]; then
-              echo "Skipping tests for ${{ matrix.workspace }}"
+              echo "▶︎  Skipping tests for ${{ matrix.workspace }}"
               exit 0
             fi
           done
 
-          # Run test if script exists; ignore if absent
-          if npm pkg get scripts.test --workspace=${{ matrix.workspace }} | grep -qv null; then
-            npm test --workspace=${{ matrix.workspace }} -- --coverage
+          # Prefer test:coverage → vitest run --coverage
+          if npm pkg get scripts.test:coverage --workspace=${{ matrix.workspace }} | grep -qv null; then
+            echo "▶︎  Running test:coverage in ${{ matrix.workspace }}"
+            npm run test:coverage --workspace=${{ matrix.workspace }}
+
+          # Fallback to plain test → vitest (add --coverage flag here)
+          elif npm pkg get scripts.test --workspace=${{ matrix.workspace }} | grep -qv null; then
+            echo "▶︎  Running test (with --coverage) in ${{ matrix.workspace }}"
+            npm run test --workspace=${{ matrix.workspace }} -- --coverage
+
+          # No test script defined
           else
-            echo "No test script for ${{ matrix.workspace }} – skipping."
+            echo "⚠︎  No test script for ${{ matrix.workspace }} – skipping."
           fi
 
       # ──────────────────────────────
