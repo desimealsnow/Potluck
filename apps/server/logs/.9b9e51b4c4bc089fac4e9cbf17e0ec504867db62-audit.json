@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Projects\\Potluck\\apps\\server\\logs\\.9b9e51b4c4bc089fac4e9cbf17e0ec504867db62-audit.json",
+    "files": [
+        {
+            "date": 1751608686637,
+            "name": "C:\\Projects\\Potluck\\apps\\server\\logs\\error-2025-07-04.log",
+            "hash": "9c9139060f481f987aecc009df3a8b6c3334160870196172e29d775ba0201873"
+        }
+    ],
+    "hashType": "sha256"
+}

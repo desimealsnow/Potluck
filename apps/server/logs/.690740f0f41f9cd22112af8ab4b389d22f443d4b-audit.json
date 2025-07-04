@@ -19,6 +19,11 @@
             "date": 1751261571687,
             "name": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\error-2025-06-30.log",
             "hash": "7bef01042dfea9183204fb34a53b72de5916744593f6f374e06f6691780811fb"
+        },
+        {
+            "date": 1751608245040,
+            "name": "C:\\Projects\\Potluck\\potluck-app\\apps\\server\\logs\\error-2025-07-04.log",
+            "hash": "71185fe61380fdd06a20d7d2c37bd555ec57dcf96f8a9603efdb3c008cd1fecd"
         }
     ],
     "hashType": "sha256"
