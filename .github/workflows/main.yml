@@ -90,48 +90,68 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  # 2️⃣ Deploy to Staging (just connect + optional ping)
   deploy-staging:
     name: Deploy to Staging
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Supabase CLI
-        run: npm install -g supabase
 
       - name: Authenticate with Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: supabase login --service-role
+        run: npx supabase@latest login --service-role
 
-      - name: Run DB migrations
-        run: supabase db push
+      # ── SKIPPING MIGRATIONS ─────────────────────────────
+      # - name: Run DB migrations
+      #   run: supabase db push
+      # ───────────────────────────────────────────────────
 
-      - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-
-  deploy-production:
-    name: Deploy to Production
-    needs: build-and-test
-    if: startsWith(github.ref, 'refs/heads/release/')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Supabase CLI
-        run: npm install -g supabase
-
-      - name: Authenticate with Supabase
+      - name: (Optional) Ping DB
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: supabase login --service-role
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }} # e.g. postgres://...
+        run: |
+          echo "select now();" | supabase db query --db-url "$SUPABASE_DB_URL"
 
-      - name: Run DB migrations
-        run: supabase db push --production
+      - name: Deploy Edge Functions (skip if none yet)
+        if: ${{ env.DEPLOY_EDGE_FUNCTIONS != 'false' }}
+        run: npx supabase@latest functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
 
-      - name: Deploy Edge Functions
-        run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --production
+  # 3️⃣ Deploy to Production (same pattern)
+  # deploy-production:
+  #   name: Deploy to Production
+  #   needs: build-and-test
+  #   if: startsWith(github.ref, 'refs/heads/release/')
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Install Supabase CLI
+  #       run: npm install -g supabase
+
+  #     - name: Authenticate with Supabase
+  #       env:
+  #         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  #         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  #       run: supabase login --service-role
+
+  #     # ── SKIPPING MIGRATIONS FOR NOW ─────────────────────
+  #     # - name: Run DB migrations
+  #     #   run: supabase db push --production
+  #     # ───────────────────────────────────────────────────
+
+  #     - name: (Optional) Ping DB
+  #       env:
+  #         SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+  #       run: |
+  #         echo "select now();" | supabase db query --db-url "$SUPABASE_DB_URL"
+
+  #     - name: Deploy Edge Functions (skip if none yet)
+  #       if: ${{ env.DEPLOY_EDGE_FUNCTIONS != 'false' }}
+  #       run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --production
