@@ -2,11 +2,11 @@
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {
-    "start:server": "npm start  -w @potluck/server",
-    "start:mobile": "npm start  -w @potluck/mobile",
+    "start:server": "npm start  -w apps/server",
+    "start:mobile": "npm start  -w apps/mobile",
 
-    "dev:server":   "npm run dev -w @potluck/server",
-    "dev:mobile":   "npm run start -w @potluck/mobile",   
+    "dev:server":   "npm run dev -w apps/server",
+    "dev:mobile":   "npm run start -w apps/mobile",   
 
     "dev": "npm-run-all --parallel dev:server dev:mobile"
   },
