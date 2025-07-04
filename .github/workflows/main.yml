@@ -20,16 +20,21 @@ jobs:
       skip_test_workspaces: ${{ steps.set-matrix.outputs.skip_test_workspaces }}
     steps:
       - uses: actions/checkout@v3
-
       - name: Set workspaces test matrix
         id: set-matrix
         run: |
-          # Space-separated list of workspaces to skip tests for
           SKIP_TEST_WORKSPACES="apps/mobile apps/web"
-          workspaces=$(jq -r '.workspaces[]' package.json | sed 's/\*\*/\*/g')
-          pkgs=$(find $workspaces -type f -name package.json | grep -v node_modules | xargs dirname)
-          arr=$(echo $pkgs | jq -R 'split(" ")')
-          echo "matrix=$arr" >> $GITHUB_OUTPUT
+          workspaces=$(jq -r '.workspaces[]' package.json)
+          dirs=()
+          for glob in $workspaces; do
+            for dir in $glob; do
+              if [ -f "$dir/package.json" ]; then
+                dirs+=("$dir")
+              fi
+            done
+          done
+          json_arr=$(printf '%s\n' "${dirs[@]}" | jq -R . | jq -s .)
+          echo "matrix=$json_arr" >> $GITHUB_OUTPUT
           echo "skip_test_workspaces=$SKIP_TEST_WORKSPACES" >> $GITHUB_OUTPUT
 
   build-and-test:
