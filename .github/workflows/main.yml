@@ -28,7 +28,7 @@ jobs:
           ############################################################
           # 1.  Workspaces to SKIP when running tests
           ############################################################
-          SKIP_TEST_WORKSPACES="apps/mobile apps/web apps/server"
+          SKIP_TEST_WORKSPACES="apps/mobile apps/web"
           echo "skip_test_workspaces=${SKIP_TEST_WORKSPACES}" >> "$GITHUB_OUTPUT"
 
           ############################################################
