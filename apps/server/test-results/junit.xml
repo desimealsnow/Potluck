@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="7" failures="3" errors="0" time="14.2143029">
+    <testsuite name="tests/health.spec.ts" timestamp="2025-07-08T13:33:39.417Z" hostname="RNEROLU-4QWSW74" tests="1" failures="0" errors="0" skipped="0" time="0.0239412">
+        <testcase classname="tests/health.spec.ts" name="GET /health &gt; returns 200 OK" time="0.0218849">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/events/create.spec.ts" timestamp="2025-07-08T13:33:39.421Z" hostname="RNEROLU-4QWSW74" tests="2" failures="0" errors="0" skipped="0" time="6.6713425">
+        <testcase classname="tests/events/create.spec.ts" name="Events – full lifecycle &gt; GET /events/:id → matches schema &amp; data" time="1.19546">
+            <system-out>
+🛡️ authGuard invoked
+🔔 Route hit: GET /events/:eventId, User: 4ef45fca-6a44-4bde-b699-5ebc9158b2e0
+
+2025-07-08 19:03:34 [[34MDEBUG[39M]: [EventService] DB sees user {&quot;id&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;}
+
+2025-07-08 19:03:35 [[32MINFO[39M]: [EventService] getEventDetails success {&quot;eventId&quot;:&quot;a111349f-49ff-4fa5-9a0f-ee8900280bbd&quot;}
+
+2025-07-08 19:03:35 [[32MINFO[39M]: GET response {&quot;event&quot;:{&quot;id&quot;:&quot;a111349f-49ff-4fa5-9a0f-ee8900280bbd&quot;,&quot;title&quot;:&quot;a&quot;,&quot;description&quot;:&quot;alius&quot;,&quot;event_date&quot;:&quot;2019-08-24T14:15:22+00:00&quot;,&quot;min_guests&quot;:1,&quot;max_guests&quot;:9,&quot;meal_type&quot;:&quot;veg&quot;,&quot;attendee_count&quot;:1,&quot;created_by&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;,&quot;location&quot;:{&quot;name&quot;:&quot;ab&quot;,&quot;latitude&quot;:9,&quot;longitude&quot;:4,&quot;formatted_address&quot;:&quot;solitudo&quot;}},&quot;items&quot;:[{&quot;id&quot;:&quot;dcaea347-f640-4c7b-a9df-e4f12887106f&quot;,&quot;name&quot;:&quot;tepesco&quot;,&quot;category&quot;:&quot;sum&quot;,&quot;assigned_to&quot;:null,&quot;required_qty&quot;:0.01,&quot;per_guest_qty&quot;:0.01}],&quot;participants&quot;:[{&quot;id&quot;:&quot;2d7e3be2-751c-4824-a9e7-8e2f5429acf8&quot;,&quot;status&quot;:&quot;accepted&quot;,&quot;user_id&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;,&quot;joined_at&quot;:&quot;2025-07-08T13:33:35.263574+00:00&quot;}]}
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/events/create.spec.ts" name="Events – full lifecycle &gt; DELETE /events/:id → 204" time="2.1153074">
+            <system-out>
+🛡️ authGuard invoked
+🔔 Route hit: DELETE /events/:eventId, User: 4ef45fca-6a44-4bde-b699-5ebc9158b2e0
+2025-07-08 19:03:35 [[32MINFO[39M]: [EventService] deleteEvent {&quot;eventId&quot;:&quot;a111349f-49ff-4fa5-9a0f-ee8900280bbd&quot;,&quot;actorId&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;}
+
+2025-07-08 19:03:36 [[32MINFO[39M]: [EventService] Event deleted {&quot;eventId&quot;:&quot;a111349f-49ff-4fa5-9a0f-ee8900280bbd&quot;}
+
+2025-07-08 19:03:36 [[32MINFO[39M]: DELETE response {&quot;status&quot;:204}
+
+🛡️ authGuard invoked
+🔔 Route hit: GET /events/:eventId, User: 4ef45fca-6a44-4bde-b699-5ebc9158b2e0
+
+2025-07-08 19:03:37 [[34MDEBUG[39M]: [EventService] DB sees user {&quot;id&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;}
+
+2025-07-08 19:03:37 [[33MWARN[39M]: [EventService] Event not found {&quot;eventId&quot;:&quot;a111349f-49ff-4fa5-9a0f-ee8900280bbd&quot;,&quot;error&quot;:null}
+
+            </system-out>
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/events/rls.spec.ts" timestamp="2025-07-08T13:33:39.447Z" hostname="RNEROLU-4QWSW74" tests="2" failures="1" errors="0" skipped="0" time="4.6970736">
+        <testcase classname="tests/events/rls.spec.ts" name="Events – RLS &gt; 403 when non-owner updates event" time="0.3350831">
+            <failure message="expected 404 to be 403 // Object.is equality" type="AssertionError">
+AssertionError: expected 404 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 404
+
+ ❯ tests/events/rls.spec.ts:53:24
+            </failure>
+        </testcase>
+        <testcase classname="tests/events/rls.spec.ts" name="Events – RLS &gt; DELETE /events/:id → 204" time="1.0222275">
+            <system-out>
+🛡️ authGuard invoked
+🔔 Route hit: DELETE /events/:eventId, User: 4ef45fca-6a44-4bde-b699-5ebc9158b2e0
+2025-07-08 19:03:29 [[32MINFO[39M]: [EventService] deleteEvent {&quot;eventId&quot;:&quot;6d6364c9-a1a4-4989-8e31-dcfe3819eb6a&quot;,&quot;actorId&quot;:&quot;4ef45fca-6a44-4bde-b699-5ebc9158b2e0&quot;}
+
+2025-07-08 19:03:29 [[32MINFO[39M]: [EventService] Event deleted {&quot;eventId&quot;:&quot;6d6364c9-a1a4-4989-8e31-dcfe3819eb6a&quot;}
+
+2025-07-08 19:03:29 [[32MINFO[39M]: RLS DELETE response {&quot;status&quot;:204}
+
+            </system-out>
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/events/validation.spec.ts" timestamp="2025-07-08T13:33:39.451Z" hostname="RNEROLU-4QWSW74" tests="2" failures="2" errors="0" skipped="0" time="2.8219456">
+        <testcase classname="tests/events/validation.spec.ts" name="Events – validation &gt; 400 when required fields missing" time="0.4596896">
+            <system-out>
+2025-07-08 19:03:23 [[34MDEBUG[39M]: [AUTH] Owner sign-in succeeded: ramesh1@gmail.com 
+
+            </system-out>
+            <failure message="expected 404 to be 400 // Object.is equality" type="AssertionError">
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/events/validation.spec.ts:12:24
+            </failure>
+        </testcase>
+        <testcase classname="tests/events/validation.spec.ts" name="Events – validation &gt; 400 on invalid UUID param" time="0.5555465">
+            <system-out>
+2025-07-08 19:03:24 [[34MDEBUG[39M]: [AUTH] Owner sign-in succeeded: ramesh1@gmail.com 
+
+            </system-out>
+            <failure message="expected 404 to be 400 // Object.is equality" type="AssertionError">
+AssertionError: expected 404 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 404
+
+ ❯ tests/events/validation.spec.ts:21:24
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>

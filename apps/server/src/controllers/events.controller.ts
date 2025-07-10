@@ -32,15 +32,19 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
 export const getEvent = async (req: AuthenticatedRequest, res: Response) => {
   const { eventId } = req.params;
 
+  // authGuard guarantees req.user, but double-check:
   if (!req.user?.id) {
     return res.status(401).json({ ok: false, error: 'Unauthorized', code: '401' });
   }
 
-  const result = await EventService.getEventDetails(eventId, req.user.id);
+  // Extract bearer token exactly once
+  const authHeader = req.headers.authorization || '';
+  const jwt = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
 
-  if (result.ok) return res.json(result.data);     // 200 OK with EventFull payload
+  const result = await EventService.getEventDetails(eventId, jwt);
 
-  return handle(res, result);                      // 404 / 403 etc. via helper
+  if (result.ok) return res.json(result.data);           // 200  ✓
+  return handle(res, result);                            // 4xx / 5xx
 };
 /** GET /events  – list events the caller can see (host or participant) */
 export const listEvents = async (req: AuthenticatedRequest, res: Response) => {

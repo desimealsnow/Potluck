@@ -1,6 +1,7 @@
 import { PostgrestError } from '@supabase/supabase-js';
 import { Response }       from 'express';
 import {GuardResult} from '../utils/eventGuards';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 
 export type ErrorCode = '400' | '401' | '403' | '404' | '409' | '500';
@@ -8,6 +9,7 @@ export interface ServiceError {
   ok: false;
   error: string;
   code?: ErrorCode;
+  details?: unknown;  
 }
 
 /** Success shape */
@@ -68,13 +70,28 @@ export function handle<T>(
   result: ServiceResult<T>,
   successStatus = 200
 ) {
+  /* ✅  Success branch unchanged */
   if (result.ok) {
     return res.status(successStatus).json(result.data);
   }
-  const code = result.code ?? '500';
-  return res
-    .status(httpStatus(code))
-    .json({ ok: false, error: result.error, code });
+
+  /* 🚨  Error branch */
+  const codeStr = result.code ?? '500';
+  const status  = httpStatus(codeStr);
+
+  /* base payload */
+  const payload: Record<string, unknown> = {
+    ok:    false,
+    error: result.error,
+    code:  codeStr
+  };
+
+  /* attach details for 5xx errors (or any time you added them) */
+  if (status >= 500 && 'details' in result && result.details !== undefined) {
+    payload.details = result.details;
+  }
+
+  return res.status(status).json(payload);
 }
 
 
@@ -93,6 +110,20 @@ export function handleResult<T>(res: Response, result: ServiceResult<T>) {
     return res.status(status).json({ ok: false, error: result.error, code: result.code });
   }
   return res.json(result.data);
+}
+
+export async function mustFindOne<T>(
+  query: PostgrestFilterBuilder<any, any, T[]>
+): Promise<ServiceResult<T>> {
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    return { ok: false, error: error.message, code: '500', details: error };
+  }
+  if (!data) {
+    return { ok: false, error: 'Not found', code: '404' };
+  }
+  return { ok: true, data };
 }
 
 export default 'toDbColumns';

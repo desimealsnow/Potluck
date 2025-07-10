@@ -1313,7 +1313,6 @@ export interface components {
             password: string;
         };
         Location: {
-            place_id?: string;
             name: string;
             formatted_address?: string;
             latitude?: number;
@@ -1339,7 +1338,10 @@ export interface components {
             /** Format: uuid */
             eventId: string;
         };
-        EventCreate: {
+        EventCreate: components["schemas"]["EventBase"] & {
+            items: components["schemas"]["ItemCreate"][];
+        };
+        EventBase: {
             title: string;
             description?: string;
             /** Format: date-time */
@@ -1349,7 +1351,6 @@ export interface components {
             /** @enum {string} */
             meal_type: "veg" | "nonveg" | "mixed";
             location: components["schemas"]["Location"];
-            items: components["schemas"]["ItemCreate"][];
         };
         EventWithItems: {
             event?: Record<string, never>;
@@ -1372,7 +1373,7 @@ export interface components {
         };
         /** @enum {string} */
         EventStatus: "draft" | "published" | "cancelled" | "completed";
-        EventCore: components["schemas"]["EventCreate"] & {
+        EventCore: components["schemas"]["EventBase"] & {
             /** Format: uuid */
             id: string;
             attendee_count: number;
@@ -1409,8 +1410,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             required_qty: number;
-            /** Format: uuid */
-            assigned_to?: string;
+            assigned_to?: string | null;
         };
         BillingPlan: {
             id: string;

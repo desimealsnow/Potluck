@@ -13,11 +13,21 @@ const Login = z
   .passthrough();
 const Location = z
   .object({
-    place_id: z.string().optional(),
     name: z.string(),
     formatted_address: z.string().optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
+  })
+  .passthrough();
+const EventBase = z
+  .object({
+    title: z.string(),
+    description: z.string().optional(),
+    event_date: z.string().datetime({ offset: true }),
+    min_guests: z.number().int().gte(1),
+    max_guests: z.number().int().optional(),
+    meal_type: z.enum(["veg", "nonveg", "mixed"]),
+    location: Location,
   })
   .passthrough();
 const ItemCreate = z
@@ -27,18 +37,9 @@ const ItemCreate = z
     per_guest_qty: z.number().gte(0.01),
   })
   .passthrough();
-const EventCreate = z
-  .object({
-    title: z.string(),
-    description: z.string().optional(),
-    event_date: z.string().datetime({ offset: true }),
-    min_guests: z.number().int().gte(1),
-    max_guests: z.number().int().optional(),
-    meal_type: z.enum(["veg", "nonveg", "mixed"]),
-    location: Location,
-    items: z.array(ItemCreate),
-  })
-  .passthrough();
+const EventCreate = EventBase.and(
+  z.object({ items: z.array(ItemCreate) }).passthrough()
+);
 const EventWithItems = z
   .object({
     event: z.object({}).partial().passthrough(),
@@ -66,7 +67,7 @@ const PaginatedEventSummary = z
   })
   .partial()
   .passthrough();
-const EventCore = EventCreate.and(
+const EventCore = EventBase.and(
   z
     .object({
       id: z.string().uuid(),
@@ -80,7 +81,7 @@ const Item = ItemCreate.and(
     .object({
       id: z.string().uuid(),
       required_qty: z.number(),
-      assigned_to: z.string().uuid().optional(),
+      assigned_to: z.union([z.string(), z.null()]).optional(),
     })
     .passthrough()
 );
@@ -176,6 +177,7 @@ export const schemas = {
   SignUp,
   Login,
   Location,
+  EventBase,
   ItemCreate,
   EventCreate,
   EventWithItems,

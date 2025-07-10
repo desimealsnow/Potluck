@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Vitest Tests",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "--no-file-parallelism"],          // ⬅️   flag removed
+      "cwd": "${workspaceFolder}/apps/server",
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "test",
+        "VITEST_DISABLE_THREADS": "1"
+      },
+      "runtimeArgs": ["--inspect-brk"]                    // ⬅️  hand the flag to **Node**
+    }
+  ]
+}

@@ -589,7 +589,6 @@ components:
       type: object
       required: [name]
       properties:
-        place_id: { type: string }
         name: { type: string }
         formatted_address: { type: string }
         latitude: { type: number }
@@ -628,8 +627,17 @@ components:
         eventId: { type: string, format: uuid }
 
     EventCreate:
+      allOf:
+        - $ref: "#/components/schemas/EventBase"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: { $ref: "#/components/schemas/ItemCreate" }
+    EventBase:
       type: object
-      required: [title, event_date, min_guests, meal_type, location, items]
+      required: [title, event_date, min_guests, meal_type, location]
       properties:
         title: { type: string }
         description: { type: string }
@@ -638,10 +646,6 @@ components:
         max_guests: { type: integer }
         meal_type: { type: string, enum: [veg, nonveg, mixed] }
         location: { $ref: "#/components/schemas/Location" }
-        items:
-          type: array
-          items: { $ref: "#/components/schemas/ItemCreate" }
-
     EventWithItems:
       type: object
       properties:
@@ -675,14 +679,13 @@ components:
       enum: [draft, published, cancelled, completed]
     EventCore:
       allOf:
-        - $ref: "#/components/schemas/EventCreate"
+        - $ref: "#/components/schemas/EventBase"
         - type: object
           required: [id, attendee_count, created_by]
           properties:
             id: { type: string, format: uuid }
             attendee_count: { type: integer }
             created_by: { type: string, format: uuid }
-
     EventFull:
       type: object
       required: [event, items, participants]
@@ -735,11 +738,20 @@ components:
       allOf:
         - $ref: "#/components/schemas/ItemCreate"
         - type: object
-          required: [id, required_qty]
+          required:
+            - id
+            - required_qty          # ← assigned_to no longer required
           properties:
-            id: { type: string, format: uuid }
-            required_qty: { type: number }
-            assigned_to: { type: string, format: uuid }
+            id:
+              type: string
+              format: uuid
+            required_qty:
+              type: number
+            assigned_to:
+              oneOf:                 # ← OpenAPI 3.1 ‘nullable’ pattern
+                - type: string
+                  format: uuid
+                - type: "null"
     BillingPlan:
       type: object
       required: [id, name, amount_cents, currency, interval]

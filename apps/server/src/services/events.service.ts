@@ -1,12 +1,12 @@
 import { supabase } from '../config/supabaseClient';
 import { addHost } from '../services/participants.service';
-import { resolveLocation } from './locations.service';
 import debug from 'debug';
 import logger from '../logger';
 import {ServiceResult,mapDbError, ServiceError,toDbColumns} from "../utils/helper";
 import { schemas }  from '../validators';           // <- generated Zod objects
 
 import { components } from '../../../../libs/common/src/types.gen';
+import { createClient } from '@supabase/supabase-js';
 type CreateEventInput  = components['schemas']['EventCreate'];
 type ItemCreateInput   = components['schemas']['ItemCreate'];
 type EventFull = components['schemas']['EventFull'];
@@ -65,34 +65,71 @@ export async function assignItem(itemId: string, userId: string | null) {
     .single();
 }
 
+
 export async function getEventDetails(
   eventId: string,
-  userId: string // authGuard gives us this
+  jwt?: string                    // token now OPTIONAL
 ): Promise<ServiceResult<EventFull>> {
-  logger.info('[EventService] getEventDetails start:', { eventId, userId });
+  /* 1️⃣ Build a Supabase client.
+        - If jwt is present  → user-scoped client (RLS enforced)
+        - Else              → service-role client (bypass RLS, backend-only) */
 
-  // Pull event + location + items + participants
+  const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    jwt
+      ? process.env.SUPABASE_ANON_KEY!          // anon key + user token
+      : process.env.SUPABASE_SERVICE_ROLE_KEY!, // backend fallback
+    jwt
+      ? { global: { headers: { Authorization: `Bearer ${jwt}` } } }
+      : undefined
+  );
+
+  /* 2️⃣  (optional) log the identity PostgREST sees */
+  if (jwt) {
+    const { data: { user }, error } = await supabase.auth.getUser(jwt);
+    if (error) logger.warn('[EventService] getUser error', { error });
+
+    logger.debug('[EventService] DB sees user', { id: user?.id });
+  } else {
+    logger.debug('[EventService] Using service-role key (no RLS)');
+  }
+
+
+  /* 3️⃣  Deep-select event + relations */
   const { data, error } = await supabase
     .from('events')
     .select(`
       id, created_by, title, description, event_date, min_guests, max_guests,
       meal_type, attendee_count,
-      location:locations(place_id, name, formatted_address, latitude, longitude),
-      items:event_items(id, name, category, per_guest_qty, required_qty,
-                        unit, assigned_to),
-      participants:event_participants(
+      location:locations (
+         name, formatted_address, latitude, longitude
+      ),
+      items:event_items (
+        id, name, category, per_guest_qty, required_qty, assigned_to
+      ),
+      participants:event_participants (
         id, user_id, status, joined_at
       )
     `)
     .eq('id', eventId)
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
-    logger.warn('[EventService] Event not found', { eventId });
+    /* 👉 1️⃣  real DB / PostgREST error */
+  if (error && error.code !== 'PGRST116') {
+    logger.error('[EventService] DB error', { eventId, error });
+    return {
+      ok:   false,
+      code: '500',                   // or error.code (42703) if you prefer
+      error: error.message ?? 'Database error',
+      details: error                 // keep the whole object for controller
+    };
+  }
+  if (!data) {
+    logger.warn('[EventService] Event not found', { eventId, error });
     return { ok: false, error: 'Event not found', code: '404' };
   }
 
-  // Assemble result to match the OpenAPI schema
+  /* 4️⃣  Assemble payload */
   const response: EventFull = {
     event: {
       id: data.id,
@@ -104,8 +141,7 @@ export async function getEventDetails(
       meal_type: data.meal_type,
       attendee_count: data.attendee_count,
       created_by: data.created_by,
-      location: Array.isArray(data.location) ? data.location[0] : data.location,
-      items: data.items ?? []
+      location: Array.isArray(data.location) ? data.location[0] : data.location
     },
     items: data.items ?? [],
     participants: data.participants ?? []
@@ -114,6 +150,7 @@ export async function getEventDetails(
   logger.info('[EventService] getEventDetails success', { eventId });
   return { ok: true, data: response };
 }
+
 
 
 
@@ -325,7 +362,7 @@ export async function updateEventDetails(
 
   // 5. Fetch latest event with items and participants
   // (reuse your existing getEventDetails for this step)
-  const fullEvent = await getEventDetails(eventId, actorId);
+  const fullEvent = await getEventDetails(eventId);
   if (!fullEvent.ok) {
     logger.warn('Event updated, but unable to fetch full details', { eventId });
     return { ok: true, data: null as any }; // Optionally return the partial event data
@@ -386,7 +423,7 @@ export async function publishEvent(
   }
 
   // 5️⃣ Return full event details (use your existing getEventDetails)
-  const result = await getEventDetails(eventId, actorId);
+  const result = await getEventDetails(eventId);
   if (!result.ok) return result;
 
   return { ok: true, data: result.data };
@@ -459,7 +496,7 @@ export async function cancelEvent(
   }
 
   // 7️⃣ Return full event details
-  const result = await getEventDetails(eventId, actorId);
+  const result = await getEventDetails(eventId);
   if (!result.ok) return result;
 
   return { ok: true, data: result.data };
@@ -519,7 +556,7 @@ export async function completeEvent(
   }
 
   // 5️⃣ Return full event details
-  const result = await getEventDetails(eventId, actorId);
+  const result = await getEventDetails(eventId);
   if (!result.ok) return result;
 
   return { ok: true, data: result.data };
@@ -562,16 +599,19 @@ export async function deleteEvent(
   }
 
   // 4️⃣ Delete the event
-  const { error: delErr } = await supabase
-    .from('events')
-    .delete()
-    .eq('id', eventId);
+const { data: delRows, error: delErr, count } = await supabase
+  .from('events')
+  .delete({ count: 'exact' })
+  .eq('id', eventId)
+  .select('id');                 // Prefer: return=representation
 
   if (delErr) {
     logger.error('[EventService] Failed to delete event', { eventId, delErr });
     return { ok: false, error: delErr.message || 'Delete failed', code: '500' };
   }
-
+  if (!count) {                    // nothing deleted
+    return { ok: false, error: 'Forbidden or not found', code: '404' };
+  }
   logger.info('[EventService] Event deleted', { eventId });
   return { ok: true, data: null };
 }
@@ -672,7 +712,7 @@ export async function restoreEvent(
   }
 
   // 5. Return full event details
-  const result = await getEventDetails(eventId, actorId);
+  const result = await getEventDetails(eventId);
   if (!result.ok) return result;
 
   return { ok: true, data: result.data };

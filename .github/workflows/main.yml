@@ -92,6 +92,8 @@ jobs:
       # ──────────────────────────────
       - name: Conditionally test with Vitest
         env:
+          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+          TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_ROLE_KEY }}          
           SKIP_TEST_WORKSPACES: ${{ needs.set-matrix.outputs.skip_test_workspaces }}
         run: |
           # Skip whole test phase for selected workspaces

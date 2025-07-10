@@ -39,7 +39,6 @@ router
   .route('/:eventId')
   .get(
     authGuard,
-    validate(schemas.EventIdParam),              // `{ eventId: uuid }`
     routeLogger('GET /events/:eventId'),
     E.getEvent
   )
