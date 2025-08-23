@@ -206,7 +206,7 @@ export const schemas = {
   EventIdParam,
 };
 
-const endpoints = makeApi([
+export const endpoints = makeApi([
   {
     method: "get",
     path: "/_internal/schema-id-param",
