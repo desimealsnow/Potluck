@@ -26,6 +26,9 @@ const EventBase = z
     event_date: z.string().datetime({ offset: true }),
     min_guests: z.number().int().gte(1),
     max_guests: z.number().int().optional(),
+    status: z
+      .enum(["draft", "published", "cancelled", "completed", "purged"])
+      .optional(),
     meal_type: z.enum(["veg", "nonveg", "mixed"]),
     location: Location,
   })
@@ -352,7 +355,7 @@ Stripe signs the payload; verify in the handler.
         name: "status",
         type: "Query",
         schema: z
-          .enum(["draft", "published", "cancelled", "completed"])
+          .enum(["draft", "published", "cancelled", "completed", "purged"])
           .optional(),
       },
       {

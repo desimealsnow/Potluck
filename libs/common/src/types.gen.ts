@@ -1349,6 +1349,8 @@ export interface components {
             min_guests: number;
             max_guests?: number;
             /** @enum {string} */
+            status?: "draft" | "published" | "cancelled" | "completed" | "purged";
+            /** @enum {string} */
             meal_type: "veg" | "nonveg" | "mixed";
             location: components["schemas"]["Location"];
         };
@@ -1372,7 +1374,7 @@ export interface components {
             totalCount?: number;
         };
         /** @enum {string} */
-        EventStatus: "draft" | "published" | "cancelled" | "completed";
+        EventStatus: "draft" | "published" | "cancelled" | "completed" | "purged";
         EventCore: components["schemas"]["EventBase"] & {
             /** Format: uuid */
             id: string;

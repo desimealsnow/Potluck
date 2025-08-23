@@ -6,15 +6,30 @@
       "request": "launch",
       "name": "Debug Vitest Tests",
       "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
-      "args": ["run", "--no-file-parallelism"],          // ⬅️   flag removed
+      "args": [
+        "run",
+        "tests/events/lifecycle.spec.ts",   
+        "--no-file-parallelism"                        
+      ],
       "cwd": "${workspaceFolder}/apps/server",
-      "autoAttachChildProcesses": true,
-      "console": "integratedTerminal",
       "env": {
         "NODE_ENV": "test",
         "VITEST_DISABLE_THREADS": "1"
       },
-      "runtimeArgs": ["--inspect-brk"]                    // ⬅️  hand the flag to **Node**
+      "runtimeArgs": ["--inspect-brk"]   ,                    
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch API (ts-node-dev)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "dev:debug", "--workspace", "apps/server"],
+      "cwd": "${workspaceFolder}",
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

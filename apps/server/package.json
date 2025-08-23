@@ -6,15 +6,18 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch src/index.ts",
-    "debug": "cross-env DEBUG=potluck:* NODE_ENV=development tsx watch --inspect src/index.ts",
+    "dev:debug": "cross-env NODE_ENV=development tsx watch --inspect-brk src/index.ts",
+
     "build": "tsc -p tsconfig.json",
-    "start": "cross-env NODE_ENV=production tsx watch src/index.ts",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
+
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,json,md}\"",
+
     "test": "cross-env NODE_ENV=test vitest",
     "test:ui": "cross-env NODE_ENV=test vitest --ui",
-    "test:debug":   "cross-env NODE_ENV=test VITEST_DISABLE_THREADS=1 vitest run --inspect-brk",
+    "test:debug": "cross-env NODE_ENV=test vitest run --inspect-brk --no-file-parallelism",
     "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
   },
   "dependencies": {

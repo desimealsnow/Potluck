@@ -644,6 +644,7 @@ components:
         event_date: { type: string, format: date-time }
         min_guests: { type: integer, minimum: 1 }
         max_guests: { type: integer }
+        status: { type: string, enum: [draft, published, cancelled, completed, purged] }
         meal_type: { type: string, enum: [veg, nonveg, mixed] }
         location: { $ref: "#/components/schemas/Location" }
     EventWithItems:
@@ -676,7 +677,7 @@ components:
           type: integer
     EventStatus:
       type: string
-      enum: [draft, published, cancelled, completed]
+      enum: [draft, published, cancelled, completed, purged]
     EventCore:
       allOf:
         - $ref: "#/components/schemas/EventBase"

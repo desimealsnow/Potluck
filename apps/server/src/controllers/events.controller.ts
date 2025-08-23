@@ -43,7 +43,7 @@ export const getEvent = async (req: AuthenticatedRequest, res: Response) => {
 
   const result = await EventService.getEventDetails(eventId, jwt);
 
-  if (result.ok) return res.json(result.data);           // 200  ✓
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
   return handle(res, result);                            // 4xx / 5xx
 };
 /** GET /events  – list events the caller can see (host or participant) */
@@ -73,7 +73,7 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
   const result = await EventService.listEvents(req.user.id, params);
 
   /*── Respond ───────────────────────────────────────────────────────────────*/
-  if (result.ok) return res.json(result.data);   // 200 with PaginatedEventSummary
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);                    // 400 / 403 etc. via helper
 };
@@ -94,7 +94,7 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
     payload
   );
 
-  if (result.ok) return res.json(result.data);    // 200 OK with updated EventFull
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);                     // 400 / 403 / 404 / 409 via helper
 };
@@ -108,8 +108,7 @@ export const publishEvent = async (req: AuthenticatedRequest, res: Response) => 
   }
 
   const result = await EventService.publishEvent(eventId, req.user.id);
-
-  if (result.ok) return res.json(result.data);      // 200 with EventFull
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);                       // error → mapped status & JSON
 };
@@ -126,7 +125,7 @@ export const cancelEvent = async (req: AuthenticatedRequest, res: Response) => {
 
   const result = await EventService.cancelEvent(eventId, req.user.id, payload);
 
-  if (result.ok) return res.json(result.data);    // 200 with EventFull
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);                     // error → mapped status & JSON
 };
@@ -142,7 +141,7 @@ export const completeEvent = async (req: AuthenticatedRequest, res: Response) =>
 
   const result = await EventService.completeEvent(eventId, req.user.id);
 
-  if (result.ok) return res.json(result.data);    // 200 with EventFull
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);                     // error → mapped status & JSON
 };
@@ -193,7 +192,7 @@ export const restoreEvent = async (req: AuthenticatedRequest, res: Response) => 
 
   const result = await EventService.restoreEvent(eventId, req.user.id);
 
-  if (result.ok) return res.json(result.data);
+  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
   return handle(res, result);
 };
