@@ -1,2 +1,27 @@
 node_modules
 apps/server/logs/
+<<<<<<< Current (Your changes)
+=======
+logs/
+
+# builds
+dist/
+coverage/
+
+# test artefacts
+test-results/
+apps/*/test-results/
+
+# environment files
+.env
+.env.*
+
+# editor/OS
+.DS_Store
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+
+# Supabase local temp
+supabase/.temp/
+>>>>>>> Incoming (Background Agent changes)
