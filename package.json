@@ -1,17 +1,16 @@
 {
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "libs/*"
   ],
   "scripts": {
     "start:server": "npm start -w apps/server",
-    "start:mobile": "npm start -w apps/mobile",
 
     "dev:server": "npm run dev -w apps/server",
     "debug:server": "npm run dev:debug -w apps/server",
 
-    "dev:mobile": "npm run start -w apps/mobile",
-    "dev": "npm-run-all --parallel dev:server dev:mobile",
+    "dev": "npm run dev -w apps/server",
 
     "test:server": "npm test -w apps/server",
     "test:debug": "npm run test:debug -w apps/server --",
