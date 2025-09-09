@@ -3,6 +3,9 @@ import { existsSync } from 'fs';
 import { resolve } from 'path';
 import { config as loadDotEnv } from 'dotenv';
 import 'dotenv/config';
+
+
+
 const testEnvPath = resolve(__dirname, '../../.env.test');
 const defaultEnvPath = resolve(__dirname, '../../.env');
 

@@ -57,6 +57,7 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
     limit        = '20',
     offset       = '0',
     status,
+    ownership,
     startsAfter,
     startsBefore,
   } = req.query as Record<string, string>;
@@ -65,6 +66,7 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
     limit:        Number(limit),
     offset:       Number(offset),
     status:       status as any,         // 'draft' | 'published' | 'cancelled' | 'completed' | undefined
+    ownership,                           // 'all' | 'mine' | 'invited' | undefined
     startsAfter,
     startsBefore,
   };

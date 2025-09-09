@@ -2,19 +2,15 @@
   "name": "potluck-server",
   "version": "0.1.0",
   "description": "Express API for the Potluck application (Supabase backend)",
-  "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "dev:debug": "cross-env NODE_ENV=development tsx watch --inspect-brk src/index.ts",
-
     "build": "tsc -p tsconfig.json",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,json,md}\"",
-
     "test": "cross-env NODE_ENV=test vitest",
     "test:ui": "cross-env NODE_ENV=test vitest --ui",
     "test:debug": "cross-env NODE_ENV=test vitest run --inspect-brk --no-file-parallelism",
@@ -24,6 +20,7 @@
     "@repo/common": "^0.1.0",
     "@supabase/supabase-js": "^2.41.0",
     "@zodios/core": "^10.9.6",
+    "cors": "^2.8.5",
     "debug": "^4.4.1",
     "dotenv": "^16.4.0",
     "express": "^4.19.2",

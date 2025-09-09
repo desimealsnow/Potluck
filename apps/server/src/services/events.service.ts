@@ -158,6 +158,8 @@ interface ListEventsParams {
   limit?: number;
   offset?: number;
   status?: string;
+  ownership?: string;
+  meal_type?: string;
   startsAfter?: string;
   startsBefore?: string;
 }
@@ -174,11 +176,13 @@ export async function listEvents(
     limit = 20,
     offset = 0,
     status,
+    ownership,
+    meal_type,
     startsAfter,
     startsBefore
   }: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  logger.info('[EventService] listEvents', { userId, limit, offset, status, startsAfter, startsBefore });
+  logger.info('[EventService] listEvents', { userId, limit, offset, status, ownership, meal_type, startsAfter, startsBefore });
 
   // Step 1: Find all event_ids where the user is a participant (including host)
   const { data: partRows, error: partErr } = await supabase
@@ -218,36 +222,25 @@ export async function listEvents(
     query = query.lte('event_date', startsBefore);
   }
 
-  // Step 5: Get total count for pagination
-  // For count (no pagination)
-  let countQuery = supabase
+  // Step 5: Fetch data with total count in a single query
+  let queryWithFilters = supabase
     .from('events')
-    .select('id', { count: 'exact', head: true }); // only need IDs for count
-  countQuery = applyEventFilters(countQuery, { userId, participantIds, status, startsAfter, startsBefore });
-  const { count, error: countErr } = await countQuery;
-  if (countErr) {
-    logger.error('Error fetching event count', countErr);
-    return { ok: false, error: countErr.message, code: '500' };
-  }
-  // For data (with pagination)
-  let dataQuery = supabase
-  .from('events')
-  .select('id, title, event_date, attendee_count, meal_type, status')
-  .order('event_date', { ascending: false });
-  dataQuery = applyEventFilters(dataQuery, { userId, participantIds, status, startsAfter, startsBefore });
+    .select('id, title, event_date, attendee_count, meal_type, status', { count: 'exact' })
+    .order('event_date', { ascending: false });
+  queryWithFilters = applyEventFilters(queryWithFilters, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
 
-  const { data: events, error: evErr } = await dataQuery.range(
-  offset,
-  offset + limit - 1
+  const { data: events, error: listErr, count } = await queryWithFilters.range(
+    offset,
+    offset + limit - 1
   );
 
-  if (evErr) {
-    logger.error('Error fetching events', evErr);
-    return { ok: false, error: evErr.message, code: '500' };
+  if (listErr) {
+    logger.error('Error fetching events', listErr);
+    return { ok: false, error: listErr.message, code: '500' };
   }
 
   const items = (events ?? []) as EventSummary[];
-  const totalCount = count ?? items.length;
+  const totalCount = (typeof count === 'number' ? count : items.length);
   const nextOffset = offset + limit < totalCount ? offset + limit : null;
 
   return {
@@ -266,24 +259,43 @@ function applyEventFilters(
     userId,
     participantIds,
     status,
+    ownership,
+    meal_type,
     startsAfter,
     startsBefore
   }: {
     userId: string,
     participantIds: string[],
     status?: string,
+    ownership?: string,
+    meal_type?: string,
     startsAfter?: string,
     startsBefore?: string
   }
 ) {
-  if (participantIds.length) {
-    builder = builder.or(
-      `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
-    );
-  } else {
+  // Apply ownership filter
+  if (ownership === 'mine') {
     builder = builder.eq('created_by', userId);
+  } else if (ownership === 'invited') {
+    if (participantIds.length) {
+      builder = builder.in('id', participantIds).neq('created_by', userId);
+    } else {
+      // No events if user is not a participant anywhere
+      builder = builder.eq('id', '00000000-0000-0000-0000-000000000000');
+    }
+  } else {
+    // 'all' or undefined - show both owned and participated events
+    if (participantIds.length) {
+      builder = builder.or(
+        `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
+      );
+    } else {
+      builder = builder.eq('created_by', userId);
+    }
   }
+  
   if (status) builder = builder.eq('status', status);
+  if (meal_type) builder = builder.in('meal_type', meal_type.split(','));
   if (startsAfter) builder = builder.gte('event_date', startsAfter);
   if (startsBefore) builder = builder.lte('event_date', startsBefore);
   return builder;
