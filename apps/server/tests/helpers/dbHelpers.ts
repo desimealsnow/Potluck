@@ -251,7 +251,7 @@ export class DbTestHelper {
   static async insertTestBillingPlan(overrides: any = {}) {
     const planData = {
       price_id: `price_test_${faker.string.alphanumeric(10)}`,
-      provider: 'stripe',
+      provider: 'lemonsqueezy', // Updated default
       name: faker.helpers.arrayElement(['Basic', 'Premium', 'Pro']),
       amount_cents: faker.number.int({ min: 999, max: 9999 }),
       currency: 'usd',
@@ -281,7 +281,7 @@ export class DbTestHelper {
       user_id: userId,
       plan_id: planId,
       provider_subscription_id: `sub_test_${faker.string.alphanumeric(10)}`,
-      provider: 'stripe',
+      provider: 'lemonsqueezy', // Updated default
       status: 'active',
       current_period_start: faker.date.past().toISOString(),
       current_period_end: faker.date.future().toISOString(),
@@ -299,6 +299,88 @@ export class DbTestHelper {
     }
 
     return data;
+  }
+
+  /**
+   * Insert test payment method for a user
+   */
+  static async insertTestPaymentMethod(userId: string, overrides: any = {}) {
+    const paymentMethodData = {
+      user_id: userId,
+      provider: 'lemonsqueezy',
+      method_id: `pm_test_${faker.string.alphanumeric(10)}`,
+      is_default: false,
+      brand: 'visa',
+      last_four: '4242',
+      exp_month: 12,
+      exp_year: 2025,
+      created_at: new Date().toISOString(),
+      ...overrides,
+    };
+
+    const { data, error } = await testSupabase
+      .from('payment_methods')
+      .insert(paymentMethodData)
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to insert test payment method: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Insert test invoice for a user
+   */
+  static async insertTestInvoice(userId: string, subscriptionId?: string, overrides: any = {}) {
+    const invoiceData = {
+      user_id: userId,
+      subscription_id: subscriptionId,
+      invoice_id: `inv_test_${faker.string.alphanumeric(10)}`,
+      provider: 'lemonsqueezy',
+      amount_cents: 1999,
+      currency: 'usd',
+      status: 'paid',
+      invoice_date: faker.date.past().toISOString(),
+      paid_date: faker.date.past().toISOString(),
+      created_at: faker.date.past().toISOString(),
+      ...overrides,
+    };
+
+    const { data, error } = await testSupabase
+      .from('invoices')
+      .insert(invoiceData)
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to insert test invoice: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Clean up all billing test data
+   */
+  static async cleanupBilling() {
+    await testSupabase.from('invoices').delete().neq('id', 'keep-all');
+    await testSupabase.from('payment_methods').delete().neq('id', 'keep-all');
+    await testSupabase.from('user_subscriptions').delete().neq('id', 'keep-all');
+    await testSupabase.from('billing_plans').delete().neq('id', 'keep-all');
+  }
+
+  /**
+   * Clean up all test data (extended version)
+   */
+  static async cleanupAll() {
+    await this.cleanupBilling();
+    await testSupabase.from('event_participants').delete().neq('id', 'keep-all');
+    await testSupabase.from('event_items').delete().neq('id', 'keep-all');  
+    await testSupabase.from('events').delete().neq('id', 'keep-all');
+    await testSupabase.from('locations').delete().neq('id', 'keep-all');
   }
 }
 

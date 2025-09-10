@@ -236,7 +236,7 @@ export class BillingPlanFactory extends Factory<BillingPlan> {
     return {
       id: `price_${faker.string.alphanumeric(24)}`,
       price_id: `price_${faker.string.alphanumeric(24)}`,
-      provider: 'stripe',
+      provider: 'lemonsqueezy', // Updated default to LemonSqueezy
       name: plan.name,
       amount_cents: plan.amount,
       currency: 'usd',
@@ -245,6 +245,17 @@ export class BillingPlanFactory extends Factory<BillingPlan> {
       created_at: faker.date.past().toISOString(),
       ...overrides
     };
+  }
+
+  /**
+   * Create LemonSqueezy-specific billing plan
+   */
+  static buildLemonSqueezy(overrides?: Partial<BillingPlan>): BillingPlan {
+    return new BillingPlanFactory().build({
+      provider: 'lemonsqueezy',
+      price_id: faker.number.int({ min: 100000, max: 999999 }).toString(), // LemonSqueezy uses numeric IDs
+      ...overrides
+    });
   }
 }
 
@@ -304,6 +315,163 @@ export class TestDataSets {
   }
 }
 
+/**
+ * Subscription factory for testing subscription-related features
+ */
+export class SubscriptionFactory extends Factory<components['schemas']['Subscription']> {
+  build(overrides?: Partial<components['schemas']['Subscription']>): components['schemas']['Subscription'] {
+    const statuses = ['active', 'cancelled', 'past_due', 'trialing', 'unpaid'] as const;
+    const providers = ['lemonsqueezy', 'stripe'] as const;
+    
+    return {
+      id: faker.string.uuid(),
+      plan_id: faker.string.alphanumeric(24),
+      provider_subscription_id: faker.string.alphanumeric(20),
+      provider: faker.helpers.arrayElement(providers),
+      status: faker.helpers.arrayElement(statuses),
+      current_period_start: faker.date.past().toISOString(),
+      current_period_end: faker.date.future().toISOString(),
+      trial_start: faker.datatype.boolean() ? faker.date.past().toISOString() : undefined,
+      trial_end: faker.datatype.boolean() ? faker.date.future().toISOString() : undefined,
+      cancel_at_period_end: faker.datatype.boolean(),
+      created_at: faker.date.past().toISOString(),
+      updated_at: faker.date.recent().toISOString(),
+      ...overrides
+    };
+  }
+
+  /**
+   * Create active subscription
+   */
+  static buildActive(userId?: string): components['schemas']['Subscription'] {
+    return new SubscriptionFactory().build({
+      status: 'active',
+      current_period_end: faker.date.future({ years: 1 }).toISOString(),
+      cancel_at_period_end: false,
+    });
+  }
+
+  /**
+   * Create trial subscription
+   */
+  static buildTrial(userId?: string): components['schemas']['Subscription'] {
+    return new SubscriptionFactory().build({
+      status: 'trialing',
+      trial_start: faker.date.past({ days: 3 }).toISOString(),
+      trial_end: faker.date.future({ days: 11 }).toISOString(),
+    });
+  }
+
+  /**
+   * Create cancelled subscription
+   */
+  static buildCancelled(userId?: string): components['schemas']['Subscription'] {
+    return new SubscriptionFactory().build({
+      status: 'cancelled',
+      cancel_at_period_end: true,
+      current_period_end: faker.date.future({ days: 15 }).toISOString(),
+    });
+  }
+}
+
+/**
+ * Payment method factory
+ */
+export class PaymentMethodFactory extends Factory<components['schemas']['PaymentMethod']> {
+  build(overrides?: Partial<components['schemas']['PaymentMethod']>): components['schemas']['PaymentMethod'] {
+    const brands = ['visa', 'mastercard', 'amex', 'discover'];
+    const provider = faker.helpers.arrayElement(['lemonsqueezy', 'stripe']);
+    
+    return {
+      id: faker.string.uuid(),
+      user_id: faker.string.uuid(),
+      provider,
+      method_id: provider === 'lemonsqueezy' ? 
+        faker.number.int({ min: 100000, max: 999999 }).toString() : 
+        `pm_${faker.string.alphanumeric(24)}`,
+      is_default: faker.datatype.boolean(),
+      brand: faker.helpers.arrayElement(brands),
+      last_four: faker.string.numeric(4),
+      exp_month: faker.number.int({ min: 1, max: 12 }),
+      exp_year: faker.number.int({ min: 2024, max: 2030 }),
+      created_at: faker.date.past().toISOString(),
+      ...overrides
+    };
+  }
+
+  /**
+   * Create default payment method
+   */
+  static buildDefault(userId: string): components['schemas']['PaymentMethod'] {
+    return new PaymentMethodFactory().build({
+      user_id: userId,
+      is_default: true,
+    });
+  }
+}
+
+/**
+ * Invoice factory
+ */
+export class InvoiceFactory extends Factory<components['schemas']['Invoice']> {
+  build(overrides?: Partial<components['schemas']['Invoice']>): components['schemas']['Invoice'] {
+    const statuses = ['pending', 'paid', 'failed', 'refunded', 'cancelled'] as const;
+    const currencies = ['usd', 'eur', 'gbp'] as const;
+    const amountCents = faker.number.int({ min: 999, max: 9999 });
+    
+    return {
+      id: faker.string.uuid(),
+      subscription_id: faker.string.uuid(),
+      user_id: faker.string.uuid(),
+      invoice_id: faker.string.alphanumeric(16).toUpperCase(),
+      provider: faker.helpers.arrayElement(['lemonsqueezy', 'stripe']),
+      amount_cents: amountCents,
+      currency: faker.helpers.arrayElement(currencies),
+      status: faker.helpers.arrayElement(statuses),
+      invoice_date: faker.date.past().toISOString(),
+      paid_date: faker.datatype.boolean() ? faker.date.past().toISOString() : undefined,
+      created_at: faker.date.past().toISOString(),
+      ...overrides
+    };
+  }
+
+  /**
+   * Create paid invoice
+   */
+  static buildPaid(userId: string, subscriptionId?: string): components['schemas']['Invoice'] {
+    return new InvoiceFactory().build({
+      user_id: userId,
+      subscription_id: subscriptionId,
+      status: 'paid',
+      paid_date: faker.date.past().toISOString(),
+    });
+  }
+
+  /**
+   * Create failed invoice
+   */
+  static buildFailed(userId: string, subscriptionId?: string): components['schemas']['Invoice'] {
+    return new InvoiceFactory().build({
+      user_id: userId,
+      subscription_id: subscriptionId,
+      status: 'failed',
+      paid_date: undefined,
+    });
+  }
+}
+
+/**
+ * Checkout session factory
+ */
+export class CheckoutSessionFactory extends Factory<components['schemas']['CheckoutSession']> {
+  build(overrides?: Partial<components['schemas']['CheckoutSession']>): components['schemas']['CheckoutSession'] {
+    return {
+      checkout_url: `https://potluck.lemonsqueezy.com/checkout/buy/${faker.string.alphanumeric(32)}`,
+      ...overrides
+    };
+  }
+}
+
 // Export factory instances for convenience
 export const eventFactory = new EventFactory();
 export const itemFactory = new ItemFactory();
@@ -311,6 +479,10 @@ export const locationFactory = new LocationFactory();
 export const participantFactory = new ParticipantFactory();
 export const eventCancelFactory = new EventCancelFactory();
 export const billingPlanFactory = new BillingPlanFactory();
+export const subscriptionFactory = new SubscriptionFactory();
+export const paymentMethodFactory = new PaymentMethodFactory();
+export const invoiceFactory = new InvoiceFactory();
+export const checkoutSessionFactory = new CheckoutSessionFactory();
 
 /**
  * Utility to seed faker for deterministic tests
