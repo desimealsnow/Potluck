@@ -8,10 +8,14 @@ import {
   ActivityIndicator,
   StyleSheet,
   Image,
+  Alert,
+  Platform,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { Segmented } from "@/components";
 import ParticipantsScreen from "./Participants";
 import { supabase } from "../../config/supabaseClient";
 
@@ -19,6 +23,63 @@ import { supabase } from "../../config/supabaseClient";
 const API_BASE_URL = "http://localhost:3000/api/v1"; // In React Native, use expo-constants for env vars
 const USE_MOCK = false; // set to false when your REST is ready
 const EVENT_ID = "evt_123";
+
+/* ===================== Cross-Platform Modal ===================== */
+interface ModalAlertProps {
+  visible: boolean;
+  title: string;
+  message: string;
+  buttons: Array<{
+    text: string;
+    onPress?: () => void;
+    style?: 'default' | 'cancel' | 'destructive';
+  }>;
+  onClose: () => void;
+}
+
+function ModalAlert({ visible, title, message, buttons, onClose }: ModalAlertProps) {
+  if (!visible) return null;
+  
+  return (
+    <Modal
+      transparent
+      visible={visible}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>{title}</Text>
+          <Text style={styles.modalMessage}>{message}</Text>
+          <View style={styles.modalButtons}>
+            {buttons.map((button, index) => (
+              <Pressable
+                key={index}
+                style={[
+                  styles.modalButton,
+                  button.style === 'destructive' && styles.modalButtonDestructive,
+                  button.style === 'cancel' && styles.modalButtonCancel,
+                ]}
+                onPress={() => {
+                  button.onPress?.();
+                  onClose();
+                }}
+              >
+                <Text style={[
+                  styles.modalButtonText,
+                  button.style === 'destructive' && styles.modalButtonTextDestructive,
+                  button.style === 'cancel' && styles.modalButtonTextCancel,
+                ]}>
+                  {button.text}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
 
 /* ===================== Types ===================== */
 type EventDTO = {
@@ -31,6 +92,8 @@ type EventDTO = {
   attendingCount: number;
   host: { name: string; role: string; avatar?: string };
   details: { intro: string; bring: string; backup: string };
+  status?: string; // Backend status: draft, published, cancelled, etc.
+  ownership?: string; // mine, invited, public
 };
 
 type ItemDTO = {
@@ -65,7 +128,42 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     headers,
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  // Handle 204 No Content and empty bodies gracefully
+  if (res.status === 204) return undefined as unknown as T;
+  const contentLength = res.headers.get("content-length");
+  if (contentLength === "0") return undefined as unknown as T;
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    const text = await res.text();
+    return (text ? (text as unknown as T) : (undefined as unknown as T));
+  }
+  const text = await res.text();
+  if (!text) return undefined as unknown as T;
+  return JSON.parse(text) as T;
+}
+
+/* ===================== Cross-platform confirm ===================== */
+function confirmAsync(
+  title: string,
+  message: string,
+  confirmText: string,
+  cancelText: string = "Cancel",
+  destructive: boolean = false
+): Promise<boolean> {
+  if (Platform.OS === "web") {
+    const ok = typeof window !== "undefined" && window.confirm(`${title}\n\n${message}`);
+    return Promise.resolve(!!ok);
+  }
+  return new Promise((resolve) => {
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: cancelText, style: "cancel", onPress: () => resolve(false) },
+        { text: confirmText, style: destructive ? "destructive" : "default", onPress: () => resolve(true) },
+      ]
+    );
+  });
 }
 
 /* ===================== Data hook ===================== */
@@ -98,10 +196,20 @@ function useEventData(eventId: string) {
         attendingCount: e.event.attendee_count ?? 0,
         host: { name: '', role: 'host' },
         details: { intro: '', bring: '', backup: '' },
+        status: e.event.status,
+        ownership: e.event.ownership,
       } : null;
       setEvent(mappedEvent);
-      console.log("Items data:", it, "Type:", typeof it, "Is Array:", Array.isArray(it));
-      setItems(Array.isArray(it) ? it : []);
+      const itemsRaw = Array.isArray(it) ? it : [];
+      const mappedItems: ItemDTO[] = itemsRaw.map((x: any) => ({
+        id: x.id,
+        name: x.name,
+        // Show the entered quantity directly to avoid confusing per-guest multiplication
+        requiredQty: typeof x.per_guest_qty === 'number' ? x.per_guest_qty : (typeof x.required_qty === 'number' ? x.required_qty : 1),
+        claimedQty: typeof x.claimed_qty === 'number' ? x.claimed_qty : (x.assigned_to ? 1 : 0),
+        perGuest: typeof x.per_guest_qty === 'number' ? x.per_guest_qty > 0 : true,
+      }));
+      setItems(mappedItems);
       setParticipants(Array.isArray(p) ? p : []);
     } catch (err: any) {
       setError(err);
@@ -131,18 +239,322 @@ type Tab = "overview" | "items" | "participants";
 
 export default function EventDetailsPage({ 
   eventId = EVENT_ID, 
-  onBack 
+  onBack, 
+  onActionCompleted,
 }: { 
   eventId?: string; 
   onBack?: () => void; 
+  onActionCompleted?: (nextTab: "upcoming" | "past" | "drafts" | "deleted") => void;
 }) {
   const [active, setActive] = useState<Tab>("overview");
   const { loading, refreshing, event, items, participants, refresh, setItems } = useEventData(eventId);
+  const isHost = event?.ownership === 'mine';
+
+  // Provide inline handlers to ItemsTab
+  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number) => {
+    if (!isHost) return;
+    addItem({ name, category, per_guest_qty: perGuestQty });
+  }, [isHost]);
+
+  const updateInlineItem = useCallback((itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => {
+    if (!isHost) return;
+    (async () => { await updateItem(itemId, patch); })();
+  }, [isHost]);
+
+  const deleteInlineItem = useCallback((itemId: string) => {
+    if (!isHost) return;
+    (async () => { await deleteItem(itemId); })();
+  }, [isHost]);
+
+  const adjustInlineClaim = useCallback((itemId: string, delta: number) => {
+    (async () => { await adjustClaim(itemId, delta); })();
+  }, []);
+  const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
+  const pendingTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  
+  // Modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    title: string;
+    message: string;
+    buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>;
+  }>({ title: '', message: '', buttons: [] });
+
+  const showModal = useCallback((title: string, message: string, buttons: Array<{ text: string; onPress?: () => void; style?: 'default' | 'cancel' | 'destructive' }>) => {
+    setModalConfig({ title, message, buttons });
+    setModalVisible(true);
+  }, []);
+
+  const requestConfirmThenRun = useCallback(async (key: string, fn: () => Promise<void> | void) => {
+    if (pendingActionKey !== key) {
+      setPendingActionKey(key);
+      if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+      pendingTimerRef.current = setTimeout(() => setPendingActionKey(null), 3000);
+      return;
+    }
+    // Confirmed on second tap
+    setPendingActionKey(null);
+    if (pendingTimerRef.current) {
+      clearTimeout(pendingTimerRef.current);
+      pendingTimerRef.current = null;
+    }
+    await Promise.resolve(fn());
+  }, [pendingActionKey]);
+
+  const handlePublishEvent = async () => {
+    try {
+      await api(`/events/${eventId}/publish`, { method: "POST" });
+      showModal("🎉 Event Published!", "Your event is now live and visible to participants!", [
+        { text: "OK", onPress: () => {} }
+      ]);
+      // Refresh the event data to update the status
+      refresh();
+    } catch (e: any) {
+      console.error("Publish event error:", e);
+      showModal("Failed to publish", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+  };
+
+  // ---------------- Items CRUD & Claims ----------------
+  const addItem = useCallback(async (payload: { name: string; category?: string; per_guest_qty: number; }) => {
+    try {
+      const res = await api(`/events/${eventId}/items`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: payload.name,
+          category: payload.category,
+          per_guest_qty: payload.per_guest_qty,
+        })
+      });
+      // optimistic insert; backend returns created item; fallback minimal
+      setItems((prev) => {
+        const safe = Array.isArray(prev) ? prev : [];
+        const created: ItemDTO = {
+          id: (res as any)?.id || (res as any)?.item?.id || `tmp_${Date.now()}`,
+          name: payload.name,
+          requiredQty: typeof (res as any)?.per_guest_qty === 'number' ? (res as any).per_guest_qty : payload.per_guest_qty,
+          claimedQty: 0,
+          perGuest: true,
+        };
+        return [created, ...safe];
+      });
+    } catch (e: any) {
+      // Retry with trailing slash in case of strict routing
+      if (String(e?.message || '').includes('HTTP 404')) {
+        try {
+          const res2 = await api(`/events/${eventId}/items/`, {
+            method: "POST",
+            body: JSON.stringify({
+              name: payload.name,
+              category: payload.category,
+              per_guest_qty: payload.per_guest_qty,
+            })
+          });
+          setItems((prev) => {
+            const safe = Array.isArray(prev) ? prev : [];
+            const created: ItemDTO = {
+              id: (res2 as any)?.id || (res2 as any)?.item?.id || `tmp_${Date.now()}`,
+              name: payload.name,
+              requiredQty: typeof (res2 as any)?.per_guest_qty === 'number' ? (res2 as any).per_guest_qty : payload.per_guest_qty,
+              claimedQty: 0,
+              perGuest: true,
+            };
+            return [created, ...safe];
+          });
+          return;
+        } catch (e2: any) {
+          return showModal("Failed to add item", e2?.message ?? "Unknown error", [
+            { text: "OK", onPress: () => {} }
+          ]);
+        }
+      }
+      showModal("Failed to add item", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+  }, [eventId, setItems]);
+
+  const updateItem = useCallback(async (itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => {
+    try {
+      await api(`/events/${eventId}/items/${itemId}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch)
+      });
+      setItems((prev) => (Array.isArray(prev) ? prev.map((it) => it.id === itemId ? { ...it, ...('name' in patch ? { name: patch.name as string } : {}), ...('per_guest_qty' in patch ? { perGuest: true } : {}) } : it) : prev));
+    } catch (e: any) {
+      showModal("Failed to update item", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+  }, [eventId, setItems]);
+
+  const deleteItem = useCallback(async (itemId: string) => {
+    try {
+      const ok = await confirmAsync("Delete Item", "Are you sure you want to remove this item?", "Delete", "Cancel", true);
+      if (!ok) return;
+      await api(`/events/${eventId}/items/${itemId}`, { method: "DELETE" });
+      setItems((prev) => (Array.isArray(prev) ? prev.filter((it) => it.id !== itemId) : prev));
+    } catch (e: any) {
+      showModal("Failed to delete item", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+  }, [eventId, setItems]);
+
+  const adjustClaim = useCallback(async (itemId: string, delta: number) => {
+    console.log('adjustClaim called', { itemId, delta, eventId });
+    
+    // Optimistic claimedQty +/-; use assign/unassign endpoints as available
+    setItems((prev) => {
+      const safe = Array.isArray(prev) ? prev : [];
+      return safe.map((it) => {
+        if (it.id !== itemId) return it;
+        const next = Math.max(0, Math.min((it.claimedQty || 0) + delta, it.requiredQty));
+        return { ...it, claimedQty: next };
+      });
+    });
+    try {
+      if(delta > 0) {
+        console.log('Calling assign endpoint', { itemId, eventId });
+        await api(`/events/${eventId}/items/${itemId}/assign`, { method: "POST", body: JSON.stringify({}) });
+      } else if (delta < 0) {
+        console.log('Calling unassign endpoint', { itemId, eventId });
+        await api(`/events/${eventId}/items/${itemId}/assign`, { method: "DELETE" });
+      }
+    } catch (e: any) {
+      // Fallback for envs missing assign RPC → hard refresh list so UI is accurate
+      console.warn("Assign endpoints unavailable, refreshing list instead", e);
+      await refresh();
+    }
+  }, [eventId, setItems, refresh]);
+
+  const handleCancelEvent = async () => {
+    // Executed after double-tap confirm
+    console.log("=== CANCEL EVENT START ===", eventId);
+    try {
+      console.log("Making API call to cancel event...");
+      const response = await api(`/events/${eventId}/cancel`, { 
+        method: "POST",
+        body: JSON.stringify({ reason: "Event cancelled by host" })
+      });
+      console.log("Cancel API response:", response);
+      showModal("Event Cancelled", "Your event has been cancelled and participants have been notified.", [
+        { text: "OK", onPress: () => {} }
+      ]);
+      if (onActionCompleted) onActionCompleted("upcoming");
+      if (onBack) onBack();
+    } catch (e: any) {
+      console.error("Cancel event error:", e);
+      showModal("Failed to cancel", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+    console.log("=== CANCEL EVENT END ===");
+  };
+
+  const handleCompleteEvent = async () => {
+    // Executed after double-tap confirm
+    console.log("=== COMPLETE EVENT START ===", eventId);
+    try {
+      console.log("Attempting to complete event:", eventId);
+      const response = await api(`/events/${eventId}/complete`, { method: "POST" });
+      console.log("Complete response:", response);
+      showModal("Event Completed", "Your event has been marked as completed!", [
+        { text: "OK", onPress: () => {} }
+      ]);
+      if (onActionCompleted) onActionCompleted("past");
+      if (onBack) onBack();
+    } catch (e: any) {
+      console.error("Complete event error:", e);
+      showModal("Failed to complete", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+    console.log("=== COMPLETE EVENT END ===");
+  };
+
+  const handlePurgeEvent = async () => {
+    // Executed after double-tap confirm
+    console.log("=== PURGE EVENT START ===", eventId);
+    try {
+      console.log("Attempting to purge event:", eventId);
+      const response = await api(`/events/${eventId}/purge`, { method: "POST" });
+      console.log("Purge response:", response);
+      showModal("Event Deleted", "Your event has been permanently deleted.", [
+        { text: "OK", onPress: () => {} }
+      ]);
+      if (onActionCompleted) onActionCompleted("deleted");
+      if (onBack) onBack();
+    } catch (e: any) {
+      console.error("Purge event error:", e);
+      showModal("Failed to delete", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+    console.log("=== PURGE EVENT END ===");
+  };
+
+  const handleRestoreEvent = async () => {
+    try {
+      await api(`/events/${eventId}/restore`, { method: "POST" });
+      showModal("Event Restored", "Your event has been restored successfully!", [
+        { text: "OK", onPress: () => {} }
+      ]);
+      if (onActionCompleted) onActionCompleted("drafts");
+      if (onBack) onBack();
+    } catch (e: any) {
+      console.error("Restore event error:", e);
+      showModal("Failed to restore", e?.message ?? "Unknown error", [
+        { text: "OK", onPress: () => {} }
+      ]);
+    }
+  };
 
   const gradient = useMemo(
     () => ["#ddd6fe", "#e9d5ff", "#fce7f3"] as const,
     []
   );
+
+  // Determine available actions based on event status and ownership
+  const getAvailableActions = () => {
+    if (!event || !event.ownership) {
+      console.log("No event or ownership:", { event: !!event, ownership: event?.ownership });
+      return [];
+    }
+    
+    const isOwner = event.ownership === 'mine';
+    const status = event.status;
+    const actions = [];
+
+    console.log("Event status and ownership:", { status, ownership: event.ownership, isOwner });
+
+    if (isOwner) {
+      switch (status) {
+        case 'draft':
+          actions.push({ key: 'publish', label: pendingActionKey === 'publish' ? 'Tap again to confirm' : 'Publish Event', icon: 'rocket-outline', color: '#4CAF50', handler: () => requestConfirmThenRun('publish', handlePublishEvent) });
+          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
+          break;
+        case 'published':
+          actions.push({ key: 'cancel', label: pendingActionKey === 'cancel' ? 'Tap again to confirm' : 'Cancel Event', icon: 'close-circle-outline', color: '#FF9800', handler: () => requestConfirmThenRun('cancel', handleCancelEvent) });
+          actions.push({ key: 'complete', label: pendingActionKey === 'complete' ? 'Tap again to confirm' : 'Complete Event', icon: 'checkmark-circle-outline', color: '#2196F3', handler: () => requestConfirmThenRun('complete', handleCompleteEvent) });
+          break;
+        case 'cancelled':
+          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
+          break;
+        case 'completed':
+          // Backend does not allow purging completed events; no actions
+          break;
+        case 'purged':
+          actions.push({ key: 'restore', label: pendingActionKey === 'restore' ? 'Tap again to confirm' : 'Restore Event', icon: 'refresh-outline', color: '#9C27B0', handler: () => requestConfirmThenRun('restore', handleRestoreEvent) });
+          break;
+      }
+    }
+
+    console.log("Available actions:", actions);
+    return actions;
+  };
 
   return (
     <LinearGradient colors={gradient} style={styles.container}>
@@ -150,7 +562,11 @@ export default function EventDetailsPage({
         <TopBar title="" onBack={onBack} onRefresh={refresh} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
-            <EventHeader isLoading={loading} event={event || undefined} />
+            <EventHeader 
+              isLoading={loading} 
+              event={event || undefined} 
+              actions={getAvailableActions()}
+            />
           </View>
 
           <TabsBar active={active} onChange={setActive} />
@@ -163,16 +579,14 @@ export default function EventDetailsPage({
               <ItemsTab
                 isLoading={loading || refreshing}
                 items={items}
-                onClaim={async (id) => {
-                  await api(`/events/${eventId}/items/${id}/claim`, { method: "POST" });
-                  refresh();
-                }}
-                onUnclaim={async (id) => {
-                  await api(`/events/${eventId}/items/${id}/unclaim`, { method: "POST" });
-                  refresh();
-                }}
+                onClaim={async () => {}}
+                onUnclaim={async () => {}}
                 // local optimistic helpers
                 setItems={setItems}
+                addInlineItem={addInlineItem}
+                updateInlineItem={updateInlineItem}
+                deleteInlineItem={deleteInlineItem}
+                adjustInlineClaim={adjustInlineClaim}
               />
             )}
             {active === "participants" && (
@@ -186,6 +600,13 @@ export default function EventDetailsPage({
           </View>
         </ScrollView>
       </SafeAreaView>
+      <ModalAlert
+        visible={modalVisible}
+        title={modalConfig.title}
+        message={modalConfig.message}
+        buttons={modalConfig.buttons}
+        onClose={() => setModalVisible(false)}
+      />
     </LinearGradient>
   );
 }
@@ -229,11 +650,21 @@ function TopBar({
 function EventHeader({
   isLoading,
   event,
+  actions = [],
 }: {
   isLoading?: boolean;
   event?: EventDTO;
+  actions?: Array<{
+    key: string;
+    label: string;
+    icon: string;
+    color: string;
+    handler: () => void;
+  }>;
 }) {
   if (isLoading || !event) return <HeaderSkeleton />;
+
+  //
 
   return (
     <View style={styles.eventHeader}>
@@ -248,6 +679,27 @@ function EventHeader({
         ))}
         <Chip icon="people-outline" tone="violet">{event.attendingCount} attending</Chip>
       </View>
+
+      {/* Debug/Test UI removed */}
+
+      {/* Action buttons based on event status and ownership */}
+      {actions.length > 0 && (
+        <View style={styles.actionsContainer}>
+          {actions.map((action) => (
+            <Pressable 
+              key={action.key}
+              onPress={() => {
+                console.log("Action button pressed:", action.key, action.label);
+                action.handler();
+              }} 
+              style={[styles.actionButton, { backgroundColor: action.color }]}
+            >
+              <Ionicons name={action.icon as any} size={18} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={styles.actionButtonText}>{action.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -402,12 +854,20 @@ function ItemsTab({
   onClaim,
   onUnclaim,
   setItems,
+  addInlineItem,
+  updateInlineItem,
+  deleteInlineItem,
+  adjustInlineClaim,
 }: {
   isLoading?: boolean;
   items: ItemDTO[];
   onClaim: (id: string) => Promise<void>;
   onUnclaim: (id: string) => Promise<void>;
   setItems: React.Dispatch<React.SetStateAction<ItemDTO[]>>;
+  addInlineItem: (name: string, category: string | undefined, perGuestQty: number) => void;
+  updateInlineItem: (itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => void;
+  deleteInlineItem: (itemId: string) => void;
+  adjustInlineClaim: (itemId: string, delta: number) => void;
 }) {
   // Safety check to ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
@@ -426,42 +886,29 @@ function ItemsTab({
   
   return (
     <View style={styles.tabContent}>
+      {/* Add item (host only) */}
+      <AddItemRow onAdd={(name, category, perGuestQty) => addInlineItem(name, category, perGuestQty)} />
+
       {safeItems.map((it) => {
         const pct = clamp01(it.claimedQty / it.requiredQty);
         const complete = it.claimedQty >= it.requiredQty;
         return (
           <Card key={it.id}>
             <View style={styles.itemHeader}>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{it.name}</Text>
-                <View style={styles.itemMeta}>
-                  <Text style={styles.itemCount}>
-                    {it.claimedQty} / {it.requiredQty} items
-                  </Text>
-                  {it.perGuest && (
-                    <View style={styles.perGuestTag}>
-                      <Text style={styles.perGuestText}>Per guest</Text>
-                    </View>
-                  )}
-                </View>
+              <InlineEditableItem
+                item={it}
+                onChange={(patch) => updateInlineItem(it.id, patch)}
+                onDelete={() => deleteInlineItem(it.id)}
+              />
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, -1)}>
+                  <Text style={styles.qtyBtnText}>-</Text>
+                </Pressable>
+                <Text style={styles.itemCount}>{it.claimedQty} / {it.requiredQty}</Text>
+                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, +1)}>
+                  <Text style={styles.qtyBtnText}>+</Text>
+                </Pressable>
               </View>
-              <Pressable
-                disabled={complete}
-                onPress={() => handleClaim(it.id)}
-                style={[
-                  styles.claimButton,
-                  complete ? styles.claimButtonComplete : styles.claimButtonActive
-                ]}
-              >
-                {complete ? (
-                  <>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
-                    <Text style={styles.claimButtonTextComplete}>Claimed</Text>
-                  </>
-                ) : (
-                  <Text style={styles.claimButtonText}>+ Claim</Text>
-                )}
-              </Pressable>
             </View>
             <Progress value={pct} />
             {complete && (
@@ -480,6 +927,64 @@ function ItemsTab({
 /* ===================== Atoms / utilities ===================== */
 function Card({ children }: { children: React.ReactNode }) {
   return <View style={styles.card}>{children}</View>;
+}
+
+function AddItemRow({ onAdd }: { onAdd: (name: string, category: string | undefined, perGuestQty: number) => void }) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<string | undefined>("Main Course");
+  const [qty, setQty] = useState<string>("1");
+  return (
+    <Card>
+      <Text style={styles.sectionTitle}>Add Item</Text>
+      <TextInput placeholder="Item name" value={name} onChangeText={setName} style={styles.textInput} />
+      <View style={[styles.rowBetween, { marginTop: 8 }]}>
+        <View style={{ flex: 1, marginRight: 8 }}>
+          <Text style={styles.eventDetailLabel}>Category</Text>
+          <Segmented
+            options={[{ key: "Main Course", label: "Main" }, { key: "Starter", label: "Starter" }, { key: "Dessert", label: "Dessert" }]}
+            value={category || "Main Course"}
+            onChange={(v) => setCategory(v)}
+          />
+        </View>
+        <View style={{ width: 110 }}>
+          <Text style={styles.eventDetailLabel}>Per guest qty</Text>
+          <TextInput
+            value={qty}
+            onChangeText={(t) => setQty(t.replace(/[^0-9.]/g, ""))}
+            keyboardType="decimal-pad"
+            style={styles.textInput}
+          />
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+        <Pressable
+          onPress={() => {
+            const q = Math.max(0.01, parseFloat(qty || "0") || 0.01);
+            if (!name.trim()) return;
+            onAdd(name.trim(), category, q);
+            setName(""); setQty("1"); setCategory("Main Course");
+          }}
+          style={[styles.claimButton, styles.claimButtonActive]}
+        >
+          <Text style={styles.claimButtonText}>Add</Text>
+        </Pressable>
+      </View>
+    </Card>
+  );
+}
+
+function InlineEditableItem({ item, onChange, onDelete }: { item: ItemDTO; onChange: (patch: any) => void; onDelete: () => void }) {
+  const [name, setName] = useState(item.name);
+  return (
+    <View style={{ flex: 1, paddingRight: 8 }}>
+      <TextInput value={name} onChangeText={(t) => { setName(t); onChange({ name: t }); }} style={[styles.textInput, { height: 40 }]} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
+        <Pressable onPress={onDelete} style={[styles.qtyBtn, { backgroundColor: '#ef4444' }]}>
+          <Ionicons name="trash-outline" size={14} color="#fff" />
+        </Pressable>
+      </View>
+    </View>
+  );
 }
 
 function Chip({
@@ -916,6 +1421,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#111827',
   },
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   // Tab content styles
   tabContent: {
     gap: 12,
@@ -1091,15 +1601,38 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   claimButtonTextComplete: {
-    fontSize: 14,
-    fontWeight: '700',
     color: '#ffffff',
+    fontWeight: '700',
   },
   completeText: {
     marginTop: 4,
     fontSize: 14,
     fontWeight: '600',
     color: '#16a34a',
+  },
+  qtyBtn: {
+    height: 32,
+    width: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e5e7eb',
+  },
+  qtyBtnText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#111827',
+  },
+  progress: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10b981',
   },
   // Participants tab styles
   participantsHeader: {
@@ -1157,5 +1690,96 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
+  },
+
+  // Action buttons styles
+  actionsContainer: {
+    marginTop: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 12,
+  },
+  actionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+    minWidth: 120,
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 24,
+    minWidth: 280,
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 20,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+  },
+  modalButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: '#2563eb',
+    minWidth: 60,
+  },
+  modalButtonDestructive: {
+    backgroundColor: '#dc2626',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#6b7280',
+  },
+  modalButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  modalButtonTextDestructive: {
+    color: '#ffffff',
+  },
+  modalButtonTextCancel: {
+    color: '#ffffff',
   },
 });

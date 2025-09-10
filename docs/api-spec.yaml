@@ -423,7 +423,7 @@ paths:
   # ---------- Checkout for a new / upgraded subscription ----------
   /billing/checkout/subscription:
     post:
-      summary: Start Stripe Checkout for a plan
+      summary: Start checkout for a subscription plan
       security: [{ bearerAuth: [] }]
       requestBody:
         required: true
@@ -431,9 +431,10 @@ paths:
           application/json:
             schema:
               type: object
-              required: [plan_id]
+              required: [plan_id, provider]
               properties:
-                plan_id: { type: string } # Stripe price ID
+                plan_id: { type: string, format: uuid } # Internal plan ID
+                provider: { type: string, enum: [stripe, paypal, razorpay, square] }
       responses:
         "200":
           description: Checkout URL created
@@ -470,35 +471,10 @@ paths:
       responses:
         "200": { description: Received }
 
-  # ---------- Participant cost-share ----------
-  /events/{eventId}/pay:
-    parameters: [{ $ref: "#/components/parameters/eventId" }]
-    post:
-      summary: Create a payment for my share of the event
-      security: [{ bearerAuth: [] }]
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                amount_cents:
-                  type: integer
-                  minimum: 1
-                  description: >
-                    Optional override. If omitted, backend
-                    uses the suggested split.
-      responses:
-        "200":
-          description: Checkout URL created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/CheckoutSession" }
-
-  /events/{eventId}/payments:
-    parameters: [{ $ref: "#/components/parameters/eventId" }]
+  # ---------- Payment Method Management ----------
+  /billing/payment-methods:
     get:
-      summary: List all participant payments for an event
+      summary: List user's payment methods
       security: [{ bearerAuth: [] }]
       responses:
         "200":
@@ -507,7 +483,186 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: "#/components/schemas/EventPayment" }
+                items: { $ref: "#/components/schemas/PaymentMethod" }
+    post:
+      summary: Add new payment method
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PaymentMethodCreate" }
+      responses:
+        "201":
+          description: Payment method added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+
+  /billing/payment-methods/{methodId}:
+    parameters:
+      - name: methodId
+        in: path
+        required: true
+        description: Payment method ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get specific payment method
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+    put:
+      summary: Update payment method
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PaymentMethodUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentMethod" }
+    delete:
+      summary: Remove payment method
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: Payment method removed }
+
+  /billing/payment-methods/{methodId}/set-default:
+    parameters:
+      - name: methodId
+        in: path
+        required: true
+        description: Payment method ID
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Set as default payment method
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Set as default }
+
+  # ---------- Invoice Management ----------
+  /billing/invoices:
+    get:
+      summary: List user invoices
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Invoice" }
+
+  /billing/invoices/{invoiceId}:
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get specific invoice
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Invoice" }
+
+  /billing/invoices/{invoiceId}/download:
+    parameters:
+      - name: invoiceId
+        in: path
+        required: true
+        description: Invoice ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Download invoice PDF
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # ---------- Subscription Management ----------
+  /billing/subscriptions/{subscriptionId}:
+    parameters:
+      - name: subscriptionId
+        in: path
+        required: true
+        description: Subscription ID
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get specific subscription
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+    put:
+      summary: Update subscription
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+    delete:
+      summary: Cancel subscription
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Subscription canceled }
+
+  /billing/subscriptions/{subscriptionId}/reactivate:
+    parameters:
+      - name: subscriptionId
+        in: path
+        required: true
+        description: Subscription ID
+        schema:
+          type: string
+          format: uuid
+    post:
+      summary: Reactivate canceled subscription
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Reactivated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
   /_internal/schema-id-param:
     get:
       summary: Dummy endpoint to emit IdParam schema for codegen/validation
@@ -755,14 +910,17 @@ components:
                 - type: "null"
     BillingPlan:
       type: object
-      required: [id, name, amount_cents, currency, interval]
+      required: [id, price_id, name, amount_cents, currency, interval, provider]
       properties:
-        id: { type: string } # Stripe price ID
+        id: { type: string, format: uuid }
+        price_id: { type: string } # Provider price ID (Stripe price_id, PayPal plan_id, etc.)
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
         name: { type: string }
         amount_cents: { type: integer }
         currency: { type: string, example: usd }
         interval: { type: string, enum: [month, year] }
         is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
 
     PaymentIntentResponse:
       type: object
@@ -771,14 +929,22 @@ components:
         checkout_url: { type: string, format: uri }
     Subscription:
       type: object
-      required: [id, plan_id, status, current_period_end]
+      required: [id, plan_id, provider_subscription_id, provider, status, current_period_end]
       properties:
         id: { type: string, format: uuid }
-        plan_id: { type: string }
+        plan_id: { type: string, format: uuid }
+        provider_subscription_id: { type: string } # Generic provider subscription ID
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
         status:
           type: string
-          enum: [active, trialing, past_due, canceled, incomplete]
+          enum: [active, trialing, past_due, canceled, incomplete, incomplete_expired]
+        current_period_start: { type: string, format: date-time }
         current_period_end: { type: string, format: date-time }
+        trial_start: { type: string, format: date-time }
+        trial_end: { type: string, format: date-time }
+        cancel_at_period_end: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     CheckoutSession:
       type: object
       required: [checkout_url]
@@ -805,17 +971,75 @@ components:
             If true (default), backend sends cancellation emails / push
             notifications. Hosts can suppress notifications for private events.
           default: true
-    EventPayment:
+    # Payment Method schemas
+    PaymentMethod:
       type: object
-      required: [id, user_id, amount_cents, status]
+      required: [id, user_id, provider, method_id, is_default]
       properties:
         id: { type: string, format: uuid }
-        event_id: { type: string, format: uuid }
         user_id: { type: string, format: uuid }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        method_id: { type: string } # Provider payment method ID
+        is_default: { type: boolean }
+        brand: { type: string } # visa, mastercard, etc.
+        last_four: { type: string }
+        exp_month: { type: integer }
+        exp_year: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    PaymentMethodCreate:
+      type: object
+      required: [provider, method_id]
+      properties:
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        method_id: { type: string }
+        is_default: { type: boolean, default: false }
+
+    PaymentMethodUpdate:
+      type: object
+      properties:
+        is_default: { type: boolean }
+
+    # Invoice schemas
+    Invoice:
+      type: object
+      required: [id, user_id, amount_cents, currency, status, invoice_date, provider]
+      properties:
+        id: { type: string, format: uuid }
+        subscription_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        invoice_id: { type: string } # Provider invoice ID
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
         amount_cents: { type: integer }
         currency: { type: string, example: usd }
-        status: { type: string, enum: [pending, paid, refunded] }
+        status:
+          type: string
+          enum: [draft, open, paid, void, uncollectible]
+        invoice_date: { type: string, format: date-time }
+        paid_date: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
+
+    # Payment schemas
+    Payment:
+      type: object
+      required: [id, invoice_id, amount_cents, currency, status, provider]
+      properties:
+        id: { type: string, format: uuid }
+        invoice_id: { type: string, format: uuid }
+        provider_transaction_id: { type: string } # Provider transaction ID
+        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        amount_cents: { type: integer }
+        currency: { type: string, example: usd }
+        status: { type: string, enum: [pending, succeeded, failed, refunded] }
+        paid_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+
+    # Subscription management schemas
+    SubscriptionUpdate:
+      type: object
+      properties:
+        cancel_at_period_end: { type: boolean }
+        plan_id: { type: string, format: uuid }
   responses:
     UnauthorizedError:
       description: Access token missing or invalid

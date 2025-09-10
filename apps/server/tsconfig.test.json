@@ -1,9 +1,44 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "node"],
-    "inlineSourceMap": true,
-    "inlineSources": true
+    // More lenient settings for tests
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    
+    // Enable all Jest/test-related types
+    "types": ["jest", "node", "@types/supertest"],
+    
+    // Allow importing from test directories
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"],
+      "@common/*": ["../../libs/common/src/*"]
+    },
+
+    // Test-specific compiler options
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
+<<<<<<< Current (Your changes)
   "include": ["src/**/*", "tests/**/*"]
 }
+=======
+  
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "../../libs/common/src/**/*"
+  ],
+  
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "test-results"
+  ]
+}
+>>>>>>> Incoming (Background Agent changes)

@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRouter       from './routes/auth.routes';
 import eventRoutes      from './routes/events.routes';
 import locationRoutes   from './routes/locations.routes';
+import billingRoutes    from './routes/billing.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 export const createApp = () => {
@@ -28,6 +29,7 @@ export const createApp = () => {
   app.use('/api/v1/auth',      authRouter);
   app.use('/api/v1/events',    eventRoutes);   // items & participants come with it
   app.use('/api/v1/locations', locationRoutes);
+  app.use('/api/v1/billing',   billingRoutes);
 
   /* ---------- Health check route ---------- */
   app.get('/health', (req, res) => {

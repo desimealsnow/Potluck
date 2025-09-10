@@ -49,11 +49,18 @@ async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMor
     // Map mobile status to backend enum values
     const statusMap: Record<string, string> = {
       "upcoming": "published",
-      "past": "completed"
+      "past": "completed",
+      "drafts": "draft",
+      "deleted": "purged",
     };
     params.set("status", statusMap[q.status] || q.status);
+    
+    // For drafts, always show only user's own drafts
+    if (q.status === "drafts" || q.status === "deleted") {
+      params.set("ownership", "mine");
+    }
   }
-  if (q.ownership) params.set("ownership", q.ownership);
+  if (q.ownership && q.status !== "drafts") params.set("ownership", q.ownership);
   // backend expects meal_type instead of diet
   if (q.diet && q.diet.length) params.set("meal_type", q.diet.join(","));
 
@@ -73,8 +80,17 @@ async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMor
     venue: e.location?.label || e.venue || e.address || "",
     attendeeCount: e.attendeeCount ?? e.participants_count ?? 0,
     diet: (e.meal_type as Diet) || "mixed",
-    statusBadge: e.status === "cancelled" ? "cancelled" : "active",
+    statusBadge: e.status === "purged"
+      ? "deleted"
+      : e.status === "completed"
+      ? "past"
+      : e.status === "cancelled"
+      ? "cancelled"
+      : e.status === "draft"
+      ? "draft"
+      : "active",
     ownership: e.ownership as Ownership | undefined,
+    actualStatus: e.status, // Store the actual backend status
     attendeesPreview: (e.attendees_preview || []).slice(0,3).map((p: any, idx: number) => ({
       id: p.id || String(idx),
       name: p.name || p.email || "Guest",
@@ -83,6 +99,30 @@ async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMor
   }));
 
   return { items, hasMore };
+}
+
+// Cross-platform confirmation (web: window.confirm, native: Alert.alert)
+function confirmAsync(
+  title: string,
+  message: string,
+  confirmText: string,
+  cancelText: string = "Cancel",
+  destructive: boolean = false
+): Promise<boolean> {
+  if (Platform.OS === "web") {
+    const ok = typeof window !== "undefined" && window.confirm(`${title}\n\n${message}`);
+    return Promise.resolve(!!ok);
+  }
+  return new Promise((resolve) => {
+    Alert.alert(
+      title,
+      message,
+      [
+        { text: cancelText, style: "cancel", onPress: () => resolve(false) },
+        { text: confirmText, style: destructive ? "destructive" : "default", onPress: () => resolve(true) },
+      ]
+    );
+  });
 }
 
 /* ---------------------- Screen ---------------------- */
@@ -102,6 +142,23 @@ export default function App() {
   // Navigation state
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
+  const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
+  const pendingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const requestConfirmThenRun = useCallback(async (key: string, fn: () => Promise<void> | void) => {
+    if (pendingActionKey !== key) {
+      setPendingActionKey(key);
+      if (pendingTimerRef.current) clearTimeout(pendingTimerRef.current);
+      pendingTimerRef.current = setTimeout(() => setPendingActionKey(null), 3000);
+      return;
+    }
+    setPendingActionKey(null);
+    if (pendingTimerRef.current) {
+      clearTimeout(pendingTimerRef.current);
+      pendingTimerRef.current = null;
+    }
+    await Promise.resolve(fn());
+  }, [pendingActionKey]);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -134,6 +191,30 @@ export default function App() {
       setLoading(false);
     }
   }, [query, statusTab, ownership, dietFilters]);
+
+  // Reload with explicit status tab (avoids stale fetch after switching tabs)
+  const reloadWith = useCallback(async (nextTab: EventStatusMobile) => {
+    setLoading(true);
+    setPage(1);
+    try {
+      const res = await fetchEvents({
+        page: 1,
+        limit: PAGE_SIZE,
+        q: query.trim() || undefined,
+        status: nextTab,
+        ownership,
+        diet: dietFilters.length ? dietFilters : undefined,
+      });
+      setData(res.items);
+      setHasMore(res.hasMore);
+    } catch (e) {
+      console.warn("Failed to fetch (reloadWith):", e);
+      setData([]);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [query, ownership, dietFilters]);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -182,9 +263,81 @@ export default function App() {
     setShowEventDetails(true);
   };
 
+  const handlePublishEvent = async (eventId: string) => {
+    try {
+      await apiClient.post(`/events/${eventId}/publish`);
+      Alert.alert("🎉 Event Published!", "Your event is now live and visible to participants!");
+      // Refresh the data to update the status
+      reload();
+    } catch (e: any) {
+      console.error("Publish event error:", e);
+      Alert.alert("Failed to publish", e?.message ?? "Unknown error");
+    }
+  };
+
+  const handleCancelEvent = async (eventId: string) => {
+    console.log("=== EventList CANCEL EVENT START ===", eventId);
+    try {
+      console.log("Making API call to cancel event...");
+      const response = await apiClient.post(`/events/${eventId}/cancel`, { reason: "Event cancelled by host" });
+      console.log("Cancel API response:", response);
+      Alert.alert("Event Cancelled", "Your event has been cancelled and participants have been notified.");
+      reload();
+    } catch (e: any) {
+      console.error("Cancel event error:", e);
+      Alert.alert("Failed to cancel", e?.message ?? "Unknown error");
+    }
+    console.log("=== EventList CANCEL EVENT END ===");
+  };
+
+  const handleCompleteEvent = async (eventId: string) => {
+    console.log("=== EventList COMPLETE EVENT START ===", eventId);
+    try {
+      console.log("Attempting to complete event:", eventId);
+      const response = await apiClient.post(`/events/${eventId}/complete`);
+      console.log("Complete response:", response);
+      Alert.alert("Event Completed", "Your event has been marked as completed!");
+      reload();
+    } catch (e: any) {
+      console.error("Complete event error:", e);
+      Alert.alert("Failed to complete", e?.message ?? "Unknown error");
+    }
+    console.log("=== EventList COMPLETE EVENT END ===");
+  };
+
+  const handlePurgeEvent = async (eventId: string) => {
+    console.log("=== EventList PURGE EVENT START ===", eventId);
+    try {
+      console.log("Attempting to purge event:", eventId);
+      const response = await apiClient.post(`/events/${eventId}/purge`);
+      console.log("Purge response:", response);
+      Alert.alert("Event Deleted", "Your event has been permanently deleted.");
+      setStatusTab("deleted");
+      reload();
+    } catch (e: any) {
+      console.error("Purge event error:", e);
+      Alert.alert("Failed to delete", e?.message ?? "Unknown error");
+    }
+    console.log("=== EventList PURGE EVENT END ===");
+  };
+
+  const handleRestoreEvent = async (eventId: string) => {
+    try {
+      await apiClient.post(`/events/${eventId}/restore`);
+      Alert.alert("Event Restored", "Your event has been restored successfully!");
+      setStatusTab("drafts");
+      reload();
+    } catch (e: any) {
+      console.error("Restore event error:", e);
+      Alert.alert("Failed to restore", e?.message ?? "Unknown error");
+    }
+  };
+
   const handleBackToList = () => {
     setShowEventDetails(false);
     setSelectedEventId(null);
+    // Refresh list after returning from details
+    reload();
   };
 
   const handleCreateEvent = () => {
@@ -198,6 +351,49 @@ export default function App() {
     // Optionally navigate to the newly created event
     setSelectedEventId(eventId);
     setShowEventDetails(true);
+  };
+
+  // Get available actions for an event based on status and ownership
+  const getEventActions = (item: EventItem) => {
+    if (!item.actualStatus) {
+      console.log("EventList - No status:", { actualStatus: item.actualStatus, ownership: item.ownership });
+      return [];
+    }
+    
+    const status = item.actualStatus;
+    // Show owner-only actions when we can confidently infer ownership
+    // - If backend marks item as mine
+    // - If user has selected ownership filter = mine
+    // - Drafts and Deleted are always mine by construction
+    const isOwner = (item.ownership === 'mine') || (ownership === 'mine') || (status === 'draft') || (status === 'purged');
+    const actions = [];
+
+    console.log("EventList - Event status and ownership:", { status, ownership: item.ownership ?? ownership, isOwner, itemId: item.id });
+
+    if (isOwner) {
+      switch (status) {
+        case 'draft':
+          actions.push({ key: 'publish', label: pendingActionKey === `publish:${item.id}` ? 'Tap again to confirm' : 'Publish', icon: 'rocket-outline', color: '#4CAF50', handler: () => requestConfirmThenRun(`publish:${item.id}`, () => handlePublishEvent(item.id)) });
+          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
+          break;
+        case 'published':
+          actions.push({ key: 'cancel', label: pendingActionKey === `cancel:${item.id}` ? 'Tap again to confirm' : 'Cancel', icon: 'close-circle-outline', color: '#FF9800', handler: () => requestConfirmThenRun(`cancel:${item.id}`, () => handleCancelEvent(item.id)) });
+          actions.push({ key: 'complete', label: pendingActionKey === `complete:${item.id}` ? 'Tap again to confirm' : 'Complete', icon: 'checkmark-circle-outline', color: '#2196F3', handler: () => requestConfirmThenRun(`complete:${item.id}`, () => handleCompleteEvent(item.id)) });
+          break;
+        case 'completed':
+          // Backend does not allow purging completed events; no actions
+          break;
+        case 'cancelled':
+          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
+          break;
+        case 'purged':
+          actions.push({ key: 'restore', label: pendingActionKey === `restore:${item.id}` ? 'Tap again to confirm' : 'Restore', icon: 'refresh-outline', color: '#9C27B0', handler: () => requestConfirmThenRun(`restore:${item.id}`, () => handleRestoreEvent(item.id)) });
+          break;
+      }
+    }
+
+    console.log("EventList - Available actions for", item.id, ":", actions);
+    return actions;
   };
 
   const handleBackFromCreate = () => {
@@ -251,6 +447,11 @@ export default function App() {
       <EventDetailsPage 
         eventId={selectedEventId} 
         onBack={handleBackToList}
+        onActionCompleted={(nextTab) => {
+          setStatusTab(nextTab as EventStatusMobile);
+          // Immediately fetch using the desired tab to avoid stale data
+          reloadWith(nextTab as EventStatusMobile);
+        }}
       />
     );
   }
@@ -297,7 +498,9 @@ export default function App() {
           <Segmented
             options={[
               { key: "upcoming", label: "Upcoming" },
+              { key: "drafts", label: "Drafts" },
               { key: "past", label: "Past" },
+              { key: "deleted", label: "Deleted" },
             ]}
             value={statusTab}
             onChange={(v) => setStatusTab(v as EventStatusMobile)}
@@ -355,7 +558,13 @@ export default function App() {
               </View>
             )
           }
-          renderItem={({ item }) => <EventCard item={item} onPress={() => handleEventPress(item.id)} />}
+          renderItem={({ item }) => (
+            <EventCard 
+              item={item} 
+              onPress={() => handleEventPress(item.id)} 
+              actions={getEventActions(item)}
+            />
+          )}
           onEndReachedThreshold={0.01}
           onEndReached={() => {
             if (!endReachedOnce.current) {
@@ -387,8 +596,26 @@ function DietTag({ diet }: { diet: Diet }) {
   );
 }
 
-function StatusPill({ status }: { status: "active" | "cancelled" }) {
-  const isActive = status === "active";
+function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "deleted" | "past" }) {
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "active":
+        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
+      case "cancelled":
+        return { color: "rgba(239,68,68,0.95)", icon: "close-circle", textColor: "#7f1d1d" };
+      case "draft":
+        return { color: "rgba(251,191,36,0.95)", icon: "create-outline", textColor: "#78350f" };
+      case "deleted":
+        return { color: "rgba(107,114,128,0.95)", icon: "trash-outline", textColor: "#111827" };
+      case "past":
+        return { color: "rgba(59,130,246,0.95)", icon: "time-outline", textColor: "#1e3a8a" };
+      default:
+        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
+    }
+  };
+
+  const config = getStatusConfig(status);
+  
   return (
     <View
       style={{
@@ -397,11 +624,16 @@ function StatusPill({ status }: { status: "active" | "cancelled" }) {
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 16,
-        backgroundColor: isActive ? "rgba(16,185,129,0.95)" : "rgba(239,68,68,0.95)",
+        backgroundColor: config.color,
       }}
     >
-      <Ionicons name={isActive ? "reload-circle" : "close-circle"} size={14} color="#0b3d2a" />
-      <Text style={{ fontSize: 12, fontWeight: "700", color: "#0b3d2a", marginLeft: 6 }}>{status}</Text>
+      <Ionicons
+        name={config.icon as any}
+        size={14}
+        color="#fff"
+        style={{ marginRight: 4 }}
+      />
+      <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }}>{status}</Text>
     </View>
   );
 }
@@ -429,7 +661,21 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
   );
 }
 
-function EventCard({ item, onPress }: { item: EventItem; onPress: () => void }) {
+function EventCard({ 
+  item, 
+  onPress, 
+  actions = [] 
+}: { 
+  item: EventItem; 
+  onPress: () => void; 
+  actions?: Array<{
+    key: string;
+    label: string;
+    icon: string;
+    color: string;
+    handler: () => void;
+  }>;
+}) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
   const cardColors = gradients.card.pink;
   return (
@@ -472,6 +718,26 @@ function EventCard({ item, onPress }: { item: EventItem; onPress: () => void }) 
           />
         </View>
       </View>
+
+      {/* Action buttons based on event status and ownership */}
+      {actions.length > 0 && (
+        <View style={styles.actionsContainer}>
+          {actions.map((action) => (
+            <Pressable 
+              key={action.key}
+              onPress={(e) => {
+                e.stopPropagation(); // Prevent triggering the card press
+                console.log("EventList - Action button pressed:", action.key, action.label, "for event:", item.id);
+                action.handler();
+              }}
+              style={[styles.actionButton, { backgroundColor: action.color }]}
+            >
+              <Ionicons name={action.icon as any} size={14} color="#fff" style={{ marginRight: 4 }} />
+              <Text style={styles.actionButtonText}>{action.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
       </LinearGradient>
     </Pressable>
   );
@@ -565,4 +831,30 @@ const styles = StyleSheet.create({
 
   // Standardized list padding
   listContent: { paddingHorizontal: PAGE_PADDING, paddingBottom: 24 },
+
+  // Action buttons styles
+  actionsContainer: {
+    marginTop: 12,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  actionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    ...Platform.select({
+      ios: { shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+      android: { elevation: 3 },
+    }),
+    minWidth: 80,
+  },
+  actionButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
 });

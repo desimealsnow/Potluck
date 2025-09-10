@@ -36,6 +36,7 @@ export default function CreateEventScreen({
   onBack?: () => void; 
 }) {
   const [step, setStep] = useState<StepperStep>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 1 – Details
   const [title, setTitle] = useState("");
@@ -85,8 +86,23 @@ export default function CreateEventScreen({
   );
 
 
-  const submit = async () => {
+  const publishEvent = async (eventId: string) => {
     try {
+      await apiClient.post(`/events/${eventId}/publish`);
+      Alert.alert("🎉 Event Published!", "Your event is now live and visible to participants!");
+      if (onEventCreated) {
+        onEventCreated(eventId);
+      }
+    } catch (e: any) {
+      console.error("Publish event error:", e);
+      Alert.alert("Failed to publish", e?.message ?? "Unknown error");
+    }
+  };
+
+  const submit = async () => {
+    if (isSubmitting) return;
+    try {
+      setIsSubmitting(true);
       if (!selectedLoc) {
         Alert.alert("Missing location", "Please select a location for your event.");
         return;
@@ -96,8 +112,8 @@ export default function CreateEventScreen({
         title: title.trim(),
         description: description.trim() || undefined,
         event_date: combineDateTime(selectedDate, selectedTime),
-        min_guests: Number(minGuests),
-        max_guests: Number(maxGuests) || undefined,
+        min_guests: parseInt(minGuests, 10),
+        max_guests: maxGuests ? parseInt(maxGuests, 10) : undefined,
         meal_type: mealType,
         location: {
           name: selectedLoc.label,
@@ -110,28 +126,44 @@ export default function CreateEventScreen({
           .map(d => ({
             name: d.name.trim(),
             category: d.category || undefined,
-            per_guest_qty: d.per_guest_qty
+            per_guest_qty: Math.max(0.01, d.per_guest_qty)
           }))
       };
 
-      const response = await apiClient.post<{ event: { id: string } }>("/events", payload);
+      console.log("Creating event with payload:", JSON.stringify(payload, null, 2));
 
+      const response = await apiClient.post<any>("/events", payload);
+
+      console.log("Create event response:", JSON.stringify(response, null, 2));
+
+      // Handle different possible response structures
+      let eventId: string | null = null;
+      
+      // Try different possible response structures
       if (response.event?.id) {
-        setCreatedEventId(response.event.id);
-        Alert.alert("🎉 Potluck created!", "Your event has been saved successfully!", [
-          {
-            text: "OK",
-            onPress: () => {
-              if (onEventCreated) {
-                onEventCreated(response.event.id);
-              }
-            }
-          }
-        ]);
+        eventId = response.event.id;
+      } else if (response.id) {
+        eventId = response.id;
+      } else if (response.event && typeof response.event === 'object' && 'id' in response.event) {
+        eventId = response.event.id;
+      } else if (response.data?.event?.id) {
+        eventId = response.data.event.id;
+      } else if (response.data?.id) {
+        eventId = response.data.id;
+      }
+
+      if (eventId) {
+        setCreatedEventId(eventId);
+      } else {
+        console.error("Unexpected response structure:", response);
+        Alert.alert("Error", "Unexpected response from server. Please try again.");
       }
     } catch (e: any) {
       console.error("Create event error:", e);
       Alert.alert("Failed to create", e?.message ?? "Unknown error");
+    }
+    finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -369,10 +401,14 @@ export default function CreateEventScreen({
               </Text>
               
               {createdEventId ? (
-                <ParticipantsScreen 
-                  eventId={createdEventId} 
-                  showHeader={false}
-                />
+                <View style={{ marginTop: 8 }}>
+                  <Text style={[styles.label, { fontSize: 16 }]}>🎉 Potluck created as draft</Text>
+                  <View style={{ backgroundColor: "rgba(255,255,255,0.8)", padding: 14, borderRadius: 12, marginTop: 8 }}>
+                    <Text style={{ color: "#333", lineHeight: 20 }}>
+                      Your event has been saved as a draft. You can publish it now, or edit and publish later from the Drafts tab in Events.
+                    </Text>
+                  </View>
+                </View>
               ) : (
                 <View style={{ marginTop: 16 }}>
                   {/* Participant Planning */}
@@ -405,35 +441,58 @@ export default function CreateEventScreen({
           )}
         </ScrollView>
 
-        {/* Sticky footer */}
+        {/* Sticky footer */
+        }
         <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer}>
           <View style={styles.footerInner}>
-            <Pressable
-              onPress={() => setStep((s) => Math.max(0, s - 1) as StepperStep)}
-              disabled={step === 0}
-              style={[styles.ghostBtn, step === 0 && { opacity: 0.5 }]}
-            >
-              <Text style={styles.ghostText}>Back</Text>
-            </Pressable>
-
-            {step < 3 ? (
-              <Pressable
-                onPress={() => {
-                  if (step === 0 && !canNextFromDetails) return Alert.alert("Missing info", "Please fill title, date, time and valid guest counts.");
-                  if (step === 1 && !canNextFromLocation) return Alert.alert("Pick a location", "Please select a location to continue.");
-                  setStep((s) => Math.min(3, s + 1) as StepperStep);
-                }}
-                style={styles.cta}
-              >
-                <Text style={styles.ctaText}>Next</Text>
-              </Pressable>
+            {createdEventId ? (
+              <>
+                <Pressable
+                  onPress={() => publishEvent(createdEventId)}
+                  style={styles.ghostBtn}
+                >
+                  <Text style={styles.ghostText}>Publish</Text>
+                </Pressable>
+                <Pressable 
+                  onPress={() => {
+                    if (onEventCreated && createdEventId) onEventCreated(createdEventId);
+                  }}
+                  style={styles.cta}
+                >
+                  <Text style={styles.ctaText}>OK</Text>
+                </Pressable>
+              </>
             ) : (
-              <Pressable 
-                onPress={submit}
-                style={styles.cta}
-              >
-                <Text style={styles.ctaText}>🎉 Create Potluck!</Text>
-              </Pressable>
+              <>
+                <Pressable
+                  onPress={() => setStep((s) => Math.max(0, s - 1) as StepperStep)}
+                  disabled={step === 0}
+                  style={[styles.ghostBtn, step === 0 && { opacity: 0.5 }]}
+                >
+                  <Text style={styles.ghostText}>Back</Text>
+                </Pressable>
+
+                {step < 3 ? (
+                  <Pressable
+                    onPress={() => {
+                      if (step === 0 && !canNextFromDetails) return Alert.alert("Missing info", "Please fill title, date, time and valid guest counts.");
+                      if (step === 1 && !canNextFromLocation) return Alert.alert("Pick a location", "Please select a location to continue.");
+                      setStep((s) => Math.min(3, s + 1) as StepperStep);
+                    }}
+                    style={styles.cta}
+                  >
+                    <Text style={styles.ctaText}>Next</Text>
+                  </Pressable>
+                ) : (
+                  <Pressable 
+                    onPress={submit}
+                    disabled={isSubmitting}
+                    style={[styles.cta, isSubmitting && { opacity: 0.6 }]}
+                  >
+                    <Text style={styles.ctaText}>{isSubmitting ? 'Creating…' : '🎉 Create Potluck!'}</Text>
+                  </Pressable>
+                )}
+              </>
             )}
           </View>
         </LinearGradient>

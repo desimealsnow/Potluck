@@ -100,7 +100,7 @@ export async function getEventDetails(
     .from('events')
     .select(`
       id, created_by, title, description, event_date, min_guests, max_guests,
-      meal_type, attendee_count,
+      meal_type, attendee_count, status,
       location:locations (
          name, formatted_address, latitude, longitude
       ),
@@ -130,6 +130,16 @@ export async function getEventDetails(
   }
 
   /* 4️⃣  Assemble payload */
+  // Determine ownership based on created_by and current user
+  const isOwner = jwt ? (() => {
+    try {
+      const payload = JSON.parse(Buffer.from(jwt.split('.')[1], 'base64').toString());
+      return data.created_by === payload.sub;
+    } catch {
+      return false;
+    }
+  })() : false;
+
   const response: EventFull = {
     event: {
       id: data.id,
@@ -141,8 +151,10 @@ export async function getEventDetails(
       meal_type: data.meal_type,
       attendee_count: data.attendee_count,
       created_by: data.created_by,
+      status: data.status,
+      ownership: isOwner ? 'mine' : 'invited',
       location: Array.isArray(data.location) ? data.location[0] : data.location
-    },
+    } as any, // Type assertion to handle ownership field
     items: data.items ?? [],
     participants: data.participants ?? []
   };

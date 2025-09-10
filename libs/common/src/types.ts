@@ -26,10 +26,17 @@ export type Location = components['schemas']['Location'];
 export type BillingPlan = components['schemas']['BillingPlan'];
 export type Subscription = components['schemas']['Subscription'];
 export type CheckoutSession = components['schemas']['CheckoutSession'];
-export type EventPayment = components['schemas']['EventPayment'];
 export type SignUp = components['schemas']['SignUp'];
 export type Login = components['schemas']['Login'];
 export type ApiError = components['schemas']['Error'];
+
+// Provider-agnostic billing/payment types
+export type PaymentMethod = components['schemas']['PaymentMethod'];
+export type PaymentMethodCreate = components['schemas']['PaymentMethodCreate'];
+export type PaymentMethodUpdate = components['schemas']['PaymentMethodUpdate'];
+export type Invoice = components['schemas']['Invoice'];
+export type Payment = components['schemas']['Payment'];
+export type SubscriptionUpdate = components['schemas']['SubscriptionUpdate'];
 
 // Alias for backward compatibility
 export type EventCreatePayload = EventCreate;
@@ -37,7 +44,7 @@ export type EventCreatePayload = EventCreate;
 // Mobile-specific type extensions
 export type MealType = "veg" | "nonveg" | "mixed";
 
-export type EventStatusMobile = "upcoming" | "past";
+export type EventStatusMobile = "upcoming" | "past" | "drafts" | "deleted";
 
 export type Ownership = "all" | "mine" | "invited";
 
@@ -57,7 +64,8 @@ export type EventItem = {
   venue: string;
   attendeeCount: number;
   diet: Diet;
-  statusBadge?: "active" | "cancelled";
+  statusBadge?: "active" | "cancelled" | "draft" | "deleted" | "past";
+  actualStatus?: string; // Store the actual backend status
   ownership?: "mine" | "invited" | "public";
   attendeesPreview?: Attendee[]; // first 3–4 faces
 };

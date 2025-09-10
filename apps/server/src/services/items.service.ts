@@ -1,5 +1,6 @@
 import { supabase } from '../config/supabaseClient';
 import { components } from '../../../../libs/common/src/types.gen';
+import logger from '../logger';
 import { z } from 'zod';
 import { schemas }  from '../validators';           // <- generated Zod objects
 import {ServiceResult, toDbColumns, mapDbError } from '../utils/helper';
@@ -16,13 +17,19 @@ export async function addItem(
   input: ItemCreate,
   userId: string
 ): Promise<ServiceResult<components['schemas']['Item']>> {
+  logger.info(`addItem: start`, { eventId, userId, input });
   const { data, error } = await supabase
     .from('event_items')
-    .insert([{ ...input, event_id: eventId, host_id: userId }])
+    .insert([{ ...input, event_id: eventId, created_by: userId }])
     .select()
     .single();
 
-  if (error)  return { ok:false, error: 'NotFound', code: '404' };
+  if (error) {
+    logger.error(`addItem: insert failed`, { eventId, userId, input, dbError: error });
+    // Surface a better code using mapDbError if available
+    return { ok:false, error: error.message || 'Insert failed', code: (error.code as any) || '500' };
+  }
+  logger.info(`addItem: success`, { eventId, itemId: (data as any)?.id });
   return { ok:true,data: data as Item };
 }
 
@@ -90,8 +97,15 @@ export async function assignItem(
   actorId: string,
   payload: ItemAssignPayload
 ): Promise<ServiceResult<Item>> {
+  logger.debug('assignItem start', { eventId, itemId, actorId, payload });
+  
   // 1️⃣  Validate input shape
-  schemas.ItemAssign.parse(payload);
+  try {
+    schemas.ItemAssign.parse(payload);
+  } catch (err) {
+    logger.error('assignItem validation error', { eventId, itemId, actorId, payload, error: err });
+    return { ok: false, error: (err as Error).message, code: '400' };
+  }
 
   // 2️⃣  Business checks
   const eventCheck = await ensureEventEditable(eventId);   // status not cancelled/completed
@@ -100,17 +114,80 @@ export async function assignItem(
   const canAssign = await ensureActorCanAssign(eventId, itemId, actorId, payload.targetUserId);
   if (!canAssign.ok) return canAssign;
 
-  // 3️⃣  Attempt assignment (optimistic)
+  // 3️⃣  First check if item exists and get current state
+  logger.debug('assignItem fetching existing item', { eventId, itemId });
+  
+  // First check if there are multiple items with the same ID (shouldn't happen but let's debug)
+  const { data: allItems, error: listError } = await supabase
+    .from('event_items')
+    .select('id, assigned_to, event_id')
+    .eq('id', itemId)
+    .eq('event_id', eventId);
+    
+  if (listError) {
+    logger.error('assignItem list check error', { eventId, itemId, error: listError });
+    return mapDbError(listError);
+  }
+  
+  if (allItems && allItems.length > 1) {
+    logger.error('assignItem found duplicate items', { eventId, itemId, count: allItems.length, items: allItems });
+    return { ok: false, error: 'Duplicate items found', code: '500' };
+  }
+  
+  const { data: existingItem, error: fetchError } = await supabase
+    .from('event_items')
+    .select('id, assigned_to')
+    .eq('id', itemId)
+    .eq('event_id', eventId)
+    .single();
+
+  if (fetchError) {
+    logger.error('assignItem fetch error', { 
+      eventId, 
+      itemId, 
+      error: fetchError.message,
+      code: fetchError.code 
+    });
+    return mapDbError(fetchError);
+  }
+  if (!existingItem) {
+    return { ok: false, error: 'Item not found', code: '404' };
+  }
+
+  // 4️⃣  Validate assignment rules
+  const currentAssignee = existingItem.assigned_to;
+  if (payload.targetUserId === null) {
+    // Unassign: only if currently assigned
+    if (!currentAssignee) {
+      return { ok: false, error: 'Item is not currently assigned', code: '409' };
+    }
+  } else {
+    // Assign: only if currently unassigned
+    if (currentAssignee) {
+      return { ok: false, error: 'Item is already assigned', code: '409' };
+    }
+  }
+
+  // 5️⃣  Perform the update
+  logger.debug('assignItem performing update', { eventId, itemId, targetUserId: payload.targetUserId });
   const { data, error } = await supabase
     .from('event_items')
     .update({ assigned_to: payload.targetUserId })
     .eq('id', itemId)
     .eq('event_id', eventId)
-    .is('assigned_to', payload.targetUserId === null ? 'not.is' : 'is') // only assign if currently unassigned (or undo)
     .select()
     .single();
 
-  if (error) return mapDbError(error);
+  if (error) {
+    logger.error('assignItem query error', { 
+      eventId, 
+      itemId, 
+      targetUserId: payload.targetUserId, 
+      error: error.message,
+      code: error.code 
+    });
+    return mapDbError(error);
+  }
   if (!data)  return { ok:false, error: 'NotFound', code: '404' };
 
   return { ok:true,data: data as Item };

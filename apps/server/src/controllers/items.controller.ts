@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../middleware/authGuard';
 import * as ItemService from '../services/items.service';
 import { components } from '../../../../libs/common/src/types.gen';
 import { handle } from '../utils/helper';
+import logger from '../logger';
 
 type AddItemInput  = components['schemas']['ItemCreate'];
 type UpdateItemInput  = components['schemas']['ItemUpdate'];
@@ -30,6 +31,8 @@ export const assignItem = async (req: AuthenticatedRequest, res: Response) => {
   // body may be empty → self-assign
   const input  = req.body as Partial<AssignItemInput>;
   const target = input.user_id ?? actorId;
+  
+  logger.debug('assignItem controller', { eventId, itemId, actorId, input, target });
 
   const result = await ItemService.assignItem(
     eventId,
@@ -45,6 +48,8 @@ export const assignItem = async (req: AuthenticatedRequest, res: Response) => {
 export const unassignItem = async (req: AuthenticatedRequest, res: Response) => {
   const { eventId, itemId } = req.params;
   const actorId              = req.user!.id;
+
+  logger.debug('unassignItem controller', { eventId, itemId, actorId });
 
   const result = await ItemService.assignItem(
     eventId,
@@ -87,9 +92,13 @@ export const addItem = async (req: AuthenticatedRequest, res: Response) => {
   const { eventId } = req.params;
   const actorId      = req.user!.id;
   const payload      = req.body as ItemCreateInput;
-
+  logger.info('HTTP addItem', { eventId, actorId, payload });
   const result = await ItemService.addItem(eventId, payload, actorId);
-
+  if (!result.ok) {
+    logger.error('HTTP addItem failed', { eventId, actorId, payload, result });
+  } else {
+    logger.info('HTTP addItem success', { eventId, actorId, itemId: (result.data as any)?.id });
+  }
   // handle() will send 201 if service sets code='201' or ok:true + res.status(201)
   return handle(res, result);
 };

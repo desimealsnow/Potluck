@@ -1057,7 +1057,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start Stripe Checkout for a plan */
+        /** Start checkout for a subscription plan */
         post: {
             parameters: {
                 query?: never;
@@ -1068,7 +1068,10 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
+                        /** Format: uuid */
                         plan_id: string;
+                        /** @enum {string} */
+                        provider: "stripe" | "paypal" | "razorpay" | "square";
                     };
                 };
             };
@@ -1169,46 +1172,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/{eventId}/pay": {
+    "/billing/payment-methods": {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                /** @description Event ID */
-                eventId: components["parameters"]["eventId"];
-            };
+            path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Create a payment for my share of the event */
-        post: {
+        /** List user's payment methods */
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path: {
-                    /** @description Event ID */
-                    eventId: components["parameters"]["eventId"];
-                };
+                path?: never;
                 cookie?: never;
             };
-            requestBody?: {
-                content: {
-                    "application/json": {
-                        /** @description Optional override. If omitted, backend uses the suggested split.
-                         *      */
-                        amount_cents?: number;
-                    };
-                };
-            };
+            requestBody?: never;
             responses: {
-                /** @description Checkout URL created */
+                /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["CheckoutSession"];
+                        "application/json": components["schemas"]["PaymentMethod"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Add new payment method */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PaymentMethodCreate"];
+                };
+            };
+            responses: {
+                /** @description Payment method added */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaymentMethod"];
                     };
                 };
             };
@@ -1219,24 +1232,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events/{eventId}/payments": {
+    "/billing/payment-methods/{methodId}": {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Event ID */
-                eventId: components["parameters"]["eventId"];
+                /** @description Payment method ID */
+                methodId: string;
             };
             cookie?: never;
         };
-        /** List all participant payments for an event */
+        /** Get specific payment method */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description Event ID */
-                    eventId: components["parameters"]["eventId"];
+                    /** @description Payment method ID */
+                    methodId: string;
                 };
                 cookie?: never;
             };
@@ -1248,13 +1261,353 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["EventPayment"][];
+                        "application/json": components["schemas"]["PaymentMethod"];
+                    };
+                };
+            };
+        };
+        /** Update payment method */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment method ID */
+                    methodId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PaymentMethodUpdate"];
+                };
+            };
+            responses: {
+                /** @description Updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaymentMethod"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Remove payment method */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment method ID */
+                    methodId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payment method removed */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/payment-methods/{methodId}/set-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Payment method ID */
+                methodId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set as default payment method */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Payment method ID */
+                    methodId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Set as default */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List user invoices */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Invoice"][];
                     };
                 };
             };
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/invoices/{invoiceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Invoice ID */
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        /** Get specific invoice */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Invoice ID */
+                    invoiceId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Invoice"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/invoices/{invoiceId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Invoice ID */
+                invoiceId: string;
+            };
+            cookie?: never;
+        };
+        /** Download invoice PDF */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Invoice ID */
+                    invoiceId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF file */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": string;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/subscriptions/{subscriptionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Subscription ID */
+                subscriptionId: string;
+            };
+            cookie?: never;
+        };
+        /** Get specific subscription */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    subscriptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Subscription"];
+                    };
+                };
+            };
+        };
+        /** Update subscription */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    subscriptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SubscriptionUpdate"];
+                };
+            };
+            responses: {
+                /** @description Updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Subscription"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Cancel subscription */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    subscriptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Subscription canceled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/subscriptions/{subscriptionId}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Subscription ID */
+                subscriptionId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivate canceled subscription */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Subscription ID */
+                    subscriptionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Reactivated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Subscription"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1415,7 +1768,11 @@ export interface components {
             assigned_to?: string | null;
         };
         BillingPlan: {
+            /** Format: uuid */
             id: string;
+            price_id: string;
+            /** @enum {string} */
+            provider: "stripe" | "paypal" | "razorpay" | "square";
             name: string;
             amount_cents: number;
             /** @example usd */
@@ -1423,6 +1780,8 @@ export interface components {
             /** @enum {string} */
             interval: "month" | "year";
             is_active?: boolean;
+            /** Format: date-time */
+            created_at?: string;
         };
         PaymentIntentResponse: {
             /** Format: uri */
@@ -1431,11 +1790,26 @@ export interface components {
         Subscription: {
             /** Format: uuid */
             id: string;
+            /** Format: uuid */
             plan_id: string;
+            provider_subscription_id: string;
             /** @enum {string} */
-            status: "active" | "trialing" | "past_due" | "canceled" | "incomplete";
+            provider: "stripe" | "paypal" | "razorpay" | "square";
+            /** @enum {string} */
+            status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "incomplete_expired";
+            /** Format: date-time */
+            current_period_start?: string;
             /** Format: date-time */
             current_period_end: string;
+            /** Format: date-time */
+            trial_start?: string;
+            /** Format: date-time */
+            trial_end?: string;
+            cancel_at_period_end?: boolean;
+            /** Format: date-time */
+            created_at?: string;
+            /** Format: date-time */
+            updated_at?: string;
         };
         CheckoutSession: {
             /** Format: uri */
@@ -1454,20 +1828,76 @@ export interface components {
              */
             notifyGuests: boolean;
         };
-        EventPayment: {
+        PaymentMethod: {
             /** Format: uuid */
             id: string;
             /** Format: uuid */
-            event_id?: string;
-            /** Format: uuid */
             user_id: string;
-            amount_cents: number;
-            /** @example usd */
-            currency?: string;
             /** @enum {string} */
-            status: "pending" | "paid" | "refunded";
+            provider: "stripe" | "paypal" | "razorpay" | "square";
+            method_id: string;
+            is_default: boolean;
+            brand?: string;
+            last_four?: string;
+            exp_month?: number;
+            exp_year?: number;
             /** Format: date-time */
             created_at?: string;
+        };
+        PaymentMethodCreate: {
+            /** @enum {string} */
+            provider: "stripe" | "paypal" | "razorpay" | "square";
+            method_id: string;
+            /** @default false */
+            is_default: boolean;
+        };
+        PaymentMethodUpdate: {
+            is_default?: boolean;
+        };
+        Invoice: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            subscription_id?: string;
+            /** Format: uuid */
+            user_id: string;
+            invoice_id?: string;
+            /** @enum {string} */
+            provider: "stripe" | "paypal" | "razorpay" | "square";
+            amount_cents: number;
+            /** @example usd */
+            currency: string;
+            /** @enum {string} */
+            status: "draft" | "open" | "paid" | "void" | "uncollectible";
+            /** Format: date-time */
+            invoice_date: string;
+            /** Format: date-time */
+            paid_date?: string;
+            /** Format: date-time */
+            created_at?: string;
+        };
+        Payment: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            invoice_id: string;
+            provider_transaction_id?: string;
+            /** @enum {string} */
+            provider: "stripe" | "paypal" | "razorpay" | "square";
+            amount_cents: number;
+            /** @example usd */
+            currency: string;
+            /** @enum {string} */
+            status: "pending" | "succeeded" | "failed" | "refunded";
+            /** Format: date-time */
+            paid_at?: string;
+            /** Format: date-time */
+            created_at?: string;
+        };
+        SubscriptionUpdate: {
+            cancel_at_period_end?: boolean;
+            /** Format: uuid */
+            plan_id?: string;
         };
     };
     responses: {

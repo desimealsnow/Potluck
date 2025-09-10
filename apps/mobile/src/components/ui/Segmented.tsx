@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
   text: {
-    color: '#f7f7f7',
+    color: '#374151',
     fontWeight: typography.fontWeight.bold,
     fontSize: typography.fontSize.sm,
   },

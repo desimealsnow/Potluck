@@ -138,12 +138,21 @@ const postEventsEventIdparticipantsbulk_Body = z
   .passthrough();
 const BillingPlan = z
   .object({
-    id: z.string(),
+    id: z.string().uuid(),
+    price_id: z.string(),
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
     name: z.string(),
     amount_cents: z.number().int(),
     currency: z.string(),
     interval: z.enum(["month", "year"]),
     is_active: z.boolean().optional(),
+    created_at: z.string().datetime({ offset: true }).optional(),
+  })
+  .passthrough();
+const postBillingcheckoutsubscription_Body = z
+  .object({
+    plan_id: z.string().uuid(),
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
   })
   .passthrough();
 const CheckoutSession = z
@@ -152,27 +161,69 @@ const CheckoutSession = z
 const Subscription = z
   .object({
     id: z.string().uuid(),
-    plan_id: z.string(),
+    plan_id: z.string().uuid(),
+    provider_subscription_id: z.string(),
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
     status: z.enum([
       "active",
       "trialing",
       "past_due",
       "canceled",
       "incomplete",
+      "incomplete_expired",
     ]),
+    current_period_start: z.string().datetime({ offset: true }).optional(),
     current_period_end: z.string().datetime({ offset: true }),
+    trial_start: z.string().datetime({ offset: true }).optional(),
+    trial_end: z.string().datetime({ offset: true }).optional(),
+    cancel_at_period_end: z.boolean().optional(),
+    created_at: z.string().datetime({ offset: true }).optional(),
+    updated_at: z.string().datetime({ offset: true }).optional(),
   })
   .passthrough();
-const EventPayment = z
+const PaymentMethod = z
   .object({
     id: z.string().uuid(),
-    event_id: z.string().uuid().optional(),
     user_id: z.string().uuid(),
-    amount_cents: z.number().int(),
-    currency: z.string().optional(),
-    status: z.enum(["pending", "paid", "refunded"]),
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    method_id: z.string(),
+    is_default: z.boolean(),
+    brand: z.string().optional(),
+    last_four: z.string().optional(),
+    exp_month: z.number().int().optional(),
+    exp_year: z.number().int().optional(),
     created_at: z.string().datetime({ offset: true }).optional(),
   })
+  .passthrough();
+const PaymentMethodCreate = z
+  .object({
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    method_id: z.string(),
+    is_default: z.boolean().optional().default(false),
+  })
+  .passthrough();
+const PaymentMethodUpdate = z
+  .object({ is_default: z.boolean() })
+  .partial()
+  .passthrough();
+const Invoice = z
+  .object({
+    id: z.string().uuid(),
+    subscription_id: z.string().uuid().optional(),
+    user_id: z.string().uuid(),
+    invoice_id: z.string().optional(),
+    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    amount_cents: z.number().int(),
+    currency: z.string(),
+    status: z.enum(["draft", "open", "paid", "void", "uncollectible"]),
+    invoice_date: z.string().datetime({ offset: true }),
+    paid_date: z.string().datetime({ offset: true }).optional(),
+    created_at: z.string().datetime({ offset: true }).optional(),
+  })
+  .passthrough();
+const SubscriptionUpdate = z
+  .object({ cancel_at_period_end: z.boolean(), plan_id: z.string().uuid() })
+  .partial()
   .passthrough();
 const EventIdParam = z.object({ eventId: z.string().uuid() }).passthrough();
 
@@ -200,9 +251,14 @@ export const schemas = {
   ParticipantBulkAdd,
   postEventsEventIdparticipantsbulk_Body,
   BillingPlan,
+  postBillingcheckoutsubscription_Body,
   CheckoutSession,
   Subscription,
-  EventPayment,
+  PaymentMethod,
+  PaymentMethodCreate,
+  PaymentMethodUpdate,
+  Invoice,
+  SubscriptionUpdate,
   EventIdParam,
 };
 
@@ -272,10 +328,127 @@ const endpoints = makeApi([
       {
         name: "body",
         type: "Body",
-        schema: z.object({ plan_id: z.string() }).passthrough(),
+        schema: postBillingcheckoutsubscription_Body,
       },
     ],
     response: z.object({ checkout_url: z.string().url() }).passthrough(),
+  },
+  {
+    method: "get",
+    path: "/billing/invoices",
+    alias: "getBillinginvoices",
+    requestFormat: "json",
+    response: z.array(Invoice),
+  },
+  {
+    method: "get",
+    path: "/billing/invoices/:invoiceId",
+    alias: "getBillinginvoicesInvoiceId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "invoiceId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: Invoice,
+  },
+  {
+    method: "get",
+    path: "/billing/invoices/:invoiceId/download",
+    alias: "getBillinginvoicesInvoiceIddownload",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "invoiceId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: "get",
+    path: "/billing/payment-methods",
+    alias: "getBillingpaymentMethods",
+    requestFormat: "json",
+    response: z.array(PaymentMethod),
+  },
+  {
+    method: "post",
+    path: "/billing/payment-methods",
+    alias: "postBillingpaymentMethods",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: PaymentMethodCreate,
+      },
+    ],
+    response: PaymentMethod,
+  },
+  {
+    method: "get",
+    path: "/billing/payment-methods/:methodId",
+    alias: "getBillingpaymentMethodsMethodId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "methodId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: PaymentMethod,
+  },
+  {
+    method: "put",
+    path: "/billing/payment-methods/:methodId",
+    alias: "putBillingpaymentMethodsMethodId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ is_default: z.boolean() }).partial().passthrough(),
+      },
+      {
+        name: "methodId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: PaymentMethod,
+  },
+  {
+    method: "delete",
+    path: "/billing/payment-methods/:methodId",
+    alias: "deleteBillingpaymentMethodsMethodId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "methodId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: "post",
+    path: "/billing/payment-methods/:methodId/set-default",
+    alias: "postBillingpaymentMethodsMethodIdsetDefault",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "methodId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
   },
   {
     method: "get",
@@ -290,6 +463,67 @@ const endpoints = makeApi([
     alias: "getBillingsubscriptions",
     requestFormat: "json",
     response: z.array(Subscription),
+  },
+  {
+    method: "get",
+    path: "/billing/subscriptions/:subscriptionId",
+    alias: "getBillingsubscriptionsSubscriptionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "subscriptionId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: Subscription,
+  },
+  {
+    method: "put",
+    path: "/billing/subscriptions/:subscriptionId",
+    alias: "putBillingsubscriptionsSubscriptionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: SubscriptionUpdate,
+      },
+      {
+        name: "subscriptionId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: Subscription,
+  },
+  {
+    method: "delete",
+    path: "/billing/subscriptions/:subscriptionId",
+    alias: "deleteBillingsubscriptionsSubscriptionId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "subscriptionId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: z.void(),
+  },
+  {
+    method: "post",
+    path: "/billing/subscriptions/:subscriptionId/reactivate",
+    alias: "postBillingsubscriptionsSubscriptionIdreactivate",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "subscriptionId",
+        type: "Path",
+        schema: z.string().uuid(),
+      },
+    ],
+    response: Subscription,
   },
   {
     method: "post",
@@ -997,42 +1231,6 @@ Stripe signs the payload; verify in the handler.
         schema: Error,
       },
     ],
-  },
-  {
-    method: "post",
-    path: "/events/:eventId/pay",
-    alias: "postEventsEventIdpay",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "body",
-        type: "Body",
-        schema: z
-          .object({ amount_cents: z.number().int().gte(1) })
-          .partial()
-          .passthrough(),
-      },
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: z.object({ checkout_url: z.string().url() }).passthrough(),
-  },
-  {
-    method: "get",
-    path: "/events/:eventId/payments",
-    alias: "getEventsEventIdpayments",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: z.array(EventPayment),
   },
   {
     method: "post",
