@@ -54,16 +54,45 @@ export class PaymentProviderService {
    */
   async createCheckoutSession(data: CheckoutData): Promise<ServiceResult<{ checkout_url: string }>> {
     try {
-      // For test mode without store ID, return a mock checkout URL
-      if (!this.config.storeId) {
-        console.warn('Test mode: Returning mock checkout URL');
-        return {
-          ok: true,
-          data: { 
-            checkout_url: `https://test-checkout.lemonsqueezy.com/checkout?plan=${data.planId}&user=${data.userId}` 
-          },
-        };
-      }
+        // For test mode without store ID, we can test the API connection
+        // but we need a store ID to create actual checkouts
+        if (!this.config.storeId) {
+          console.warn('Test mode: No store ID configured. Testing API connection only.');
+          console.warn('To create real checkouts, you need to:');
+          console.warn('1. Set up a LemonSqueezy test store');
+          console.warn('2. Set LEMONSQUEEZY_STORE_ID in your .env file');
+          console.warn('3. See LEMONSQUEEZY_TEST_SETUP.md for detailed instructions');
+          
+          // Test API connection without creating checkout
+          try {
+            const testResponse = await fetch('https://api.lemonsqueezy.com/v1/stores', {
+              headers: {
+                'Authorization': `Bearer ${this.config.apiKey}`,
+                'Accept': 'application/vnd.api+json',
+                'Content-Type': 'application/vnd.api+json',
+              },
+            });
+
+            if (testResponse.ok) {
+              console.log('✅ LemonSqueezy API connection successful');
+              return {
+                ok: true,
+                data: {
+                  checkout_url: 'https://test-checkout.lemonsqueezy.com/checkout?plan=' + data.planId + '&user=' + data.userId + '&email=' + encodeURIComponent(data.userEmail) + '&name=' + encodeURIComponent(data.userName || '') + '&test_mode=true'
+                },
+              };
+            } else {
+              throw new Error(`API test failed: ${testResponse.status}`);
+            }
+          } catch (error) {
+            console.error('❌ LemonSqueezy API test failed:', error);
+            return {
+              ok: false,
+              error: 'LemonSqueezy API connection failed. Please check your LEMONSQUEEZY_API_KEY. See server logs for details.',
+              code: '500',
+            };
+          }
+        }
 
       const response = await fetch(`${this.baseUrl}/checkouts`, {
         method: 'POST',

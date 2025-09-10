@@ -48,6 +48,14 @@ export const BillingController = {
     const userId = req.user?.id;
     const userEmail = req.user?.email;
     
+    console.log('🛒 Checkout Request:', {
+      plan_id,
+      provider,
+      userId,
+      userEmail,
+      userName: (req.user as any)?.name,
+    });
+    
     if (!plan_id || !provider) {
       return handle(res, err('plan_id and provider are required', '400'));
     }
@@ -63,6 +71,8 @@ export const BillingController = {
       userEmail: userEmail,
       userName: (req.user as any)?.name,
     });
+
+    console.log('🛒 Checkout Result:', result);
 
     if (!result.ok) {
       return handle(res, err(result.error, '500'));

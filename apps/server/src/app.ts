@@ -4,6 +4,7 @@ import authRouter       from './routes/auth.routes';
 import eventRoutes      from './routes/events.routes';
 import locationRoutes   from './routes/locations.routes';
 import billingRoutes    from './routes/billing.routes';
+import mockRoutes       from './routes/mock.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 export const createApp = () => {
@@ -30,6 +31,9 @@ export const createApp = () => {
   app.use('/api/v1/events',    eventRoutes);   // items & participants come with it
   app.use('/api/v1/locations', locationRoutes);
   app.use('/api/v1/billing',   billingRoutes);
+  
+  /* ---------- Mock routes for testing ---------- */
+  app.use('/', mockRoutes);
 
   /* ---------- Health check route ---------- */
   app.get('/health', (req, res) => {

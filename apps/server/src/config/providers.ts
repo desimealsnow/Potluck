@@ -60,7 +60,7 @@ export const SUPPORTED_PROVIDERS: Record<string, ProviderConfig> = {
     name: 'lemonsqueezy',
     displayName: 'LemonSqueezy',
     enabled: true,
-    requiresStoreId: true,
+    requiresStoreId: false, // Optional for testing - can test endpoint without store
     requiresWebhookSecret: false, // Optional for test mode
     apiKeyEnvVar: 'LEMONSQUEEZY_API_KEY',
     storeIdEnvVar: 'LEMONSQUEEZY_STORE_ID',
@@ -94,6 +94,8 @@ export function getEnabledProviders(): ProviderConfig[] {
     if (provider.requiresStoreId && !process.env[provider.storeIdEnvVar!]) {
       console.warn(`Provider ${provider.name} requires store ID but ${provider.storeIdEnvVar} is not set`);
       return false;
+    } else if (!provider.requiresStoreId && !process.env[provider.storeIdEnvVar!]) {
+      console.warn(`Provider ${provider.name} store ID not set - using test mode`);
     }
     
     return true;
@@ -128,6 +130,9 @@ export function validateProviderConfig(providerName: string): { valid: boolean; 
 
   if (config.requiresStoreId && !process.env[config.storeIdEnvVar!]) {
     errors.push(`Missing store ID: ${config.storeIdEnvVar}`);
+  } else if (!config.requiresStoreId && !process.env[config.storeIdEnvVar!]) {
+    // Optional store ID - just warn
+    console.warn(`Store ID ${config.storeIdEnvVar} not set for ${providerName} - using test mode`);
   }
 
   if (config.requiresWebhookSecret && !process.env[config.webhookSecretEnvVar!]) {

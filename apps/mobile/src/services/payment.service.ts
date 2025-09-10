@@ -78,10 +78,12 @@ export class PaymentService {
    */
   async getSubscriptions(): Promise<Subscription[]> {
     try {
+      console.log('🔍 Fetching subscriptions...');
       const response = await apiClient.get<Subscription[]>('/billing/subscriptions');
+      console.log('✅ Subscriptions fetched successfully:', response);
       return response;
     } catch (error) {
-      console.error('Failed to fetch subscriptions:', error);
+      console.error('❌ Failed to fetch subscriptions:', error);
       throw error;
     }
   }

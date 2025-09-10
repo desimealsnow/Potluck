@@ -3,6 +3,7 @@ import Debug from 'debug';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import './utils/envCheck'; // Check environment variables on startup
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

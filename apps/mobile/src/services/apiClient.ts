@@ -25,12 +25,20 @@ export class ApiClient {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     
+    console.log('🔐 Auth Debug:', {
+      hasSession: !!session,
+      hasToken: !!token,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+    });
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn('⚠️ No authentication token found');
     }
     
     return headers;
