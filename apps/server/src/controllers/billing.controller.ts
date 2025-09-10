@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabaseClient';
 import { handle, ServiceResult } from '../utils/helper';
 import { components } from '../../../../libs/common/src/types.gen';
+import { ProviderServiceFactory } from '../services/provider.factory';
 
 type BillingPlan = components['schemas']['BillingPlan'];
 type Subscription = components['schemas']['Subscription'];
@@ -44,15 +45,30 @@ export const BillingController = {
   // POST /billing/checkout/subscription
   async startCheckout(req: Request, res: Response) {
     const { plan_id, provider } = req.body || {};
+    const userId = req.user?.id;
+    const userEmail = req.user?.email;
+    
     if (!plan_id || !provider) {
       return handle(res, err('plan_id and provider are required', '400'));
     }
+    
+    if (!userId || !userEmail) {
+      return handle(res, err('User authentication required', '401'));
+    }
 
-    // TODO: integrate with provider checkout; return hosted URL
-    const session: CheckoutSession = {
-      checkout_url: `https://billing.example.com/checkout?plan=${encodeURIComponent(String(plan_id))}&provider=${encodeURIComponent(String(provider))}`,
-    };
-    return handle(res, ok(session));
+    // Use generic provider factory for checkout
+    const result = await ProviderServiceFactory.createCheckoutSession(provider, {
+      planId: plan_id,
+      userId: userId,
+      userEmail: userEmail,
+      userName: (req.user as any)?.name,
+    });
+
+    if (!result.ok) {
+      return handle(res, err(result.error, '500'));
+    }
+
+    return handle(res, ok(result.data));
   },
 
   // GET /billing/subscriptions
@@ -410,6 +426,43 @@ export const BillingController = {
     res.setHeader('Content-Type', 'application/pdf');
     const minimalPdf = Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF');
     return res.status(200).send(minimalPdf);
+  },
+
+  // POST /billing/webhook/:provider
+  async handleProviderWebhook(req: Request, res: Response) {
+    const { provider } = req.params;
+    const signature = req.headers['x-signature'] as string;
+    const payload = JSON.stringify(req.body);
+
+    if (!signature) {
+      return res.status(400).send('Missing signature');
+    }
+
+    // Verify webhook signature using generic factory
+    if (!ProviderServiceFactory.verifyWebhookSignature(provider, payload, signature)) {
+      return res.status(401).send('Invalid signature');
+    }
+
+    try {
+      const result = await ProviderServiceFactory.handleWebhook(provider, req.body);
+      
+      if (!result.ok) {
+        console.error('Webhook processing failed:', result.error);
+        return res.status(500).send('Webhook processing failed');
+      }
+
+      // TODO: Update database based on webhook event
+      // This would typically involve:
+      // 1. Parsing the webhook event
+      // 2. Updating subscription status in database
+      // 3. Creating/updating invoices
+      // 4. Sending confirmation emails
+
+      return res.status(200).send('Webhook processed successfully');
+    } catch (error) {
+      console.error('Webhook error:', error);
+      return res.status(500).send('Internal server error');
+    }
   },
 };
 

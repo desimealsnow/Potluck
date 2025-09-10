@@ -1,5 +1,9 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
+import { getProviderNames } from './config/providers';
+
+// Dynamic provider enum based on supported providers
+const ProviderEnum = z.enum(getProviderNames() as [string, ...string[]]);
 
 const SignUp = z
   .object({
@@ -140,7 +144,7 @@ const BillingPlan = z
   .object({
     id: z.string().uuid(),
     price_id: z.string(),
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
     name: z.string(),
     amount_cents: z.number().int(),
     currency: z.string(),
@@ -152,7 +156,7 @@ const BillingPlan = z
 const postBillingcheckoutsubscription_Body = z
   .object({
     plan_id: z.string().uuid(),
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
   })
   .passthrough();
 const CheckoutSession = z
@@ -163,7 +167,7 @@ const Subscription = z
     id: z.string().uuid(),
     plan_id: z.string().uuid(),
     provider_subscription_id: z.string(),
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
     status: z.enum([
       "active",
       "trialing",
@@ -185,7 +189,7 @@ const PaymentMethod = z
   .object({
     id: z.string().uuid(),
     user_id: z.string().uuid(),
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
     method_id: z.string(),
     is_default: z.boolean(),
     brand: z.string().optional(),
@@ -197,7 +201,7 @@ const PaymentMethod = z
   .passthrough();
 const PaymentMethodCreate = z
   .object({
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
     method_id: z.string(),
     is_default: z.boolean().optional().default(false),
   })
@@ -212,7 +216,7 @@ const Invoice = z
     subscription_id: z.string().uuid().optional(),
     user_id: z.string().uuid(),
     invoice_id: z.string().optional(),
-    provider: z.enum(["stripe", "paypal", "razorpay", "square"]),
+    provider: ProviderEnum,
     amount_cents: z.number().int(),
     currency: z.string(),
     status: z.enum(["draft", "open", "paid", "void", "uncollectible"]),

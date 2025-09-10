@@ -1,27 +1,77 @@
-node_modules
-apps/server/logs/
-<<<<<<< Current (Your changes)
-=======
+# Dependencies
+node_modules/
+apps/*/node_modules/
+
+# Logs
 logs/
+apps/*/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# builds
+# Build outputs
 dist/
+build/
 coverage/
+apps/*/dist/
+apps/*/build/
+apps/*/coverage/
 
-# test artefacts
+# Test artifacts
 test-results/
 apps/*/test-results/
 
-# environment files
+# Environment files - PROTECT ALL .env FILES
 .env
 .env.*
+!.env.example
+!.env.template
+apps/*/.env
+apps/*/.env.*
+!apps/*/.env.example
+!apps/*/.env.template
 
-# editor/OS
+# Editor/OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 .vscode/*
 !.vscode/settings.json
 !.vscode/launch.json
+!.vscode/extensions.json
 
-# Supabase local temp
+# Supabase
 supabase/.temp/
->>>>>>> Incoming (Background Agent changes)
+supabase/.branches/
+supabase/.temp/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

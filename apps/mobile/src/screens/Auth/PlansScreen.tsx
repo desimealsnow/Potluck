@@ -8,189 +8,107 @@ import {
   StyleSheet,
   Platform,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../config/supabaseClient";
+import { paymentService, type BillingPlan, type Subscription } from "../../services/payment.service";
+import { PlanCard as PaymentPlanCard } from "../../components/payment";
 
 /* ---------------- Config / REST ---------------- */
-const API_BASE_URL = "http://localhost:3000/api/v1"; // Backend server URL
-const USE_MOCK = false; // Use real API
-
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  if (USE_MOCK) return mockApi<T>(path, init);
-  
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...((init?.headers as Record<string, string>) || {})
-  };
-  
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
-  if (token) headers.Authorization = `Bearer ${token}`;
-  
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers
-  });
-  
-  if (!res.ok) {
-    const errorText = await res.text();
-    throw new Error(`HTTP ${res.status}: ${errorText}`);
-  }
-  
-  return res.json();
-}
 
 /* ---------------- Types ---------------- */
 type BillingCycle = "monthly" | "yearly";
-type Feature = { label: string; included: boolean };
-type Plan = {
-  id: string;
-  name: string;
-  desc: string;
-  monthly: number;   // price per month (₹)
-  yearly: number;    // price per month if billed yearly (for display)
-  features: Feature[];
-  badge?: "current" | "popular";
-  trialTag?: string; // e.g., "14-day free trial"
-};
 
 /* ---------------- Screen ---------------- */
 export default function PlansScreen({ onBack }: { onBack?: () => void }) {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentPlanId, setCurrentPlanId] = useState<string>("free");
+  const [plans, setPlans] = useState<BillingPlan[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [promo, setPromo] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const gradient = useMemo(
     () => ["#F2A3FF", "#FF6BAA", "#FF7C7C"] as const, // violet → pink → coral
     []
   );
 
-  useEffect(() => {
-    loadPlans();
-    loadCurrentSubscription();
-  }, []);
+  // Get current active subscription
+  const currentSubscription = subscriptions.find(sub => 
+    sub.status === 'active' || sub.status === 'trialing'
+  );
 
-  async function loadPlans() {
+  const loadData = async (isRefresh = false) => {
     try {
-      console.log("Loading plans...");
-      setLoading(true);
-      const data = await api<any[]>("/billing/plans");
-      console.log("Plans data:", data);
-      const mappedPlans = data.map(plan => ({
-        id: plan.id,
-        name: plan.name,
-        desc: `${plan.name} subscription plan`,
-        monthly: plan.interval === "month" ? plan.amount_cents / 100 : (plan.amount_cents / 100) / 12,
-        yearly: plan.interval === "year" ? (plan.amount_cents / 100) / 12 : plan.amount_cents / 100,
-        features: getFeaturesByPlan(plan.name),
-        badge: plan.name.toLowerCase().includes("pro") ? "popular" as const : undefined
-      }));
-      console.log("Mapped plans:", mappedPlans);
-      setPlans(mappedPlans);
-    } catch (e) {
-      console.warn("Failed to load plans:", e);
-      // Fallback to mock data if API fails
-      const mockPlans = [
-        {
-          id: "free",
-          name: "Free",
-          desc: "Perfect for getting started",
-          monthly: 0,
-          yearly: 0,
-          features: getFeaturesByPlan("free"),
-          badge: "current" as const
-        },
-        {
-          id: "pro",
-          name: "Pro",
-          desc: "Best for growing businesses",
-          monthly: 299,
-          yearly: 249,
-          features: getFeaturesByPlan("pro"),
-          badge: "popular" as const,
-          trialTag: "14-day free trial"
-        }
-      ];
-      setPlans(mockPlans);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
+
+      const [plansData, subsData] = await Promise.all([
+        paymentService.getPlans(),
+        paymentService.getSubscriptions(),
+      ]);
+      
+      setPlans(plansData);
+      setSubscriptions(subsData);
+    } catch (e: any) {
+      console.error('Failed to load plans data:', e);
+      setError(e.message || 'Failed to load plans data');
+      Alert.alert("Error", "Could not load plans. Please try again.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }
+  };
 
-  async function loadCurrentSubscription() {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function selectPlan(plan: BillingPlan) {
+    if (currentSubscription && plan.id === currentSubscription.plan_id) return;
+    
     try {
-      const subscriptions = await api<any[]>("/billing/subscriptions");
-      if (subscriptions.length > 0) {
-        setCurrentPlanId(subscriptions[0].plan_id);
-      }
-    } catch (e) {
-      console.warn("Failed to load subscription:", e);
-    }
-  }
-
-  function getFeaturesByPlan(planName: string) {
-    const name = planName.toLowerCase();
-    if (name.includes("free")) {
-      return [
-        { label: "Up to 3 events per month", included: true },
-        { label: "Basic participant management", included: true },
-        { label: "Email notifications", included: true },
-        { label: "Advanced analytics", included: false },
-        { label: "Custom branding", included: false },
-        { label: "Priority support", included: false },
-      ];
-    }
-    return [
-      { label: "Unlimited events", included: true },
-      { label: "Advanced participant management", included: true },
-      { label: "Email & SMS notifications", included: true },
-      { label: "Advanced analytics", included: true },
-      { label: "Custom branding", included: true },
-      { label: "Priority support", included: true },
-    ];
-  }
-
-  const priceOf = (p: Plan) => (cycle === "monthly" ? p.monthly : p.yearly);
-  const cycleLabel = cycle === "monthly" ? "mo" : "mo";
-
-  async function choose(plan: Plan) {
-    if (plan.id === currentPlanId) return;
-    try {
-      await api(`/subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planId: plan.id,
-          billingCycle: cycle,
-          promoCode: appliedPromo ?? undefined,
-        }),
-      });
-      setCurrentPlanId(plan.id);
-      Alert.alert("Success", `You're on the ${plan.name} plan now.`);
-      // optionally: onBack?.();
+      await paymentService.startPayment(plan.id, 'lemonsqueezy');
+      // Refresh data after payment attempt
+      setTimeout(() => loadData(), 2000);
     } catch (e: any) {
-      Alert.alert("Subscription failed", e?.message ?? "Unknown error");
+      Alert.alert("Payment Error", e?.message ?? "Failed to start payment process.");
     }
+  }
+
+  async function cancelCurrentPlan() {
+    if (!currentSubscription) return;
+    
+    Alert.alert("Cancel subscription?", "You can re-subscribe anytime.", [
+      { text: "Keep Plan", style: "cancel" },
+      {
+        text: "Cancel",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await paymentService.cancelSubscription(currentSubscription.id);
+            Alert.alert("Canceled", "Your subscription has been canceled.");
+            loadData(); // Refresh data
+          } catch (e: any) {
+            Alert.alert("Error", e?.message ?? "Could not cancel subscription.");
+          }
+        },
+      },
+    ]);
   }
 
   async function applyPromo() {
-    try {
-      const r: any = await api(`/promo/validate?code=${encodeURIComponent(promo)}`);
-      if (r.valid) {
-        setAppliedPromo(promo.trim());
-        Alert.alert("Promo applied", r.message ?? "Discount will be reflected at checkout.");
-      } else {
-        Alert.alert("Invalid code", r.message ?? "Please try a different code.");
-      }
-    } catch {
-      Alert.alert("Error", "Couldn't validate promo code right now.");
-    }
+    // TODO: Implement promo code validation with backend
+    Alert.alert("Coming Soon", "Promo code validation will be available soon.");
   }
 
   return (
@@ -205,7 +123,16 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
           <View style={{ width: 36 }} />
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: 120 }}>
+        <ScrollView 
+          contentContainerStyle={{ padding: 14, paddingBottom: 120 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadData(true)}
+              tintColor="#fff"
+            />
+          }
+        >
           {/* Toggle */}
           <Segmented
             options={[
@@ -215,11 +142,6 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
             value={cycle}
             onChange={(v) => setCycle(v as BillingCycle)}
           />
-
-          {/* Debug info */}
-          <Text style={{ color: 'white', textAlign: 'center', marginBottom: 10 }}>
-            Plans loaded: {plans.length} | Loading: {loading ? 'Yes' : 'No'}
-          </Text>
 
           {/* Plan cards */}
           {loading ? (
@@ -231,14 +153,16 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
               <Text style={{ color: 'white', fontSize: 16 }}>No plans available</Text>
             </View>
           ) : (
-            plans.map((p) => (
-              <PlanCard
-                key={p.id}
-                plan={p}
-                price={priceOf(p)}
-                cycleLabel={cycleLabel}
-                current={currentPlanId === p.id}
-                onChoose={() => choose(p)}
+            plans.map((plan) => (
+              <PaymentPlanCard
+                key={plan.id}
+                plan={plan}
+                isCurrent={currentSubscription?.plan_id === plan.id}
+                isPopular={plan.name.toLowerCase().includes('pro')}
+                onSelect={() => selectPlan(plan)}
+                onCancel={currentSubscription?.plan_id === plan.id ? cancelCurrentPlan : undefined}
+                showFeatures={true}
+                features={paymentService.getPlanFeatures(plan.name)}
               />
             ))
           )}
@@ -289,101 +213,7 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
 }
 
 /* --------------- Pieces --------------- */
-function PlanCard({
-  plan,
-  price,
-  cycleLabel,
-  current,
-  onChoose,
-}: {
-  plan: Plan;
-  price: number;
-  cycleLabel: string;
-  current?: boolean;
-  onChoose: () => void;
-}) {
-  return (
-    <View style={[styles.card, current && styles.currentCard, plan.badge === "popular" && styles.popularCard]}>
-      {/* Badge */}
-      {plan.badge && (
-        <View style={[styles.badge, plan.badge === "current" && styles.currentBadge, plan.badge === "popular" && styles.popularBadge]}>
-          {plan.badge === "popular" && <Ionicons name="star" size={12} color="#fff" style={{ marginRight: 4 }} />}
-          <Text style={styles.badgeText}>{plan.badge}</Text>
-        </View>
-      )}
 
-      {/* Plan Name */}
-      <Text style={styles.planName}>{plan.name}</Text>
-
-      {/* Price */}
-      <View style={styles.priceRow}>
-        <Text style={styles.price}>₹{price}</Text>
-        <Text style={styles.per}>/{cycleLabel}</Text>
-      </View>
-
-      {/* Description */}
-      <Text style={styles.desc}>{plan.desc}</Text>
-
-      {/* Features */}
-      <View style={styles.features}>
-        {plan.features.map((f, i) => (
-          <FeatureRow key={i} label={f.label} included={f.included} />
-        ))}
-      </View>
-
-      {/* Trial Tag */}
-      {plan.trialTag && (
-        <Pressable style={styles.trialBtn}>
-          <Text style={styles.trialText}>{plan.trialTag}</Text>
-        </Pressable>
-      )}
-
-      {/* Choose Button */}
-      <Pressable
-        disabled={current}
-        onPress={onChoose}
-        style={[
-          styles.chooseBtn, 
-          current && styles.currentBtn,
-          plan.badge === "popular" && styles.popularBtn
-        ]}
-      >
-        <Text style={[
-          styles.chooseBtnText,
-          current && styles.currentBtnText,
-          plan.badge === "popular" && styles.popularBtnText
-        ]}>
-          {current ? "Current Plan" : "Choose Plan"}
-        </Text>
-      </Pressable>
-    </View>
-  );
-}
-
-function FeatureRow({ label, included }: { label: string; included: boolean }) {
-  return (
-    <View style={styles.featRow}>
-      <Ionicons
-        name={included ? "checkmark-circle" : "remove-circle"}
-        size={16}
-        color={included ? "#10B981" : "rgba(0,0,0,0.35)"}
-      />
-      <Text style={[styles.featText, !included && { color: "rgba(0,0,0,0.35)" }]}>{label}</Text>
-    </View>
-  );
-}
-
-function Badge({ text, tone }: { text: string; tone: "green" | "amber" }) {
-  const map = {
-    green: { bg: "#D1FAE5", fg: "#065F46" },
-    amber: { bg: "#FEF3C7", fg: "#92400E" },
-  } as const;
-  return (
-    <View style={{ backgroundColor: map[tone].bg, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-      <Text style={{ color: map[tone].fg, fontWeight: "900", fontSize: 11 }}>{text}</Text>
-    </View>
-  );
-}
 
 function Segmented({
   options,
@@ -601,60 +431,3 @@ const styles = StyleSheet.create({
   faqA: { paddingHorizontal: 12, paddingBottom: 12, color: "rgba(0,0,0,0.75)" },
 });
 
-/* ---------------- Mock API (delete when live) ---------------- */
-async function mockApi<T>(path: string, _init?: RequestInit): Promise<any> {
-  await new Promise((r) => setTimeout(r, 180));
-  if (path === "/plans") {
-    const data: Plan[] = [
-      {
-        id: "free",
-        name: "Free",
-        desc: "Perfect for getting started",
-        monthly: 0,
-        yearly: 0,
-        badge: "current",
-        features: [
-          { label: "Up to 5 events", included: true },
-          { label: "Up to 10 guests", included: true },
-          { label: "Basic AI agent", included: true },
-          { label: "Payment processing", included: false },
-        ],
-      },
-      {
-        id: "pro",
-        name: "Pro",
-        desc: "Best for growing businesses",
-        monthly: 299,
-        yearly: 249, // effective per-month when billed yearly
-        badge: "popular",
-        trialTag: "14-day free trial",
-        features: [
-          { label: "Unlimited events", included: true },
-          { label: "Up to 100 guests", included: true },
-          { label: "Advanced AI agent", included: true },
-          { label: "Payment processing", included: true },
-        ],
-      },
-      {
-        id: "team",
-        name: "Team",
-        desc: "For large organizations",
-        monthly: 599,
-        yearly: 499,
-        features: [
-          { label: "Unlimited events", included: true },
-          { label: "Unlimited guests", included: true },
-          { label: "Premium AI agent", included: true },
-          { label: "Advanced payments", included: true },
-        ],
-      },
-    ];
-    return data;
-  }
-  if (path.startsWith("/promo/validate")) {
-    const code = decodeURIComponent(path.split("code=")[1] || "");
-    return { valid: code.toUpperCase() === "WELCOME50", message: code === "WELCOME50" ? "50% off first month" : "Invalid" };
-  }
-  if (path === "/subscribe") return { ok: true };
-  return { ok: true };
-}

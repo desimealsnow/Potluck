@@ -8,106 +8,89 @@ import {
   StyleSheet,
   Text,
   View,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-
-/* ---------------- Config (switch to your backend) ---------------- */
-const API_BASE_URL = "https://YOUR_API_BASE_URL"; // set when live
-const USE_MOCK = true; // set to false to call your API
-
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  if (USE_MOCK) return mockApi<T>(path, init);
-  const res = await fetch(`${API_BASE_URL}${path}`, init);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
+import { paymentService, type Subscription, type Invoice } from "../../services/payment.service";
+import { PlanCard, InvoiceCard } from "../../components/payment";
 
 /* ---------------- Types ---------------- */
 type PlanId = "free" | "pro" | "team";
-type SubStatus = "active" | "trialing" | "canceled" | "none";
-
-type SubscriptionDTO = {
-  status: SubStatus;
-  planId: PlanId;
-  planName: string;
-  price: number;           // 29.99
-  interval: "month" | "year";
-  renewsOn: string;        // ISO date
-  paymentLast4?: string;   // "4242"
-  billingEmail?: string;
-};
-
-type InvoiceDTO = {
-  id: string;
-  amount: number;     // 29.99
-  status: "paid" | "open" | "void";
-  date: string;       // ISO
-  url?: string;       // pdf or hosted link
-};
 
 /* ---------------- Screen ---------------- */
 export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) {
-
   const [loading, setLoading] = useState(true);
-  const [sub, setSub] = useState<SubscriptionDTO | null>(null);
-  const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
   const gradient = useMemo(
     () => ["#EEDBFF", "#FFC6E2", "#C9F0FF"] as const, // soft, playful
     []
   );
 
+  // Get current active subscription
+  const currentSubscription = subscriptions.find(sub => 
+    sub.status === 'active' || sub.status === 'trialing'
+  );
+
+  /** Load data */
+  const loadData = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
+
+      const [subs, inv] = await Promise.all([
+        paymentService.getSubscriptions(),
+        paymentService.getInvoices(),
+      ]);
+      
+      setSubscriptions(subs);
+      setInvoices(inv);
+    } catch (e: any) {
+      console.error('Failed to load subscription data:', e);
+      setError(e.message || 'Failed to load subscription data');
+      Alert.alert("Error", "Could not load subscription data. Please try again.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
   /** initial load */
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const [s, inv] = await Promise.all([
-          api<SubscriptionDTO | null>("/billing/subscription"),
-          api<InvoiceDTO[]>("/billing/invoices"),
-        ]);
-        setSub(s);
-        setInvoices(inv);
-      } catch (e) {
-        console.warn(e);
-        Alert.alert("Error", "Could not load subscription.");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadData();
   }, []);
 
   /** Actions */
-  async function addOrUpgrade(planId?: PlanId) {
-    // If you want to jump to your Plans screen, navigate with context
-    // navigation.navigate("Plans", { from: "subscription" });
+  async function startPayment(planId: string) {
     try {
-      const body = JSON.stringify({ planId: planId ?? "pro" }); // default upgrade to pro
-      const next = await api<SubscriptionDTO>("/billing/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
-      setSub(next);
-      Alert.alert("Success", "Your plan has been updated.");
+      await paymentService.startPayment(planId, 'lemonsqueezy');
+      // Refresh data after payment attempt
+      setTimeout(() => loadData(), 2000);
     } catch (e: any) {
-      Alert.alert("Failed", e?.message ?? "Unable to update plan.");
+      Alert.alert("Payment Error", e?.message ?? "Failed to start payment process.");
     }
   }
 
   async function updatePayment() {
     try {
-      const r: any = await api("/billing/payment-method", { method: "POST" });
-      // If your backend returns a hosted link (e.g., Stripe), open it:
-      if (r?.url) Linking.openURL(r.url);
-      else Alert.alert("Payment method", "Update flow has started.");
+      await paymentService.updatePaymentMethod();
     } catch (e: any) {
       Alert.alert("Error", e?.message ?? "Could not start payment update.");
     }
   }
 
-  async function cancelPlan() {
+  async function cancelSubscription() {
+    if (!currentSubscription) return;
+    
     Alert.alert("Cancel subscription?", "You can re-subscribe anytime.", [
       { text: "Keep Plan", style: "cancel" },
       {
@@ -115,18 +98,36 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
         style: "destructive",
         onPress: async () => {
           try {
-            const next = await api<SubscriptionDTO>("/billing/subscription", { method: "DELETE" });
-            setSub(next); // server may return status: "canceled" or null
-            Alert.alert("Canceled", "Your plan has been canceled.");
+            await paymentService.cancelSubscription(currentSubscription.id);
+            Alert.alert("Canceled", "Your subscription has been canceled.");
+            loadData(); // Refresh data
           } catch (e: any) {
-            Alert.alert("Error", e?.message ?? "Could not cancel.");
+            Alert.alert("Error", e?.message ?? "Could not cancel subscription.");
           }
         },
       },
     ]);
   }
 
-  const hasPlan = !!sub && sub.status !== "none";
+  async function downloadInvoice(invoiceId: string) {
+    try {
+      await paymentService.downloadInvoice(invoiceId);
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Could not download invoice.");
+    }
+  }
+
+  const hasActivePlan = !!currentSubscription;
+
+  if (loading) {
+    return (
+      <LinearGradient colors={gradient} style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Loading...</Text>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
 
   return (
     <LinearGradient colors={gradient} style={{ flex: 1 }}>
@@ -142,9 +143,18 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
           </View>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: 120 }}>
+        <ScrollView 
+          contentContainerStyle={{ padding: 14, paddingBottom: 120 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadData(true)}
+              tintColor="#fff"
+            />
+          }
+        >
           {/* Status banner */}
-          {hasPlan ? (
+          {hasActivePlan ? (
             <View style={styles.bannerGreen}>
               <Ionicons name="checkmark-circle" size={18} color="#0B5E3B" />
               <Text style={styles.bannerGreenText}>
@@ -158,85 +168,74 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
             </View>
           )}
 
-          {/* If plan exists → show card; else → empty state */}
-          {hasPlan ? (
-            <>
-              <View style={styles.card}>
-                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                  <Text style={styles.planTitle}>
-                    🍲 {sub?.planName} <Text style={{ fontSize: 12 }}>👑 🍽️</Text>
-                  </Text>
-                  <Ionicons name="sparkles" size={16} color="#E69A2E" />
-                </View>
-
-                <Text style={styles.price}>
-                  ${sub?.price.toFixed(2)}/month <Text style={{ color: "#12A150" }}>• 🎉</Text>
+          {/* Current subscription or empty state */}
+          {hasActivePlan && currentSubscription ? (
+            <View style={styles.card}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Text style={styles.planTitle}>
+                  🍲 {paymentService.getPlanDisplayName(currentSubscription.plan_id)} <Text style={{ fontSize: 12 }}>👑 🍽️</Text>
                 </Text>
-
-                <View style={{ marginTop: 12, gap: 8 }}>
-                  <Row label="Renews on" value={date(sub!.renewsOn)} />
-                  <Row
-                    label="Payment method"
-                    value={sub?.paymentLast4 ? `•••• ${sub.paymentLast4}` : "—"}
-                    icon="card"
-                  />
-                  <Row label="Billing email" value={sub?.billingEmail ?? "—"} />
-                </View>
+                <Ionicons name="sparkles" size={16} color="#E69A2E" />
               </View>
 
-              <Pressable style={styles.bigGradientBtn} onPress={() => addOrUpgrade()}>
-                <LinearGradient
-                  colors={["#FF4AA2", "#6A83FF"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.bigGradientInner}
-                >
-                  <Text style={styles.bigGradientText}>🎉 Upgrade My Potluck Plan!</Text>
-                </LinearGradient>
-              </Pressable>
+              <Text style={styles.price}>
+                {paymentService.formatAmount(0, 'usd')}/month <Text style={{ color: "#12A150" }}>• 🎉</Text>
+              </Text>
 
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                <Pressable style={[styles.secondaryBtn, { flex: 1 }]} onPress={updatePayment}>
-                  <Ionicons name="card" size={16} color="#166F4D" />
-                  <Text style={[styles.secondaryBtnText, { color: "#166F4D" }]}>Update Payment</Text>
-                </Pressable>
-                <Pressable style={[styles.secondaryBtn, { flex: 1, backgroundColor: "#FFE6DC", borderColor: "#FFD0BD" }]} onPress={cancelPlan}>
-                  <Ionicons name="close" size={16} color="#AA3A2A" />
-                  <Text style={[styles.secondaryBtnText, { color: "#AA3A2A" }]}>Cancel</Text>
-                </Pressable>
+              <View style={{ marginTop: 12, gap: 8 }}>
+                <Row 
+                  label="Status" 
+                  value={paymentService.formatStatus(currentSubscription.status).text} 
+                />
+                <Row
+                  label="Renews on"
+                  value={currentSubscription.current_period_end ? 
+                    new Date(currentSubscription.current_period_end).toLocaleDateString() : "—"
+                  }
+                />
+                <Row label="Provider" value={currentSubscription.provider} />
               </View>
-            </>
+            </View>
           ) : (
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>No Subscription Yet</Text>
               <Text style={styles.emptyText}>Enjoy premium features like unlimited events, smarter AI, and more.</Text>
-              <Pressable onPress={() => addOrUpgrade("pro")} style={styles.bigCta}>
-                <Text style={styles.bigCtaText}>Add Plan</Text>
+              <Pressable onPress={() => startPayment("pro")} style={styles.bigCta}>
+                <Text style={styles.bigCtaText}>Get Started</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* Action buttons for active subscription */}
+          {hasActivePlan && currentSubscription && (
+            <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
+              <Pressable style={[styles.secondaryBtn, { flex: 1 }]} onPress={updatePayment}>
+                <Ionicons name="card" size={16} color="#166F4D" />
+                <Text style={[styles.secondaryBtnText, { color: "#166F4D" }]}>Update Payment</Text>
+              </Pressable>
+              <Pressable 
+                style={[styles.secondaryBtn, { flex: 1, backgroundColor: "#FFE6DC", borderColor: "#FFD0BD" }]} 
+                onPress={cancelSubscription}
+              >
+                <Ionicons name="close" size={16} color="#AA3A2A" />
+                <Text style={[styles.secondaryBtnText, { color: "#AA3A2A" }]}>Cancel</Text>
               </Pressable>
             </View>
           )}
 
           {/* Invoices */}
           {invoices.length > 0 && (
-            <Text style={styles.invoicesHeader}>Invoices</Text>
+            <>
+              <Text style={styles.invoicesHeader}>Recent Invoices</Text>
+              {invoices.map((invoice) => (
+                <InvoiceCard
+                  key={invoice.id}
+                  invoice={invoice}
+                  onDownload={() => downloadInvoice(invoice.id)}
+                />
+              ))}
+            </>
           )}
-          {invoices.map((inv) => (
-            <View key={inv.id} style={styles.invoiceRow}>
-              <View>
-                <Text style={styles.invDate}>{date(inv.date)}</Text>
-                <Text style={styles.invAmount}>${inv.amount.toFixed(2)}</Text>
-              </View>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <Pill text={inv.status} tone={inv.status === "paid" ? "green" : "amber"} />
-                <Pressable
-                  style={styles.iconOnly}
-                  onPress={() => (inv.url ? Linking.openURL(inv.url) : undefined)}
-                >
-                  <Ionicons name="download" size={16} color="#1a1a1a" />
-                </Pressable>
-              </View>
-            </View>
-          ))}
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
@@ -398,56 +397,3 @@ const styles = StyleSheet.create({
   },
 });
 
-/* ---------------- Mock backend (delete when wired) ---------------- */
-async function mockApi<T>(path: string, init?: RequestInit): Promise<any> {
-  await new Promise((r) => setTimeout(r, 220));
-  // GET subscription
-  if (path === "/billing/subscription" && !init) {
-    // Toggle between returning null (no plan) or an active plan for testing
-    const hasPlan = true;
-    if (!hasPlan) return null;
-    return {
-      status: "active",
-      planId: "pro",
-      planName: "Potluck Pro Plan",
-      price: 29.99,
-      interval: "month",
-      renewsOn: new Date("2025-01-15").toISOString(),
-      paymentLast4: "4242",
-      billingEmail: "potluck@foodie.com",
-    } as SubscriptionDTO;
-  }
-  // LIST invoices
-  if (path === "/billing/invoices") {
-    return [
-      { id: "inv_dec", amount: 29.99, status: "paid", date: "2024-12-01", url: "https://example.com/dec.pdf" },
-      { id: "inv_nov", amount: 29.99, status: "paid", date: "2024-11-01", url: "https://example.com/nov.pdf" },
-      { id: "inv_oct", amount: 29.99, status: "paid", date: "2024-10-01", url: "https://example.com/oct.pdf" },
-    ] as InvoiceDTO[];
-  }
-  // ADD / UPGRADE
-  if (path === "/billing/subscribe" && init?.method === "POST") {
-    const body = JSON.parse(String(init.body || "{}"));
-    const planId: PlanId = body.planId ?? "pro";
-    const map = { pro: 29.99, team: 59.99, free: 0 };
-    return {
-      status: planId === "free" ? "active" : "active",
-      planId,
-      planName: planId === "team" ? "Potluck Team Plan" : planId === "pro" ? "Potluck Pro Plan" : "Free",
-      price: map[planId],
-      interval: "month",
-      renewsOn: new Date(Date.now() + 30 * 86400e3).toISOString(),
-      paymentLast4: planId === "free" ? undefined : "4242",
-      billingEmail: "potluck@foodie.com",
-    } as SubscriptionDTO;
-  }
-  // UPDATE PAYMENT
-  if (path === "/billing/payment-method" && init?.method === "POST") {
-    return { url: "https://billing.example.com/update" };
-  }
-  // CANCEL
-  if (path === "/billing/subscription" && init?.method === "DELETE") {
-    return { status: "none" } as SubscriptionDTO;
-  }
-  return { ok: true };
-}

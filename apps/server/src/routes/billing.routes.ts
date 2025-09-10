@@ -29,6 +29,9 @@ router.get('/invoices', BillingController.listInvoices);
 router.get('/invoices/:invoiceId', BillingController.getInvoice);
 router.get('/invoices/:invoiceId/download', BillingController.downloadInvoice);
 
+// Webhooks (no auth required) - Generic provider webhook
+router.post('/webhook/:provider', BillingController.handleProviderWebhook);
+
 export default router;
 
 
