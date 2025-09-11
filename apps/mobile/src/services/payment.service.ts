@@ -381,15 +381,9 @@ export class PaymentService {
           try {
             const result = await WebBrowser.openAuthSessionAsync(
               response.url,
-              `${window.location.origin}/success?action=invoice`
+              `${window.location.origin}/success`
             );
             console.log('🔗 Invoice result:', result);
-            
-            if (result.type === 'success') {
-              Alert.alert('Success', 'Invoice opened successfully!');
-            } else if (result.type === 'cancel') {
-              Alert.alert('Cancelled', 'Invoice opening was cancelled');
-            }
           } catch (error) {
             console.error('❌ AuthSession failed:', error);
             // Fallback to regular WebBrowser
