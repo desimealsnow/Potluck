@@ -20,33 +20,23 @@ const mockProviderServiceFactory = ProviderServiceFactory as jest.Mocked<typeof 
 describe('BillingController', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let statusSpy: jest.SpyInstance;
-  let sendSpy: jest.SpyInstance;
-  let jsonSpy: jest.SpyInstance;
-  let setHeaderSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockReq = {
       user: {
         id: 'user-123',
-        email: 'test@example.com',
-        name: 'Test User'
+        email: 'test@example.com'
       },
       params: {},
       body: {},
       headers: {}
     };
 
-    statusSpy = jest.fn().mockReturnThis();
-    sendSpy = jest.fn();
-    jsonSpy = jest.fn();
-    setHeaderSpy = jest.fn().mockReturnThis();
-
     mockRes = {
-      status: statusSpy,
-      send: sendSpy,
-      json: jsonSpy,
-      setHeader: setHeaderSpy
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+      json: jest.fn(),
+      setHeader: jest.fn().mockReturnThis()
     };
 
     jest.clearAllMocks();
@@ -75,7 +65,7 @@ describe('BillingController', () => {
       expect(mockSupabase.from).toHaveBeenCalledWith('billing_plans');
       expect(mockSupabaseQuery.select).toHaveBeenCalledWith('*');
       expect(mockSupabaseQuery.eq).toHaveBeenCalledWith('is_active', true);
-      expect(jsonSpy).toHaveBeenCalledWith(expect.arrayContaining([
+      expect(mockRes.json).toHaveBeenCalledWith(expect.arrayContaining([
         expect.objectContaining({ name: 'Basic Plan' }),
         expect.objectContaining({ name: 'Premium Plan' })
       ]));
@@ -95,8 +85,8 @@ describe('BillingController', () => {
 
       await BillingController.listPlans(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
         ok: false,
         error: 'Database error',
         code: '500',
@@ -115,7 +105,7 @@ describe('BillingController', () => {
 
     it('should create checkout session successfully', async () => {
       const mockCheckoutResponse = {
-        ok: true,
+        ok: true as const,
         data: { checkout_url: 'https://test.com/checkout' }
       };
 
@@ -129,7 +119,7 @@ describe('BillingController', () => {
         userEmail: 'test@example.com',
         userName: 'Test User'
       });
-      expect(jsonSpy).toHaveBeenCalledWith({ checkout_url: 'https://test.com/checkout' });
+      expect(mockRes.json).toHaveBeenCalledWith({ checkout_url: 'https://test.com/checkout' });
     });
 
     it('should require plan_id and provider', async () => {
@@ -137,8 +127,8 @@ describe('BillingController', () => {
 
       await BillingController.startCheckout(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(400);
-      expect(jsonSpy).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
         ok: false,
         error: 'plan_id and provider are required',
         code: '400'
@@ -150,8 +140,8 @@ describe('BillingController', () => {
 
       await BillingController.startCheckout(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockRes.json).toHaveBeenCalledWith({
         ok: false,
         error: 'User authentication required',
         code: '401'
@@ -160,7 +150,7 @@ describe('BillingController', () => {
 
     it('should handle provider service errors', async () => {
       const mockErrorResponse = {
-        ok: false,
+        ok: false as const,
         error: 'LemonSqueezy API error'
       };
 
@@ -168,8 +158,8 @@ describe('BillingController', () => {
 
       await BillingController.startCheckout(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(jsonSpy).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.json).toHaveBeenCalledWith({
         ok: false,
         error: 'LemonSqueezy API error',
         code: '500'
@@ -199,7 +189,7 @@ describe('BillingController', () => {
 
       expect(mockSupabase.from).toHaveBeenCalledWith('user_subscriptions');
       expect(mockSupabaseQuery.eq).toHaveBeenCalledWith('user_id', 'user-123');
-      expect(jsonSpy).toHaveBeenCalledWith(expect.any(Array));
+      expect(mockRes.json).toHaveBeenCalledWith(expect.any(Array));
     });
 
     it('should require authentication', async () => {
@@ -207,7 +197,7 @@ describe('BillingController', () => {
 
       await BillingController.listMySubscriptions(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
+      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
   });
 
@@ -218,7 +208,7 @@ describe('BillingController', () => {
 
     it('should return subscription details for owner', async () => {
       const mockSubscription = SubscriptionFactory.buildActive();
-      mockSubscription.user_id = 'user-123'; // Ensure ownership
+      (mockSubscription as any).user_id = 'user-123'; // Ensure ownership
 
       const mockSupabaseQuery = {
         select: jest.fn().mockReturnThis(),
@@ -234,14 +224,14 @@ describe('BillingController', () => {
       await BillingController.getSubscription(mockReq as Request, mockRes as Response);
 
       expect(mockSupabaseQuery.eq).toHaveBeenCalledWith('id', 'sub-123');
-      expect(jsonSpy).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
         id: mockSubscription.id
       }));
     });
 
     it('should deny access to non-owner', async () => {
       const mockSubscription = SubscriptionFactory.buildActive();
-      mockSubscription.user_id = 'other-user'; // Different owner
+      (mockSubscription as any).user_id = 'other-user'; // Different owner
 
       const mockSupabaseQuery = {
         select: jest.fn().mockReturnThis(),
@@ -256,7 +246,7 @@ describe('BillingController', () => {
 
       await BillingController.getSubscription(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(404);
+      expect(mockRes.status).toHaveBeenCalledWith(404);
     });
   });
 
@@ -268,8 +258,8 @@ describe('BillingController', () => {
 
     it('should update subscription successfully', async () => {
       const mockExistingSubscription = SubscriptionFactory.buildActive();
-      mockExistingSubscription.user_id = 'user-123';
-      mockExistingSubscription.id = 'sub-123';
+      (mockExistingSubscription as any).user_id = 'user-123';
+      (mockExistingSubscription as any).id = 'sub-123';
 
       const mockUpdatedSubscription = { ...mockExistingSubscription, cancel_at_period_end: true };
 
@@ -307,7 +297,7 @@ describe('BillingController', () => {
 
     it('should deny access to non-owner', async () => {
       const mockExistingSubscription = SubscriptionFactory.buildActive();
-      mockExistingSubscription.user_id = 'other-user';
+      (mockExistingSubscription as any).user_id = 'other-user';
 
       const mockSupabaseQuery = {
         select: jest.fn().mockReturnThis(),
@@ -322,7 +312,7 @@ describe('BillingController', () => {
 
       await BillingController.updateSubscription(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(404);
+      expect(mockRes.status).toHaveBeenCalledWith(404);
     });
   });
 
@@ -333,8 +323,8 @@ describe('BillingController', () => {
 
     it('should cancel subscription successfully', async () => {
       const mockExistingSubscription = SubscriptionFactory.buildActive();
-      mockExistingSubscription.user_id = 'user-123';
-      mockExistingSubscription.id = 'sub-123';
+      (mockExistingSubscription as any).user_id = 'user-123';
+      (mockExistingSubscription as any).id = 'sub-123';
 
       const mockCancelledSubscription = { 
         ...mockExistingSubscription, 
@@ -378,7 +368,7 @@ describe('BillingController', () => {
       it('should return user payment methods', async () => {
         const mockPaymentMethods = [
           PaymentMethodFactory.buildDefault('user-123'),
-          PaymentMethodFactory.build({ user_id: 'user-123' })
+          PaymentMethodFactory.buildDefault('user-123')
         ];
 
         const mockSupabaseQuery = {
@@ -395,7 +385,7 @@ describe('BillingController', () => {
 
         expect(mockSupabase.from).toHaveBeenCalledWith('payment_methods');
         expect(mockSupabaseQuery.eq).toHaveBeenCalledWith('user_id', 'user-123');
-        expect(jsonSpy).toHaveBeenCalledWith(expect.any(Array));
+        expect(mockRes.json).toHaveBeenCalledWith(expect.any(Array));
       });
     });
 
@@ -411,7 +401,7 @@ describe('BillingController', () => {
       });
 
       it('should add payment method successfully', async () => {
-        const mockNewPaymentMethod = PaymentMethodFactory.build(mockReq.body);
+        const mockNewPaymentMethod = PaymentMethodFactory.buildDefault('user-123');
 
         const mockSupabaseQuery = {
           insert: jest.fn().mockReturnThis(),
@@ -431,7 +421,7 @@ describe('BillingController', () => {
           provider: 'lemonsqueezy',
           method_id: 'pm_123456'
         }));
-        expect(statusSpy).toHaveBeenCalledWith(201);
+        expect(mockRes.status).toHaveBeenCalledWith(201);
       });
 
       it('should require provider and method_id', async () => {
@@ -439,8 +429,8 @@ describe('BillingController', () => {
 
         await BillingController.addPaymentMethod(mockReq as Request, mockRes as Response);
 
-        expect(statusSpy).toHaveBeenCalledWith(400);
-        expect(jsonSpy).toHaveBeenCalledWith({
+        expect(mockRes.status).toHaveBeenCalledWith(400);
+        expect(mockRes.json).toHaveBeenCalledWith({
           ok: false,
           error: 'provider and method_id are required',
           code: '400'
@@ -473,7 +463,7 @@ describe('BillingController', () => {
         expect(mockSupabase.from).toHaveBeenCalledWith('invoices');
         expect(mockSupabaseQuery.eq).toHaveBeenCalledWith('user_id', 'user-123');
         expect(mockSupabaseQuery.order).toHaveBeenCalledWith('invoice_date', { ascending: false });
-        expect(jsonSpy).toHaveBeenCalledWith(expect.any(Array));
+        expect(mockRes.json).toHaveBeenCalledWith(expect.any(Array));
       });
     });
 
@@ -498,9 +488,9 @@ describe('BillingController', () => {
 
         await BillingController.downloadInvoice(mockReq as Request, mockRes as Response);
 
-        expect(setHeaderSpy).toHaveBeenCalledWith('Content-Type', 'application/pdf');
-        expect(statusSpy).toHaveBeenCalledWith(200);
-        expect(sendSpy).toHaveBeenCalledWith(expect.any(Buffer));
+        expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
+        expect(mockRes.status).toHaveBeenCalledWith(200);
+        expect(mockRes.send).toHaveBeenCalledWith(expect.any(Buffer));
       });
 
       it('should deny access to non-owner', async () => {
@@ -519,7 +509,7 @@ describe('BillingController', () => {
 
         await BillingController.downloadInvoice(mockReq as Request, mockRes as Response);
 
-        expect(statusSpy).toHaveBeenCalledWith(404);
+        expect(mockRes.status).toHaveBeenCalledWith(404);
       });
     });
   });
@@ -549,8 +539,8 @@ describe('BillingController', () => {
         'lemonsqueezy',
         mockReq.body
       );
-      expect(statusSpy).toHaveBeenCalledWith(200);
-      expect(sendSpy).toHaveBeenCalledWith('Webhook processed successfully');
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.send).toHaveBeenCalledWith('Webhook processed successfully');
     });
 
     it('should reject webhook with invalid signature', async () => {
@@ -558,8 +548,8 @@ describe('BillingController', () => {
 
       await BillingController.handleProviderWebhook(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(sendSpy).toHaveBeenCalledWith('Invalid signature');
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockRes.send).toHaveBeenCalledWith('Invalid signature');
     });
 
     it('should require signature header', async () => {
@@ -567,8 +557,8 @@ describe('BillingController', () => {
 
       await BillingController.handleProviderWebhook(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(400);
-      expect(sendSpy).toHaveBeenCalledWith('Missing signature');
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.send).toHaveBeenCalledWith('Missing signature');
     });
 
     it('should handle webhook processing errors', async () => {
@@ -582,8 +572,8 @@ describe('BillingController', () => {
 
       await BillingController.handleProviderWebhook(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(sendSpy).toHaveBeenCalledWith('Webhook processing failed');
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.send).toHaveBeenCalledWith('Webhook processing failed');
       expect(consoleSpy).toHaveBeenCalledWith('Webhook processing failed:', 'Processing failed');
 
       consoleSpy.mockRestore();
@@ -597,8 +587,8 @@ describe('BillingController', () => {
 
       await BillingController.handleProviderWebhook(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
-      expect(sendSpy).toHaveBeenCalledWith('Internal server error');
+      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.send).toHaveBeenCalledWith('Internal server error');
       expect(consoleSpy).toHaveBeenCalledWith('Webhook error:', expect.any(Error));
 
       consoleSpy.mockRestore();
@@ -611,8 +601,8 @@ describe('BillingController', () => {
 
       await BillingController.listMySubscriptions(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(401);
-      expect(jsonSpy).toHaveBeenCalledWith({
+      expect(mockRes.status).toHaveBeenCalledWith(401);
+      expect(mockRes.json).toHaveBeenCalledWith({
         ok: false,
         error: 'Unauthorized',
         code: '401'
@@ -629,7 +619,7 @@ describe('BillingController', () => {
 
       await BillingController.listPlans(mockReq as Request, mockRes as Response);
 
-      expect(statusSpy).toHaveBeenCalledWith(500);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
     });
   });
 });

@@ -47,8 +47,8 @@ export class LocationFactory extends Factory<Location> {
     return {
       name: faker.company.name() + ' ' + faker.helpers.arrayElement(['Restaurant', 'Park', 'Hall', 'Center']),
       formatted_address: `${faker.location.streetAddress()}, ${city}, ${state} ${faker.location.zipCode()}`,
-      latitude: parseFloat(faker.location.latitude({ min: 25, max: 48 })),
-      longitude: parseFloat(faker.location.longitude({ min: -125, max: -66 })),
+      latitude: faker.location.latitude({ min: 25, max: 48 }),
+      longitude: faker.location.longitude({ min: -125, max: -66 }),
       ...overrides
     };
   }
@@ -308,9 +308,9 @@ export class TestDataSets {
    */
   static userLifecycleData() {
     return {
-      hostEvent: EventFactory.build(),
-      participantEvents: EventFactory.buildList(3),
-      subscriptionPlan: BillingPlanFactory.build()
+      hostEvent: new EventFactory().build(),
+      participantEvents: new EventFactory().buildList(3),
+      subscriptionPlan: new BillingPlanFactory().build()
     };
   }
 }
@@ -320,7 +320,7 @@ export class TestDataSets {
  */
 export class SubscriptionFactory extends Factory<components['schemas']['Subscription']> {
   build(overrides?: Partial<components['schemas']['Subscription']>): components['schemas']['Subscription'] {
-    const statuses = ['active', 'cancelled', 'past_due', 'trialing', 'unpaid'] as const;
+    const statuses = ['active', 'canceled', 'past_due', 'trialing', 'incomplete'] as const;
     const providers = ['lemonsqueezy', 'stripe'] as const;
     
     return {
@@ -357,8 +357,8 @@ export class SubscriptionFactory extends Factory<components['schemas']['Subscrip
   static buildTrial(userId?: string): components['schemas']['Subscription'] {
     return new SubscriptionFactory().build({
       status: 'trialing',
-      trial_start: faker.date.past({ days: 3 }).toISOString(),
-      trial_end: faker.date.future({ days: 11 }).toISOString(),
+      trial_start: faker.date.past({ years: 0.1 }).toISOString(),
+      trial_end: faker.date.future({ years: 0.1 }).toISOString(),
     });
   }
 
@@ -367,9 +367,9 @@ export class SubscriptionFactory extends Factory<components['schemas']['Subscrip
    */
   static buildCancelled(userId?: string): components['schemas']['Subscription'] {
     return new SubscriptionFactory().build({
-      status: 'cancelled',
+      status: 'canceled',
       cancel_at_period_end: true,
-      current_period_end: faker.date.future({ days: 15 }).toISOString(),
+      current_period_end: faker.date.future({ years: 1 }).toISOString(),
     });
   }
 }
@@ -380,7 +380,8 @@ export class SubscriptionFactory extends Factory<components['schemas']['Subscrip
 export class PaymentMethodFactory extends Factory<components['schemas']['PaymentMethod']> {
   build(overrides?: Partial<components['schemas']['PaymentMethod']>): components['schemas']['PaymentMethod'] {
     const brands = ['visa', 'mastercard', 'amex', 'discover'];
-    const provider = faker.helpers.arrayElement(['lemonsqueezy', 'stripe']);
+    const providers = ['lemonsqueezy', 'stripe', 'paypal', 'razorpay', 'square'] as const;
+    const provider = faker.helpers.arrayElement(providers);
     
     return {
       id: faker.string.uuid(),
@@ -415,7 +416,7 @@ export class PaymentMethodFactory extends Factory<components['schemas']['Payment
  */
 export class InvoiceFactory extends Factory<components['schemas']['Invoice']> {
   build(overrides?: Partial<components['schemas']['Invoice']>): components['schemas']['Invoice'] {
-    const statuses = ['pending', 'paid', 'failed', 'refunded', 'cancelled'] as const;
+    const statuses = ['draft', 'open', 'paid', 'void', 'uncollectible'] as const;
     const currencies = ['usd', 'eur', 'gbp'] as const;
     const amountCents = faker.number.int({ min: 999, max: 9999 });
     
@@ -454,7 +455,7 @@ export class InvoiceFactory extends Factory<components['schemas']['Invoice']> {
     return new InvoiceFactory().build({
       user_id: userId,
       subscription_id: subscriptionId,
-      status: 'failed',
+      status: 'void',
       paid_date: undefined,
     });
   }

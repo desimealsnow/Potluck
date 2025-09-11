@@ -1,10 +1,7 @@
 // Converted from Vitest to Jest for consistency with project test runner
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { describe, it, expect, beforeEach } from '@jest/globals';
-const vi = undefined as never; // sentinel to catch accidental usage
-// Use Jest APIs
-const mockFn: typeof jest.fn = jest.fn.bind(jest);
-type MockedFunction<T extends (...args: any[]) => any> = jest.MockedFunction<T>;
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+// Use Jest APIs directly
+const mockFn = jest.fn;
 import { listEvents } from '../../../src/services/events.service';
 
 // Mock Supabase
@@ -118,7 +115,7 @@ describe('EventsService - Enhanced Search', () => {
       }))
     }));
 
-    (mockSupabase.from as MockedFunction<any>)
+    (mockSupabase.from as any)
       .mockImplementation((table: string) => {
         if (table === 'event_participants') {
           return { select: mockParticipantSelect };
@@ -224,7 +221,7 @@ describe('EventsService - Enhanced Search', () => {
         }))
       }));
 
-      (mockSupabase.from as MockedFunction<any>)
+      (mockSupabase.from as any)
         .mockImplementation((table: string) => {
           if (table === 'event_participants') {
             return { select: mockEmptyParticipantSelect };
@@ -263,7 +260,7 @@ describe('EventsService - Enhanced Search', () => {
         }))
       }));
 
-      (mockSupabase.from as MockedFunction<any>)
+      (mockSupabase.from as any)
         .mockImplementation((table: string) => {
           if (table === 'event_participants') {
             return { select: mockErrorSelect };
@@ -338,7 +335,7 @@ describe('EventsService - Enhanced Search', () => {
         }))
       }));
 
-      (mockSupabase.from as MockedFunction<any>)
+      (mockSupabase.from as any)
         .mockImplementation((table: string) => {
           if (table === 'event_participants') {
             return { select: mockEmptyParticipantSelect } as any;

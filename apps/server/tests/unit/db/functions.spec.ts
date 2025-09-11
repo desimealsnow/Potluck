@@ -1,11 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from '@jest/globals';
 import { supabase } from '../../../src/config/supabaseClient';
 
 // These are database function tests that require a test database
 // They can be skipped in environments where DB is not available
 const isDbAvailable = process.env.NODE_ENV === 'test' && process.env.SUPABASE_URL;
 
-describe.skipIf(!isDbAvailable)('Database Functions', () => {
+const describeDb = isDbAvailable ? describe : describe.skip;
+
+describeDb('Database Functions', () => {
   let testEventId: string;
   let testUserId1: string;
   let testUserId2: string;
@@ -224,7 +226,8 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
         .eq('user_id', testUserId2);
 
       expect(participants).toHaveLength(1);
-      expect(participants[0]).toMatchObject({
+      expect(participants).not.toBeNull();
+      expect(participants![0]).toMatchObject({
         status: 'accepted',
         party_size: 2
       });
@@ -269,8 +272,10 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
       });
 
       expect(error).not.toBeNull();
-      expect(error.message).toContain('Insufficient capacity');
-      expect(error.message).toContain('need 2, have 1');
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain('Insufficient capacity');
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain('need 2, have 1');
     });
 
     it('should validate expected status', async () => {
@@ -281,8 +286,10 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
       });
 
       expect(error).not.toBeNull();
-      expect(error.message).toContain('Invalid status transition');
-      expect(error.message).toContain('expected declined, got pending');
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain('Invalid status transition');
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain('expected declined, got pending');
     });
 
     it('should handle non-existent request', async () => {
@@ -292,7 +299,8 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
       });
 
       expect(error).not.toBeNull();
-      expect(error.message).toBe('Request not found');
+      expect(error).not.toBeNull();
+      expect(error!.message).toBe('Request not found');
     });
 
     it('should update status and timestamp', async () => {
@@ -358,8 +366,9 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
         .select('*')
         .eq('event_id', testEventId);
 
-      const expiredRequest = requests.find(r => r.user_id === testUserId2);
-      const activeRequest = requests.find(r => r.user_id === 'user-3');
+      expect(requests).not.toBeNull();
+      const expiredRequest = requests!.find(r => r.user_id === testUserId2);
+      const activeRequest = requests!.find(r => r.user_id === 'user-3');
 
       expect(expiredRequest?.status).toBe('expired');
       expect(activeRequest?.status).toBe('pending'); // Should remain pending
@@ -389,7 +398,8 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
         .eq('user_id', testUserId2)
         .single();
 
-      expect(request.status).toBe('pending');
+      expect(request).not.toBeNull();
+      expect(request!.status).toBe('pending');
     });
 
     it('should only expire pending requests', async () => {
@@ -419,7 +429,8 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
         .eq('user_id', testUserId2)
         .single();
 
-      expect(request.status).toBe('approved');
+      expect(request).not.toBeNull();
+      expect(request!.status).toBe('approved');
     });
 
     it('should return zero when no requests to expire', async () => {
@@ -497,7 +508,8 @@ describe.skipIf(!isDbAvailable)('Database Functions', () => {
       });
 
       expect(error).not.toBeNull();
-      expect(error.message).toContain('Insufficient capacity');
+      expect(error).not.toBeNull();
+      expect(error!.message).toContain('Insufficient capacity');
 
       // Waitlist the second request instead
       const { data: waitlistedRequest } = await supabase.rpc('update_request_status', {

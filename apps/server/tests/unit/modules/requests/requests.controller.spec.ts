@@ -129,7 +129,7 @@ describe('RequestsController', () => {
         user_id: mockUserId,
         party_size: 2,
         note: 'Looking forward to this!',
-        status: 'pending',
+        status: 'pending' as const,
         hold_expires_at: '2024-01-01T12:30:00Z',
         created_at: '2024-01-01T12:00:00Z',
         updated_at: '2024-01-01T12:00:00Z'
@@ -237,12 +237,12 @@ describe('RequestsController', () => {
             event_id: mockEventId,
             user_id: 'user-1', 
             party_size: 2,
-            status: 'pending',
+            status: 'pending' as const,
             created_at: '2024-01-01T12:00:00Z',
             updated_at: '2024-01-01T12:00:00Z'
           }
         ],
-        nextOffset: null,
+        nextOffset: null as number | null,
         totalCount: 1
       };
 
@@ -312,7 +312,11 @@ describe('RequestsController', () => {
     it('should approve request successfully', async () => {
       const mockApprovedRequest = {
         id: mockRequestId,
-        status: 'approved',
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        status: 'approved' as const,
+        created_at: '2024-01-01T12:00:00Z',
         updated_at: '2024-01-01T12:05:00Z'
       };
 
@@ -374,7 +378,11 @@ describe('RequestsController', () => {
     it('should decline request successfully', async () => {
       const mockDeclinedRequest = {
         id: mockRequestId,
-        status: 'declined',
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        status: 'declined' as const,
+        created_at: '2024-01-01T12:00:00Z',
         updated_at: '2024-01-01T12:05:00Z'
       };
 
@@ -405,7 +413,11 @@ describe('RequestsController', () => {
     it('should waitlist request successfully', async () => {
       const mockWaitlistedRequest = {
         id: mockRequestId,
-        status: 'waitlisted',
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        status: 'waitlisted' as const,
+        created_at: '2024-01-01T12:00:00Z',
         updated_at: '2024-01-01T12:05:00Z'
       };
 
@@ -436,7 +448,11 @@ describe('RequestsController', () => {
     it('should cancel request successfully', async () => {
       const mockCancelledRequest = {
         id: mockRequestId,
-        status: 'cancelled',
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        status: 'cancelled' as const,
+        created_at: '2024-01-01T12:00:00Z',
         updated_at: '2024-01-01T12:05:00Z'
       };
 
@@ -483,8 +499,13 @@ describe('RequestsController', () => {
     it('should extend hold successfully', async () => {
       const mockExtendedRequest = {
         id: mockRequestId,
-        hold_expires_at: '2024-01-01T13:00:00Z',
-        updated_at: '2024-01-01T12:05:00Z'
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        status: 'pending' as const,
+        created_at: '2024-01-01T12:00:00Z',
+        updated_at: '2024-01-01T12:05:00Z',
+        hold_expires_at: '2024-01-01T13:00:00Z'
       };
 
       mockRequestsService.extendRequestHold.mockResolvedValue({
@@ -511,7 +532,15 @@ describe('RequestsController', () => {
 
       mockRequestsService.extendRequestHold.mockResolvedValue({
         ok: true,
-        data: { id: mockRequestId }
+        data: {
+          id: mockRequestId,
+          event_id: mockEventId,
+          user_id: mockUserId,
+          party_size: 2,
+          status: 'pending' as const,
+          created_at: '2024-01-01T12:00:00Z',
+          updated_at: '2024-01-01T12:05:00Z',
+        }
       });
 
       await RequestsController.extendJoinRequestHold(

@@ -14,7 +14,8 @@ import {
   LemonSqueezyMockData,
   LemonSqueezyTestScenarios 
 } from '../fixtures/lemonSqueezyMocks';
-import nock from 'nock';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nock = require('nock');
 import crypto from 'crypto';
 import { describe, it, expect, beforeAll, beforeEach, afterAll, afterEach } from '@jest/globals';
 
@@ -768,7 +769,7 @@ describe('Comprehensive Billing API Integration Tests', () => {
 
       otherUserInvoice = await DbTestHelper.insertTestInvoice(
         TEST_USERS.PARTICIPANT.id,
-        null,
+        undefined,
         { provider: 'lemonsqueezy' }
       );
     });

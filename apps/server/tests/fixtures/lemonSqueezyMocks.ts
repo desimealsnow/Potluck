@@ -391,7 +391,9 @@ export class LemonSqueezyMockFactory {
    * Generate a mock subscription
    */
   static createSubscription(overrides?: Partial<LemonSqueezySubscription['attributes']>): LemonSqueezySubscription {
-    const status = faker.helpers.arrayElement(['on_trial', 'active', 'paused', 'past_due', 'cancelled']);
+    const status = faker.helpers.arrayElement([
+      'on_trial', 'active', 'paused', 'past_due', 'unpaid', 'cancelled', 'expired'
+    ] as const);
     const trialEndsAt = status === 'on_trial' ? faker.date.future().toISOString() : null;
     const renewsAt = faker.date.future({ years: 1 }).toISOString();
     
@@ -482,7 +484,9 @@ export class LemonSqueezyMockFactory {
     const discountTotal = faker.number.int({ min: 0, max: subtotal * 0.2 });
     const tax = Math.round(subtotal * 0.08); // 8% tax
     const total = subtotal - discountTotal + tax;
-    const status = faker.helpers.arrayElement(['pending', 'paid', 'failed', 'refunded']);
+    const status = faker.helpers.arrayElement([
+      'pending', 'paid', 'failed', 'refunded', 'partial_refund'
+    ] as const);
     
     return {
       id: faker.number.int({ min: 100000, max: 999999 }).toString(),
@@ -703,7 +707,7 @@ export const LemonSqueezyMockData = {
   apiResponses: {
     storesList: {
       data: [
-        LemonSqueezyMockFactory.createStore({ id: '12345', name: 'Potluck Store' }),
+        (() => { const store = LemonSqueezyMockFactory.createStore({ name: 'Potluck Store' }); return { ...store, id: '12345' }; })(),
       ],
       meta: {
         page: {
@@ -757,19 +761,19 @@ export const LemonSqueezyMockData = {
     }),
 
     subscriptionCreated: {
-      data: LemonSqueezyMockData.subscriptions.active,
+      data: LemonSqueezyMockFactory.createSubscription({ status: 'active' }),
     },
 
     subscriptionUpdated: {
-      data: LemonSqueezyMockData.subscriptions.active,
+      data: LemonSqueezyMockFactory.createSubscription({ status: 'active' }),
     },
 
     subscriptionCancelled: {
-      data: LemonSqueezyMockData.subscriptions.cancelled,
+      data: LemonSqueezyMockFactory.createSubscription({ status: 'cancelled', cancelled: true }),
     },
 
     orderCreated: {
-      data: LemonSqueezyMockData.orders.paid,
+      data: LemonSqueezyMockFactory.createOrder({ status: 'paid' }),
     },
   },
 };

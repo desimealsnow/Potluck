@@ -47,16 +47,18 @@ const errorRotateTransport = new transports.DailyRotateFile({
   maxFiles: '14d',
 });
 
+const quietTests = isTest && process.env.QUIET_TESTS === 'true';
+
 const logger = createLogger({
   level:
     process.env.LOG_LEVEL ||
-    (isTest ? 'debug' : process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
+    (quietTests ? 'error' : isTest ? 'debug' : process.env.NODE_ENV === 'production' ? 'warn' : 'debug'),
   format: logFormat,
   transports: [dailyRotateTransport, errorRotateTransport],
 });
 
 // Add console output in development or test (for instant feedback)
-if (!process.env.NODE_ENV || process.env.NODE_ENV !== 'production' || isTest) {
+if ((!process.env.NODE_ENV || process.env.NODE_ENV !== 'production' || isTest) && !quietTests) {
   logger.add(new transports.Console({ format: format.combine(format.colorize(), logFormat) }));
 }
 

@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { getTestApp } from '../helpers/testApp';
 import { TestDbHelper, testSupabase } from '../setup';
-import { faker } from '@faker-js/faker';
+// NOTE: Use static emails to avoid creating many random users in Supabase
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from '@jest/globals';
 
 const app = getTestApp();
@@ -12,13 +12,24 @@ describe('Auth API Integration Tests', () => {
     await TestDbHelper.cleanupAll();
   });
 
+  // Helper to delete a user if it already exists
+  const admin = (testSupabase as any).auth.admin;
+  async function deleteUserIfExists(email: string) {
+    const list = await admin.listUsers({ page: 1, perPage: 200 });
+    const found = list?.data?.users?.find((u: any) => (u.email || '').toLowerCase() === email.toLowerCase());
+    if (found?.id) await admin.deleteUser(found.id);
+  }
+
   describe('POST /api/v1/auth/signup', () => {
+
     it('should register new user with valid credentials', async () => {
       const userData = {
-        email: faker.internet.email(),
+        email: 'signup_user1@gmail.com',
         password: 'securePassword123!',
-        displayName: faker.person.fullName()
+        displayName: 'Signup User 1'
       };
+
+      await deleteUserIfExists(userData.email);
 
       const response = await request(app)
         .post('/api/v1/auth/signup')
@@ -37,9 +48,9 @@ describe('Auth API Integration Tests', () => {
 
     it('should reject signup with weak password', async () => {
       const userData = {
-        email: faker.internet.email(),
+        email: 'signup_user2@hotmail.com',
         password: '123', // Too weak
-        displayName: faker.person.fullName()
+        displayName: 'Signup User 2'
       };
 
       const response = await request(app)
@@ -58,7 +69,7 @@ describe('Auth API Integration Tests', () => {
       const userData = {
         email: 'not-an-email',
         password: 'securePassword123!',
-        displayName: faker.person.fullName()
+        displayName: 'Invalid Email User'
       };
 
       const response = await request(app)
@@ -75,10 +86,12 @@ describe('Auth API Integration Tests', () => {
 
     it('should reject duplicate email registration', async () => {
       const userData = {
-        email: faker.internet.email(),
+        email: 'signup_user3@hotmail.com',
         password: 'securePassword123!',
-        displayName: faker.person.fullName()
+        displayName: 'Signup User 3'
       };
+
+      await deleteUserIfExists(userData.email);
 
       // First registration should succeed
       await request(app)
@@ -103,7 +116,7 @@ describe('Auth API Integration Tests', () => {
       const response = await request(app)
         .post('/api/v1/auth/signup')
         .send({
-          email: faker.internet.email()
+          email: 'missing_fields@hotmail.com'
           // Missing password and displayName
         })
         .expect(400);
@@ -122,16 +135,18 @@ describe('Auth API Integration Tests', () => {
     beforeEach(async () => {
       // Create test user for login tests
       testUser = {
-        email: faker.internet.email(),
+        email: 'login_user@hotmail.com',
         password: 'securePassword123!'
       };
+
+      await deleteUserIfExists(testUser.email);
 
       await request(app)
         .post('/api/v1/auth/signup')
         .send({
           email: testUser.email,
           password: testUser.password,
-          displayName: faker.person.fullName()
+          displayName: 'Login User'
         });
     });
 
@@ -229,10 +244,12 @@ describe('Auth API Integration Tests', () => {
     beforeEach(async () => {
       // Create and login user
       const userData = {
-        email: faker.internet.email(),
+        email: 'logout_user@hotmail.com',
         password: 'securePassword123!',
-        displayName: faker.person.fullName()
+        displayName: 'Logout User'
       };
+
+      await deleteUserIfExists(userData.email);
 
       await request(app)
         .post('/api/v1/auth/signup')
@@ -303,10 +320,12 @@ describe('Auth API Integration Tests', () => {
     beforeEach(async () => {
       // Setup authenticated user
       const userData = {
-        email: faker.internet.email(),
+        email: 'middleware_user@hotmail.com',
         password: 'securePassword123!',
-        displayName: faker.person.fullName()
+        displayName: 'Middleware User'
       };
+
+      await deleteUserIfExists(userData.email);
 
       await request(app)
         .post('/api/v1/auth/signup')

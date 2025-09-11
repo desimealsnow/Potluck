@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { 
   sendJoinRequestNotification, 
   sendBatchNotifications, 
@@ -6,15 +6,17 @@ import {
 } from '../../../src/shared/notifier';
 
 // Mock console methods
-const mockConsoleLog = vi.fn();
-const mockConsoleWarn = vi.fn();
+const mockConsoleLog = jest.fn();
+const mockConsoleWarn = jest.fn();
 
-vi.stubGlobal('console', {
+const originalConsole = global.console;
+(global as any).console = {
+  ...originalConsole,
   log: mockConsoleLog,
   warn: mockConsoleWarn,
-  error: vi.fn(),
-  info: vi.fn(),
-});
+  error: jest.fn(),
+  info: jest.fn(),
+};
 
 describe('Notifier', () => {
   const mockNotificationData = {
@@ -28,12 +30,12 @@ describe('Notifier', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
+    jest.clearAllMocks();
+    jest.useFakeTimers();
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    jest.useRealTimers();
   });
 
   describe('sendJoinRequestNotification', () => {
@@ -219,15 +221,15 @@ describe('Notifier', () => {
       );
 
       // Fast-forward time
-      vi.advanceTimersByTime(1100);
+      jest.advanceTimersByTime(1100);
 
       // Should have sent the notification
-      await vi.waitFor(() => {
+      await new Promise((r) => setTimeout(r, 0));
         expect(mockConsoleLog).toHaveBeenCalledWith(
           '[NOTIFIER] hold_expiring_soon',
           expect.any(Object)
         );
-      });
+      
     });
 
     it('should not schedule notification for past delivery time', () => {
@@ -241,7 +243,7 @@ describe('Notifier', () => {
       );
 
       // Should not have scheduled anything
-      vi.advanceTimersByTime(5000);
+      jest.advanceTimersByTime(5000);
       
       // Should not have sent notification since time was in the past
       expect(mockConsoleLog).not.toHaveBeenCalledWith(
@@ -259,7 +261,7 @@ describe('Notifier', () => {
       scheduleNotification('hold_expired', { ...mockNotificationData, requestId: 'req-2' }, time2);
       scheduleNotification('hold_extended', { ...mockNotificationData, requestId: 'req-3' }, time3);
 
-      vi.advanceTimersByTime(2000);
+      jest.advanceTimersByTime(2000);
 
       // All should have been triggered
       expect(mockConsoleLog).toHaveBeenCalledWith(
@@ -299,7 +301,7 @@ describe('Notifier', () => {
         );
       });
 
-      vi.clearAllMocks();
+      jest.clearAllMocks();
 
       guestNotificationTypes.forEach(type => {
         sendJoinRequestNotification(type as any, mockNotificationData);

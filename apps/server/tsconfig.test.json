@@ -7,7 +7,7 @@
     "strictNullChecks": true,
     
     // Enable all Jest/test-related types
-    "types": ["jest", "node", "@types/supertest"],
+    "types": ["jest", "node"],
     
     // Allow importing from test directories
     "baseUrl": ".",

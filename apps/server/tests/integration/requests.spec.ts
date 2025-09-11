@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { supabase } from '../../src/config/supabaseClient';
-import { createTestApp, cleanupTestData, createTestUser, createTestEvent } from '../helpers/testApp';
+import { getTestApp } from '../helpers/testApp';
+import { getAuthToken, TEST_USERS, TestDbHelper } from '../setup';
 
 describe('Join Requests API Integration', () => {
   let testApp: any;
@@ -12,22 +13,19 @@ describe('Join Requests API Integration', () => {
   let testEventId: string;
 
   beforeAll(async () => {
-    testApp = await createTestApp();
+    testApp = getTestApp();
   });
 
   afterAll(async () => {
-    await cleanupTestData();
+    await TestDbHelper.cleanupAll();
   });
 
   beforeEach(async () => {
-    // Create test users
-    const hostUser = await createTestUser('host@example.com', 'password123');
-    const guestUser = await createTestUser('guest@example.com', 'password123');
-    
-    hostToken = hostUser.token;
-    guestToken = guestUser.token;
-    hostUserId = hostUser.userId;
-    guestUserId = guestUser.userId;
+    // Seed users and get tokens
+    hostToken = await getAuthToken('HOST');
+    guestToken = await getAuthToken('PARTICIPANT');
+    hostUserId = TEST_USERS.HOST.id;
+    guestUserId = TEST_USERS.PARTICIPANT.id;
 
     // Create test event with capacity
     const eventData = {

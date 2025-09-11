@@ -131,8 +131,10 @@ describe('Helper Utils Unit Tests', () => {
       const pgError = {
         message: 'duplicate key value violates unique constraint',
         code: '23505',
-        details: 'Key (email)=(test@example.com) already exists.'
-      };
+        details: 'Key (email)=(test@example.com) already exists.',
+        hint: undefined,
+        name: 'PostgrestError'
+      } as any;
 
       const result = mapDbError(pgError);
 
@@ -147,8 +149,10 @@ describe('Helper Utils Unit Tests', () => {
       const pgError = {
         message: 'insert or update on table violates foreign key constraint',
         code: '23503',
-        details: 'Key (user_id)=(123) is not present in table "users".'
-      };
+        details: 'Key (user_id)=(123) is not present in table "users".',
+        hint: undefined,
+        name: 'PostgrestError'
+      } as any;
 
       const result = mapDbError(pgError);
 
@@ -162,8 +166,11 @@ describe('Helper Utils Unit Tests', () => {
     it('should map PostgreSQL permission denied', () => {
       const pgError = {
         message: 'permission denied for table events',
-        code: '42501'
-      };
+        code: '42501',
+        details: undefined,
+        hint: undefined,
+        name: 'PostgrestError'
+      } as any;
 
       const result = mapDbError(pgError);
 
@@ -177,8 +184,11 @@ describe('Helper Utils Unit Tests', () => {
     it('should default to 500 for unknown PostgreSQL errors', () => {
       const pgError = {
         message: 'connection timeout',
-        code: '08006'
-      };
+        code: '08006',
+        details: undefined,
+        hint: undefined,
+        name: 'PostgrestError'
+      } as any;
 
       const result = mapDbError(pgError);
 

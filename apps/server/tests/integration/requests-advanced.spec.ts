@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { supabase } from '../../src/config/supabaseClient';
-import { createTestApp, cleanupTestData, createTestUser, createTestEvent } from '../helpers/testApp';
+import { getTestApp } from '../helpers/testApp';
+import { getAuthToken, TEST_USERS, TestDbHelper } from '../setup';
 
 describe('Join Requests - Advanced Integration Tests', () => {
   let testApp: any;
@@ -16,29 +17,24 @@ describe('Join Requests - Advanced Integration Tests', () => {
   let testEventId: string;
 
   beforeAll(async () => {
-    testApp = await createTestApp();
+    testApp = getTestApp();
   });
 
   afterAll(async () => {
-    await cleanupTestData();
+    await TestDbHelper.cleanupAll();
   });
 
   beforeEach(async () => {
-    // Create multiple test users
-    const host = await createTestUser('host@example.com', 'password123');
-    const guest1 = await createTestUser('guest1@example.com', 'password123');
-    const guest2 = await createTestUser('guest2@example.com', 'password123');
-    const guest3 = await createTestUser('guest3@example.com', 'password123');
+    // Use seeded users and tokens
+    hostToken = await getAuthToken('HOST');
+    guest1Token = await getAuthToken('PARTICIPANT');
+    guest2Token = await getAuthToken('OUTSIDER');
+    guest3Token = await getAuthToken('ADMIN');
     
-    hostToken = host.token;
-    guest1Token = guest1.token;
-    guest2Token = guest2.token;
-    guest3Token = guest3.token;
-    
-    hostUserId = host.userId;
-    guest1UserId = guest1.userId;
-    guest2UserId = guest2.userId;
-    guest3UserId = guest3.userId;
+    hostUserId = TEST_USERS.HOST.id;
+    guest1UserId = TEST_USERS.PARTICIPANT.id;
+    guest2UserId = TEST_USERS.OUTSIDER.id;
+    guest3UserId = TEST_USERS.ADMIN.id;
 
     // Create test event with limited capacity
     const eventData = {
@@ -71,7 +67,7 @@ describe('Join Requests - Advanced Integration Tests', () => {
   });
 
   afterEach(async () => {
-    await cleanupTestData();
+    await TestDbHelper.cleanupAll();
   });
 
   describe('Capacity Management Scenarios', () => {
@@ -163,13 +159,13 @@ describe('Join Requests - Advanced Integration Tests', () => {
       ];
 
       const approvalResponses = await Promise.all(approvalPromises.map(p => 
-        p.then(res => ({ success: true, response: res }))
-         .catch(err => ({ success: false, error: err }))
+        p.then(res => ({ ok: true as const, res }))
+         .catch(err => ({ ok: false as const, err }))
       ));
 
       // One should succeed, one should fail due to capacity
-      const successes = approvalResponses.filter(r => r.success && r.response?.status === 200);
-      const failures = approvalResponses.filter(r => !r.success || r.response?.status !== 200);
+      const successes = approvalResponses.filter(r => r.ok && (r as any).res.status === 200);
+      const failures = approvalResponses.filter(r => !r.ok || (r as any).res.status !== 200);
 
       expect(successes).toHaveLength(1);
       expect(failures).toHaveLength(1);

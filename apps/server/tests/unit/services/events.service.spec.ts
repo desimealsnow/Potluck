@@ -1,5 +1,5 @@
 import { createEventWithItems, getEventDetails, publishEvent, cancelEvent, completeEvent } from '../../../src/services/events.service';
-import { EventFactory, EventCancelFactory } from '../../fixtures/factories';
+import { EventFactory, EventCancelFactory, TestDataSets } from '../../fixtures/factories';
 import { TEST_USERS } from '../../setup';
 import * as eventsService from '../../../src/services/events.service';
 
@@ -96,7 +96,7 @@ describe('EventsService Unit Tests', () => {
 
   describe('createEventWithItems', () => {
     it('should return success result when event creation succeeds', async () => {
-      const eventInput = EventFactory.build();
+      const eventInput = new EventFactory().build();
       const userId = TEST_USERS.HOST.id;
       
       const mockEventResponse = {
@@ -113,7 +113,11 @@ describe('EventsService Unit Tests', () => {
       const result = await createEventWithItems(eventInput, userId);
 
       expect(result.ok).toBe(true);
-      expect(result.data).toEqual(mockEventResponse);
+      if (result.ok) {
+        expect(result.data).toEqual(mockEventResponse);
+      } else {
+        fail('Expected success result');
+      }
       
       // Verify RPC was called with correct parameters
       expect(supabase.rpc).toHaveBeenCalledWith('create_event_with_items', {
@@ -123,7 +127,7 @@ describe('EventsService Unit Tests', () => {
     });
 
     it('should return error result when database error occurs', async () => {
-      const eventInput = EventFactory.build();
+      const eventInput = new EventFactory().build();
       const userId = TEST_USERS.HOST.id;
 
       // Mock database error
@@ -136,11 +140,15 @@ describe('EventsService Unit Tests', () => {
       const result = await createEventWithItems(eventInput, userId);
 
       expect(result.ok).toBe(false);
-      expect(result.error).toBe(dbError.message);
+      if (!result.ok) {
+        expect((result as any).error).toBe(dbError.message);
+      } else {
+        fail('Expected error result');
+      }
     });
 
     it('should validate input using schema', async () => {
-      const eventInput = EventFactory.build();
+      const eventInput = new EventFactory().build();
       const userId = TEST_USERS.HOST.id;
 
       // Mock schema validation
@@ -180,9 +188,11 @@ describe('EventsService Unit Tests', () => {
       const result = await getEventDetails(eventId);
 
       expect(result.ok).toBe(true);
-      expect(result.data.event.id).toBe(eventId);
-      expect(result.data.items).toHaveLength(1);
-      expect(result.data.participants).toHaveLength(1);
+      if (result.ok) {
+        expect(result.data.event.id).toBe(eventId);
+        expect(result.data.items).toHaveLength(1);
+        expect(result.data.participants).toHaveLength(1);
+      }
 
       // Verify service role client was created
       expect(createClient).toHaveBeenCalledWith(
@@ -234,8 +244,10 @@ describe('EventsService Unit Tests', () => {
       const result = await getEventDetails(eventId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('404');
-      expect(result.error).toBe('Event not found');
+      if (!result.ok) {
+        expect((result as any).code).toBe('404');
+        expect((result as any).error).toBe('Event not found');
+      }
     });
 
     it('should return 500 on database error', async () => {
@@ -249,8 +261,10 @@ describe('EventsService Unit Tests', () => {
       const result = await getEventDetails(eventId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('500');
-      expect(result.error).toBe(dbError.message);
+      if (!result.ok) {
+        expect((result as any).code).toBe('500');
+        expect((result as any).error).toBe(dbError.message);
+      }
     });
 
     it('should handle RLS policy violations gracefully', async () => {
@@ -264,7 +278,9 @@ describe('EventsService Unit Tests', () => {
       const result = await getEventDetails(eventId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('500');
+      if (!result.ok) {
+        expect((result as any).code).toBe('500');
+      }
     });
   });
 
@@ -296,7 +312,7 @@ describe('EventsService Unit Tests', () => {
       jest.spyOn(eventsService, 'getEventDetails').mockResolvedValue({
         ok: true,
         data: {
-          event: { ...mockEvent, status: 'published' },
+          event: ({ ...TestDataSets.minimalEvent(), status: 'published' } as any),
           items: [],
           participants: []
         }
@@ -305,7 +321,9 @@ describe('EventsService Unit Tests', () => {
       const result = await publishEvent(eventId, actorId);
 
       expect(result.ok).toBe(true);
-      expect(result.data.event.status).toBe('published');
+      if (result.ok) {
+        expect(result.data.event.status).toBe('published');
+      }
 
       // Verify status was updated
       expect(mockQuery.update).toHaveBeenCalledWith({
@@ -330,8 +348,10 @@ describe('EventsService Unit Tests', () => {
       const result = await publishEvent(eventId, actorId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('403');
-      expect(result.error).toContain('only host can publish');
+      if (!result.ok) {
+        expect((result as any).code).toBe('403');
+        expect((result as any).error).toContain('only host can publish');
+      }
     });
 
     it('should reject publication of non-draft events', async () => {
@@ -350,8 +370,10 @@ describe('EventsService Unit Tests', () => {
       const result = await publishEvent(eventId, actorId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('409');
-      expect(result.error).toContain('Only draft events can be published');
+      if (!result.ok) {
+        expect((result as any).code).toBe('409');
+        expect((result as any).error).toContain('Only draft events can be published');
+      }
     });
 
     it('should return 404 for non-existent event', async () => {
@@ -363,8 +385,10 @@ describe('EventsService Unit Tests', () => {
       const result = await publishEvent(eventId, actorId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('404');
-      expect(result.error).toBe('Event not found');
+      if (!result.ok) {
+        expect((result as any).code).toBe('404');
+        expect((result as any).error).toBe('Event not found');
+      }
     });
   });
 
@@ -380,7 +404,7 @@ describe('EventsService Unit Tests', () => {
         title: 'Test Event'
       };
 
-      const cancelPayload = EventCancelFactory.build({
+      const cancelPayload = new EventCancelFactory().build({
         reason: 'Venue unavailable due to emergency'
       });
 
@@ -400,7 +424,7 @@ describe('EventsService Unit Tests', () => {
       jest.spyOn(eventsService, 'getEventDetails').mockResolvedValue({
         ok: true,
         data: {
-          event: { ...mockEvent, status: 'cancelled' },
+          event: ({ ...TestDataSets.minimalEvent(), status: 'cancelled' } as any),
           items: [],
           participants: []
         }
@@ -409,7 +433,9 @@ describe('EventsService Unit Tests', () => {
       const result = await cancelEvent(eventId, actorId, cancelPayload);
 
       expect(result.ok).toBe(true);
-      expect(result.data.event.status).toBe('cancelled');
+      if (result.ok) {
+        expect(result.data.event.status).toBe('cancelled');
+      }
 
       // Verify cancellation details were saved
       expect(mockQuery.update).toHaveBeenCalledWith({
@@ -437,8 +463,10 @@ describe('EventsService Unit Tests', () => {
       });
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('400');
-      expect(result.error).toContain('Cancel reason is required');
+      if (!result.ok) {
+        expect((result as any).code).toBe('400');
+        expect((result as any).error).toContain('Cancel reason is required');
+      }
     });
 
     it('should only allow cancelling published events', async () => {
@@ -453,13 +481,15 @@ describe('EventsService Unit Tests', () => {
         error: null
       });
 
-      const cancelPayload = EventCancelFactory.build();
+      const cancelPayload = new EventCancelFactory().build();
 
       const result = await cancelEvent(eventId, actorId, cancelPayload);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('409');
-      expect(result.error).toContain('Only published events can be cancelled');
+      if (!result.ok) {
+        expect((result as any).code).toBe('409');
+        expect((result as any).error).toContain('Only published events can be cancelled');
+      }
     });
 
     it('should reject cancellation by non-host', async () => {
@@ -474,13 +504,15 @@ describe('EventsService Unit Tests', () => {
         error: null
       });
 
-      const cancelPayload = EventCancelFactory.build();
+      const cancelPayload = new EventCancelFactory().build();
 
       const result = await cancelEvent(eventId, actorId, cancelPayload);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('403');
-      expect(result.error).toContain('only host can cancel');
+      if (!result.ok) {
+        expect((result as any).code).toBe('403');
+        expect((result as any).error).toContain('only host can cancel');
+      }
     });
   });
 
@@ -512,7 +544,7 @@ describe('EventsService Unit Tests', () => {
       jest.spyOn(eventsService, 'getEventDetails').mockResolvedValue({
         ok: true,
         data: {
-          event: { ...mockEvent, status: 'completed' },
+          event: ({ ...TestDataSets.minimalEvent(), status: 'completed' } as any),
           items: [],
           participants: []
         }
@@ -521,7 +553,9 @@ describe('EventsService Unit Tests', () => {
       const result = await completeEvent(eventId, actorId);
 
       expect(result.ok).toBe(true);
-      expect(result.data.event.status).toBe('completed');
+      if (result.ok) {
+        expect(result.data.event.status).toBe('completed');
+      }
 
       // Verify completion timestamp was added
       expect(mockQuery.update).toHaveBeenCalledWith({
@@ -545,8 +579,10 @@ describe('EventsService Unit Tests', () => {
       const result = await completeEvent(eventId, actorId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('409');
-      expect(result.error).toContain('Only published events can be completed');
+      if (!result.ok) {
+        expect((result as any).code).toBe('409');
+        expect((result as any).error).toContain('Only published events can be completed');
+      }
     });
 
     it('should reject completion by non-host', async () => {
@@ -564,8 +600,10 @@ describe('EventsService Unit Tests', () => {
       const result = await completeEvent(eventId, actorId);
 
       expect(result.ok).toBe(false);
-      expect(result.code).toBe('403');
-      expect(result.error).toContain('only host can complete');
+      if (!result.ok) {
+        expect((result as any).code).toBe('403');
+        expect((result as any).error).toContain('only host can complete');
+      }
     });
   });
 });

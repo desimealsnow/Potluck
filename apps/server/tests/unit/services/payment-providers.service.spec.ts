@@ -1,6 +1,8 @@
 import { PaymentProviderService } from '../../../src/services/payment-providers.service';
 import { LemonSqueezyMockFactory, LemonSqueezyMockData } from '../../fixtures/lemonSqueezyMocks';
-import nock from 'nock';
+// Use require to avoid TS type resolution issues for nock in tests
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nock = require('nock');
 import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Mock environment variables
@@ -54,7 +56,7 @@ describe('PaymentProviderService', () => {
     });
 
     it('should warn but not throw if store ID is missing', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       delete process.env.LEMONSQUEEZY_STORE_ID;
       
       expect(() => new PaymentProviderService()).not.toThrow();
@@ -67,7 +69,7 @@ describe('PaymentProviderService', () => {
     });
 
     it('should warn but not throw if webhook secret is missing', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       delete process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
       
       expect(() => new PaymentProviderService()).not.toThrow();
@@ -111,7 +113,7 @@ describe('PaymentProviderService', () => {
       const testService = new PaymentProviderService();
       process.env.LEMONSQUEEZY_STORE_ID = mockEnv.LEMONSQUEEZY_STORE_ID; // Restore
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       
       const result = await testService.createCheckoutSession(checkoutData);
 
@@ -139,10 +141,9 @@ describe('PaymentProviderService', () => {
       const result = await service.createCheckoutSession(checkoutData);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('LemonSqueezy API error: Invalid variant ID');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('LemonSqueezy API error: Invalid variant ID');
+      expect(e.code).toBe('500');
     });
 
     it('should handle network errors', async () => {
@@ -153,10 +154,9 @@ describe('PaymentProviderService', () => {
       const result = await service.createCheckoutSession(checkoutData);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Failed to create checkout session');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('Failed to create checkout session');
+      expect(e.code).toBe('500');
     });
 
     it('should send correct request payload', async () => {
@@ -164,7 +164,7 @@ describe('PaymentProviderService', () => {
 
       nock('https://api.lemonsqueezy.com')
         .post('/v1/checkouts')
-        .reply(function(uri, requestBody) {
+        .reply((uri: string, requestBody: any) => {
           capturedRequestBody = requestBody;
           return [200, { data: LemonSqueezyMockFactory.createCheckout() }];
         });
@@ -238,10 +238,9 @@ describe('PaymentProviderService', () => {
       const result = await service.getSubscription(subscriptionId);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('LemonSqueezy API error: Subscription not found');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('LemonSqueezy API error: Subscription not found');
+      expect(e.code).toBe('500');
     });
 
     it('should handle network errors', async () => {
@@ -252,10 +251,9 @@ describe('PaymentProviderService', () => {
       const result = await service.getSubscription(subscriptionId);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Failed to get subscription');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('Failed to get subscription');
+      expect(e.code).toBe('500');
     });
   });
 
@@ -285,10 +283,9 @@ describe('PaymentProviderService', () => {
       const result = await service.cancelSubscription(subscriptionId);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('LemonSqueezy API error: Subscription already cancelled');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('LemonSqueezy API error: Subscription already cancelled');
+      expect(e.code).toBe('500');
     });
 
     it('should send correct cancellation payload', async () => {
@@ -296,7 +293,7 @@ describe('PaymentProviderService', () => {
 
       nock('https://api.lemonsqueezy.com')
         .patch(`/v1/subscriptions/${subscriptionId}`)
-        .reply(function(uri, requestBody) {
+        .reply((_uri: string, requestBody: any) => {
           capturedRequestBody = requestBody;
           return [200, { data: { id: subscriptionId } }];
         });
@@ -352,7 +349,7 @@ describe('PaymentProviderService', () => {
     });
 
     it('should skip verification in test mode without webhook secret', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       
       delete process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
       const testService = new PaymentProviderService();
@@ -461,10 +458,9 @@ describe('PaymentProviderService', () => {
       const result = await service.handleWebhook(malformedEvent);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Failed to process webhook');
-        expect(result.code).toBe('500');
-      }
+      const e = result as any;
+      expect(e.error).toContain('Failed to process webhook');
+      expect(e.code).toBe('500');
     });
   });
 
@@ -474,8 +470,8 @@ describe('PaymentProviderService', () => {
 
       nock('https://api.lemonsqueezy.com')
         .post('/v1/checkouts')
-        .reply(function() {
-          capturedHeaders = this.req.headers;
+        .reply((_uri: string, _body: any, context: any) => {
+          capturedHeaders = context.req.headers;
           return [200, { data: LemonSqueezyMockFactory.createCheckout() }];
         });
 
@@ -509,9 +505,8 @@ describe('PaymentProviderService', () => {
       });
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Variant is not available for checkout');
-      }
+      const e = result as any;
+      expect(e.error).toContain('Variant is not available for checkout');
     });
 
     it('should handle HTTP error without detailed message', async () => {
@@ -526,9 +521,8 @@ describe('PaymentProviderService', () => {
       });
 
       expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Internal Server Error');
-      }
+      const e = result as any;
+      expect(e.error).toContain('Internal Server Error');
     });
   });
 });

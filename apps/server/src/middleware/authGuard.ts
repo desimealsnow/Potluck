@@ -31,6 +31,6 @@ export const authGuard = async (
     id: data.user.id,
     email: data.user.email
   };
-  console.log('🛡️ authGuard invoked');
+  if (process.env.QUIET_TESTS !== 'true') console.log('🛡️ authGuard invoked');
   next();
 };

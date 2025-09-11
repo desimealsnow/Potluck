@@ -55,13 +55,22 @@ export function mapDbError(err: PostgrestError | null): ServiceError {
   if (!err) return { ok: false, error: 'Unknown DB error', code: '500' };
   let code: ErrorCode = '500';
   switch (err.code) {
-    case '23505':
-    case '23503':
+    case '23505': // unique_violation
+    case '23503': // foreign_key_violation
       code = '409'; break;
-    case '42501':
+    case '42501': // insufficient_privilege (often RLS)
       code = '403'; break;
   }
-  return { ok: false, error: err.message ?? 'DB error', code };
+  return {
+    ok: false,
+    error: err.message ?? 'DB error',
+    code,
+    details: {
+      db_code: err.code,
+      hint: (err as any).hint,
+      details: err.details,
+    },
+  };
 }
 
 
@@ -88,8 +97,8 @@ export function handle<T>(
     code:  codeStr
   };
 
-  /* attach details for 5xx errors (or any time you added them) */
-  if (status >= 500 && 'details' in result && result.details !== undefined) {
+  /* attach details for server errors; safe to include for visibility */
+  if ('details' in result && result.details !== undefined) {
     payload.details = result.details;
   }
 

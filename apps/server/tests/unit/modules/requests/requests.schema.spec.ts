@@ -82,7 +82,7 @@ describe('RequestsSchema', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should reject note that's too long', () => {
+    it('should reject note that\'s too long', () => {
       const longNote = 'a'.repeat(501); // Exceeds 500 char limit
       const result = JoinRequestAdd.safeParse({ 
         party_size: 1, 
