@@ -57,6 +57,9 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
         paymentService.getSubscriptions(),
       ]);
       
+      console.log('📋 Plans loaded:', plansData);
+      console.log('📋 Subscriptions loaded:', subsData);
+      
       setPlans(plansData);
       setSubscriptions(subsData);
     } catch (e: any) {
@@ -76,7 +79,15 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
   async function selectPlan(plan: BillingPlan) {
     if (currentSubscription && plan.id === currentSubscription.plan_id) return;
     
+    console.log('🔍 Plan selected:', {
+      id: plan.id,
+      name: plan.name,
+      price_id: plan.price_id,
+      provider: plan.provider
+    });
+    
     try {
+      // Now plan.id IS the LemonSqueezy variant ID (fetched from their API)
       await paymentService.startPayment(plan.id, 'lemonsqueezy');
       // Refresh data after payment attempt
       setTimeout(() => loadData(), 2000);

@@ -17,6 +17,10 @@ const LEMONSQUEEZY_WEBHOOK_SECRET = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
 console.log('🧪 LemonSqueezy API Test');
 console.log('========================\n');
+console.log('This test validates your LemonSqueezy API integration:');
+console.log('✅ Unit Test: API key and store connection');
+console.log('✅ Integration Test: Checkout creation (if products exist)');
+console.log('');
 
 // Check environment variables
 console.log('📋 Environment Variables:');
@@ -251,8 +255,9 @@ async function runTests() {
         console.log('2. Test the full payment flow in your app');
         console.log('3. Set up webhooks for production');
       } else {
-        console.log('\n⚠️  API connection successful, but no products found.');
-        console.log('📝 Next steps:');
+        console.log('\n✅ API connection successful!');
+        console.log('📝 Unit test passed - API key and store ID are working correctly.');
+        console.log('📝 For integration testing (checkout creation), you need to:');
         console.log('1. Create products in your LemonSqueezy store');
         console.log('2. Run this test again to verify checkout creation');
       }

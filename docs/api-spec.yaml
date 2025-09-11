@@ -434,7 +434,7 @@ paths:
               required: [plan_id, provider]
               properties:
                 plan_id: { type: string, format: uuid } # Internal plan ID
-                provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+                provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
       responses:
         "200":
           description: Checkout URL created
@@ -914,7 +914,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         price_id: { type: string } # Provider price ID (Stripe price_id, PayPal plan_id, etc.)
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         name: { type: string }
         amount_cents: { type: integer }
         currency: { type: string, example: usd }
@@ -934,7 +934,7 @@ components:
         id: { type: string, format: uuid }
         plan_id: { type: string, format: uuid }
         provider_subscription_id: { type: string } # Generic provider subscription ID
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         status:
           type: string
           enum: [active, trialing, past_due, canceled, incomplete, incomplete_expired]
@@ -978,7 +978,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         user_id: { type: string, format: uuid }
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         method_id: { type: string } # Provider payment method ID
         is_default: { type: boolean }
         brand: { type: string } # visa, mastercard, etc.
@@ -991,7 +991,7 @@ components:
       type: object
       required: [provider, method_id]
       properties:
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         method_id: { type: string }
         is_default: { type: boolean, default: false }
 
@@ -1009,7 +1009,7 @@ components:
         subscription_id: { type: string, format: uuid }
         user_id: { type: string, format: uuid }
         invoice_id: { type: string } # Provider invoice ID
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         amount_cents: { type: integer }
         currency: { type: string, example: usd }
         status:
@@ -1027,7 +1027,7 @@ components:
         id: { type: string, format: uuid }
         invoice_id: { type: string, format: uuid }
         provider_transaction_id: { type: string } # Provider transaction ID
-        provider: { type: string, enum: [stripe, paypal, razorpay, square] }
+        provider: { type: string, enum: [stripe, paypal, razorpay, square,lemonsqueezy] }
         amount_cents: { type: integer }
         currency: { type: string, example: usd }
         status: { type: string, enum: [pending, succeeded, failed, refunded] }

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { paymentService, type Subscription, type Invoice } from "../../services/payment.service";
+import { paymentService, type Subscription, type Invoice, type BillingPlan } from "../../services/payment.service";
 import { PlanCard, InvoiceCard } from "../../components/payment";
 
 /* ---------------- Types ---------------- */
@@ -25,6 +25,7 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
   const [refreshing, setRefreshing] = useState(false);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [plans, setPlans] = useState<BillingPlan[]>([]);
   const [error, setError] = useState<string | null>(null);
   
   const gradient = useMemo(
@@ -47,13 +48,15 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
       }
       setError(null);
 
-      const [subs, inv] = await Promise.all([
+      const [subs, inv, plansData] = await Promise.all([
         paymentService.getSubscriptions(),
         paymentService.getInvoices(),
+        paymentService.getPlans(),
       ]);
       
       setSubscriptions(subs);
       setInvoices(inv);
+      setPlans(plansData);
     } catch (e: any) {
       console.error('Failed to load subscription data:', e);
       setError(e.message || 'Failed to load subscription data');
@@ -70,9 +73,14 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
   }, []);
 
   /** Actions */
-  async function startPayment(planId: string) {
+  async function startPayment(plan: BillingPlan) {
     try {
-      await paymentService.startPayment(planId, 'lemonsqueezy');
+      console.log('🔍 Starting payment for plan:', {
+        id: plan.id,
+        name: plan.name,
+        price_id: plan.price_id
+      });
+      await paymentService.startPayment(plan.id, 'lemonsqueezy');
       // Refresh data after payment attempt
       setTimeout(() => loadData(), 2000);
     } catch (e: any) {
@@ -200,9 +208,15 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>No Subscription Yet</Text>
               <Text style={styles.emptyText}>Enjoy premium features like unlimited events, smarter AI, and more.</Text>
-              <Pressable onPress={() => startPayment("pro")} style={styles.bigCta}>
-                <Text style={styles.bigCtaText}>Get Started</Text>
-              </Pressable>
+              {plans.length > 0 ? (
+                <Pressable onPress={() => startPayment(plans[0])} style={styles.bigCta}>
+                  <Text style={styles.bigCtaText}>Get Started - {plans[0].name}</Text>
+                </Pressable>
+              ) : (
+                <Pressable onPress={() => loadData()} style={styles.bigCta}>
+                  <Text style={styles.bigCtaText}>Load Plans</Text>
+                </Pressable>
+              )}
             </View>
           )}
 

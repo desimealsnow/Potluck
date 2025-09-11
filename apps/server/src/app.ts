@@ -5,6 +5,7 @@ import eventRoutes      from './routes/events.routes';
 import locationRoutes   from './routes/locations.routes';
 import billingRoutes    from './routes/billing.routes';
 import mockRoutes       from './routes/mock.routes';
+import webhookTestRoutes from './routes/webhook-test.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 export const createApp = () => {
@@ -34,6 +35,9 @@ export const createApp = () => {
   
   /* ---------- Mock routes for testing ---------- */
   app.use('/', mockRoutes);
+  
+  /* ---------- Webhook test routes ---------- */
+  app.use('/api/v1/webhook-test', webhookTestRoutes);
 
   /* ---------- Health check route ---------- */
   app.get('/health', (req, res) => {

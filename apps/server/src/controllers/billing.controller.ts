@@ -21,25 +21,63 @@ function err<T = never>(error: string, code: '400'|'401'|'403'|'404'|'409'|'500'
 export const BillingController = {
   // GET /billing/plans
   async listPlans(req: Request, res: Response) {
-    const { data, error } = await supabase
-      .from('billing_plans')
-      .select('*')
-      .eq('is_active', true);
-    if (error) return handle(res, err(error.message, '500', error));
+    try {
+      // For LemonSqueezy, fetch plans directly from their API instead of database
+      const response = await fetch('https://api.lemonsqueezy.com/v1/products?filter[store_id]=221200', {
+        headers: {
+          'Authorization': `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json',
+        },
+      });
 
-    // Cast to API shape
-    const plans: BillingPlan[] = (data ?? []).map((p: any) => ({
-      id: p.id,
-      price_id: p.price_id,
-      provider: p.provider,
-      name: p.name,
-      amount_cents: p.amount_cents,
-      currency: p.currency,
-      interval: p.interval,
-      is_active: p.is_active,
-      created_at: p.created_at,
-    }));
-    return handle(res, ok(plans));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const products = data.data || [];
+
+      // Convert LemonSqueezy products to our plan format
+      const plans: BillingPlan[] = [];
+      
+      for (const product of products) {
+        // Get variants for this product
+        const variantsResponse = await fetch(`https://api.lemonsqueezy.com/v1/variants?filter[product_id]=${product.id}`, {
+          headers: {
+            'Authorization': `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+            'Accept': 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+          },
+        });
+
+        if (variantsResponse.ok) {
+          const variantsData = await variantsResponse.json();
+          const variants = variantsData.data || [];
+
+          // Create a plan for each variant
+          for (const variant of variants) {
+            plans.push({
+              id: variant.id, // Use variant ID as plan ID
+              price_id: variant.id, // Same as ID for LemonSqueezy
+              provider: 'lemonsqueezy',
+              name: `${product.attributes.name} - ${variant.attributes.name}`,
+              amount_cents: Math.round(variant.attributes.price * 100), // Convert to cents
+              currency: variant.attributes.currency || 'USD',
+              interval: variant.attributes.interval || 'year',
+              is_active: true,
+              created_at: variant.attributes.created_at,
+            });
+          }
+        }
+      }
+
+      console.log('📋 Fetched plans from LemonSqueezy:', plans.length);
+      return handle(res, ok(plans));
+    } catch (error) {
+      console.error('❌ Error fetching plans from LemonSqueezy:', error);
+      return handle(res, err('Failed to fetch plans', '500'));
+    }
   },
 
   // POST /billing/checkout/subscription
@@ -64,9 +102,13 @@ export const BillingController = {
       return handle(res, err('User authentication required', '401'));
     }
 
+    // For LemonSqueezy, plan_id is now the variant ID directly
+    // No need to look up in database since we fetch plans from LemonSqueezy API
+    console.log('🔧 Using variant ID directly:', plan_id);
+
     // Use generic provider factory for checkout
     const result = await ProviderServiceFactory.createCheckoutSession(provider, {
-      planId: plan_id,
+      planId: plan_id, // This is now the LemonSqueezy variant ID
       userId: userId,
       userEmail: userEmail,
       userName: (req.user as any)?.name,

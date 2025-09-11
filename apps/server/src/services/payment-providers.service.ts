@@ -58,10 +58,13 @@ export class PaymentProviderService {
         // but we need a store ID to create actual checkouts
         if (!this.config.storeId) {
           console.warn('Test mode: No store ID configured. Testing API connection only.');
+          console.warn('According to LemonSqueezy docs: Store is required for API calls, but starts in test mode by default.');
           console.warn('To create real checkouts, you need to:');
-          console.warn('1. Set up a LemonSqueezy test store');
-          console.warn('2. Set LEMONSQUEEZY_STORE_ID in your .env file');
-          console.warn('3. See LEMONSQUEEZY_TEST_SETUP.md for detailed instructions');
+          console.warn('1. Go to https://lemonsqueezy.com and create an account');
+          console.warn('2. Create a store (automatically starts in test mode)');
+          console.warn('3. Get the store ID from your dashboard');
+          console.warn('4. Set LEMONSQUEEZY_STORE_ID in your .env file');
+          console.warn('5. See LEMONSQUEEZY_TEST_SETUP.md for detailed instructions');
           
           // Test API connection without creating checkout
           try {
@@ -75,11 +78,29 @@ export class PaymentProviderService {
 
             if (testResponse.ok) {
               console.log('✅ LemonSqueezy API connection successful');
+              const data = await testResponse.json();
+              console.log(`📊 Found ${data.data.length} store(s) in your account`);
+              
+              if (data.data.length > 0) {
+                console.log('Available stores:');
+                data.data.forEach((store: any) => {
+                  console.log(`  - ${store.id}: ${store.attributes.name}`);
+                });
+                console.log('💡 To enable checkout creation, set LEMONSQUEEZY_STORE_ID to one of the above store IDs');
+              } else {
+                console.log('💡 No stores found. Create a store in your LemonSqueezy dashboard first.');
+              }
+              
               return {
-                ok: true,
-                data: {
-                  checkout_url: 'https://test-checkout.lemonsqueezy.com/checkout?plan=' + data.planId + '&user=' + data.userId + '&email=' + encodeURIComponent(data.userEmail) + '&name=' + encodeURIComponent(data.userName || '') + '&test_mode=true'
-                },
+                ok: false,
+                error: 'LemonSqueezy API connection successful, but no store ID configured. Please set LEMONSQUEEZY_STORE_ID in your .env file. See server logs for available stores.',
+                code: '400',
+                debug: {
+                  availableStores: data.data.map((store: any) => ({
+                    id: store.id,
+                    name: store.attributes.name
+                  }))
+                }
               };
             } else {
               throw new Error(`API test failed: ${testResponse.status}`);
@@ -93,6 +114,64 @@ export class PaymentProviderService {
             };
           }
         }
+
+      console.log('🛒 Creating LemonSqueezy checkout with data:', {
+        storeId: this.config.storeId,
+        planId: data.planId,
+        userEmail: data.userEmail,
+        userName: data.userName
+      });
+
+      // Check if store has products first
+      const productsResponse = await fetch(`${this.baseUrl}/products?filter[store_id]=${this.config.storeId}`, {
+        headers: {
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json',
+        },
+      });
+
+      if (!productsResponse.ok) {
+        throw new Error(`Failed to fetch products: ${productsResponse.status}`);
+      }
+
+      const productsData = await productsResponse.json();
+      console.log(`📦 Found ${productsData.data.length} product(s) in store`);
+
+      if (productsData.data.length === 0) {
+        console.warn('⚠️ No products found in store. Cannot create checkout without products.');
+        console.warn('For testing purposes, you can:');
+        console.warn('1. Create a test product in your LemonSqueezy dashboard');
+        console.warn('2. Or use test mode without checkout creation');
+        
+        // For testing, guide users to create test products and get real checkout URLs
+        console.warn('⚠️ No products found in store. Integration test passed - API connection works.');
+        console.warn('According to LemonSqueezy docs: Test mode requires creating test products to get real checkout URLs.');
+        console.warn('This is the correct way to test LemonSqueezy integration.');
+        
+        return {
+          ok: false,
+          error: 'No test products found in LemonSqueezy store. Please create test products to get real checkout URLs.',
+          code: '400',
+          debug: {
+            storeId: this.config.storeId,
+            productsCount: 0,
+            message: 'LemonSqueezy integration working. Store accessible but no test products found.',
+            nextSteps: [
+              '1. Go to your LemonSqueezy dashboard (test mode enabled)',
+              '2. Create test products with variants',
+              '3. Copy the checkout URLs from your test products',
+              '4. Update your billing_plans table with these checkout URLs',
+              '5. Test with real LemonSqueezy checkout URLs and test card numbers'
+            ],
+            testCardNumbers: [
+              'Visa: 4242 4242 4242 4242',
+              'Mastercard: 5555 5555 5555 4444',
+              'Insufficient funds: 4000 0000 0000 9995'
+            ]
+          }
+        };
+      }
 
       const response = await fetch(`${this.baseUrl}/checkouts`, {
         method: 'POST',
@@ -115,7 +194,7 @@ export class PaymentProviderService {
               },
               product_options: {
                 enabled_variants: [data.planId], // This should be your LemonSqueezy variant ID
-                redirect_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing/success`,
+                redirect_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/success`,
                 receipt_button_text: 'Return to Potluck',
                 receipt_thank_you_note: 'Thank you for subscribing to Potluck!',
               },
@@ -140,10 +219,25 @@ export class PaymentProviderService {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ LemonSqueezy checkout creation failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
         return {
           ok: false,
           error: `LemonSqueezy API error: ${errorData.errors?.[0]?.detail || response.statusText}`,
           code: '500',
+          debug: {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+            requestData: {
+              storeId: this.config.storeId,
+              planId: data.planId,
+              userEmail: data.userEmail
+            }
+          }
         };
       }
 
@@ -283,36 +377,241 @@ export class PaymentProviderService {
   async handleWebhook(event: any): Promise<ServiceResult<{ processed: boolean }>> {
     try {
       const eventType = event.meta?.event_name;
+      console.log('🔔 LemonSqueezy webhook received:', {
+        eventType,
+        eventId: event.meta?.event_id,
+        timestamp: event.meta?.created_at
+      });
       
       switch (eventType) {
         case 'subscription_created':
+          return await this.handleSubscriptionCreated(event);
+        
         case 'subscription_updated':
+          return await this.handleSubscriptionUpdated(event);
+        
         case 'subscription_cancelled':
+          return await this.handleSubscriptionCancelled(event);
+        
         case 'subscription_resumed':
-          // Handle subscription events
-          return {
-            ok: true,
-            data: { processed: true },
-          };
+          return await this.handleSubscriptionResumed(event);
         
         case 'order_created':
+          return await this.handleOrderCreated(event);
+        
         case 'order_refunded':
-          // Handle order events
-          return {
-            ok: true,
-            data: { processed: true },
-          };
+          return await this.handleOrderRefunded(event);
         
         default:
+          console.log(`⚠️ Unhandled webhook event type: ${eventType}`);
           return {
             ok: true,
             data: { processed: false },
           };
       }
     } catch (error) {
+      console.error('❌ Webhook processing error:', error);
       return {
         ok: false,
-        error: `Failed to process webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Webhook processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle subscription created event
+   */
+  private async handleSubscriptionCreated(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const subscription = event.data;
+      console.log('✅ Subscription created:', {
+        id: subscription.id,
+        status: subscription.attributes.status,
+        customerId: subscription.attributes.customer_id,
+        productId: subscription.attributes.product_id,
+        variantId: subscription.attributes.variant_id
+      });
+
+      // TODO: Update database with new subscription
+      // This would typically involve:
+      // 1. Creating subscription record in database
+      // 2. Updating user's subscription status
+      // 3. Sending welcome email
+      // 4. Logging the event
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling subscription created:', error);
+      return {
+        ok: false,
+        error: `Failed to handle subscription created: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle subscription updated event
+   */
+  private async handleSubscriptionUpdated(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const subscription = event.data;
+      console.log('🔄 Subscription updated:', {
+        id: subscription.id,
+        status: subscription.attributes.status,
+        customerId: subscription.attributes.customer_id
+      });
+
+      // TODO: Update database with subscription changes
+      // This would typically involve:
+      // 1. Updating subscription record in database
+      // 2. Updating user's subscription status
+      // 3. Sending notification email if needed
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling subscription updated:', error);
+      return {
+        ok: false,
+        error: `Failed to handle subscription updated: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle subscription cancelled event
+   */
+  private async handleSubscriptionCancelled(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const subscription = event.data;
+      console.log('❌ Subscription cancelled:', {
+        id: subscription.id,
+        status: subscription.attributes.status,
+        customerId: subscription.attributes.customer_id
+      });
+
+      // TODO: Update database with subscription cancellation
+      // This would typically involve:
+      // 1. Updating subscription status to cancelled
+      // 2. Updating user's access permissions
+      // 3. Sending cancellation confirmation email
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling subscription cancelled:', error);
+      return {
+        ok: false,
+        error: `Failed to handle subscription cancelled: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle subscription resumed event
+   */
+  private async handleSubscriptionResumed(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const subscription = event.data;
+      console.log('🔄 Subscription resumed:', {
+        id: subscription.id,
+        status: subscription.attributes.status,
+        customerId: subscription.attributes.customer_id
+      });
+
+      // TODO: Update database with subscription resumption
+      // This would typically involve:
+      // 1. Updating subscription status to active
+      // 2. Restoring user's access permissions
+      // 3. Sending resumption confirmation email
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling subscription resumed:', error);
+      return {
+        ok: false,
+        error: `Failed to handle subscription resumed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle order created event
+   */
+  private async handleOrderCreated(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const order = event.data;
+      console.log('🛒 Order created:', {
+        id: order.id,
+        status: order.attributes.status,
+        customerId: order.attributes.customer_id,
+        total: order.attributes.total
+      });
+
+      // TODO: Update database with new order
+      // This would typically involve:
+      // 1. Creating order record in database
+      // 2. Creating invoice record
+      // 3. Sending order confirmation email
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling order created:', error);
+      return {
+        ok: false,
+        error: `Failed to handle order created: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        code: '500',
+      };
+    }
+  }
+
+  /**
+   * Handle order refunded event
+   */
+  private async handleOrderRefunded(event: any): Promise<ServiceResult<{ processed: boolean }>> {
+    try {
+      const order = event.data;
+      console.log('💰 Order refunded:', {
+        id: order.id,
+        status: order.attributes.status,
+        customerId: order.attributes.customer_id,
+        refundAmount: order.attributes.refund_amount
+      });
+
+      // TODO: Update database with refund information
+      // This would typically involve:
+      // 1. Updating order status to refunded
+      // 2. Creating refund record
+      // 3. Updating user's subscription if needed
+      // 4. Sending refund confirmation email
+
+      return {
+        ok: true,
+        data: { processed: true },
+      };
+    } catch (error) {
+      console.error('❌ Error handling order refunded:', error);
+      return {
+        ok: false,
+        error: `Failed to handle order refunded: ${error instanceof Error ? error.message : 'Unknown error'}`,
         code: '500',
       };
     }

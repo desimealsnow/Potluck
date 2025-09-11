@@ -4,7 +4,9 @@ const router = Router();
 
 // Mock checkout page for testing
 router.get('/mock-checkout', (req: Request, res: Response) => {
-  const { plan, user, email, name } = req.query;
+  const { plan, user, email, name, test_mode, no_products } = req.query;
+  const isTestMode = test_mode === 'true';
+  const hasNoProducts = no_products === 'true';
   
   const html = `
 <!DOCTYPE html>
@@ -12,7 +14,7 @@ router.get('/mock-checkout', (req: Request, res: Response) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Potluck - Mock Checkout</title>
+    <title>${isTestMode ? 'LemonSqueezy Test Mode' : 'Potluck - Mock Checkout'}</title>
     <style>
         * {
             margin: 0;
@@ -159,12 +161,18 @@ router.get('/mock-checkout', (req: Request, res: Response) => {
 <body>
     <div class="checkout-container">
         <div class="logo">🍲 Potluck</div>
-        <h1 class="title">Mock Checkout</h1>
-        <p class="subtitle">This is a test checkout page for development</p>
+        <h1 class="title">${hasNoProducts ? 'LemonSqueezy Setup Required' : (isTestMode ? 'LemonSqueezy Test Mode' : 'Mock Checkout')}</h1>
+        <p class="subtitle">${hasNoProducts ? 'Store configured but no products found' : (isTestMode ? 'API connection successful, but no store configured' : 'This is a test checkout page for development')}</p>
         
         <div class="test-mode">
-            <strong>🧪 Test Mode</strong>
-            This is a mock checkout page. In production, this would be handled by LemonSqueezy.
+            <strong>${hasNoProducts ? '⚠️ No Products Found' : (isTestMode ? '🧪 API Test Mode' : '🧪 Test Mode')}</strong>
+            ${hasNoProducts ? 
+              'Your LemonSqueezy store is configured, but no products are available. You need to create products and variants in your LemonSqueezy dashboard.' : 
+              (isTestMode ? 
+                'Your LemonSqueezy API key is working, but no store is configured. This is a local mock checkout for testing the integration flow.' : 
+                'This is a mock checkout page. In production, this would be handled by LemonSqueezy.'
+              )
+            }
         </div>
         
         <div class="plan-info">
@@ -187,6 +195,33 @@ router.get('/mock-checkout', (req: Request, res: Response) => {
                 <span class="info-value">${name || 'N/A'}</span>
             </div>
         </div>
+        
+        ${hasNoProducts ? `
+        <div class="test-mode" style="margin-top: 20px; text-align: left;">
+            <strong>🚀 Next Steps to Enable Real Checkouts:</strong>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Go to your <a href="https://lemonsqueezy.com" target="_blank" style="color: #667eea;">LemonSqueezy dashboard</a></li>
+                <li>Navigate to your store (ID: ${user || 'N/A'})</li>
+                <li>Click "Products" and create a new product</li>
+                <li>Add variants for each plan (Pro, Basic, etc.)</li>
+                <li>Copy the variant IDs and update your database</li>
+                <li>Test the checkout flow again</li>
+            </ol>
+            <p style="margin: 10px 0 0 0; font-size: 14px;"><strong>See:</strong> <code>apps/server/LEMONSQUEEZY_TEST_SETUP.md</code> for detailed instructions</p>
+        </div>
+        ` : (isTestMode ? `
+        <div class="test-mode" style="margin-top: 20px; text-align: left;">
+            <strong>🚀 Next Steps to Enable Real Checkouts:</strong>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Go to <a href="https://lemonsqueezy.com" target="_blank" style="color: #667eea;">lemonsqueezy.com</a> and create an account</li>
+                <li>Create a test store in your LemonSqueezy dashboard</li>
+                <li>Create products with variants for your plans</li>
+                <li>Set <code>LEMONSQUEEZY_STORE_ID</code> in your .env file</li>
+                <li>Restart your server and test again</li>
+            </ol>
+            <p style="margin: 10px 0 0 0; font-size: 14px;"><strong>See:</strong> <code>apps/server/LEMONSQUEEZY_TEST_SETUP.md</code> for detailed instructions</p>
+        </div>
+        ` : '')}
         
         <div class="buttons">
             <button class="btn btn-primary" onclick="simulateSuccess()">

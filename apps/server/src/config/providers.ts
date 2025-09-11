@@ -60,7 +60,7 @@ export const SUPPORTED_PROVIDERS: Record<string, ProviderConfig> = {
     name: 'lemonsqueezy',
     displayName: 'LemonSqueezy',
     enabled: true,
-    requiresStoreId: false, // Optional for testing - can test endpoint without store
+    requiresStoreId: false, // Can test API without store, but store needed for checkouts
     requiresWebhookSecret: false, // Optional for test mode
     apiKeyEnvVar: 'LEMONSQUEEZY_API_KEY',
     storeIdEnvVar: 'LEMONSQUEEZY_STORE_ID',

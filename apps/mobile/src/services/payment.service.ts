@@ -1,5 +1,9 @@
 import { apiClient } from './apiClient';
-import { Linking, Alert } from 'react-native';
+import { Linking, Alert, Platform } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+
+// Web-specific window declaration
+declare const window: any;
 
 export interface BillingPlan {
   id: string;
@@ -121,28 +125,125 @@ export class PaymentService {
    * Start payment flow by opening hosted checkout
    */
   async startPayment(planId: string, provider: string = 'lemonsqueezy'): Promise<void> {
+    let checkout: CheckoutSession | undefined;
+    
     try {
-      const checkout = await this.createCheckoutSession(planId, provider);
+      checkout = await this.createCheckoutSession(planId, provider);
       
-      // Open the checkout URL in the device's browser
-      const supported = await Linking.canOpenURL(checkout.checkout_url);
+      console.log('🔗 Opening checkout URL:', checkout.checkout_url);
+      console.log('📱 Platform:', Platform.OS);
       
-      if (supported) {
-        await Linking.openURL(checkout.checkout_url);
-      } else {
+      // Configure WebBrowser options based on platform
+      const browserOptions: WebBrowser.WebBrowserOpenOptions = {
+        // Show title
+        showTitle: true,
+        // Enable controls for better UX
+        controlsColor: '#007AFF',
+        // Show in recents
+        showInRecents: true,
+      };
+
+      // Platform-specific handling
+      if (Platform.OS === 'web') {
+        // Web: Use AuthSession for proper in-app browser experience
+        console.log('🌐 Opening payment in in-app browser');
+        console.log('🔗 Payment URL:', checkout.checkout_url);
+        
+        try {
+          // Use openAuthSessionAsync for web - this creates an in-app browser modal
+          const result = await WebBrowser.openAuthSessionAsync(
+            checkout.checkout_url,
+            // Return URL - use a simple success indicator
+            `${window.location.origin}/success?payment=completed`
+          );
+          
+          console.log('🔗 AuthSession result:', result);
+          
+          if (result.type === 'success') {
+            console.log('✅ Payment completed successfully');
+            // Payment completed - the popup will close automatically
+            // You can add any success handling here if needed
+            Alert.alert('Success', 'Payment completed successfully!');
+          } else if (result.type === 'cancel') {
+            console.log('❌ Payment was cancelled');
+            // Payment was cancelled
+            Alert.alert('Cancelled', 'Payment was cancelled');
+          }
+          
+        } catch (error) {
+          console.error('❌ AuthSession failed:', error);
+          // Fallback to regular WebBrowser if AuthSession fails
+          const result = await WebBrowser.openBrowserAsync(checkout.checkout_url, {
+            presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
+            showTitle: true,
+            controlsColor: '#007AFF',
+            toolbarColor: '#FFFFFF',
+            secondaryToolbarColor: '#F8F8F8',
+          });
+          console.log('🔗 Fallback WebBrowser result:', result);
+        }
+        
+        return;
+      }
+
+      // Mobile platforms: Use WebBrowser with platform-specific configurations
+      if (Platform.OS === 'ios') {
+        // iOS: Use modal presentation for better in-app experience
+        browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FORM_SHEET;
+        browserOptions.toolbarColor = '#FFFFFF';
+        browserOptions.secondaryToolbarColor = '#F8F8F8';
+      } else if (Platform.OS === 'android') {
+        // Android: Use full screen for better experience
+        browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN;
+        browserOptions.toolbarColor = '#FFFFFF';
+        browserOptions.secondaryToolbarColor = '#F8F8F8';
+      }
+
+      // Open the checkout URL using Expo WebBrowser
+      const result = await WebBrowser.openBrowserAsync(checkout.checkout_url, browserOptions);
+      
+      console.log('🔗 WebBrowser result:', result);
+      
+      // Handle the result based on type
+      switch (result.type) {
+        case 'cancel':
+          console.log('User cancelled the payment flow');
+          break;
+        case 'dismiss':
+          console.log('Payment flow was dismissed');
+          break;
+        case 'opened':
+          console.log('Payment flow opened successfully');
+          break;
+        default:
+          console.log('Payment flow completed with result:', result.type);
+      }
+      
+    } catch (error) {
+      console.error('Payment flow failed:', error);
+      
+      // Fallback to Linking if WebBrowser fails
+      try {
+        console.log('🔄 Falling back to Linking...');
+        if (!checkout) {
+          checkout = await this.createCheckoutSession(planId, provider);
+        }
+        
+        const supported = await Linking.canOpenURL(checkout.checkout_url);
+        
+        if (supported) {
+          await Linking.openURL(checkout.checkout_url);
+        } else {
+          throw new Error('Cannot open payment URL');
+        }
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
         Alert.alert(
-          'Error',
-          'Cannot open payment page. Please try again or contact support.',
+          'Payment Error',
+          'Failed to start payment process. Please try again or contact support.',
           [{ text: 'OK' }]
         );
       }
-    } catch (error) {
-      console.error('Payment flow failed:', error);
-      Alert.alert(
-        'Payment Error',
-        'Failed to start payment process. Please try again.',
-        [{ text: 'OK' }]
-      );
     }
   }
 
@@ -194,12 +295,64 @@ export class PaymentService {
       const response = await apiClient.post<{ url: string }>('/billing/payment-method');
       
       if (response.url) {
-        const supported = await Linking.canOpenURL(response.url);
-        if (supported) {
-          await Linking.openURL(response.url);
-        } else {
-          Alert.alert('Error', 'Cannot open payment update page.');
+        console.log('🔗 Opening payment method update URL:', response.url);
+        console.log('📱 Platform:', Platform.OS);
+        
+        // Platform-specific handling
+        if (Platform.OS === 'web') {
+          // Web: Use AuthSession for in-app browser experience
+          console.log('🌐 Opening payment method update in in-app browser');
+          console.log('🔗 Update URL:', response.url);
+          
+          try {
+            const result = await WebBrowser.openAuthSessionAsync(
+              response.url,
+              `${window.location.origin}/success?action=update`
+            );
+            console.log('🔗 Payment method update result:', result);
+            
+            if (result.type === 'success') {
+              Alert.alert('Success', 'Payment method updated successfully!');
+            } else if (result.type === 'cancel') {
+              Alert.alert('Cancelled', 'Payment method update was cancelled');
+            }
+          } catch (error) {
+            console.error('❌ AuthSession failed:', error);
+            // Fallback to regular WebBrowser
+            const result = await WebBrowser.openBrowserAsync(response.url, {
+              presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
+              showTitle: true,
+              controlsColor: '#007AFF',
+              toolbarColor: '#FFFFFF',
+              secondaryToolbarColor: '#F8F8F8',
+            });
+            console.log('🔗 Fallback result:', result);
+          }
+          return;
         }
+
+        // Mobile platforms: Use WebBrowser
+        const browserOptions: WebBrowser.WebBrowserOpenOptions = {
+          showTitle: true,
+          controlsColor: '#007AFF',
+          showInRecents: true,
+        };
+
+        if (Platform.OS === 'ios') {
+          browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FORM_SHEET;
+          browserOptions.toolbarColor = '#FFFFFF';
+          browserOptions.secondaryToolbarColor = '#F8F8F8';
+        } else if (Platform.OS === 'android') {
+          browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN;
+          browserOptions.toolbarColor = '#FFFFFF';
+          browserOptions.secondaryToolbarColor = '#F8F8F8';
+        }
+
+        const result = await WebBrowser.openBrowserAsync(response.url, browserOptions);
+        console.log('🔗 Payment method update result:', result);
+        
+      } else {
+        Alert.alert('Error', 'No payment update URL received from server.');
       }
     } catch (error) {
       console.error('Failed to update payment method:', error);
@@ -216,12 +369,64 @@ export class PaymentService {
       const response = await apiClient.get<{ url: string }>(`/billing/invoices/${invoiceId}/download`);
       
       if (response.url) {
-        const supported = await Linking.canOpenURL(response.url);
-        if (supported) {
-          await Linking.openURL(response.url);
-        } else {
-          Alert.alert('Error', 'Cannot open invoice.');
+        console.log('🔗 Opening invoice URL:', response.url);
+        console.log('📱 Platform:', Platform.OS);
+        
+        // Platform-specific handling
+        if (Platform.OS === 'web') {
+          // Web: Use AuthSession for in-app browser experience
+          console.log('🌐 Opening invoice in in-app browser');
+          console.log('🔗 Invoice URL:', response.url);
+          
+          try {
+            const result = await WebBrowser.openAuthSessionAsync(
+              response.url,
+              `${window.location.origin}/success?action=invoice`
+            );
+            console.log('🔗 Invoice result:', result);
+            
+            if (result.type === 'success') {
+              Alert.alert('Success', 'Invoice opened successfully!');
+            } else if (result.type === 'cancel') {
+              Alert.alert('Cancelled', 'Invoice opening was cancelled');
+            }
+          } catch (error) {
+            console.error('❌ AuthSession failed:', error);
+            // Fallback to regular WebBrowser
+            const result = await WebBrowser.openBrowserAsync(response.url, {
+              presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
+              showTitle: true,
+              controlsColor: '#007AFF',
+              toolbarColor: '#FFFFFF',
+              secondaryToolbarColor: '#F8F8F8',
+            });
+            console.log('🔗 Fallback result:', result);
+          }
+          return;
         }
+
+        // Mobile platforms: Use WebBrowser
+        const browserOptions: WebBrowser.WebBrowserOpenOptions = {
+          showTitle: true,
+          controlsColor: '#007AFF',
+          showInRecents: true,
+        };
+
+        if (Platform.OS === 'ios') {
+          browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FORM_SHEET;
+          browserOptions.toolbarColor = '#FFFFFF';
+          browserOptions.secondaryToolbarColor = '#F8F8F8';
+        } else if (Platform.OS === 'android') {
+          browserOptions.presentationStyle = WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN;
+          browserOptions.toolbarColor = '#FFFFFF';
+          browserOptions.secondaryToolbarColor = '#F8F8F8';
+        }
+
+        const result = await WebBrowser.openBrowserAsync(response.url, browserOptions);
+        console.log('🔗 Invoice download result:', result);
+        
+      } else {
+        Alert.alert('Error', 'No invoice URL received from server.');
       }
     } catch (error) {
       console.error('Failed to download invoice:', error);
@@ -321,3 +526,29 @@ export class PaymentService {
 
 // Export singleton instance
 export const paymentService = new PaymentService();
+
+// Web-specific utility functions
+export const webPaymentUtils = {
+  /**
+   * Check if we're returning from a payment and redirect back to the app
+   */
+  handlePaymentReturn(): void {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const returnUrl = localStorage.getItem('paymentReturnUrl');
+      if (returnUrl && returnUrl !== window.location.href) {
+        console.log('🔄 Returning from payment, redirecting to:', returnUrl);
+        localStorage.removeItem('paymentReturnUrl');
+        window.location.href = returnUrl;
+      }
+    }
+  },
+
+  /**
+   * Clear any stored return URL
+   */
+  clearReturnUrl(): void {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      localStorage.removeItem('paymentReturnUrl');
+    }
+  }
+};

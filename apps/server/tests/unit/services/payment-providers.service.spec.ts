@@ -184,7 +184,7 @@ describe('PaymentProviderService', () => {
             },
             product_options: {
               enabled_variants: [checkoutData.planId],
-              redirect_url: 'http://localhost:3000/billing/success',
+              redirect_url: 'http://localhost:3000/success',
               receipt_button_text: 'Return to Potluck',
               receipt_thank_you_note: 'Thank you for subscribing to Potluck!'
             }

@@ -9,7 +9,8 @@ export interface ServiceError {
   ok: false;
   error: string;
   code?: ErrorCode;
-  details?: unknown;  
+  details?: unknown;
+  debug?: unknown;
 }
 
 /** Success shape */
@@ -76,13 +77,14 @@ export function handle<T>(
   }
 
   /* 🚨  Error branch */
-  const codeStr = result.code ?? '500';
+  const errorResult = result as ServiceError;
+  const codeStr = errorResult.code ?? '500';
   const status  = httpStatus(codeStr);
 
   /* base payload */
   const payload: Record<string, unknown> = {
     ok:    false,
-    error: result.error,
+    error: errorResult.error,
     code:  codeStr
   };
 
@@ -98,7 +100,8 @@ export function handle<T>(
 export function guardToService<T>(g: GuardResult<T>): ServiceError {
   // Either discriminator works – choose one
   if (!g.ok) {                         // ← easiest
-    return { ok: false, error: g.error, code: g.code };
+    const errorGuard = g as { ok: false; error: string; code?: ErrorCode };
+    return { ok: false, error: errorGuard.error, code: errorGuard.code };
   }
   // If you somehow call this helper with the success arm, fall back to 500
   return { ok: false, error: 'Unexpected guard success', code: '500' };
@@ -106,8 +109,9 @@ export function guardToService<T>(g: GuardResult<T>): ServiceError {
 
 export function handleResult<T>(res: Response, result: ServiceResult<T>) {
   if (!result.ok) {
-    const status = Number(result.code) || 500;
-    return res.status(status).json({ ok: false, error: result.error, code: result.code });
+    const errorResult = result as ServiceError;
+    const status = Number(errorResult.code) || 500;
+    return res.status(status).json({ ok: false, error: errorResult.error, code: errorResult.code });
   }
   return res.json(result.data);
 }

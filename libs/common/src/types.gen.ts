@@ -1071,7 +1071,7 @@ export interface paths {
                         /** Format: uuid */
                         plan_id: string;
                         /** @enum {string} */
-                        provider: "stripe" | "paypal" | "razorpay" | "square";
+                        provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
                     };
                 };
             };
@@ -1772,7 +1772,7 @@ export interface components {
             id: string;
             price_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             name: string;
             amount_cents: number;
             /** @example usd */
@@ -1794,7 +1794,7 @@ export interface components {
             plan_id: string;
             provider_subscription_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             /** @enum {string} */
             status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "incomplete_expired";
             /** Format: date-time */
@@ -1834,7 +1834,7 @@ export interface components {
             /** Format: uuid */
             user_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             method_id: string;
             is_default: boolean;
             brand?: string;
@@ -1846,7 +1846,7 @@ export interface components {
         };
         PaymentMethodCreate: {
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             method_id: string;
             /** @default false */
             is_default: boolean;
@@ -1863,7 +1863,7 @@ export interface components {
             user_id: string;
             invoice_id?: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             amount_cents: number;
             /** @example usd */
             currency: string;
@@ -1883,7 +1883,7 @@ export interface components {
             invoice_id: string;
             provider_transaction_id?: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square";
+            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
             amount_cents: number;
             /** @example usd */
             currency: string;
