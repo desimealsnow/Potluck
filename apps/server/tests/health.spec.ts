@@ -1,6 +1,6 @@
 // apps/server/tests/health.spec.ts
 import request from 'supertest';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 import { createApp } from '../src/app';
 
 const app = createApp(); // <-- invoke here!

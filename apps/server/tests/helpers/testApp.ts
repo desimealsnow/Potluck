@@ -1,5 +1,14 @@
 import express, { Application } from 'express';
 import cors from 'cors';
+
+// Mock the authGuard before importing any routes
+const mockAuthGuard = require('../../src/middleware/authGuard.mock').mockAuthGuard;
+
+// Mock the authGuard module
+jest.mock('../../src/middleware/authGuard', () => ({
+  authGuard: mockAuthGuard
+}));
+
 import { createApp } from '../../src/app';
 
 /**

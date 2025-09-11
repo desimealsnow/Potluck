@@ -768,7 +768,7 @@ describe('Comprehensive Billing API Integration Tests', () => {
 
       otherUserInvoice = await DbTestHelper.insertTestInvoice(
         TEST_USERS.PARTICIPANT.id,
-        null,
+        undefined,
         { provider: 'lemonsqueezy' }
       );
     });
