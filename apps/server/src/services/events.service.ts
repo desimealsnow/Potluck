@@ -211,7 +211,7 @@ export async function listEvents(
   // Step 2: Build the query for events where the user is host or participant
   let query = supabase
     .from('events')
-    .select('id, title, event_date, attendee_count, meal_type, status')
+    .select('id, title, event_date, attendee_count, meal_type, status, created_by')
     .order('event_date', { ascending: false });
 
   // Step 3: Host or participant filter
@@ -237,7 +237,7 @@ export async function listEvents(
   // Step 5: Fetch data with total count in a single query
   let queryWithFilters = supabase
     .from('events')
-    .select('id, title, event_date, attendee_count, meal_type, status', { count: 'exact' })
+    .select('id, title, event_date, attendee_count, meal_type, status, created_by', { count: 'exact' })
     .order('event_date', { ascending: false });
   queryWithFilters = applyEventFilters(queryWithFilters, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
 
@@ -251,7 +251,11 @@ export async function listEvents(
     return { ok: false, error: listErr.message, code: '500' };
   }
 
-  const items = (events ?? []) as EventSummary[];
+  const items = (events ?? []).map((e: any) => ({
+    ...e,
+    ownership: e.created_by === userId ? 'mine' : 'invited',
+    viewer_role: e.created_by === userId ? 'host' : 'guest',
+  })) as any as EventSummary[];
   const totalCount = (typeof count === 'number' ? count : items.length);
   const nextOffset = offset + limit < totalCount ? offset + limit : null;
 
@@ -296,13 +300,27 @@ function applyEventFilters(
       builder = builder.eq('id', '00000000-0000-0000-0000-000000000000');
     }
   } else {
-    // 'all' or undefined - show both owned and participated events
-    if (participantIds.length) {
-      builder = builder.or(
-        `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
-      );
+    // 'all' or undefined
+    // If requesting published events, also include publicly visible ones
+    if (status === 'published') {
+      if (participantIds.length) {
+        builder = builder.or(
+          `created_by.eq.${userId},id.in.(${participantIds.join(',')}),is_public.eq.true`
+        );
+      } else {
+        builder = builder.or(
+          `created_by.eq.${userId},is_public.eq.true`
+        );
+      }
     } else {
-      builder = builder.eq('created_by', userId);
+      // For non-published views, restrict to my owned or where I'm a participant
+      if (participantIds.length) {
+        builder = builder.or(
+          `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
+        );
+      } else {
+        builder = builder.eq('created_by', userId);
+      }
     }
   }
   

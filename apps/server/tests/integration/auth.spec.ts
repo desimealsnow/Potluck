@@ -2,6 +2,7 @@ import request from 'supertest';
 import { getTestApp } from '../helpers/testApp';
 import { TestDbHelper, testSupabase } from '../setup';
 import { faker } from '@faker-js/faker';
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from '@jest/globals';
 
 const app = getTestApp();
 

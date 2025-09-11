@@ -20,7 +20,7 @@ const config: Config = {
   ],
 
   // Module path mapping for cleaner imports
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@tests/(.*)$': '<rootDir>/tests/$1',
     '^@common/(.*)$': '<rootDir>/../../libs/common/src/$1'
@@ -76,28 +76,7 @@ const config: Config = {
   testTimeout: 30000, // 30 seconds for database operations
 
   // Reporters for test results
-  reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: '<rootDir>/test-results',
-        outputName: 'junit.xml',
-        suiteName: 'Potluck API Tests',
-        classNameTemplate: '{classname}',
-        titleTemplate: '{title}'
-      }
-    ],
-    [
-      'jest-html-reporter',
-      {
-        pageTitle: 'Potluck API Test Results',
-        outputPath: '<rootDir>/test-results/test-report.html',
-        includeFailureMsg: true,
-        includeSuiteFailure: true
-      }
-    ]
-  ],
+  reporters: ['default'],
 
   // Global test configuration
   globals: {

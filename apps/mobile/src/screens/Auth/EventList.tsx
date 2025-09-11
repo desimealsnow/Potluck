@@ -72,31 +72,34 @@ async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMor
   const nextOffset = data.nextOffset ?? null;
   const hasMore = nextOffset !== null || (typeof totalCount === 'number' ? (q.page * q.limit) < totalCount : itemsRaw.length === q.limit);
 
-  const items: EventItem[] = itemsRaw.map((e: any) => ({
-    id: e.id,
-    title: e.title || e.name || "Untitled Event",
-    date: e.event_date || e.date || new Date().toISOString(),
-    time: undefined,
-    venue: e.location?.label || e.venue || e.address || "",
-    attendeeCount: e.attendeeCount ?? e.participants_count ?? 0,
-    diet: (e.meal_type as Diet) || "mixed",
-    statusBadge: e.status === "purged"
-      ? "deleted"
-      : e.status === "completed"
-      ? "past"
-      : e.status === "cancelled"
-      ? "cancelled"
-      : e.status === "draft"
-      ? "draft"
-      : "active",
-    ownership: e.ownership as Ownership | undefined,
-    actualStatus: e.status, // Store the actual backend status
-    attendeesPreview: (e.attendees_preview || []).slice(0,3).map((p: any, idx: number) => ({
-      id: p.id || String(idx),
-      name: p.name || p.email || "Guest",
-      avatarUrl: p.avatar_url || p.avatarUrl,
-    })),
-  }));
+  const items: EventItem[] = itemsRaw.map((e: any) => {
+    const ownershipFromApi = e.ownership as Ownership | undefined;
+    return {
+      id: e.id,
+      title: e.title || e.name || "Untitled Event",
+      date: e.event_date || e.date || new Date().toISOString(),
+      time: undefined,
+      venue: e.location?.label || e.venue || e.address || "",
+      attendeeCount: e.attendeeCount ?? e.participants_count ?? 0,
+      diet: (e.meal_type as Diet) || "mixed",
+      statusBadge: e.status === "purged"
+        ? "deleted"
+        : e.status === "completed"
+        ? "past"
+        : e.status === "cancelled"
+        ? "cancelled"
+        : e.status === "draft"
+        ? "draft"
+        : "active",
+      ownership: ownershipFromApi,
+      actualStatus: e.status, // Store the actual backend status
+      attendeesPreview: (e.attendees_preview || []).slice(0,3).map((p: any, idx: number) => ({
+        id: p.id || String(idx),
+        name: p.name || p.email || "Guest",
+        avatarUrl: p.avatar_url || p.avatarUrl,
+      })),
+    };
+  });
 
   return { items, hasMore };
 }
@@ -618,14 +621,16 @@ function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "de
   
   return (
     <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 16,
-        backgroundColor: config.color,
-      }}
+      style={
+        {
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 10,
+          paddingVertical: 5,
+          borderRadius: 16,
+          backgroundColor: config.color,
+        }
+      }
     >
       <Ionicons
         name={config.icon as any}
@@ -634,6 +639,18 @@ function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "de
         style={{ marginRight: 4 }}
       />
       <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }}>{status}</Text>
+    </View>
+  );
+}
+
+function RolePill({ role }: { role: 'host' | 'guest' }) {
+  const config = role === 'host'
+    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'person' }
+    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'people-outline' };
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }}>
+      <Ionicons name={config.icon as any} size={12} color="#fff" />
+      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }}>{role}</Text>
     </View>
   );
 }
@@ -678,6 +695,7 @@ function EventCard({
 }) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
   const cardColors = gradients.card.pink;
+  const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
   return (
     <Pressable onPress={onPress}>
       <LinearGradient
@@ -688,7 +706,12 @@ function EventCard({
       >
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{item.title}</Text>
-        {item.statusBadge ? <StatusPill status={item.statusBadge} /> : null}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ marginRight: 6 }}>
+            <RolePill role={roleLabel} />
+          </View>
+          {item.statusBadge ? <StatusPill status={item.statusBadge} /> : null}
+        </View>
       </View>
 
       <View style={styles.metaRow}>

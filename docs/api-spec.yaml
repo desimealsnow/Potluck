@@ -80,16 +80,32 @@ paths:
         "403":
           $ref: "#/components/responses/ForbiddenError"
     get:
-      description: "List events I host or attend"
-      security: [{ bearerAuth: [] }]
+      description: "Search/list public events for discovery or events I host/attend"
       parameters:
         - $ref: "#/components/parameters/limit"
         - $ref: "#/components/parameters/offset"
+        - name: q
+          in: query
+          description: Text search across event title and description
+          schema:
+            type: string
         - name: status
           in: query
           description: Optional filter by event status
           schema:
             $ref: "#/components/schemas/EventStatus"
+        - name: dateFrom
+          in: query
+          description: Filter events starting from this date
+          schema:
+            type: string
+            format: date-time
+        - name: dateTo
+          in: query
+          description: Filter events ending before this date
+          schema:
+            type: string
+            format: date-time
         - name: startsAfter
           in: query
           description: Filter events whose start time is after the given timestamp
@@ -102,6 +118,22 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: near
+          in: query
+          description: "Geosearch: lat,lon,radiusKm"
+          schema:
+            type: string
+            example: "40.7128,-74.0060,10"
+        - name: diet
+          in: query
+          description: Comma-separated dietary tags (veg,nonveg,mixed)
+          schema:
+            type: string
+        - name: is_public
+          in: query
+          description: Filter by public events (omit for authenticated user's events)
+          schema:
+            type: boolean
       responses:
         "200":
           description: OK
@@ -214,6 +246,178 @@ paths:
         "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
         "409": { $ref: "#/components/responses/ConflictError" }
+
+  /events/{eventId}/availability:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    get:
+      tags: [Events]
+      summary: Get event capacity availability
+      responses:
+        "200":
+          description: Availability data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Availability" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/requests:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Create join request (guest creates pending request + soft hold)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/JoinRequestAdd" }
+      responses:
+        "201":
+          description: Request created with hold
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "400": { $ref: "#/components/responses/BadRequestError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409": 
+          description: Capacity unavailable or already requested
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    get:
+      tags: [Events]
+      summary: List join requests (host-only, paginated)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - name: status
+          in: query
+          description: Filter by request status
+          schema:
+            $ref: "#/components/schemas/JoinRequestStatus"
+      responses:
+        "200":
+          description: Join requests list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedJoinRequests"
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+
+  /events/{eventId}/requests/{requestId}/approve:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Approve join request (host-only, atomic capacity check)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Request approved, participant created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409":
+          description: Capacity unavailable
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /events/{eventId}/requests/{requestId}/decline:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Decline join request (host-only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Request declined
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/requests/{requestId}/waitlist:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Move join request to waitlist (host-only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Request waitlisted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/requests/{requestId}/cancel:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Cancel join request (guest cancels own request)
+      responses:
+        "200":
+          description: Request cancelled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+        "409":
+          description: Request expired or in invalid state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /events/{eventId}/requests/{requestId}/extend:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Events]
+      summary: Extend hold expiration (host-only, optional)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Hold extended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JoinRequest" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
 
   /events/{eventId}/items:
     parameters: [{ $ref: "#/components/parameters/eventId" }]
@@ -781,6 +985,68 @@ components:
       properties:
         eventId: { type: string, format: uuid }
 
+    # ── Join Requests ──────────────────────────────
+    JoinRequestStatus:
+      type: string
+      enum: [pending, approved, declined, waitlisted, expired, cancelled]
+
+    JoinRequestAdd:
+      type: object
+      required: [party_size]
+      properties:
+        party_size:
+          type: integer
+          minimum: 1
+          description: Number of guests in the party
+        note:
+          type: string
+          maxLength: 500
+          description: Optional message to the host
+
+    JoinRequest:
+      allOf:
+        - $ref: "#/components/schemas/JoinRequestAdd"
+        - type: object
+          required: [id, event_id, user_id, status, created_at]
+          properties:
+            id: { type: string, format: uuid }
+            event_id: { type: string, format: uuid }
+            user_id: { type: string, format: uuid }
+            status: { $ref: "#/components/schemas/JoinRequestStatus" }
+            hold_expires_at:
+              type: string
+              format: date-time
+              description: When the capacity hold expires (for pending requests)
+            created_at: { type: string, format: date-time }
+            updated_at: { type: string, format: date-time }
+
+    PaginatedJoinRequests:
+      type: object
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/JoinRequest" }
+        nextOffset: { type: integer }
+        totalCount: { type: integer }
+
+    # ── Availability ───────────────────────────────
+    Availability:
+      type: object
+      required: [total, confirmed, held, available]
+      properties:
+        total:
+          type: integer
+          description: Total event capacity
+        confirmed:
+          type: integer
+          description: Sum of accepted participants party sizes
+        held:
+          type: integer
+          description: Sum of pending request holds (not expired)
+        available:
+          type: integer
+          description: Remaining capacity (total - confirmed - held)
+
     EventCreate:
       allOf:
         - $ref: "#/components/schemas/EventBase"
@@ -799,8 +1065,10 @@ components:
         event_date: { type: string, format: date-time }
         min_guests: { type: integer, minimum: 1 }
         max_guests: { type: integer }
+        capacity_total: { type: integer, minimum: 1, description: "Total event capacity for join requests" }
         status: { type: string, enum: [draft, published, cancelled, completed, purged] }
         meal_type: { type: string, enum: [veg, nonveg, mixed] }
+        is_public: { type: boolean, default: false, description: "Whether event is discoverable by guests" }
         location: { $ref: "#/components/schemas/Location" }
     EventWithItems:
       type: object
@@ -865,6 +1133,7 @@ components:
       required: [user_id]
       properties:
         user_id: { type: string, format: uuid }
+        party_size: { type: integer, minimum: 1, default: 1, description: "Number of people this participant represents" }
         status:
           { type: string, enum: [invited, pending, accepted, declined, maybe] }
     ParticipantUpdate:

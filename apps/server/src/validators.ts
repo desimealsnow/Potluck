@@ -266,6 +266,16 @@ export const schemas = {
   EventIdParam,
 };
 
+// Import join request schemas
+export { 
+  JoinRequestStatus,
+  JoinRequestAdd,
+  JoinRequest,
+  PaginatedJoinRequests,
+  Availability,
+  ListRequestsQuery
+} from './modules/requests';
+
 const endpoints = makeApi([
   {
     method: "get",

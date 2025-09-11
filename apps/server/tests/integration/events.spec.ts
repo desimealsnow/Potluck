@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, beforeEach, afterAll } from '@jest/globals';
 import request from 'supertest';
 import { getTestApp } from '../helpers/testApp';
 import { getAuthToken, TestDbHelper, TEST_USERS } from '../setup';
@@ -161,6 +162,34 @@ describe('Events API Integration Tests', () => {
 
       expect(response.body.items).toHaveLength(1);
       expect(response.body.totalCount).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should show public published events to non-participants (ownership=all)', async () => {
+      // Create a draft event as HOST, set it public, then publish
+      const draft = EventFactory.buildDraft();
+      const createRes = await request(app)
+        .post('/api/v1/events')
+        .set('Authorization', `Bearer ${hostToken}`)
+        .send({ ...draft, is_public: true })
+        .expect(201);
+
+      const eventId = createRes.body.event.id;
+
+      // Publish it
+      await request(app)
+        .post(`/api/v1/events/${eventId}/publish`)
+        .set('Authorization', `Bearer ${hostToken}`)
+        .expect(200);
+
+      // Outsider (not a participant) should see it when listing published & ownership=all
+      const listRes = await request(app)
+        .get('/api/v1/events?limit=10&offset=0&status=published&ownership=all')
+        .set('Authorization', `Bearer ${outsiderToken}`)
+        .expect(200);
+
+      expect(listRes.body.items).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: eventId })])
+      );
     });
 
     it('should filter events by status', async () => {

@@ -45,8 +45,8 @@ export class DbTestHelper {
     const locationData = {
       name: faker.company.name() + ' Hall',
       formatted_address: faker.location.streetAddress(),
-      latitude: parseFloat(faker.location.latitude()),
-      longitude: parseFloat(faker.location.longitude()),
+      latitude: parseFloat(String(faker.location.latitude() as any)),
+      longitude: parseFloat(String(faker.location.longitude() as any)),
       ...overrides
     };
 

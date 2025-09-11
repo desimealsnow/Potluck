@@ -1,4 +1,5 @@
 import { config as loadDotEnv } from 'dotenv';
+import { beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { resolve } from 'path';
 import { existsSync } from 'fs';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -226,10 +227,6 @@ beforeAll(async () => {
 
 // Global Jest teardown
 afterAll(async () => {
-<<<<<<< Current (Your changes)
-  // teardown
-});
-=======
   logger.info('[TEST-SETUP] Starting global test teardown');
   
   // Clear token cache
@@ -256,4 +253,3 @@ export default {
   getAuthToken,
   TestDbHelper
 };
->>>>>>> Incoming (Background Agent changes)

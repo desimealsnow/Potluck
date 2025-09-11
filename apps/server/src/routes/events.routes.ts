@@ -6,10 +6,12 @@ import { schemas }     from '../validators';          // generated Zod
 
 // ───── Controllers ───────────────────────────────────────────
 import * as E from '../controllers/events.controller';
+import * as R from '../modules/requests';
 
 // child routers
 import itemsRouter        from './items.routes';
 import participantsRouter  from './participants.routes';
+import { requestsRoutes } from '../modules/requests';
 
 // use mergeParams so :eventId propagates to children
 const router = Router({ mergeParams: true });
@@ -98,5 +100,16 @@ router.post(
 ──────────────────────────────────────────────────────────────*/
 router.use('/:eventId/items',        itemsRouter);        // /events/:id/items/…
 router.use('/:eventId/participants', participantsRouter); // /events/:id/participants/…
+router.use('/:eventId/requests',     requestsRoutes);     // /events/:id/requests/…
+
+
+/*──────────────────────────────────────────────────────────────
+  Availability endpoint (capacity management)
+──────────────────────────────────────────────────────────────*/
+router.get(
+  '/:eventId/availability',
+  routeLogger('GET /events/:eventId/availability'),
+  R.RequestsController.getEventAvailability
+);
 
 export default router;

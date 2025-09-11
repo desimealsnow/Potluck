@@ -110,6 +110,79 @@ export class ApiClient {
   async delete<T>(path: string): Promise<T> {
     return this.request<T>(path, { method: 'DELETE' });
   }
+
+  // ===============================================
+  // Join Requests API Methods
+  // ===============================================
+
+  /**
+   * Get event availability (capacity info)
+   */
+  async getEventAvailability(eventId: string): Promise<AvailabilityData> {
+    return this.get<AvailabilityData>(`/events/${eventId}/availability`);
+  }
+
+  /**
+   * Create a join request for an event
+   */
+  async createJoinRequest(eventId: string, data: JoinRequestCreateData): Promise<JoinRequestData> {
+    return this.post<JoinRequestData>(`/events/${eventId}/requests`, data);
+  }
+
+  /**
+   * List join requests for an event (host-only)
+   */
+  async listJoinRequests(eventId: string, query?: {
+    limit?: number;
+    offset?: number;
+    status?: JoinRequestStatus;
+  }): Promise<PaginatedJoinRequestsData> {
+    const params = new URLSearchParams();
+    if (query?.limit) params.set('limit', query.limit.toString());
+    if (query?.offset) params.set('offset', query.offset.toString());
+    if (query?.status) params.set('status', query.status);
+    
+    const queryString = params.toString();
+    const url = `/events/${eventId}/requests${queryString ? `?${queryString}` : ''}`;
+    return this.get<PaginatedJoinRequestsData>(url);
+  }
+
+  /**
+   * Approve a join request (host-only)
+   */
+  async approveJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {
+    return this.patch<JoinRequestData>(`/events/${eventId}/requests/${requestId}/approve`);
+  }
+
+  /**
+   * Decline a join request (host-only)
+   */
+  async declineJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {
+    return this.patch<JoinRequestData>(`/events/${eventId}/requests/${requestId}/decline`);
+  }
+
+  /**
+   * Waitlist a join request (host-only)
+   */
+  async waitlistJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {
+    return this.patch<JoinRequestData>(`/events/${eventId}/requests/${requestId}/waitlist`);
+  }
+
+  /**
+   * Cancel own join request (guest)
+   */
+  async cancelJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {
+    return this.patch<JoinRequestData>(`/events/${eventId}/requests/${requestId}/cancel`);
+  }
+
+  /**
+   * Extend hold for a join request (host-only)
+   */
+  async extendJoinRequestHold(eventId: string, requestId: string, extensionMinutes?: number): Promise<JoinRequestData> {
+    return this.post<JoinRequestData>(`/events/${eventId}/requests/${requestId}/extend`, {
+      extension_minutes: extensionMinutes || 30
+    });
+  }
 }
 
 // Export singleton instance
@@ -119,3 +192,39 @@ export const apiClient = new ApiClient();
 export const api = <T>(path: string, init?: RequestInit): Promise<T> => {
   return apiClient.request<T>(path, init);
 };
+
+// ===============================================
+// Types for join requests
+// ===============================================
+
+export type JoinRequestStatus = 'pending' | 'approved' | 'declined' | 'waitlisted' | 'expired' | 'cancelled';
+
+export interface AvailabilityData {
+  total: number;
+  confirmed: number;
+  held: number;
+  available: number;
+}
+
+export interface JoinRequestCreateData {
+  party_size: number;
+  note?: string;
+}
+
+export interface JoinRequestData {
+  id: string;
+  event_id: string;
+  user_id: string;
+  party_size: number;
+  note?: string;
+  status: JoinRequestStatus;
+  hold_expires_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedJoinRequestsData {
+  data: JoinRequestData[];
+  nextOffset: number | null;
+  totalCount: number;
+}

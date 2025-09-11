@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Segmented } from "@/components";
 import ParticipantsScreen from "./Participants";
+import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
 
 /* ===================== Config ===================== */
@@ -235,7 +236,7 @@ function useEventData(eventId: string) {
 }
 
 /* ===================== Page ===================== */
-type Tab = "overview" | "items" | "participants";
+type Tab = "overview" | "items" | "participants" | "requests";
 
 export default function EventDetailsPage({ 
   eventId = EVENT_ID, 
@@ -569,7 +570,7 @@ export default function EventDetailsPage({
             />
           </View>
 
-          <TabsBar active={active} onChange={setActive} />
+          <TabsBar active={active} onChange={setActive} showRequests={!!isHost} />
 
           <View style={styles.contentContainer}>
             {active === "overview" && (
@@ -595,6 +596,12 @@ export default function EventDetailsPage({
                   eventId={eventId} 
                   showHeader={false}
                 />
+              </View>
+            )}
+
+            {active === "requests" && isHost && (
+              <View style={{ flex: 1 }}>
+                <JoinRequestsManager eventId={eventId} />
               </View>
             )}
           </View>
@@ -720,12 +727,13 @@ function HeaderSkeleton() {
 
 /* ===================== Tabs bar ===================== */
 function TabsBar({
-  active, onChange,
-}: { active: Tab; onChange: (t: Tab) => void }) {
+  active, onChange, showRequests,
+}: { active: Tab; onChange: (t: Tab) => void; showRequests?: boolean }) {
   const tabs: { key: Tab; label: string }[] = [
     { key: "overview", label: "Overview" },
     { key: "items", label: "Items" },
     { key: "participants", label: "Participants" },
+    ...(showRequests ? [{ key: "requests" as Tab, label: "Requests" }] : []),
   ];
   return (
     <View style={styles.tabsContainer}>

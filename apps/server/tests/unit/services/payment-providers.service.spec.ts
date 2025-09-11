@@ -1,6 +1,7 @@
 import { PaymentProviderService } from '../../../src/services/payment-providers.service';
 import { LemonSqueezyMockFactory, LemonSqueezyMockData } from '../../fixtures/lemonSqueezyMocks';
 import nock from 'nock';
+import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Mock environment variables
 const mockEnv = {
