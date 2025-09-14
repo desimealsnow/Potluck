@@ -211,37 +211,13 @@ export async function listEvents(
   // Step 2: Build the query for events where the user is host or participant
   let query = supabase
     .from('events')
-    .select('id, title, event_date, attendee_count, meal_type, status, created_by')
-    .order('event_date', { ascending: false });
-
-  // Step 3: Host or participant filter
-  if (participantIds.length) {
-    query = query.or(
-      `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
-    );
-  } else {
-    query = query.eq('created_by', userId);
-  }
-
-  // Step 4: Apply filters
-  if (status) {
-    query = query.eq('status', status);
-  }
-  if (startsAfter) {
-    query = query.gte('event_date', startsAfter);
-  }
-  if (startsBefore) {
-    query = query.lte('event_date', startsBefore);
-  }
-
-  // Step 5: Fetch data with total count in a single query
-  let queryWithFilters = supabase
-    .from('events')
     .select('id, title, event_date, attendee_count, meal_type, status, created_by', { count: 'exact' })
     .order('event_date', { ascending: false });
-  queryWithFilters = applyEventFilters(queryWithFilters, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
 
-  const { data: events, error: listErr, count } = await queryWithFilters.range(
+  // Step 3: Apply all filters using the helper function
+  query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
+
+  const { data: events, error: listErr, count } = await query.range(
     offset,
     offset + limit - 1
   );
@@ -289,10 +265,22 @@ function applyEventFilters(
     startsBefore?: string
   }
 ) {
+  logger.info('[EventService] applyEventFilters', { 
+    userId, 
+    participantIds: participantIds.length, 
+    status, 
+    ownership, 
+    meal_type, 
+    startsAfter, 
+    startsBefore 
+  });
+
   // Apply ownership filter
   if (ownership === 'mine') {
+    logger.info('[EventService] Applying mine filter');
     builder = builder.eq('created_by', userId);
   } else if (ownership === 'invited') {
+    logger.info('[EventService] Applying invited filter');
     if (participantIds.length) {
       builder = builder.in('id', participantIds).neq('created_by', userId);
     } else {
@@ -301,33 +289,49 @@ function applyEventFilters(
     }
   } else {
     // 'all' or undefined
+    logger.info('[EventService] Applying all filter');
     // If requesting published events, also include publicly visible ones
     if (status === 'published') {
+      logger.info('[EventService] Including public events for published status');
       if (participantIds.length) {
-        builder = builder.or(
-          `created_by.eq.${userId},id.in.(${participantIds.join(',')}),is_public.eq.true`
-        );
+        const orCondition = `created_by.eq.${userId},id.in.(${participantIds.join(',')}),is_public.eq.true`;
+        logger.info('[EventService] OR condition', { orCondition });
+        builder = builder.or(orCondition);
       } else {
-        builder = builder.or(
-          `created_by.eq.${userId},is_public.eq.true`
-        );
+        const orCondition = `created_by.eq.${userId},is_public.eq.true`;
+        logger.info('[EventService] OR condition', { orCondition });
+        builder = builder.or(orCondition);
       }
     } else {
       // For non-published views, restrict to my owned or where I'm a participant
+      logger.info('[EventService] Restricting to owned/participant events');
       if (participantIds.length) {
-        builder = builder.or(
-          `created_by.eq.${userId},id.in.(${participantIds.join(',')})`
-        );
+        const orCondition = `created_by.eq.${userId},id.in.(${participantIds.join(',')})`;
+        logger.info('[EventService] OR condition', { orCondition });
+        builder = builder.or(orCondition);
       } else {
         builder = builder.eq('created_by', userId);
       }
     }
   }
   
-  if (status) builder = builder.eq('status', status);
-  if (meal_type) builder = builder.in('meal_type', meal_type.split(','));
-  if (startsAfter) builder = builder.gte('event_date', startsAfter);
-  if (startsBefore) builder = builder.lte('event_date', startsBefore);
+  if (status) {
+    logger.info('[EventService] Adding status filter', { status });
+    builder = builder.eq('status', status);
+  }
+  if (meal_type) {
+    logger.info('[EventService] Adding meal_type filter', { meal_type });
+    builder = builder.in('meal_type', meal_type.split(','));
+  }
+  if (startsAfter) {
+    logger.info('[EventService] Adding startsAfter filter', { startsAfter });
+    builder = builder.gte('event_date', startsAfter);
+  }
+  if (startsBefore) {
+    logger.info('[EventService] Adding startsBefore filter', { startsBefore });
+    builder = builder.lte('event_date', startsBefore);
+  }
+  
   return builder;
 }
 

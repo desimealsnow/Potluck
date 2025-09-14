@@ -30,10 +30,12 @@ const EventBase = z
     event_date: z.string().datetime({ offset: true }),
     min_guests: z.number().int().gte(1),
     max_guests: z.number().int().optional(),
+    capacity_total: z.number().int().gte(1),
     status: z
       .enum(["draft", "published", "cancelled", "completed", "purged"])
       .optional(),
     meal_type: z.enum(["veg", "nonveg", "mixed"]),
+    is_public: z.boolean().optional().default(false),
     location: Location,
   })
   .passthrough();

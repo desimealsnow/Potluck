@@ -128,7 +128,11 @@ export default function CreateEventScreen({
             category: d.category || undefined,
             per_guest_qty: Math.max(0.01, d.per_guest_qty)
           }))
-      };
+      } as any; // Temporary type assertion until types are regenerated
+
+      // Add the required fields that aren't in the generated types yet
+      (payload as any).capacity_total = parseInt(maxGuests, 10) || parseInt(minGuests, 10);
+      (payload as any).is_public = false;
 
       console.log("Creating event with payload:", JSON.stringify(payload, null, 2));
 
