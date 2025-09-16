@@ -291,15 +291,16 @@ function AuthFormComponent() {
           style={[authStyles.authButton, !canSubmit && authStyles.authButtonDisabled]}
           onPress={handleAuth}
           disabled={!canSubmit || loading}
+          testID={isSignUp ? "sign-up-button" : "sign-in-button"}
         >
           <LinearGradient
             colors={canSubmit ? ["#7C5CFF", "#2FB4FF"] : ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.2)"]}
             style={authStyles.authButtonGradient}
           >
             {loading ? (
-              <ActivityIndicator color="white" />
+              <ActivityIndicator color="white" testID="auth-loading" />
             ) : (
-              <Text style={authStyles.authButtonText}>
+              <Text style={authStyles.authButtonText} testID={isSignUp ? "sign-up-text" : "sign-in-text"}>
                 {isSignUp ? "Sign Up" : "Sign In"}
               </Text>
             )}
@@ -307,16 +308,16 @@ function AuthFormComponent() {
         </Pressable>
 
         {/* Toggle Sign Up/Sign In */}
-        <Pressable onPress={() => setIsSignUp(!isSignUp)} style={authStyles.toggleButton}>
-          <Text style={authStyles.toggleText}>
+        <Pressable onPress={() => setIsSignUp(!isSignUp)} style={authStyles.toggleButton} testID="toggle-auth-mode">
+          <Text style={authStyles.toggleText} testID="toggle-auth-text">
             {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
           </Text>
         </Pressable>
 
         {/* Forgot Password */}
         {!isSignUp && (
-          <Pressable onPress={handleForgotPassword} style={authStyles.forgotButton}>
-            <Text style={authStyles.forgotText}>Forgot Password?</Text>
+          <Pressable onPress={handleForgotPassword} style={authStyles.forgotButton} testID="forgot-password-button">
+            <Text style={authStyles.forgotText} testID="forgot-password-text">Forgot Password?</Text>
           </Pressable>
         )}
       </View>

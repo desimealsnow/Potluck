@@ -9,6 +9,7 @@ export interface InputProps extends React.ComponentProps<typeof TextInput> {
   onRightIconPress?: () => void;
   error?: boolean;
   multiline?: boolean;
+  testID?: string;
 }
 
 export function Input({
@@ -18,6 +19,7 @@ export function Input({
   error = false,
   multiline = false,
   style,
+  testID,
   ...props
 }: InputProps) {
   return (
@@ -25,7 +27,7 @@ export function Input({
       styles.container,
       multiline && styles.containerMultiline,
       error && styles.containerError
-    ]}>
+    ]} testID={`${testID}-container`}>
       {leftIcon && (
         <View style={styles.leftIcon}>
           <Ionicons name={leftIcon} size={16} color={colors.neutral[400]} />
@@ -39,6 +41,7 @@ export function Input({
           style
         ]}
         multiline={multiline}
+        testID={testID}
         {...props}
       />
       {rightIcon && (
