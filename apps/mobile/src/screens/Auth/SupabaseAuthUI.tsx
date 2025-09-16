@@ -60,8 +60,8 @@ export default function SupabaseAuthUI() {
     return (
       <LinearGradient colors={["#5A60F6", "#3C8CE7", "#00B8D4"]} style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading...</Text>
+          <View style={styles.loadingContainer} testID="loading-container">
+            <Text style={styles.loadingText} testID="loading-text">Loading...</Text>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -78,9 +78,9 @@ export default function SupabaseAuthUI() {
     <LinearGradient colors={["#5A60F6", "#3C8CE7", "#00B8D4"]} style={styles.container}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.authContainer}>
-            <Text style={styles.title}>Welcome to Potluck</Text>
-            <Text style={styles.subtitle}>Sign in to manage your events</Text>
+          <View style={styles.authContainer} testID="auth-container">
+            <Text style={styles.title} testID="welcome-title">Welcome to Potluck</Text>
+            <Text style={styles.subtitle} testID="welcome-subtitle">Sign in to manage your events</Text>
             
             <AuthFormComponent />
           </View>
@@ -213,8 +213,9 @@ function AuthFormComponent() {
     <KeyboardAvoidingView 
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={authStyles.container}
+      testID="auth-form-container"
     >
-      <View style={authStyles.formCard}>
+      <View style={authStyles.formCard} testID="auth-form-card">
         {/* Email Input */}
         <View style={authStyles.inputContainer}>
           <View style={authStyles.inputWrapper}>
@@ -228,10 +229,11 @@ function AuthFormComponent() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              testID="email-input"
             />
           </View>
           {email.length > 0 && !isEmailValid && (
-            <Text style={authStyles.errorText}>Please enter a valid email</Text>
+            <Text style={authStyles.errorText} testID="email-error">Please enter a valid email</Text>
           )}
         </View>
 
@@ -247,8 +249,9 @@ function AuthFormComponent() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              testID="password-input"
             />
-            <Pressable onPress={() => setShowPassword(!showPassword)} style={authStyles.eyeIcon}>
+            <Pressable onPress={() => setShowPassword(!showPassword)} style={authStyles.eyeIcon} testID="password-toggle">
               <Ionicons 
                 name={showPassword ? "eye-off" : "eye"} 
                 size={20} 
@@ -257,7 +260,7 @@ function AuthFormComponent() {
             </Pressable>
           </View>
           {password.length > 0 && !isPasswordValid && (
-            <Text style={authStyles.errorText}>Password must be at least 6 characters</Text>
+            <Text style={authStyles.errorText} testID="password-error">Password must be at least 6 characters</Text>
           )}
         </View>
 
@@ -274,10 +277,11 @@ function AuthFormComponent() {
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                testID="confirm-password-input"
               />
             </View>
             {confirmPassword.length > 0 && !isConfirmPasswordValid && (
-              <Text style={authStyles.errorText}>Passwords do not match</Text>
+              <Text style={authStyles.errorText} testID="confirm-password-error">Passwords do not match</Text>
             )}
           </View>
         )}
