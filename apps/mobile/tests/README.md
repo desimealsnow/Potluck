@@ -348,15 +348,130 @@ All interactive elements need testIds for reliable element selection:
 
 ---
 
+## Running Tests
+
+### Prerequisites
+1. **Start the development server:**
+   ```bash
+   npm run web
+   ```
+   The app should be running at `http://localhost:8081`
+
+2. **Install Playwright browsers:**
+   ```bash
+   npx playwright install
+   ```
+
+### Running Playwright Tests
+
+#### Basic Commands
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run tests with browser visible
+npm run test:e2e:headed
+
+# Debug tests step by step
+npm run test:e2e:debug
+
+# Run with Playwright UI
+npm run test:e2e:ui
+
+# View test reports
+npm run test:e2e:report
+```
+
+#### Running Specific Tests
+```bash
+# Run specific test file
+npx playwright test auth.spec.ts
+
+# Run specific test by name
+npx playwright test -g "should login successfully"
+
+# Run tests in specific project (browser)
+npx playwright test --project=chromium
+```
+
+#### Test Environment Variables
+```bash
+# Custom mobile web URL (default: http://localhost:8081)
+MOBILE_WEB_URL=http://localhost:3000 npm run test:e2e
+```
+
+### Test Structure
+
+```
+tests/ui/
+├── auth.spec.ts                 # Authentication flow tests
+├── event-list.spec.ts          # Events dashboard and filtering
+├── create-event.spec.ts        # Event creation wizard
+├── event-details.spec.ts       # Event management and details
+├── settings.spec.ts            # Settings and profile management
+├── plans.spec.ts               # Billing and subscription plans
+├── subscription.spec.ts        # Payment flow integration
+└── complete-user-journey.spec.ts # End-to-end user scenarios
+```
+
+### Test Data
+- **Test User**: `host@test.dev` / `password123`
+- **Test Events**: Created dynamically during tests
+- **Mock Payment**: LemonSqueezy integration (sandbox mode)
+
+### Screenshots and Artifacts
+All test artifacts are saved to `test-results/`:
+- Screenshots on failure
+- Videos for failed tests  
+- Test reports and traces
+- Step-by-step debug screenshots
+
+### Debugging Failed Tests
+1. **View HTML Report**: `npm run test:e2e:report`
+2. **Run in Debug Mode**: `npm run test:e2e:debug`
+3. **Check Screenshots**: Look in `test-results/` folder
+4. **Enable Tracing**: Set `trace: 'on'` in config for detailed steps
+
+## CI/CD Integration
+
+### GitHub Actions Example
+```yaml
+name: E2E Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      - name: Start app
+        run: npm run web &
+      - name: Wait for app
+        run: npx wait-on http://localhost:8081
+      - name: Run tests
+        run: npm run test:e2e
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+```
+
 ## Next Steps
 
 1. ✅ **Setup Playwright configuration**
 2. ✅ **Add testIds to all components** 
-3. ✅ **Implement Page Object Model**
-4. ✅ **Create authentication test suite**
-5. ✅ **Develop event management tests**
-6. ✅ **Add visual regression testing**
-7. ✅ **Setup CI/CD pipeline**
+3. ✅ **Create comprehensive test suites**
+4. ⏳ **Implement Page Object Model for better maintainability**
+5. ⏳ **Add visual regression testing**
+6. ⏳ **Setup CI/CD pipeline**
+7. ⏳ **Add performance testing**
+8. ⏳ **Mobile-specific gesture testing**
 
 ---
 
