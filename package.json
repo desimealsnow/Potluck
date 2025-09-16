@@ -2,9 +2,14 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "libs/*"
+    "libs/*",
+    "packages/*"
   ],
   "scripts": {
+    "publish:payments:npm": "npm publish -w packages/payments --access restricted",
+    "version:payments:patch": "npm version patch -w packages/payments",
+    "version:payments:minor": "npm version minor -w packages/payments",
+    "version:payments:major": "npm version major -w packages/payments",
     "start:server": "npm start -w apps/server",
     "start:mobile": "npm start -w apps/mobile",
 

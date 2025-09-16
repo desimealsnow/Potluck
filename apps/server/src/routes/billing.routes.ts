@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import BillingController from '../controllers/billing.controller';
+import { raw } from 'body-parser';
+import { createWebhookHandler } from '@payments/core';
+import { createPaymentContainer } from '../services/payments.container';
 import { authGuard } from '../middleware/authGuard';
 
 const router = Router();
@@ -31,7 +34,9 @@ router.get('/invoices/:invoiceId', authGuard, BillingController.getInvoice);
 router.get('/invoices/:invoiceId/download', authGuard, BillingController.downloadInvoice);
 
 // Webhooks (no auth required) - Generic provider webhook
-router.post('/webhook/:provider', BillingController.handleProviderWebhook);
+// Webhook with raw-body for signature verification
+const paymentsContainer = createPaymentContainer();
+router.post('/webhook/:provider', raw({ type: '*/*' }), createWebhookHandler(paymentsContainer));
 
 export default router;
 

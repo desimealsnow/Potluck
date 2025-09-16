@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabaseClient';
 import { handle, ServiceResult } from '../utils/helper';
 import { components } from '../../../../libs/common/src/types.gen';
-import { ProviderServiceFactory } from '../services/provider.factory';
+import { createPaymentService } from '../services/payments.container';
 
 type BillingPlan = components['schemas']['BillingPlan'];
 type Subscription = components['schemas']['Subscription'];
@@ -106,21 +106,24 @@ export const BillingController = {
     // No need to look up in database since we fetch plans from LemonSqueezy API
     console.log('🔧 Using variant ID directly:', plan_id);
 
-    // Use generic provider factory for checkout
-    const result = await ProviderServiceFactory.createCheckoutSession(provider, {
-      planId: plan_id, // This is now the LemonSqueezy variant ID
-      userId: userId,
-      userEmail: userEmail,
+    // Use new PaymentService with idempotency and tenant awareness
+    const service = createPaymentService();
+    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const successUrl = `${frontendBase}/payment-success.html`;
+    const cancelUrl = `${frontendBase}/plans`;
+    const session = await service.createCheckout({
+      tenantId: (req.headers['x-tenant-id'] as string) || 'default',
+      planId: plan_id,
+      userId,
+      userEmail,
       userName: (req.user as any)?.name,
+      provider,
+      successUrl,
+      cancelUrl,
     });
 
-    console.log('🛒 Checkout Result:', result);
-
-    if (!result.ok) {
-      return handle(res, err(result.error, '500'));
-    }
-
-    return handle(res, ok(result.data));
+    console.log('🛒 Checkout Session:', session);
+    return handle(res, ok({ checkout_url: session.checkoutUrl } as unknown as CheckoutSession));
   },
 
   // GET /billing/subscriptions
@@ -480,42 +483,7 @@ export const BillingController = {
     return res.status(200).send(minimalPdf);
   },
 
-  // POST /billing/webhook/:provider
-  async handleProviderWebhook(req: Request, res: Response) {
-    const { provider } = req.params;
-    const signature = req.headers['x-signature'] as string;
-    const payload = JSON.stringify(req.body);
-
-    if (!signature) {
-      return res.status(400).send('Missing signature');
-    }
-
-    // Verify webhook signature using generic factory
-    if (!ProviderServiceFactory.verifyWebhookSignature(provider, payload, signature)) {
-      return res.status(401).send('Invalid signature');
-    }
-
-    try {
-      const result = await ProviderServiceFactory.handleWebhook(provider, req.body);
-      
-      if (!result.ok) {
-        console.error('Webhook processing failed:', result.error);
-        return res.status(500).send('Webhook processing failed');
-      }
-
-      // TODO: Update database based on webhook event
-      // This would typically involve:
-      // 1. Parsing the webhook event
-      // 2. Updating subscription status in database
-      // 3. Creating/updating invoices
-      // 4. Sending confirmation emails
-
-      return res.status(200).send('Webhook processed successfully');
-    } catch (error) {
-      console.error('Webhook error:', error);
-      return res.status(500).send('Internal server error');
-    }
-  },
+  // Webhooks are handled by the payments package middleware mounted in routes
 };
 
 export default BillingController;

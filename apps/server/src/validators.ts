@@ -1,6 +1,6 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
-import { getProviderNames } from './config/providers';
+import { getProviderNames } from '@payments/core';
 
 // Dynamic provider enum based on supported providers
 const ProviderEnum = z.enum(getProviderNames() as [string, ...string[]]);

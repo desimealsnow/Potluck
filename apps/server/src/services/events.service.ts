@@ -1,21 +1,18 @@
 import { supabase } from '../config/supabaseClient';
-import { addHost } from '../services/participants.service';
-import debug from 'debug';
+import { } from '../services/participants.service';
 import logger from '../logger';
-import {ServiceResult,mapDbError, ServiceError,toDbColumns} from "../utils/helper";
+import {ServiceResult,mapDbError,toDbColumns} from "../utils/helper";
 import { schemas }  from '../validators';           // <- generated Zod objects
 
 import { components } from '../../../../libs/common/src/types.gen';
 import { createClient } from '@supabase/supabase-js';
 type CreateEventInput  = components['schemas']['EventCreate'];
-type ItemCreateInput   = components['schemas']['ItemCreate'];
 type EventFull = components['schemas']['EventFull'];
 type EventSummary = components['schemas']['EventSummary'];
 type EventWithItems     = components['schemas']['EventWithItems'];
 type EventUpdateInput = components['schemas']['EventUpdate'];
 type EventCancelInput = components['schemas']['EventCancel'];
 
-const log = debug('potluck:events'); 
 logger.info('Debug namespace is Event Service');
 
 /**
@@ -69,7 +66,9 @@ export async function assignItem(itemId: string, userId: string | null) {
 export async function getEventDetails(
   eventId: string,
   jwt?: string                    // token now OPTIONAL
-): Promise<ServiceResult<EventFull>> {
+): Promise<ServiceResult<
+  EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited' } }
+>> {
   /* 1️⃣ Build a Supabase client.
         - If jwt is present  → user-scoped client (RLS enforced)
         - Else              → service-role client (bypass RLS, backend-only) */
@@ -140,7 +139,7 @@ export async function getEventDetails(
     }
   })() : false;
 
-  const response: EventFull = {
+  const response: EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited' } } = {
     event: {
       id: data.id,
       title: data.title,
@@ -154,7 +153,7 @@ export async function getEventDetails(
       status: data.status,
       ownership: isOwner ? 'mine' : 'invited',
       location: Array.isArray(data.location) ? data.location[0] : data.location
-    } as any, // Type assertion to handle ownership field
+    },
     items: data.items ?? [],
     participants: data.participants ?? []
   };
@@ -177,10 +176,27 @@ interface ListEventsParams {
 }
 
 interface PaginatedEventSummary {
-  items: EventSummary[];
+  items: ViewerEventSummary[];
   totalCount: number;
   nextOffset: number | null;
 }
+
+// Row shape returned by the events list query above
+type EventRow = {
+  id: string;
+  title: string;
+  event_date: string;
+  attendee_count: number;
+  meal_type: components['schemas']['EventSummary']['meal_type'];
+  status: string;
+  created_by: string;
+};
+
+// Enriched summary we return to the client for list views
+type ViewerEventSummary = EventSummary & {
+  ownership: 'mine' | 'invited';
+  viewer_role: 'host' | 'guest';
+};
 
 export async function listEvents(
   userId: string,
@@ -227,11 +243,15 @@ export async function listEvents(
     return { ok: false, error: listErr.message, code: '500' };
   }
 
-  const items = (events ?? []).map((e: any) => ({
-    ...e,
+  const items: ViewerEventSummary[] = (events ?? []).map((e: EventRow) => ({
+    id: e.id,
+    title: e.title,
+    event_date: e.event_date,
+    attendee_count: e.attendee_count,
+    meal_type: e.meal_type,
     ownership: e.created_by === userId ? 'mine' : 'invited',
     viewer_role: e.created_by === userId ? 'host' : 'guest',
-  })) as any as EventSummary[];
+  }));
   const totalCount = (typeof count === 'number' ? count : items.length);
   const nextOffset = offset + limit < totalCount ? offset + limit : null;
 
@@ -245,8 +265,8 @@ export async function listEvents(
   };
 }
 
-function applyEventFilters(
-  builder: any,
+function applyEventFilters<B>(
+  builder: B,
   {
     userId,
     participantIds,
@@ -264,7 +284,7 @@ function applyEventFilters(
     startsAfter?: string,
     startsBefore?: string
   }
-) {
+): B {
   logger.info('[EventService] applyEventFilters', { 
     userId, 
     participantIds: participantIds.length, 
@@ -276,16 +296,18 @@ function applyEventFilters(
   });
 
   // Apply ownership filter
+  // Use an any-typed local to avoid deep generic instantiation from Postgrest types
+  let b: any = builder;
   if (ownership === 'mine') {
     logger.info('[EventService] Applying mine filter');
-    builder = builder.eq('created_by', userId);
+    b = b.eq('created_by', userId);
   } else if (ownership === 'invited') {
     logger.info('[EventService] Applying invited filter');
     if (participantIds.length) {
-      builder = builder.in('id', participantIds).neq('created_by', userId);
+      b = b.in('id', participantIds).neq('created_by', userId);
     } else {
       // No events if user is not a participant anywhere
-      builder = builder.eq('id', '00000000-0000-0000-0000-000000000000');
+      b = b.eq('id', '00000000-0000-0000-0000-000000000000');
     }
   } else {
     // 'all' or undefined
@@ -296,11 +318,11 @@ function applyEventFilters(
       if (participantIds.length) {
         const orCondition = `created_by.eq.${userId},id.in.(${participantIds.join(',')}),is_public.eq.true`;
         logger.info('[EventService] OR condition', { orCondition });
-        builder = builder.or(orCondition);
+        b = b.or(orCondition);
       } else {
         const orCondition = `created_by.eq.${userId},is_public.eq.true`;
         logger.info('[EventService] OR condition', { orCondition });
-        builder = builder.or(orCondition);
+        b = b.or(orCondition);
       }
     } else {
       // For non-published views, restrict to my owned or where I'm a participant
@@ -308,36 +330,36 @@ function applyEventFilters(
       if (participantIds.length) {
         const orCondition = `created_by.eq.${userId},id.in.(${participantIds.join(',')})`;
         logger.info('[EventService] OR condition', { orCondition });
-        builder = builder.or(orCondition);
+        b = b.or(orCondition);
       } else {
-        builder = builder.eq('created_by', userId);
+        b = b.eq('created_by', userId);
       }
     }
   }
   
   if (status) {
     logger.info('[EventService] Adding status filter', { status });
-    builder = builder.eq('status', status);
+    b = b.eq('status', status);
   }
   if (meal_type) {
     logger.info('[EventService] Adding meal_type filter', { meal_type });
-    builder = builder.in('meal_type', meal_type.split(','));
+    b = b.in('meal_type', meal_type.split(','));
   }
   if (startsAfter) {
     logger.info('[EventService] Adding startsAfter filter', { startsAfter });
-    builder = builder.gte('event_date', startsAfter);
+    b = b.gte('event_date', startsAfter);
   }
   if (startsBefore) {
     logger.info('[EventService] Adding startsBefore filter', { startsBefore });
-    builder = builder.lte('event_date', startsBefore);
+    b = b.lte('event_date', startsBefore);
   }
   
-  return builder;
+  return b as B;
 }
 
 
 // Helper: Checks if event can be edited
-async function ensureEventEditable(eventId: string, actorId: string): Promise<ServiceResult<{ event: any }>> {
+async function ensureEventEditable(eventId: string, actorId: string): Promise<ServiceResult<{ event: EventFull['event'] }>> {
   // Fetch event for permission and state checks
   const { data, error } = await supabase
     .from('events')
@@ -355,7 +377,7 @@ async function ensureEventEditable(eventId: string, actorId: string): Promise<Se
     return { ok: false, error: `Cannot update an event with status ${data.status}`, code: '409' };
   }
 
-  return { ok: true, data: { event: data } };
+  return { ok: true, data: { event: data as EventFull['event'] } };
 }
 
 export async function updateEventDetails(
@@ -411,7 +433,7 @@ export async function updateEventDetails(
   const fullEvent = await getEventDetails(eventId);
   if (!fullEvent.ok) {
     logger.warn('Event updated, but unable to fetch full details', { eventId });
-    return { ok: true, data: null as any }; // Optionally return the partial event data
+    return fullEvent as ServiceResult<EventFull>;
   }
 
   return { ok: true, data: fullEvent.data };
@@ -645,7 +667,7 @@ export async function deleteEvent(
   }
 
   // 4️⃣ Delete the event
-const { data: delRows, error: delErr, count } = await supabase
+const { error: delErr, count } = await supabase
   .from('events')
   .delete({ count: 'exact' })
   .eq('id', eventId)

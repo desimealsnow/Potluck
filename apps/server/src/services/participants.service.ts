@@ -1,6 +1,6 @@
 import { supabase } from '../config/supabaseClient';
 import { components } from '../../../../libs/common/src/types.gen';
-import {ServiceResult, toDbColumns, mapDbError } from '../utils/helper';
+import {ServiceResult} from '../utils/helper';
 import {sendInviteEmail } from '../utils/mailer';
 
 type AddParticipantInput  = components['schemas']['ParticipantAdd'];
