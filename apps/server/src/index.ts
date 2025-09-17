@@ -3,7 +3,7 @@ import Debug from 'debug';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import './utils/envCheck'; // Check environment variables on startup
+import { checkEnvironmentVariables } from './utils/envCheck';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +11,8 @@ const __dirname = path.dirname(__filename);
 // Load correct .env file based on NODE_ENV
 const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
+// Now that .env is loaded, run the check
+checkEnvironmentVariables();
 
 const debug = Debug('potluck-api');
 

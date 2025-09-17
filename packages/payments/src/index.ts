@@ -8,6 +8,7 @@ export * from './core/container';
 export * from './providers/registry';
 export * from './providers';
 export * from './web/express';
+export * from './web/dev';
 export * from './app/paymentService';
 export * from './types';
 

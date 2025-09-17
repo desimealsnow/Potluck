@@ -1,7 +1,7 @@
 -- Create billing_plans table with LemonSqueezy variant IDs
 -- Based on your test output:
--- - Default variant: ID 992415 - $8999 (year)
--- - Variant1: ID 992413 - $8999 (year)
+-- - Default variant: ID 992413 - $8999 (month) - PUBLISHED
+-- - Variant1: ID 992415 - $8999 (year) - PENDING
 
 -- Create the plans table if it doesn't exist
 CREATE TABLE IF NOT EXISTS billing_plans (
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS billing_plans (
 -- Insert the plans with LemonSqueezy variant IDs
 INSERT INTO billing_plans (name, price_id, provider, amount_cents, currency, interval, is_active)
 VALUES 
-  ('pro', '992415', 'lemonsqueezy', 899900, 'USD', 'year', true),
-  ('basic', '992413', 'lemonsqueezy', 899900, 'USD', 'year', true)
+  ('pro', '992413', 'lemonsqueezy', 899900, 'USD', 'month', true),
+  ('basic', '992415', 'lemonsqueezy', 899900, 'USD', 'year', true)
 ON CONFLICT (name, provider) 
 DO UPDATE SET 
   price_id = EXCLUDED.price_id,

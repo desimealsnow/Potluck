@@ -39,10 +39,10 @@ export const lemonSqueezyProvider: PaymentProvider = {
               tenant_id: data.tenantId,
             }
           },
-          product_options: {
-            enabled_variants: [data.planId],
-            redirect_url: data.successUrl,
-          },
+          product_options: Object.assign(
+            { enabled_variants: [data.planId] },
+            data.successUrl ? { redirect_url: data.successUrl } : {}
+          ),
         },
         relationships: {
           store: { data: { type: 'stores', id: storeId } },
@@ -122,8 +122,9 @@ export const lemonSqueezyProvider: PaymentProvider = {
     if (!body) return [];
     const events: BillingEvent[] = [];
     const eventType = body.meta?.event_name as string | undefined;
-    const eventId = body.meta?.event_id as string | undefined;
-    const occurredAt = body.meta?.created_at as string | undefined;
+    // LemonSqueezy uses webhook_id, not event_id
+    const eventId = (body.meta?.event_id || body.meta?.webhook_id) as string | undefined;
+    const occurredAt = (body.meta?.created_at || body.data?.attributes?.created_at) as string | undefined;
 
     if (!eventType || !eventId) return [];
 
@@ -131,16 +132,36 @@ export const lemonSqueezyProvider: PaymentProvider = {
     function mapSubscriptionPayload(payload: any): any /* Subscription */ {
       const s = payload?.data || payload; // support both body.data and direct
       const attrs = s?.attributes || {};
+      const customUserId = body?.meta?.custom_data?.user_id;
+      // Map LemonSqueezy variant ID to existing billing_plans UUID
+      const variantId = String(attrs?.variant_id || '');
+      // Get variant mapping from provider config or environment
+      const variantMapping = cfg.credentials.variantMapping || process.env.LEMONSQUEEZY_VARIANT_MAPPING;
+      let planId = variantId; // fallback to variant ID if no mapping
+      
+      if (variantMapping) {
+        try {
+          const variantToPlanMap = JSON.parse(variantMapping);
+          planId = variantToPlanMap[variantId] || variantId;
+        } catch (e) {
+          // Silent fallback - this is called during event processing
+          planId = variantId;
+        }
+      }
+      
       return {
-        id: String(s?.id || attrs?.id || ''),
+        id: crypto.randomUUID(), // Generate UUID for subscription ID since DB expects UUID format
         provider: 'lemonsqueezy',
         providerSubId: String(s?.id || attrs?.id || ''),
-        planId: String(attrs?.variant_id || ''),
-        userId: String(attrs?.customer_id || ''),
+        planId: planId, // Use mapped plan UUID
+        // Prefer our app user id passed via checkout custom_data
+        userId: String(customUserId || attrs?.customer_id || ''),
         status: String(attrs?.status || 'active'),
-        currentPeriodEnd: attrs?.current_period_ends_at || undefined,
+        currentPeriodEnd: attrs?.current_period_ends_at || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days from now if not provided
       };
     }
+
+    const isUuid = (v: unknown) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 
     switch (eventType) {
       case 'subscription_created':
@@ -155,13 +176,22 @@ export const lemonSqueezyProvider: PaymentProvider = {
       case 'order_created':
         // Map to a minimal invoice shape expected by persistence
         const order = body?.data || {};
+        const orderAttrs = order?.attributes || {};
+        // Use LemonSqueezy order identifier (UUID) as our invoice id to satisfy DB UUID requirement
         const inv = {
-          id: String(order?.id || ''),
-          subscriptionId: String(order?.attributes?.subscription_id || ''),
+          id: String(orderAttrs?.identifier || order?.id || ''),
+          // Only set subscriptionId if it's a UUID, otherwise leave undefined/null
+          subscriptionId: isUuid(orderAttrs?.subscription_id) ? String(orderAttrs?.subscription_id) : undefined,
           amountCents: Number(order?.attributes?.total || 0),
           currency: String(order?.attributes?.currency || 'USD'),
           status: 'paid',
           issuedAt: occurredAt || new Date().toISOString(),
+          // Carry through app user and provider for persistence needs
+          userId: body?.meta?.custom_data?.user_id ? String(body.meta.custom_data.user_id) : undefined,
+          provider: 'lemonsqueezy',
+          // Enrichment hints for handler
+          orderId: String(order?.id || ''),
+          subscriptionsLink: String(order?.relationships?.subscriptions?.links?.related || ''),
         };
         events.push({ name: 'invoice.paid', provider: 'lemonsqueezy', providerEventId: eventId, tenantId: cfg.tenantId, occurredAt: inv.issuedAt, data: inv });
         break;

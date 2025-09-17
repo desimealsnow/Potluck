@@ -61,5 +61,3 @@ export function checkEnvironmentVariables() {
   };
 }
 
-// Auto-run check on import
-checkEnvironmentVariables();

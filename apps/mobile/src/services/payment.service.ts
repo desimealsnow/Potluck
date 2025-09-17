@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 import { Linking, Alert, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
 
 // Web-specific window declaration
 declare const window: any;
@@ -110,9 +111,17 @@ export class PaymentService {
    */
   async createCheckoutSession(planId: string, provider: string = 'lemonsqueezy'): Promise<CheckoutSession> {
     try {
+      // For web AuthSession auto-close, ensure server uses the same return URL
+      const returnUrl = (Platform.OS !== 'web')
+        ? AuthSession.makeRedirectUri({ preferLocalhost: true, path: '/' })
+        : undefined;
+      if (returnUrl) {
+        console.log('🔁 Using AuthSession returnUrl:', returnUrl);
+      }
       const response = await apiClient.post<CheckoutSession>('/billing/checkout/subscription', {
         plan_id: planId,
-        provider: provider,
+        provider,
+        ...(returnUrl ? { return_url: returnUrl } : {}),
       });
       return response;
     } catch (error) {
@@ -132,6 +141,17 @@ export class PaymentService {
       
       console.log('🔗 Opening checkout URL:', checkout.checkout_url);
       console.log('📱 Platform:', Platform.OS);
+      // Mirror critical logs to server so they appear in `npm run dev:server` terminal
+      const sendLog = async (level: 'info'|'warn'|'error', message: string, context?: unknown) => {
+        try {
+          await fetch('http://localhost:3000/api/v1/dev-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level, message, context })
+          });
+        } catch {}
+      };
+      await sendLog('info', 'payment.open', { url: checkout.checkout_url, platform: Platform.OS });
       
       // Configure WebBrowser options based on platform
       const browserOptions: WebBrowser.WebBrowserOpenOptions = {
@@ -145,34 +165,63 @@ export class PaymentService {
 
       // Platform-specific handling
       if (Platform.OS === 'web') {
-        // Web: Use AuthSession for proper in-app browser experience
-        console.log('🌐 Opening payment in in-app browser');
-        console.log('🔗 Payment URL:', checkout.checkout_url);
-        
-        try {
-          // Use openAuthSessionAsync for web - this creates an in-app browser modal
-          const result = await WebBrowser.openAuthSessionAsync(
-            checkout.checkout_url,
-            // Return URL - use a simple success indicator
-            `${window.location.origin}/success?payment=completed`
-          );
-          
-          console.log('🔗 AuthSession result:', result);
-          
-          if (result.type === 'success') {
-            console.log('✅ Payment completed successfully');
-            // Payment completed - the popup will close automatically
-            // You can add any success handling here if needed
-            Alert.alert('Success', 'Payment completed successfully!');
-          } else if (result.type === 'cancel') {
-            console.log('❌ Payment was cancelled');
-            // Payment was cancelled
-            Alert.alert('Cancelled', 'Payment was cancelled');
+        // Web preferred: LemonSqueezy overlay if lemon.js is loaded
+        const ensureLemonReady = async () => {
+          if (typeof window === 'undefined') return false;
+          const w: any = window as any;
+          if (w.LemonSqueezy?.Url?.Open) return true;
+          // inject script if missing
+          if (!document.getElementById('lemon-js')) {
+            const s = document.createElement('script');
+            s.id = 'lemon-js';
+            s.src = 'https://cdn.lemonsqueezy.com/lemon.js';
+            s.defer = true;
+            document.head.appendChild(s);
           }
-          
-        } catch (error) {
-          console.error('❌ AuthSession failed:', error);
-          // Fallback to regular WebBrowser if AuthSession fails
+          // wait up to 3s for availability
+          const start = Date.now();
+          while (Date.now() - start < 3000) {
+            if (w.LemonSqueezy?.Url?.Open) return true;
+            await new Promise(r => setTimeout(r, 100));
+          }
+          return !!w.LemonSqueezy?.Url?.Open;
+        };
+        try {
+          const ready = await ensureLemonReady();
+          if (ready && typeof window !== 'undefined' && (window as any).LemonSqueezy?.Url?.Open) {
+            console.log('🌐 Opening payment via LemonSqueezy overlay');
+            await sendLog('info', 'payment.web.overlay.open', { url: checkout.checkout_url });
+            (window as any).LemonSqueezy.Url.Open(checkout.checkout_url);
+            return;
+          }
+        } catch {}
+
+        // Fallback: force real new tab via window.open to avoid in-app modal behavior
+        try {
+          console.log('🌐 Opening payment in new tab');
+          await sendLog('info', 'payment.web.window.open', { url: checkout.checkout_url });
+          const newWin = window.open(checkout.checkout_url, '_blank', 'noopener,noreferrer');
+          // Poll for subscription state for up to 60s while user completes flow
+          const start = Date.now();
+          const poll = async () => {
+            try {
+              const subs = await this.getSubscriptions();
+              const active = subs?.some(s => s.status === 'active' || s.status === 'trialing');
+              if (active) {
+                console.log('✅ Subscription detected active during polling');
+                await sendLog('info', 'payment.web.poll.active');
+                return; // stop polling
+              }
+              // No local seeding; rely on webhooks
+            } catch {}
+            if (Date.now() - start < 60000) setTimeout(poll, 5000);
+          };
+          setTimeout(poll, 5000);
+          // Optionally close the new tab if allowed (usually blocked); ignore errors
+          setTimeout(() => { try { newWin?.close?.(); } catch {} }, 70000);
+        } catch (e) {
+          console.warn('⚠️ window.open failed, falling back to Expo WebBrowser');
+          await sendLog('warn', 'payment.web.window.open.failed');
           const result = await WebBrowser.openBrowserAsync(checkout.checkout_url, {
             presentationStyle: WebBrowser.WebBrowserPresentationStyle.FORM_SHEET,
             showTitle: true,
@@ -180,9 +229,9 @@ export class PaymentService {
             toolbarColor: '#FFFFFF',
             secondaryToolbarColor: '#F8F8F8',
           });
-          console.log('🔗 Fallback WebBrowser result:', result);
+          console.log('🔗 WebBrowser result:', result);
+          await sendLog('info', 'payment.web.browser.result', result as any);
         }
-        
         return;
       }
 
@@ -246,6 +295,11 @@ export class PaymentService {
       }
     }
   }
+
+  /**
+   * Seed subscription data for local testing (simulates webhook delivery)
+   */
+  // Local seeding removed; relying on webhooks only
 
   /**
    * Cancel a subscription

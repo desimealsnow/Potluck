@@ -36,7 +36,13 @@ router.get('/invoices/:invoiceId/download', authGuard, BillingController.downloa
 // Webhooks (no auth required) - Generic provider webhook
 // Webhook with raw-body for signature verification
 const paymentsContainer = createPaymentContainer();
-router.post('/webhook/:provider', raw({ type: '*/*' }), createWebhookHandler(paymentsContainer));
+// Map 'stripe' webhook to 'lemonsqueezy' provider
+router.post('/webhook/:provider', raw({ type: '*/*' }), (req, res, next) => {
+  if (req.params.provider === 'stripe') {
+    req.params.provider = 'lemonsqueezy';
+  }
+  next();
+}, createWebhookHandler(paymentsContainer));
 
 export default router;
 

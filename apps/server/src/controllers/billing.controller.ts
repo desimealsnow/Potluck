@@ -108,9 +108,15 @@ export const BillingController = {
 
     // Use new PaymentService with idempotency and tenant awareness
     const service = createPaymentService();
-    const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const successUrl = `${frontendBase}/payment-success.html`;
-    const cancelUrl = `${frontendBase}/plans`;
+    // Prefer returning directly to the app so Expo WebBrowser.openAuthSessionAsync can auto-close
+    // IMPORTANT: Do NOT mutate the return URL. AuthSession closes only if the
+    // final navigated URL starts with the EXACT returnUrl passed to openAuthSessionAsync.
+    const appUrl = (req.body?.return_url as string)
+      || process.env.MOBILE_WEB_URL
+      || 'http://localhost:8081/';
+    // For web new-tab flow, send a success interstitial that tries to close and then redirects back
+    const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment-success.html?redirect=${encodeURIComponent(appUrl)}`;
+    const cancelUrl = successUrl;
     const session = await service.createCheckout({
       tenantId: (req.headers['x-tenant-id'] as string) || 'default',
       planId: plan_id,

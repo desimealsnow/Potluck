@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { paymentService, type Subscription, type Invoice, type BillingPlan } from "../../services/payment.service";
 import { PlanCard, InvoiceCard } from "../../components/payment";
+import * as WebBrowser from 'expo-web-browser';
 
 /* ---------------- Types ---------------- */
 type PlanId = "free" | "pro" | "team";
@@ -71,6 +72,76 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Web overlay: dynamically load lemon.js and wire success handler to close overlay and refresh
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const isWeb = Platform.OS === 'web';
+    if (!isWeb) return;
+
+    // helper to mirror logs to server terminal
+    const sendLog = async (message: string, context?: unknown) => {
+      try {
+        await fetch('http://localhost:3000/api/v1/dev-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ level: 'info', message, context })
+        });
+      } catch {}
+    };
+
+    const w: any = window as any;
+    const ensureSetup = () => {
+      if (!w.LemonSqueezy?.Setup) return false;
+      if (w.__ls_setup_done) return true;
+      try {
+        w.LemonSqueezy.Setup({
+          eventHandler: (ev: any) => {
+            console.log('[lemon] event', ev?.event, ev);
+            sendLog('lemon.event', { event: ev?.event, data: ev?.data });
+            if (ev?.event === 'Checkout.Success') {
+              try { w.LemonSqueezy.Url?.Close?.(); } catch {}
+              setTimeout(() => { loadData(true); }, 1000);
+            }
+            if (ev?.event === 'Checkout.Close') {
+              sendLog('lemon.close');
+            }
+          }
+        });
+        w.__ls_setup_done = true;
+        sendLog('lemon.setup');
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    // if script already present, setup now
+    if (ensureSetup()) return;
+
+    // inject script once
+    if (!document.getElementById('lemon-js')) {
+      const script = document.createElement('script');
+      script.id = 'lemon-js';
+      script.src = 'https://cdn.lemonsqueezy.com/lemon.js';
+      script.defer = true;
+      script.onload = () => {
+        sendLog('lemon.loaded');
+        ensureSetup();
+      };
+      document.head.appendChild(script);
+      sendLog('lemon.inject');
+    } else {
+      // script exists; retry setup shortly
+      setTimeout(() => ensureSetup(), 500);
+    }
+
+    return () => {
+      // no teardown needed; overlay library manages its own listeners
+    };
+  }, []);
+
+  
 
   /** Actions */
   async function startPayment(plan: BillingPlan) {
@@ -207,11 +278,34 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
           ) : (
             <View style={styles.empty}>
               <Text style={styles.emptyTitle}>No Subscription Yet</Text>
-              <Text style={styles.emptyText}>Enjoy premium features like unlimited events, smarter AI, and more.</Text>
+              <Text style={styles.emptyText}>Choose a plan to enjoy premium features like unlimited events, smarter AI, and more.</Text>
+              
+              {/* Display all available plans */}
               {plans.length > 0 ? (
-                <Pressable onPress={() => startPayment(plans[0])} style={styles.bigCta}>
-                  <Text style={styles.bigCtaText}>Get Started - {plans[0].name}</Text>
-                </Pressable>
+                <View style={{ marginTop: 20, gap: 12 }}>
+                  {plans.map((plan) => (
+                    <Pressable 
+                      key={plan.id} 
+                      onPress={() => startPayment(plan)} 
+                      style={[styles.planCard, plan.id === '992413' && styles.recommendedPlan]}
+                    >
+                      <View style={styles.planHeader}>
+                        <Text style={styles.planName}>{plan.name}</Text>
+                        {plan.id === '992413' && (
+                          <View style={styles.recommendedBadge}>
+                            <Text style={styles.recommendedText}>RECOMMENDED</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.planPrice}>
+                        {paymentService.formatAmount(plan.amount_cents, plan.currency)}/{plan.interval}
+                      </Text>
+                      <Text style={styles.planDescription}>
+                        {plan.interval === 'month' ? 'Monthly billing' : 'Yearly billing'} • Cancel anytime
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
               ) : (
                 <Pressable onPress={() => loadData()} style={styles.bigCta}>
                   <Text style={styles.bigCtaText}>Load Plans</Text>
@@ -402,6 +496,57 @@ const styles = StyleSheet.create({
   },
   invDate: { fontWeight: "900", color: "#111" },
   invAmount: { color: "#6B7280", marginTop: 2, fontWeight: "700" },
+
+  // Plan card styles
+  planCard: {
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    ...Platform.select({
+      ios: { shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+      android: { elevation: 1 },
+    }),
+  },
+  recommendedPlan: {
+    borderColor: "#8A36C1",
+    borderWidth: 2,
+    backgroundColor: "rgba(138,54,193,0.05)",
+  },
+  planHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  planName: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#111",
+  },
+  recommendedBadge: {
+    backgroundColor: "#8A36C1",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  recommendedText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "900",
+  },
+  planPrice: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#8A36C1",
+    marginBottom: 4,
+  },
+  planDescription: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontWeight: "600",
+  },
 
   iconOnly: {
     width: 36, height: 36, borderRadius: 10,
