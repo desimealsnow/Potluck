@@ -13,6 +13,7 @@ export interface ButtonProps {
   icon?: React.ReactNode;
   style?: any;
   textStyle?: any;
+  testID?: string;
 }
 
 export function Button({
@@ -25,6 +26,7 @@ export function Button({
   icon,
   style,
   textStyle,
+  testID,
 }: ButtonProps) {
   const buttonStyle = [
     styles.button,
@@ -52,7 +54,7 @@ export function Button({
 
   if (variant === 'primary' && !disabled) {
     return (
-      <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle}>
+      <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle} testID={testID}>
         <LinearGradient
           colors={['#FF7A00', '#FF3D71']}
           start={{ x: 0, y: 0 }}
@@ -66,7 +68,7 @@ export function Button({
   }
 
   return (
-    <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle}>
+    <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle} testID={testID}>
       {content}
     </Pressable>
   );

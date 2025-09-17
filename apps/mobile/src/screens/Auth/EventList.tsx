@@ -464,21 +464,22 @@ export default function App() {
     <LinearGradient colors={bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Events</Text>
-          <View style={styles.actions}>
-            <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]}>
+        <View style={styles.header} testID="events-header">
+          <Text style={styles.headerTitle} testID="events-title">Events</Text>
+          <View style={styles.actions} testID="header-actions">
+            <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
               <Ionicons name="add" size={20} color="#fff" />
             </Pressable>
-            <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn}>
+            <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
               <Ionicons name="card" size={20} color="#fff" />
             </Pressable>
-            <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn}>
+            <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn} testID="settings-button">
               <Ionicons name="settings" size={20} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
               style={styles.iconBtn}
+              testID="logout-button"
             >
               <Ionicons name="log-out" size={20} color="#fff" />
             </Pressable>
@@ -486,18 +487,19 @@ export default function App() {
         </View>
 
         {/* Search */}
-        <View style={styles.searchWrap}>
+        <View style={styles.searchWrap} testID="search-container">
           <Input
             placeholder="Search events..."
             value={query}
             onChangeText={setQuery}
             leftIcon="search"
             style={styles.searchInput}
+            testID="search-input"
           />
         </View>
 
         {/* Segmented control */}
-        <View style={styles.segmentWrap}>
+        <View style={styles.segmentWrap} testID="status-filter-container">
           <Segmented
             options={[
               { key: "upcoming", label: "Upcoming" },
@@ -507,11 +509,12 @@ export default function App() {
             ]}
             value={statusTab}
             onChange={(v) => setStatusTab(v as EventStatusMobile)}
+            testID="status-filter"
           />
         </View>
 
         {/* Ownership chips */}
-        <View style={styles.rowChips}>
+        <View style={styles.rowChips} testID="ownership-filter-container">
           {(["all", "mine", "invited"] as Ownership[]).map((o) => (
             <View style={styles.chipItem} key={o}>
               <Chip
@@ -519,6 +522,7 @@ export default function App() {
                 onPress={() => setOwnership(o)}
                 icon={o === "all" ? "options-outline" : o === "mine" ? "person" : "people-outline"}
                 tone="sky"
+                testID={`ownership-filter-${o}`}
               >
                 {o === "all" ? "All" : o[0].toUpperCase() + o.slice(1)}
               </Chip>
@@ -527,7 +531,7 @@ export default function App() {
         </View>
 
         {/* Diet chips (multi-select) */}
-        <View style={[styles.rowChips, { marginTop: 6 }]}>
+        <View style={[styles.rowChips, { marginTop: 6 }]} testID="diet-filter-container">
           {(["veg", "nonveg", "mixed"] as Diet[]).map((d) => (
             <View style={styles.chipItem} key={d}>
               <Chip
@@ -535,6 +539,7 @@ export default function App() {
                 onPress={() => toggleDiet(d)}
                 icon={d === "veg" ? "leaf" : d === "nonveg" ? "fast-food-outline" : "color-filter-outline"}
                 tone="emerald"
+                testID={`diet-filter-${d}`}
               >
                 {d === "veg" ? "Veg" : d === "nonveg" ? "Non-veg" : "Mixed"}
               </Chip>
@@ -550,14 +555,15 @@ export default function App() {
           contentContainerStyle={styles.listContent}
           style={{ marginTop: 10 }}
           refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
+          testID="events-list"
           ListEmptyComponent={
             loading ? (
-              <View style={styles.emptyWrap}>
-                <ActivityIndicator color="#fff" />
+              <View style={styles.emptyWrap} testID="loading-container">
+                <ActivityIndicator color="#fff" testID="loading-indicator" />
               </View>
             ) : (
-              <View style={styles.emptyWrap}>
-                <Text style={{ color: "#fff" }}>No events found</Text>
+              <View style={styles.emptyWrap} testID="empty-state">
+                <Text style={{ color: "#fff" }} testID="empty-text">No events found</Text>
               </View>
             )
           }
@@ -566,6 +572,7 @@ export default function App() {
               item={item} 
               onPress={() => handleEventPress(item.id)} 
               actions={getEventActions(item)}
+              testID={`event-card-${item.id}`}
             />
           )}
           onEndReachedThreshold={0.01}
@@ -576,7 +583,7 @@ export default function App() {
             }
             loadMore();
           }}
-          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" /> : null}
+          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
         />
       </SafeAreaView>
     </LinearGradient>
@@ -599,7 +606,7 @@ function DietTag({ diet }: { diet: Diet }) {
   );
 }
 
-function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "deleted" | "past" }) {
+function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draft" | "deleted" | "past"; testID?: string }) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "active":
@@ -631,6 +638,7 @@ function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "de
           backgroundColor: config.color,
         }
       }
+      testID={testID}
     >
       <Ionicons
         name={config.icon as any}
@@ -638,19 +646,19 @@ function StatusPill({ status }: { status: "active" | "cancelled" | "draft" | "de
         color="#fff"
         style={{ marginRight: 4 }}
       />
-      <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }}>{status}</Text>
+      <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }} testID={`${testID}-text`}>{status}</Text>
     </View>
   );
 }
 
-function RolePill({ role }: { role: 'host' | 'guest' }) {
+function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
   const config = role === 'host'
     ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'person' }
     : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'people-outline' };
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
       <Ionicons name={config.icon as any} size={12} color="#fff" />
-      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }}>{role}</Text>
+      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
     </View>
   );
 }
@@ -681,7 +689,8 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
 function EventCard({ 
   item, 
   onPress, 
-  actions = [] 
+  actions = [],
+  testID
 }: { 
   item: EventItem; 
   onPress: () => void; 
@@ -692,25 +701,26 @@ function EventCard({
     color: string;
     handler: () => void;
   }>;
+  testID?: string;
 }) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
   const cardColors = gradients.card.pink;
   const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} testID={testID}>
       <LinearGradient
         colors={cardColors}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
       >
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
+      <View style={styles.cardHeader} testID={`${testID}-header`}>
+        <Text style={styles.cardTitle} testID={`${testID}-title`}>{item.title}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={{ marginRight: 6 }}>
-            <RolePill role={roleLabel} />
+            <RolePill role={roleLabel} testID={`${testID}-role`} />
           </View>
-          {item.statusBadge ? <StatusPill status={item.statusBadge} /> : null}
+          {item.statusBadge ? <StatusPill status={item.statusBadge} testID={`${testID}-status`} /> : null}
         </View>
       </View>
 
@@ -744,7 +754,7 @@ function EventCard({
 
       {/* Action buttons based on event status and ownership */}
       {actions.length > 0 && (
-        <View style={styles.actionsContainer}>
+        <View style={styles.actionsContainer} testID={`${testID}-actions`}>
           {actions.map((action) => (
             <Pressable 
               key={action.key}
@@ -754,9 +764,10 @@ function EventCard({
                 action.handler();
               }}
               style={[styles.actionButton, { backgroundColor: action.color }]}
+              testID={`${testID}-action-${action.key}`}
             >
               <Ionicons name={action.icon as any} size={14} color="#fff" style={{ marginRight: 4 }} />
-              <Text style={styles.actionButtonText}>{action.label}</Text>
+              <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
             </Pressable>
           ))}
         </View>

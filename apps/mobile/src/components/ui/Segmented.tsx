@@ -12,11 +12,12 @@ export interface SegmentedProps {
   value: string;
   onChange: (key: string) => void;
   style?: any;
+  testID?: string;
 }
 
-export function Segmented({ options, value, onChange, style }: SegmentedProps) {
+export function Segmented({ options, value, onChange, style, testID }: SegmentedProps) {
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style]} testID={testID}>
       {options.map((option) => {
         const selected = option.key === value;
         return (
@@ -27,11 +28,12 @@ export function Segmented({ options, value, onChange, style }: SegmentedProps) {
               styles.option,
               selected && styles.optionSelected,
             ]}
+            testID={`${testID}-option-${option.key}`}
           >
             <Text style={[
               styles.text,
               selected && styles.textSelected,
-            ]}>
+            ]} testID={`${testID}-text-${option.key}`}>
               {option.label}
             </Text>
           </Pressable>

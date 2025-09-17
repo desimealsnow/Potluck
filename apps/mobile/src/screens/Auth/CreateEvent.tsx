@@ -175,15 +175,15 @@ export default function CreateEventScreen({
     <LinearGradient colors={headerGradient} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Top bar */}
-        <View style={styles.topBar}>
+        <View style={styles.topBar} testID="create-event-header">
           <View style={styles.topLeft}>
             {onBack && (
-              <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10}>
+              <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10} testID="back-button">
                 <Ionicons name="arrow-back" size={20} color="#CC3B2B" />
               </Pressable>
             )}
             <Ionicons name="restaurant" size={20} color="#CC3B2B" />
-            <Text style={styles.topTitle}>Create Potluck</Text>
+            <Text style={styles.topTitle} testID="create-event-title">Create Potluck</Text>
           </View>
           <Ionicons name="moon" size={18} color="#D38B2E" />
         </View>
@@ -197,7 +197,7 @@ export default function CreateEventScreen({
             <Card title="🎉 Potluck Details">
               {/* Title */}
               <Label>Event Title</Label>
-              <Input placeholder="Enter title" value={title} onChangeText={setTitle} />
+              <Input placeholder="Enter title" value={title} onChangeText={setTitle} testID="event-title-input" />
 
               {/* Description */}
               <Label>Description (Optional)</Label>
@@ -208,28 +208,29 @@ export default function CreateEventScreen({
                 multiline
                 numberOfLines={3}
                 style={{ height: 80, textAlignVertical: 'top', borderWidth: 0 }}
+                testID="event-description-input"
               />
 
               {/* Date + Time */}
-              <View style={styles.row}>
+              <View style={styles.row} testID="date-time-container">
                 <View style={{ flex: 1, marginRight: 8 }}>
                   <Label>Date</Label>
-                  <Pressable onPress={() => setShowDatePicker(true)} style={styles.inputWrap}>
+                  <Pressable onPress={() => setShowDatePicker(true)} style={styles.inputWrap} testID="date-picker-button">
                     <View style={styles.inputIcon}>
                       <Ionicons name="calendar" size={16} color="#9DA4AE" />
                     </View>
-                    <Text style={[styles.input, { color: "#1a1a1a" }]}>
+                    <Text style={[styles.input, { color: "#1a1a1a" }]} testID="date-display">
                       {formatDate(selectedDate)}
                     </Text>
                   </Pressable>
                 </View>
                 <View style={{ flex: 1, marginLeft: 8 }}>
                   <Label>Time</Label>
-                  <Pressable onPress={() => setShowTimePicker(true)} style={styles.inputWrap}>
+                  <Pressable onPress={() => setShowTimePicker(true)} style={styles.inputWrap} testID="time-picker-button">
                     <View style={styles.inputIcon}>
                       <Ionicons name="time" size={16} color="#9DA4AE" />
                     </View>
-                    <Text style={[styles.input, { color: "#1a1a1a" }]}>
+                    <Text style={[styles.input, { color: "#1a1a1a" }]} testID="time-display">
                       {formatTime(selectedTime)}
                     </Text>
                   </Pressable>
@@ -447,23 +448,25 @@ export default function CreateEventScreen({
 
         {/* Sticky footer */
         }
-        <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer}>
-          <View style={styles.footerInner}>
+        <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer} testID="create-event-footer">
+          <View style={styles.footerInner} testID="footer-actions">
             {createdEventId ? (
               <>
                 <Pressable
                   onPress={() => publishEvent(createdEventId)}
                   style={styles.ghostBtn}
+                  testID="publish-button"
                 >
-                  <Text style={styles.ghostText}>Publish</Text>
+                  <Text style={styles.ghostText} testID="publish-text">Publish</Text>
                 </Pressable>
                 <Pressable 
                   onPress={() => {
                     if (onEventCreated && createdEventId) onEventCreated(createdEventId);
                   }}
                   style={styles.cta}
+                  testID="ok-button"
                 >
-                  <Text style={styles.ctaText}>OK</Text>
+                  <Text style={styles.ctaText} testID="ok-text">OK</Text>
                 </Pressable>
               </>
             ) : (
@@ -472,8 +475,9 @@ export default function CreateEventScreen({
                   onPress={() => setStep((s) => Math.max(0, s - 1) as StepperStep)}
                   disabled={step === 0}
                   style={[styles.ghostBtn, step === 0 && { opacity: 0.5 }]}
+                  testID="back-step-button"
                 >
-                  <Text style={styles.ghostText}>Back</Text>
+                  <Text style={styles.ghostText} testID="back-step-text">Back</Text>
                 </Pressable>
 
                 {step < 3 ? (
@@ -484,16 +488,18 @@ export default function CreateEventScreen({
                       setStep((s) => Math.min(3, s + 1) as StepperStep);
                     }}
                     style={styles.cta}
+                    testID="next-step-button"
                   >
-                    <Text style={styles.ctaText}>Next</Text>
+                    <Text style={styles.ctaText} testID="next-step-text">Next</Text>
                   </Pressable>
                 ) : (
                   <Pressable 
                     onPress={submit}
                     disabled={isSubmitting}
                     style={[styles.cta, isSubmitting && { opacity: 0.6 }]}
+                    testID="create-event-final-button"
                   >
-                    <Text style={styles.ctaText}>{isSubmitting ? 'Creating…' : '🎉 Create Potluck!'}</Text>
+                    <Text style={styles.ctaText} testID="create-event-final-text">{isSubmitting ? 'Creating…' : '🎉 Create Potluck!'}</Text>
                   </Pressable>
                 )}
               </>

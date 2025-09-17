@@ -12,6 +12,7 @@ export interface ChipProps {
   onPress?: () => void;
   style?: any;
   textStyle?: any;
+  testID?: string;
 }
 
 export function Chip({
@@ -22,6 +23,7 @@ export function Chip({
   onPress,
   style,
   textStyle,
+  testID,
 }: ChipProps) {
   const toneConfig = chipTones[tone];
   const isPressable = !!onPress;
@@ -59,14 +61,14 @@ export function Chip({
 
   if (isPressable) {
     return (
-      <Pressable onPress={onPress} style={chipStyle}>
+      <Pressable onPress={onPress} style={chipStyle} testID={testID}>
         {content}
       </Pressable>
     );
   }
 
   return (
-    <View style={chipStyle}>
+    <View style={chipStyle} testID={testID}>
       {content}
     </View>
   );

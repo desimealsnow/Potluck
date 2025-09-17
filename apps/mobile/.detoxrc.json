@@ -1,0 +1,26 @@
+{
+  "testRunner": "jest",
+  "runnerConfig": "./e2e/config/jest.config.js",
+  "apps": {
+    "ios.sim.debug": {
+      "type": "ios.app",
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/mobile.app",
+      "build": "xcodebuild -workspace ios/mobile.xcworkspace -scheme mobile -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+    },
+    "android.emu.debug": {
+      "type": "android.apk",
+      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."
+    }
+  },
+  "devices": {
+    "ios.sim.debug": { "type": "ios.simulator", "device": { "type": "iPhone 14" } },
+    "android.emu.debug": { "type": "android.emulator", "device": { "avdName": "Pixel_5_API_33" } }
+  },
+  "configurations": {
+    "ios.sim.debug": { "device": "ios.sim.debug", "app": "ios.sim.debug" },
+    "android.emu.debug": { "device": "android.emu.debug", "app": "android.emu.debug" }
+  }
+}
+
+

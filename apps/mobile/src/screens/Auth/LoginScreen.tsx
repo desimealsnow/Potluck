@@ -159,6 +159,7 @@ export default function App() {
                   secureTextEntry={false}
                   rightIcon={undefined}
                   onPressRight={undefined}
+                  testID="emailInput"
                 />
                 {email.length > 0 && !isEmailValid && (
                   <Text style={styles.errorText}>Please enter a valid email address</Text>
@@ -180,24 +181,30 @@ export default function App() {
                   onPressRight={() => setSecure((s) => !s)}
                   keyboardType="default"
                   autoCapitalize="none"
+                  testID="passwordInput"
                 />
 
                 {/* Primary login button */}
                 <Pressable
                   disabled={!canSubmit || loading}
                   onPress={handleLogin}
+                  accessibilityRole="button"
+                  testID="loginButton"
                   style={({ pressed }) => [{ opacity: !canSubmit || loading ? 0.6 : pressed ? 0.9 : 1 }]}
                 >
-                  <LinearGradient
-                    colors={theme === "dark" ? ["#7C5CFF", "#2FB4FF"] : ["#7F8CFF", "#39C6FF"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.primaryBtn}
-                  >
-                    <Text style={styles.primaryBtnText}>
-                      {loading ? "Signing in..." : "Log in"}
-                    </Text>
-                  </LinearGradient>
+                  {/* Wrap inner content with a View that exposes testID on RN Web */}
+                  <View testID="loginButton">
+                    <LinearGradient
+                      colors={theme === "dark" ? ["#7C5CFF", "#2FB4FF"] : ["#7F8CFF", "#39C6FF"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.primaryBtn}
+                    >
+                      <Text style={styles.primaryBtnText}>
+                        {loading ? "Signing in..." : "Log in"}
+                      </Text>
+                    </LinearGradient>
+                  </View>
                 </Pressable>
 
                 {/* Secondary outline button - Navigate to EventList */}
@@ -239,6 +246,7 @@ interface FieldProps {
   onPressRight?: () => void;
   keyboardType?: KeyboardType;
   autoCapitalize?: AutoCapitalize;
+  testID?: string;
 }
 
 function Field({
@@ -251,6 +259,7 @@ function Field({
   onPressRight,
   keyboardType,
   autoCapitalize,
+  testID,
 }: FieldProps) {
   return (
     <View style={styles.fieldWrap}>
@@ -266,6 +275,7 @@ function Field({
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
+        testID={testID}
       />
       {rightIcon ? (
         <Pressable onPress={onPressRight} style={styles.fieldIconRight}>
