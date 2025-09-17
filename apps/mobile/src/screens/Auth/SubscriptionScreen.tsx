@@ -21,6 +21,17 @@ import * as WebBrowser from 'expo-web-browser';
 type PlanId = "free" | "pro" | "team";
 
 /* ---------------- Screen ---------------- */
+/**
+ * Renders the subscription screen for managing user subscriptions and payments.
+ *
+ * This component handles loading subscription data, displaying active plans, and managing payment actions.
+ * It utilizes hooks for state management and effects for data fetching and script loading.
+ * The component also provides user feedback through alerts and loading indicators, and integrates with a payment service for subscription management.
+ *
+ * @param {Object} props - The component props.
+ * @param {function} [props.onBack] - Optional callback function to handle back navigation.
+ * @returns {JSX.Element} The rendered subscription screen component.
+ */
 export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -80,6 +91,9 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
     if (!isWeb) return;
 
     // helper to mirror logs to server terminal
+    /**
+     * Sends a log message to the specified API endpoint.
+     */
     const sendLog = async (message: string, context?: unknown) => {
       try {
         await fetch('http://localhost:3000/api/v1/dev-log', {
@@ -91,6 +105,15 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
     };
 
     const w: any = window as any;
+    /**
+     * Ensures the setup of LemonSqueezy and initializes the event handler.
+     *
+     * The function checks if the LemonSqueezy setup is already done or if the setup is available.
+     * If not, it attempts to initialize the setup with an event handler that logs events and handles specific events like 'Checkout.Success' and 'Checkout.Close'.
+     * If the setup is successful, it marks the setup as done and logs the setup event; otherwise, it returns false.
+     *
+     * @returns A boolean indicating whether the setup was successful or not.
+     */
     const ensureSetup = () => {
       if (!w.LemonSqueezy?.Setup) return false;
       if (w.__ls_setup_done) return true;

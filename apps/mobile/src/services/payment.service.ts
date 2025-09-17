@@ -107,7 +107,14 @@ export class PaymentService {
   }
 
   /**
-   * Create checkout session for a plan
+   * Create checkout session for a plan.
+   *
+   * This function initiates a checkout session by sending a POST request to the billing API with the specified planId and provider.
+   * It also handles the return URL for web platforms to ensure proper redirection after authentication.
+   * In case of an error during the API call, it logs the error and rethrows it for further handling.
+   *
+   * @param {string} planId - The ID of the subscription plan for which the checkout session is created.
+   * @param {string} [provider='lemonsqueezy'] - The payment provider to be used for the checkout session.
    */
   async createCheckoutSession(planId: string, provider: string = 'lemonsqueezy'): Promise<CheckoutSession> {
     try {
@@ -131,7 +138,14 @@ export class PaymentService {
   }
 
   /**
-   * Start payment flow by opening hosted checkout
+   * Start payment flow by opening hosted checkout.
+   *
+   * This function initiates the payment process by creating a checkout session and opening the corresponding URL. It handles platform-specific behaviors for web and mobile, including logging events and managing user interactions. If the initial attempt fails, it falls back to using Linking to open the payment URL directly.
+   *
+   * @param planId - The identifier for the payment plan.
+   * @param provider - The payment provider to use, defaulting to 'lemonsqueezy'.
+   * @returns A promise that resolves when the payment flow is initiated.
+   * @throws Error If the payment flow fails and cannot be completed.
    */
   async startPayment(planId: string, provider: string = 'lemonsqueezy'): Promise<void> {
     let checkout: CheckoutSession | undefined;
@@ -142,6 +156,12 @@ export class PaymentService {
       console.log('🔗 Opening checkout URL:', checkout.checkout_url);
       console.log('📱 Platform:', Platform.OS);
       // Mirror critical logs to server so they appear in `npm run dev:server` terminal
+      /**
+       * Sends a log message to the server.
+       * @param {('info'|'warn'|'error')} level - The log level.
+       * @param {string} message - The log message.
+       * @param {unknown} [context] - Optional additional context for the log.
+       */
       const sendLog = async (level: 'info'|'warn'|'error', message: string, context?: unknown) => {
         try {
           await fetch('http://localhost:3000/api/v1/dev-log', {
@@ -166,6 +186,15 @@ export class PaymentService {
       // Platform-specific handling
       if (Platform.OS === 'web') {
         // Web preferred: LemonSqueezy overlay if lemon.js is loaded
+        /**
+         * Ensures that the LemonSqueezy script is ready for use.
+         *
+         * The function checks if the window object is defined and if the LemonSqueezy URL is available.
+         * If not, it injects the LemonSqueezy script into the document head and waits up to 3 seconds
+         * for the script to load and become available. It returns true if the script is ready, otherwise false.
+         *
+         * @returns A promise that resolves to a boolean indicating if LemonSqueezy is ready.
+         */
         const ensureLemonReady = async () => {
           if (typeof window === 'undefined') return false;
           const w: any = window as any;
@@ -203,6 +232,15 @@ export class PaymentService {
           const newWin = window.open(checkout.checkout_url, '_blank', 'noopener,noreferrer');
           // Poll for subscription state for up to 60s while user completes flow
           const start = Date.now();
+          /**
+           * Poll for active subscriptions and log the status.
+           *
+           * The function retrieves subscriptions using getSubscriptions and checks if any are active or in a trialing state.
+           * If an active subscription is found, it logs the status and stops further polling. If no active subscriptions are detected,
+           * it continues to poll every 5 seconds until 60 seconds have passed since the start time.
+           *
+           * @returns {Promise<void>} A promise that resolves when the polling is complete or stopped.
+           */
           const poll = async () => {
             try {
               const subs = await this.getSubscriptions();
