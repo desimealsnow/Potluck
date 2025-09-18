@@ -25,6 +25,7 @@ import { apiClient } from "@/services/apiClient";
 import { Input, Chip, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
+import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
   EventStatusMobile, 
@@ -199,6 +200,24 @@ export default function App() {
     }
   }, []);
 
+  // Register push token with server (best-effort)
+  const registerPush = useCallback(async () => {
+    try {
+      const perms = await Notifications.getPermissionsAsync();
+      if (!perms.granted) {
+        const req = await Notifications.requestPermissionsAsync();
+        if (!req.granted) return;
+      }
+      const expo = await Notifications.getExpoPushTokenAsync();
+      const token = expo?.data;
+      if (!token) return;
+      const platform = (Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web') as 'ios' | 'android' | 'web';
+      await apiClient.post(`/discovery/push/register`, { platform, token });
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   const reload = useCallback(async () => {
     setLoading(true);
     setPage(1);
@@ -284,6 +303,7 @@ export default function App() {
   // Load unread count initially and when coming back from notifications
   useEffect(() => {
     fetchUnreadCount();
+    registerPush();
   }, [fetchUnreadCount]);
 
   const onRefresh = useCallback(async () => {
