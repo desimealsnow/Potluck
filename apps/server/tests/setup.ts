@@ -183,6 +183,10 @@ export async function getAuthToken(userType: keyof typeof TEST_USERS): Promise<s
  */
 export class TestDbHelper {
   static async cleanupAll(): Promise<void> {
+    if (process.env.FAST_TESTS === 'true') {
+      // Skip heavy cleanup in fast mode
+      return;
+    }
     logger.debug('[TEST-SETUP] Running full database cleanup');
     
     try {
@@ -196,7 +200,7 @@ export class TestDbHelper {
         'invoices',
         'billing_plans',
         'locations',
-        'profiles' // Don't delete auth.users, just profiles
+        'user_profiles' // Don't delete auth.users, just profiles
       ];
 
       for (const table of tables) {
@@ -246,13 +250,12 @@ export class TestDbHelper {
       if (error) {
         logger.warn('[TEST-SETUP] Failed to seed test users via RPC:', error.message);
         
-        // Fallback: manually ensure test users exist in profiles
+        // Fallback: manually ensure test users exist in user_profiles
         for (const [role, user] of Object.entries(TEST_USERS)) {
           const { error: profileError } = await testSupabase
-            .from('profiles')
+            .from('user_profiles')
             .upsert({
               id: user.id,
-              email: user.email,
               display_name: `Test ${role}`,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
@@ -337,9 +340,12 @@ afterAll(async () => {
 
 // Per-suite setup (run before each describe block)
 beforeEach(async () => {
+  if (process.env.FAST_TESTS === 'true') {
+    // Fast mode: avoid expensive cleanup/reseeding between tests
+    return;
+  }
   // Clean database state for isolation
   await TestDbHelper.cleanupAll();
-  
   // Re-seed users for each test
   await TestDbHelper.seedTestUsers();
 });

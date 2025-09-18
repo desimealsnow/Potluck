@@ -16,8 +16,8 @@ export interface NotificationPayload {
 export interface NotificationRecord {
   id: string;
   user_id: string;
-  type: string;
-  event_id: string;
+  type: NotificationPayload['type'];
+  event_id?: string;
   payload: NotificationPayload;
   read_at: string | null;
   created_at: string;
@@ -25,6 +25,7 @@ export interface NotificationRecord {
 
 /**
  * Send notifications to nearby users when an event is published
+ * Uses event location latitude/longitude (from locations) – no dependency on events.location_geog
  */
 export async function notifyNearbyUsers(
   eventId: string,
@@ -32,38 +33,51 @@ export async function notifyNearbyUsers(
   eventDate: string
 ): Promise<ServiceResult<{ notified_count: number }>> {
   try {
-    logger.info(`Sending nearby notifications for event: ${eventId}`);
+    logger.info('[Notifications] Start nearby notification', { eventId, eventTitle, eventDate });
 
-    // Find nearby users who should be notified
-    const { data: nearbyUsers, error: usersError } = await supabase
-      .rpc('find_nearby_users_for_notification', { event_id: eventId });
-
-    if (usersError) {
-      logger.error('Error finding nearby users:', usersError);
-      return { ok: false, error: usersError.message };
-    }
-
-    if (!nearbyUsers || nearbyUsers.length === 0) {
-      logger.info('No nearby users found for notification');
-      return { ok: true, data: { notified_count: 0 } };
-    }
-
-    // Get event details for notification payload
+    // Load event + location lat/lon
     const { data: eventData, error: eventError } = await supabase
       .from('events')
-      .select('id, title, event_date, city, location_geog')
+      .select(`id, title, event_date, location_id,
+               locations:locations ( id, latitude, longitude, formatted_address )`)
       .eq('id', eventId)
       .single();
 
-    if (eventError) {
-      logger.error('Error fetching event details:', eventError);
-      return { ok: false, error: eventError.message };
+    if (eventError || !eventData) {
+      logger.error('[Notifications] Fetch event failed', { eventId, error: eventError?.message });
+      return { ok: false, error: eventError?.message ?? 'Event not found' };
     }
 
-    // Create notification records
+    const lat = eventData.locations?.latitude as number | null;
+    const lon = eventData.locations?.longitude as number | null;
+    const radiusKm = 25;
+
+    logger.info('[Notifications] Event location check', { eventId, lat, lon, radiusKm });
+
+    if (lat == null || lon == null) {
+      logger.warn('[Notifications] Event has no coordinates; skipping nearby notifications', { eventId });
+      return { ok: true, data: { notified_count: 0 } };
+    }
+
+    // Find nearby users via lat/lon based RPC
+    const { data: nearbyUsers, error: usersError } = await supabase
+      .rpc('find_nearby_users_for_latlon', { p_lat: lat, p_lon: lon, p_radius_km: radiusKm });
+
+    if (usersError) {
+      logger.error('[Notifications] find_nearby_users_for_latlon failed', { eventId, error: usersError.message });
+      return { ok: false, error: usersError.message };
+    }
+
+    logger.info('[Notifications] Nearby users result', { eventId, count: (nearbyUsers || []).length });
+
+    if (!nearbyUsers || nearbyUsers.length === 0) {
+      return { ok: true, data: { notified_count: 0 } };
+    }
+
+    // Build notifications
     const notifications = nearbyUsers.map((user: any) => ({
       user_id: user.user_id,
-      type: 'event_created',
+      type: 'event_created' as const,
       event_id: eventId,
       payload: {
         type: 'event_created',
@@ -71,28 +85,28 @@ export async function notifyNearbyUsers(
         reason: 'nearby',
         event_title: eventTitle,
         event_date: eventDate,
-        distance_km: Math.round(user.distance_m / 1000 * 10) / 10, // Round to 1 decimal
-        city: eventData.city
-      } as NotificationPayload
+        distance_km: Math.round((user.distance_m / 1000) * 10) / 10,
+        city: eventData.locations?.formatted_address ?? null,
+      } satisfies NotificationPayload,
     }));
 
-    // Insert notifications in batch
-    const { data: insertedNotifications, error: insertError } = await supabase
+    logger.info('[Notifications] Inserting notifications', { eventId, count: notifications.length });
+
+    const { error: insertError } = await supabase
       .from('notifications')
-      .insert(notifications)
-      .select('id');
+      .insert(notifications);
 
     if (insertError) {
-      logger.error('Error inserting notifications:', insertError);
+      logger.error('[Notifications] Insert failed', { eventId, error: insertError.message });
       return { ok: false, error: insertError.message };
     }
 
-    logger.info(`Successfully sent ${insertedNotifications.length} nearby notifications`);
-    return { ok: true, data: { notified_count: insertedNotifications.length } };
+    logger.info('[Notifications] Completed nearby notifications', { eventId, notified_count: notifications.length });
+    return { ok: true, data: { notified_count: notifications.length } };
 
   } catch (error) {
-    logger.error('Error in notifyNearbyUsers:', error);
-    return { ok: false, error: 'Failed to send nearby notifications' };
+    logger.error('[Notifications] Unexpected failure', { eventId, error: (error as Error)?.message });
+    return { ok: false, error: 'Failed to send notifications' };
   }
 }
 

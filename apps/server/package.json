@@ -24,7 +24,9 @@
     "test:legacy": "cross-env NODE_ENV=test vitest",
     "test:billing": "./scripts/test-billing-comprehensive.sh",
     "test:billing:unit": "cross-env NODE_ENV=test jest tests/unit --testPathPattern=\"billing|payment\"",
-    "test:billing:integration": "cross-env NODE_ENV=test jest tests/integration/billing-comprehensive.spec.ts"
+    "test:billing:integration": "cross-env NODE_ENV=test jest tests/integration/billing-comprehensive.spec.ts",
+    "test:rest:nearby": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tests/rest/cases/location-nearby.ps1",
+    "db:inspect:notifications": "node scripts/inspect-notifications.js"
   },
   "dependencies": {
     "@payments/core": "*",

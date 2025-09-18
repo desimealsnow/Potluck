@@ -206,12 +206,14 @@ if (isLocationSearch) {
 
 ### **PostGIS Functions Used**
 - `find_nearby_events()` - Geographic proximity search
-- `find_nearby_users_for_notification()` - User discovery
+- `find_nearby_users_for_latlon(lat double precision, lon double precision, radius_km integer)` - User discovery by coordinates
 - `update_user_location()` - Location management
 
 ### **Database Schema**
-- **Events**: `location_geog`, `visibility_radius_km`, `city`
-- **User Profiles**: `home_geog`, `discoverability_enabled`, `discoverability_radius_km`
+- **Events**: `id`, `location_id`, `is_public`, `capacity_total`, `city`, `event_date`, ...
+- **Locations**: `id`, `name`, `formatted_address`, `latitude`, `longitude`, generated: `lat6`, `lon6`, `canonical_name`
+  - Note: generated columns cannot be set manually and must not be included in inserts/updates
+- **User Profiles (`user_profiles`)**: `user_id`, `home_geog (geography(Point,4326))`, `discoverability_enabled`, `discoverability_radius_km`, `city`, `geo_precision`
 - **Indexes**: GIST indexes on geography columns
 
 ## 🚀 **Migration Guide**
@@ -239,6 +241,12 @@ GET /api/v1/events?is_public=true
 - All existing query parameters work unchanged
 - Traditional search mode maintains original behavior
 - No breaking changes to existing clients
+
+### **Schema Alignment Notes (Recent Changes)**
+- Replaced legacy `profiles` table usages with `user_profiles`
+- Removed reliance on `events.location_geog` and `events.visibility_radius_km`
+- Event location now sourced from `locations.latitude`/`locations.longitude` via `events.location_id`
+- New RPC `find_nearby_users_for_latlon` accepts lat/lon directly for notification discovery
 
 ## 📈 **Usage Statistics**
 
@@ -270,6 +278,36 @@ The integrated search provides:
 - PostGIS functions
 - API responses
 
+### **REST E2E (Fast) Tests**
+- PowerShell scripts under `apps/server/tests/rest` provide quick end-to-end verification using REST payloads.
+- Usage (Windows PowerShell):
+  ```powershell
+  cd apps/server
+  # Ensure backend server is running locally on http://localhost:3000
+  ./tests/rest/cases/location-nearby.ps1
+  ```
+  Or via npm script:
+  ```bash
+  npm run test:rest:nearby
+  ```
+- The script will:
+  - Login 2 users, set their locations and discoverability
+  - Create and publish an event for Host
+  - Verify the event appears in nearby search for the other user
+  - Fetch discovery notifications and print diagnostic logs
+
+### **Faster Jest Integration Runs**
+- Set `FAST_TESTS=1` to skip full cleanup/reseed between tests when iterating locally:
+  ```bash
+  FAST_TESTS=1 npm run test
+  ```
+
+### **Troubleshooting: PostgREST Schema Cache**
+- If you see errors like "Could not find the 'event_id' column of 'notifications' in the schema cache":
+  1) Reload schema in your DB: `SELECT pg_notify('pgrst', 'reload schema');`
+  2) Verify columns: `npm run db:inspect:notifications`
+  3) Restart the API and re-run the REST test
+
 ### **Performance Tests**
 - Large dataset queries
 - Concurrent requests
@@ -284,3 +322,10 @@ The integrated search provides:
 ---
 
 The integrated location-based search provides a powerful, unified interface for event discovery while maintaining backward compatibility and performance. Users can seamlessly search by location, discover public events, or manage their personal events through a single, intuitive endpoint.
+
+## 🔔 Notifications (Recent Changes)
+- Nearby notifications are triggered on event publish.
+- Service reads coordinates from `locations.latitude/longitude` for the event’s `location_id`.
+- Fixed search radius of 25km is used by default (configurable in service code).
+- Uses `find_nearby_users_for_latlon(lat, lon, radius_km)` to find eligible users based on their `user_profiles.home_geog` and discoverability settings.
+- Added verbose logs under `[Notifications]` for start, event lookup, coordinates+radius, RPC count, and insert results to aid troubleshooting.

@@ -19,12 +19,6 @@ const config: Config = {
     '<rootDir>/tests/setup.ts'
   ],
 
-  // Module path mapping for cleaner imports
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^@tests/(.*)$': '<rootDir>/tests/$1',
-    '^@common/(.*)$': '<rootDir>/../../libs/common/src/$1'
-  },
 
   // Coverage configuration
   collectCoverage: false, // Enable only when running coverage command
@@ -99,6 +93,19 @@ const config: Config = {
     '<rootDir>/dist/',
     '<rootDir>/coverage/'
   ],
+
+  // Transform patterns for ES modules
+  transformIgnorePatterns: [
+    'node_modules/(?!(@payments|@zodios)/)'
+  ],
+
+  // Module name mapping for ES modules
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
+    '^@common/(.*)$': '<rootDir>/../../libs/common/src/$1',
+    '^@payments/core$': '<rootDir>/../../packages/payments/src/index.ts'
+  },
 
   // Clear mocks between every test
   clearMocks: true,

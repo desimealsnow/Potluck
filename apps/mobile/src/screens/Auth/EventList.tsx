@@ -18,6 +18,8 @@ import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
 import SettingsScreen from "./SettingsScreen";
+import NotificationsScreen from "./NotificationsScreen";
+import UserPreferencesScreen from "./UserPreferencesScreen";
 import SubscriptionScreen from "./SubscriptionScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, Segmented } from "@/components";
@@ -39,7 +41,7 @@ const PAGE_PADDING = 16;
 const PAGE_SIZE = 10;
 
 /* -------------------- API Helpers -------------------- */
-async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMore: boolean }> {
+async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean }> {
   const params = new URLSearchParams();
   // backend expects limit/offset, not page
   params.set("limit", String(q.limit));
@@ -63,6 +65,17 @@ async function fetchEvents(q: EventsQuery): Promise<{ items: EventItem[]; hasMor
   if (q.ownership && q.status !== "drafts") params.set("ownership", q.ownership);
   // backend expects meal_type instead of diet
   if (q.diet && q.diet.length) params.set("meal_type", q.diet.join(","));
+
+  // Nearby filter → include is_public and lat/lon, and prefer published discovery
+  if (q.nearby?.lat && q.nearby?.lon) {
+    params.set('is_public', 'true');
+    params.set('lat', String(q.nearby.lat));
+    params.set('lon', String(q.nearby.lon));
+    if (q.nearby.radius_km) params.set('radius_km', String(q.nearby.radius_km));
+    // Force discovery of active public events when Nearby is on
+    params.set('status', 'published');
+    params.set('ownership', 'all');
+  }
 
   const data = await apiClient.get<any>(`/events?${params.toString()}`);
   
@@ -136,6 +149,8 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState<EventItem[]>([]);
+  const [useNearby, setUseNearby] = useState(false);
+  const defaultNearby = { lat: 37.7849, lon: -122.4094, radius_km: 25 } as const;
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -165,6 +180,8 @@ export default function App() {
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
 
   const bgGradient = useMemo(
@@ -183,6 +200,7 @@ export default function App() {
         status: statusTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
+        nearby: useNearby ? defaultNearby : null,
       });
       setData(res.items);
       setHasMore(res.hasMore);
@@ -207,6 +225,7 @@ export default function App() {
         status: nextTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
+        nearby: useNearby ? defaultNearby : null,
       });
       setData(res.items);
       setHasMore(res.hasMore);
@@ -231,6 +250,7 @@ export default function App() {
         status: statusTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
+        nearby: useNearby ? defaultNearby : null,
       });
       setData((d) => [...d, ...res.items]);
       setPage(next);
@@ -249,7 +269,7 @@ export default function App() {
     return () => {
       if (debTimer.current) clearTimeout(debTimer.current);
     };
-  }, [query, statusTab, ownership, dietFilters, reload]);
+  }, [query, statusTab, ownership, dietFilters, useNearby, reload]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -421,7 +441,26 @@ export default function App() {
           setShowSettings(false);
           setShowSubscription(true);
         }}
+        onShowNotifications={() => {
+          setShowSettings(false);
+          setShowNotifications(true);
+        }}
+        onShowPreferences={() => {
+          setShowSettings(false);
+          setShowPreferences(true);
+        }}
       />
+    );
+  }
+  if (showNotifications) {
+    return (
+      <NotificationsScreen onBack={() => { setShowNotifications(false); reload(); }} />
+    );
+  }
+
+  if (showPreferences) {
+    return (
+      <UserPreferencesScreen onBack={() => setShowPreferences(false)} />
     );
   }
 
@@ -528,6 +567,22 @@ export default function App() {
               </Chip>
             </View>
           ))}
+          {useNearby !== null && (
+            <View style={styles.chipItem}>
+              <Chip
+                selected={useNearby}
+                onPress={() => {
+                  setUseNearby(v => !v);
+                  setTimeout(() => reload(), 0);
+                }}
+                icon={useNearby ? "location" : "location-outline"}
+                tone="violet"
+                testID={`ownership-filter-nearby`}
+              >
+                Nearby
+              </Chip>
+            </View>
+          )}
         </View>
 
         {/* Diet chips (multi-select) */}

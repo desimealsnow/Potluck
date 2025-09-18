@@ -44,6 +44,94 @@ export async function createEventWithItems(
 
   if (error || !data) return mapDbError(error);
 
+  // 2a️⃣ Ensure events.is_public defaults to true for newly created events
+  try {
+    const newEventId = (data as any)?.event?.id as string | undefined;
+    const isPublic = (data as any)?.event?.is_public as boolean | undefined;
+    if (newEventId && (isPublic === undefined || isPublic === false)) {
+      await supabase
+        .from('events')
+        .update({ is_public: true })
+        .eq('id', newEventId);
+      (data as any).event.is_public = true;
+    }
+  } catch (e) {
+    logger.warn('[EventService] set default is_public=true failed (non-fatal)', { error: (e as Error)?.message });
+  }
+
+  // 2b️⃣  Persist latitude/longitude to locations if provided in payload (RPC may not set them)
+  try {
+    const hasCoords = typeof (input as any)?.latitude === 'number' && typeof (input as any)?.longitude === 'number';
+    if (hasCoords) {
+      // Find the location_id for the newly created event
+      const newEventId = (data as any)?.event?.id as string | undefined;
+      if (newEventId) {
+        const { data: evRow } = await supabase
+          .from('events')
+          .select('location_id')
+          .eq('id', newEventId)
+          .single();
+        const locId = evRow?.location_id as string | undefined;
+        if (locId) {
+          // Attempt to update the existing location with coordinates
+          const { error: updErr } = await supabase
+            .from('locations')
+            .update({
+              latitude: (input as any).latitude,
+              longitude: (input as any).longitude,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', locId);
+
+          // If update failed or coords remain null (e.g., uniqueness on generated columns),
+          // create a fresh location row with coords and repoint the event.
+          let needRepoint = !!updErr;
+          if (!needRepoint) {
+            const { data: locAfter } = await supabase
+              .from('locations')
+              .select('id, latitude, longitude, name, formatted_address')
+              .eq('id', locId)
+              .single();
+            needRepoint = !locAfter?.latitude || !locAfter?.longitude;
+          }
+
+          if (needRepoint) {
+            const { data: locBefore } = await supabase
+              .from('locations')
+              .select('name, formatted_address')
+              .eq('id', locId)
+              .single();
+
+            const newName = (locBefore?.name || 'Location') + ' #' + String(newEventId).slice(0, 8);
+            const { data: newLoc, error: insErr } = await supabase
+              .from('locations')
+              .insert({
+                name: newName,
+                formatted_address: locBefore?.formatted_address ?? null,
+                latitude: (input as any).latitude,
+                longitude: (input as any).longitude,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .select('id')
+              .single();
+
+            if (!insErr && newLoc?.id) {
+              await supabase
+                .from('events')
+                .update({ location_id: newLoc.id })
+                .eq('id', newEventId);
+            } else if (insErr) {
+              logger.warn('[EventService] fallback location insert failed', { error: insErr.message });
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    logger.warn('[EventService] location lat/lon post-update failed (non-fatal)', { error: (e as Error)?.message });
+  }
+
   // 3️⃣  Function already returns the composed EventWithItems object that
   //     matches the OpenAPI schema, so we can surface it directly.
   return { ok:true, data: data as EventWithItems };
@@ -99,7 +187,7 @@ export async function getEventDetails(
     .from('events')
     .select(`
       id, created_by, title, description, event_date, min_guests, max_guests,
-      meal_type, attendee_count, status,
+      meal_type, attendee_count, status, is_public,
       location:locations (
          name, formatted_address, latitude, longitude
       ),
@@ -139,7 +227,7 @@ export async function getEventDetails(
     }
   })() : false;
 
-  const response: EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited' } } = {
+  const response: EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited', is_public: boolean } } = {
     event: {
       id: data.id,
       title: data.title,
@@ -151,6 +239,7 @@ export async function getEventDetails(
       attendee_count: data.attendee_count,
       created_by: data.created_by,
       status: data.status,
+      is_public: data.is_public,
       ownership: isOwner ? 'mine' : 'invited',
       location: Array.isArray(data.location) ? data.location[0] : data.location
     },
@@ -267,7 +356,7 @@ async function performLocationBasedSearch(
     let totalCount = 0;
 
     if (lat && lon) {
-      // Search by coordinates
+      // Search by coordinates via RPC
       const { data, error } = await supabase
         .rpc('find_nearby_events', {
           user_lat: lat,
@@ -283,7 +372,78 @@ async function performLocationBasedSearch(
       }
 
       events = data || [];
-      totalCount = events.length; // Note: This is approximate due to client-side filtering
+
+      // Fallback: if RPC returns no rows (e.g., schema variant without events.location_geog)
+      if (!events.length) {
+        try {
+          // Fetch published, public events with joined locations and compute distance client-side
+          const { data: joined, error: joinErr } = await supabase
+            .from('events')
+            .select(`
+              id, title, description, event_date, is_public, status, capacity_total, attendee_count,
+              location_id,
+              locations:locations ( id, latitude, longitude, lat6, lon6, formatted_address )
+            `)
+            .eq('status', 'published')
+            // Include all published events; some schemas may not persist is_public yet
+            .order('event_date', { ascending: true })
+            .range(offset, offset + limit - 1);
+
+          if (joinErr) {
+            logger.error('Location join fallback failed:', joinErr);
+            return { ok: false, error: joinErr.message, code: '500' };
+          }
+
+          const toRad = (v: number) => (v * Math.PI) / 180;
+          const R = 6371; // km
+          const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+          };
+
+          const computed = (joined || [])
+            .filter((e: any) => (
+              e.locations && (
+                e.locations.latitude != null || e.locations.lat6 != null
+              ) && (
+                e.locations.longitude != null || e.locations.lon6 != null
+              )
+            ))
+            .map((e: any) => {
+              const locLat = e.locations.latitude ?? (typeof e.locations.lat6 === 'number' ? e.locations.lat6 / 1_000_000 : null);
+              const locLon = e.locations.longitude ?? (typeof e.locations.lon6 === 'number' ? e.locations.lon6 / 1_000_000 : null);
+              const dKm = haversineKm(lat, lon, locLat, locLon);
+              return {
+                id: e.id,
+                title: e.title,
+                description: e.description,
+                event_date: e.event_date,
+                city: e.locations?.formatted_address || null,
+                distance_m: dKm * 1000,
+                is_public: e.is_public,
+                status: e.status,
+                capacity_total: e.capacity_total,
+                attendee_count: e.attendee_count
+              };
+            })
+            .filter(e => (radius_km ? e.distance_m <= radius_km * 1000 : true))
+            .sort((a, b) => (a.distance_m - b.distance_m) || (new Date(a.event_date).getTime() - new Date(b.event_date).getTime()));
+
+          totalCount = computed.length;
+          events = computed.slice(0, limit);
+        } catch (fallbackErr) {
+          logger.error('Error in client-side location fallback:', fallbackErr);
+          return { ok: false, error: 'Failed to perform location-based search', code: '500' };
+        }
+      } else {
+        totalCount = events.length; // approximate
+      }
     } else if (near) {
       // Search by city/area name
       const { data, error } = await supabase
@@ -691,7 +851,7 @@ export async function updateEventDetails(
 export async function publishEvent(
   eventId: string,
   actorId: string
-): Promise<ServiceResult<EventFull>> {
+): Promise<ServiceResult<any>> {
   logger.info('[EventService] publishEvent', { eventId, actorId });
 
   // 1️⃣ Fetch the event for checks

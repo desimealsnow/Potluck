@@ -35,6 +35,27 @@ npm run test:coverage
 ./scripts/run-all-tests.sh
 ```
 
+### REST E2E (PowerShell) — Fast Local Verification
+
+For quick end-to-end checks using REST payloads (no Jest harness):
+
+```powershell
+cd apps/server
+# Ensure API is running on http://localhost:3000
+./tests/rest/cases/location-nearby.ps1
+```
+
+Or via npm script:
+```bash
+npm run test:rest:nearby
+```
+
+This script will:
+- Login as two users and set their `user_profiles` location and discoverability
+- Create and publish an event for the host
+- Verify nearby event search and fetch discovery notifications
+- Emit detailed `[Notifications]` logs to help diagnose missing notifications
+
 ### Test Framework Options
 
 The project supports both **Jest** and **Vitest** testing frameworks:
@@ -266,9 +287,9 @@ API endpoints return RFC 7807 compliant error responses:
 ## ✅ Recent Fixes & Status
 
 ### Compilation Issues Resolved (Latest)
-- **TypeScript errors**: All compilation errors in test files have been fixed
-- **Jest/Vitest conflicts**: Resolved import conflicts between testing frameworks
-- **Mock data types**: Fixed type mismatches in test factories and mocks
+- **TypeScript errors**: Fixed controller/service types around `is_public` and event payloads
+- **Jest transform**: Added `transformIgnorePatterns` for `@payments` and `@zodios` packages
+- **Payments ESM import**: Resolved `Unexpected token 'export'` by transpiling affected packages
 - **ServiceResult patterns**: Ensured proper type narrowing and error handling
 
 ### Test Status
@@ -278,9 +299,9 @@ API endpoints return RFC 7807 compliant error responses:
 - **Integration Tests**: ✅ Ready for database-connected testing
 
 ### Performance Improvements
-- **Mock Mode**: Tests run in ~19ms vs 137s with database
-- **Type Safety**: Strict TypeScript checking prevents runtime errors
-- **Test Isolation**: Proper mocking prevents external dependencies
+- **FAST_TESTS**: Skips heavy cleanup/reseed between tests for faster iteration
+- **Mock Mode**: Unit tests run without database
+- **Token helpers**: REST scripts reuse token acquisition helpers and env seeding
 
 ## 🐛 Debugging Tests
 
@@ -347,9 +368,17 @@ npm run test:watch
 
 ### Performance
 - **Parallel execution**: Tests run in parallel by default
+- **FAST_TESTS**: Use for local iteration to speed up Jest integration runs
 - **Token caching**: Auth tokens cached for performance
 - **Database cleanup**: Efficient bulk cleanup between tests
 - **Mocking**: Mock external services to avoid network calls
+
+## 🧯 Troubleshooting: PostgREST Schema Cache
+
+If DDL just ran (migrations) and API errors complain about missing columns (e.g., `notifications.event_id`):
+1) Reload PostgREST schema: `SELECT pg_notify('pgrst', 'reload schema');`
+2) Verify columns with: `npm run db:inspect:notifications`
+3) Restart API and re-run the REST E2E
 
 ### Reliability
 - **Deterministic data**: Use faker seeds for reproducible tests

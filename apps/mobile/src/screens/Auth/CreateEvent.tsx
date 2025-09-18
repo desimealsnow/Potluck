@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useCallback } from "react";
 import {
   View, Text, TextInput, Pressable, ScrollView, StyleSheet, Platform, Alert, Modal
 } from "react-native";
@@ -57,6 +57,9 @@ export default function CreateEventScreen({
     { label: "Brooklyn Bridge Park", address: "Brooklyn, NY 11201, USA", latitude: 40.7003, longitude: -73.9967 },
   ]);
   const [selectedLoc, setSelectedLoc] = useState<LocationSuggestion | null>(null);
+  const [locSuggestions, setLocSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [locSearching, setLocSearching] = useState(false);
+  const locDebRef = useRef<NodeJS.Timeout | null>(null);
 
   // Step 3 – Items
   const [dishes, setDishes] = useState<Dish[]>([
@@ -132,7 +135,7 @@ export default function CreateEventScreen({
 
       // Add the required fields that aren't in the generated types yet
       (payload as any).capacity_total = parseInt(maxGuests, 10) || parseInt(minGuests, 10);
-      (payload as any).is_public = false;
+      (payload as any).is_public = true;
 
       console.log("Creating event with payload:", JSON.stringify(payload, null, 2));
 
@@ -288,20 +291,82 @@ export default function CreateEventScreen({
               <Input
                 placeholder="Search for the perfect spot..."
                 value={locQuery}
-                onChangeText={setLocQuery}
-                leftIcon="home"
-                onSubmitEditing={async () => {
-                  if (locQuery.trim()) {
+                onChangeText={(val) => {
+                  setLocQuery(val);
+                  if (locDebRef.current) clearTimeout(locDebRef.current);
+                  locDebRef.current = setTimeout(async () => {
+                    if (!val.trim()) { setLocSuggestions([]); return; }
                     try {
-                      const res = await apiClient.get<LocationSuggestion[]>(`/locations?search=${encodeURIComponent(locQuery.trim())}`);
-                      setPopular(res);
-                    } catch (error) {
-                      console.warn("Location search failed:", error);
-                      Alert.alert("Search failed", "Unable to search locations. Please try again.");
+                      setLocSearching(true);
+                      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val.trim())}&addressdetails=0&limit=5`;
+                      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                      const data = await res.json();
+                      if (Array.isArray(data)) {
+                        setLocSuggestions(data.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
+                      } else {
+                        setLocSuggestions([]);
+                      }
+                    } catch {
+                      setLocSuggestions([]);
+                    } finally {
+                      setLocSearching(false);
                     }
-                  }
+                  }, 300);
                 }}
+                leftIcon="home"
               />
+              {locSuggestions.length > 0 && (
+                <View style={{ marginTop: 8, backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
+                  {locSuggestions.map((s, idx) => (
+                    <Pressable key={`${s.lat}-${s.lon}-${idx}`} style={{ paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)' }}
+                      onPress={() => {
+                        setSelectedLoc({ label: s.display_name, address: s.display_name, latitude: parseFloat(s.lat), longitude: parseFloat(s.lon) });
+                        setLocSuggestions([]);
+                      }}>
+                      <Text style={{ color: '#1a1a1a', fontWeight: '700' }} numberOfLines={2}>{s.display_name}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+
+              <View style={{ marginTop: 10 }}>
+                <Pressable onPress={async () => {
+                  try {
+                    if (Platform.OS === 'web') {
+                      if (!('geolocation' in navigator)) return Alert.alert('Not supported', 'Geolocation not supported');
+                      navigator.geolocation.getCurrentPosition(async (pos) => {
+                        const lat = Number(pos.coords.latitude.toFixed(6));
+                        const lon = Number(pos.coords.longitude.toFixed(6));
+                        let name = `${lat}, ${lon}`;
+                        try {
+                          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                          const d = await r.json();
+                          if (d?.display_name) name = d.display_name;
+                        } catch {}
+                        setSelectedLoc({ label: name, address: name, latitude: lat, longitude: lon });
+                      });
+                    } else {
+                      const Location = await import('expo-location');
+                      const { status } = await Location.requestForegroundPermissionsAsync();
+                      if (status !== 'granted') return Alert.alert('Permission required', 'Location permission is needed.');
+                      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+                      const lat = Number(pos.coords.latitude.toFixed(6));
+                      const lon = Number(pos.coords.longitude.toFixed(6));
+                      let name = `${lat}, ${lon}`;
+                      try {
+                        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                        const d = await r.json();
+                        if (d?.display_name) name = d.display_name;
+                      } catch {}
+                      setSelectedLoc({ label: name, address: name, latitude: lat, longitude: lon });
+                    }
+                  } catch (e: any) {
+                    Alert.alert('Location failed', e?.message ?? 'Unknown error');
+                  }
+                }} style={[styles.chip, { alignSelf: 'flex-start', backgroundColor: 'rgba(16,185,129,0.15)' }]}>
+                  <Text style={[styles.chipText, { color: '#065f46', fontWeight: '900' }]}>Use Current Location</Text>
+                </Pressable>
+              </View>
 
               {/* Popular */}
               <Text style={[styles.sectionLabel, { marginTop: 12 }]}>🏛️ Popular Spots</Text>

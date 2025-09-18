@@ -8,6 +8,13 @@ import logger from '../../src/logger';
 export class DbTestHelper {
   
   /**
+   * Get the test Supabase client
+   */
+  static getSupabase() {
+    return testSupabase;
+  }
+  
+  /**
    * Insert test event and return its ID
    */
   static async insertTestEvent(hostUserId: string = TEST_USERS.HOST.id, overrides: any = {}) {

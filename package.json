@@ -12,17 +12,13 @@
     "version:payments:major": "npm version major -w packages/payments",
     "start:server": "npm start -w apps/server",
     "start:mobile": "npm start -w apps/mobile",
-
     "dev:server": "npm run dev -w apps/server",
     "debug:server": "npm run dev:debug -w apps/server",
-
     "dev:mobile": "npm run start -w apps/mobile",
     "dev": "npm-run-all --parallel dev:server dev:mobile",
-
     "test:server": "npm test -w apps/server",
     "test:debug": "npm run test:debug -w apps/server --",
     "test:coverage": "npm run test:coverage -w apps/server",
-
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces"
   },
@@ -45,6 +41,7 @@
   "dependencies": {
     "js-yaml": "^4.1.0",
     "openapi-sampler": "^1.6.1",
-    "openapi-types": "^12.1.3"
+    "openapi-types": "^12.1.3",
+    "expo-location": "~18.1.6"
   }
 }

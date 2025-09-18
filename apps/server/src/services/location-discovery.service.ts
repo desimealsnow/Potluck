@@ -119,7 +119,7 @@ export async function searchNearbyEvents(
 
     if (q) {
       const searchTerm = q.toLowerCase();
-      filteredEvents = filteredEvents.filter(event => 
+      filteredEvents = filteredEvents.filter((event: any) => 
         event.title.toLowerCase().includes(searchTerm) ||
         event.description?.toLowerCase().includes(searchTerm) ||
         event.city?.toLowerCase().includes(searchTerm)
@@ -128,14 +128,14 @@ export async function searchNearbyEvents(
 
     if (date_from) {
       const fromDate = new Date(date_from);
-      filteredEvents = filteredEvents.filter(event => 
+      filteredEvents = filteredEvents.filter((event: any) => 
         new Date(event.event_date) >= fromDate
       );
     }
 
     if (date_to) {
       const toDate = new Date(date_to);
-      filteredEvents = filteredEvents.filter(event => 
+      filteredEvents = filteredEvents.filter((event: any) => 
         new Date(event.event_date) <= toDate
       );
     }

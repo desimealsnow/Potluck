@@ -26,10 +26,14 @@ type SettingsItem = {
 /* ---------------- Screen ---------------- */
 export default function SettingsScreen({ 
   onBack, 
-  onShowSubscription 
+  onShowSubscription,
+  onShowNotifications,
+  onShowPreferences
 }: { 
   onBack?: () => void;
   onShowSubscription?: () => void;
+  onShowNotifications?: () => void;
+  onShowPreferences?: () => void;
 }) {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
@@ -51,13 +55,19 @@ export default function SettingsScreen({
       showChevron: true,
     },
     {
+      id: "preferences",
+      title: "User Preferences",
+      subtitle: "Location & discovery radius",
+      icon: "person-circle",
+      onPress: () => onShowPreferences?.(),
+      showChevron: true,
+    },
+    {
       id: "notifications",
       title: "Notifications",
-      subtitle: "Email and push notifications",
+      subtitle: "View your notifications",
       icon: "notifications",
-      onPress: () => {
-        Alert.alert("Notifications", "Notification settings coming soon!");
-      },
+      onPress: () => onShowNotifications?.(),
       showChevron: true,
     },
     {

@@ -131,24 +131,33 @@ export const publishEvent = async (req: AuthenticatedRequest, res: Response) => 
   const result = await EventService.publishEvent(eventId, req.user.id);
   
   if (result.ok) {
-    // Trigger notifications for nearby users if event is public
-    if (result.data.is_public) {
-      try {
-        const notificationResult = await notifyNearbyUsers(
-          eventId,
-          result.data.title,
-          result.data.event_date
-        );
-        
-        if (notificationResult.ok) {
-          log(`Sent ${notificationResult.data.notified_count} nearby notifications for event ${eventId}`);
-        } else {
-          log(`Failed to send notifications for event ${eventId}: ${notificationResult.error}`);
-        }
-      } catch (error) {
-        log(`Error sending notifications for event ${eventId}:`, error);
-        // Don't fail the publish if notifications fail
+    // Trigger notifications (eligibility is checked inside the service via event status/public)
+    try {
+      console.log('[Publish] Triggering nearby notifications', {
+        eventId,
+        title: (result.data as any).event?.title,
+        date: (result.data as any).event?.event_date,
+        is_public: (result.data as any).event?.is_public
+      });
+      const notificationResult = await notifyNearbyUsers(
+        eventId,
+        (result.data as any).event?.title,
+        (result.data as any).event?.event_date
+      );
+      console.log('[Publish] Nearby notifications result', {
+        eventId,
+        ok: notificationResult.ok,
+        notified_count: (notificationResult as any)?.data?.notified_count,
+        error: (notificationResult as any)?.error
+      });
+      if (notificationResult.ok) {
+        log(`Sent ${notificationResult.data.notified_count} nearby notifications for event ${eventId}`);
+      } else {
+        log(`Failed to send notifications for event ${eventId}: ${notificationResult.error}`);
       }
+    } catch (error) {
+      console.log('[Publish] Error sending notifications', { eventId, error });
+      // Don't fail the publish if notifications fail
     }
     
     return res.status(200).json(result.data);      // 200 with EventFull
