@@ -32,7 +32,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
   const load = useCallback(async (reset: boolean = true) => {
     setLoading(true);
     try {
-      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset) });
+      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset), status: 'unread' });
       const res = await apiClient.request<any>(`/discovery/notifications?${qs.toString()}`, { method: 'GET', cache: 'no-store' });
       const list: NotificationItem[] = res.notifications ?? [];
       setItems(prev => (reset ? list : [...prev, ...list]));
@@ -106,6 +106,23 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
             onEndReached={() => {
               if (!loading && hasMore && !selectedEventId) load(false);
             }}
+            ListHeaderComponent={
+              items.length > 0 ? (
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await apiClient.patch(`/discovery/notifications/read-all`);
+                      setItems([]);
+                      setOffset(0);
+                      setHasMore(false);
+                    } catch {}
+                  }}
+                  style={{ alignSelf: 'flex-end', paddingVertical: 8 }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>Mark all as read</Text>
+                </Pressable>
+              ) : null
+            }
           />
         )}
       </SafeAreaView>

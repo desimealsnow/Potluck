@@ -77,4 +77,26 @@ router.get(
   DiscoveryController.getUnreadNotificationCountController
 );
 
+// Push token registration
+router.post(
+  '/push/register',
+  authGuard,
+  routeLogger('POST /discovery/push/register'),
+  DiscoveryController.registerPushTokenController
+);
+
+// Notification preferences
+router.get(
+  '/me/notification-preferences',
+  authGuard,
+  routeLogger('GET /discovery/me/notification-preferences'),
+  DiscoveryController.getNotificationPreferencesController
+);
+router.put(
+  '/me/notification-preferences',
+  authGuard,
+  routeLogger('PUT /discovery/me/notification-preferences'),
+  DiscoveryController.putNotificationPreferencesController
+);
+
 export default router;

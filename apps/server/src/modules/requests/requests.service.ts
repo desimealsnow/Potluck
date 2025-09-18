@@ -1,6 +1,7 @@
 import { ServiceResult, ServiceError } from '../../utils/helper';
 import { RequestsRepository } from './requests.repo';
 import logger from '../../logger';
+import { createNotification } from '../../services/notifications.service';
 import type {
   JoinRequestType,
   JoinRequestAddType,
@@ -121,8 +122,15 @@ export class RequestsService {
       hostUserId 
     });
 
-    // TODO: Send notification to requester
-    this.sendNotification('request_approved', result.data);
+    // In-app notification for requester
+    try {
+      await createNotification({
+        userId: result.data.user_id,
+        type: 'request_approved',
+        eventId: result.data.event_id,
+        payload: { event_id: result.data.event_id, type: 'request_approved' }
+      });
+    } catch {}
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -146,8 +154,14 @@ export class RequestsService {
 
     logger.info('[RequestsService] Request declined successfully', { requestId, hostUserId });
 
-    // TODO: Send notification to requester
-    this.sendNotification('request_declined', result.data);
+    try {
+      await createNotification({
+        userId: result.data.user_id,
+        type: 'request_declined',
+        eventId: result.data.event_id,
+        payload: { event_id: result.data.event_id, type: 'request_declined' }
+      });
+    } catch {}
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -171,8 +185,14 @@ export class RequestsService {
 
     logger.info('[RequestsService] Request waitlisted successfully', { requestId, hostUserId });
 
-    // TODO: Send notification to requester  
-    this.sendNotification('request_waitlisted', result.data);
+    try {
+      await createNotification({
+        userId: result.data.user_id,
+        type: 'request_waitlisted',
+        eventId: result.data.event_id,
+        payload: { event_id: result.data.event_id, type: 'request_waitlisted' }
+      });
+    } catch {}
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -250,8 +270,14 @@ export class RequestsService {
       hostUserId 
     });
 
-    // TODO: Send notification to requester about extension
-    this.sendNotification('hold_extended', result.data);
+    try {
+      await createNotification({
+        userId: result.data.user_id,
+        type: 'hold_extended',
+        eventId: result.data.event_id,
+        payload: { event_id: result.data.event_id, type: 'hold_extended' }
+      });
+    } catch {}
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
