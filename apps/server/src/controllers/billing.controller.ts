@@ -107,7 +107,7 @@ export const BillingController = {
     console.log('🔧 Using variant ID directly:', plan_id);
 
     // Use new PaymentService with idempotency and tenant awareness
-    const service = createPaymentService();
+    const service: any = createPaymentService();
     // Prefer returning directly to the app so Expo WebBrowser.openAuthSessionAsync can auto-close
     // IMPORTANT: Do NOT mutate the return URL. AuthSession closes only if the
     // final navigated URL starts with the EXACT returnUrl passed to openAuthSessionAsync.
@@ -129,7 +129,7 @@ export const BillingController = {
     });
 
     console.log('🛒 Checkout Session:', session);
-    return handle(res, ok({ checkout_url: session.checkoutUrl } as unknown as CheckoutSession));
+    return handle(res, ok({ checkout_url: session.checkoutUrl || session.url } as unknown as CheckoutSession));
   },
 
   // GET /billing/subscriptions

@@ -3,9 +3,26 @@ import logger from '../logger';
 import { ServiceResult } from '../utils/helper';
 
 export interface NotificationPayload {
-  type: 'event_created' | 'event_updated' | 'event_cancelled' | 'join_request' | 'join_approved' | 'join_declined';
-  event_id: string;
-  reason: 'nearby' | 'invited' | 'participant' | 'host';
+  type:
+    | 'event_created'
+    | 'event_updated'
+    | 'event_cancelled'
+    | 'join_request'
+    | 'join_request_received'
+    | 'request_approved'
+    | 'request_declined'
+    | 'request_waitlisted'
+    | 'reminder'
+    | 'item_unclaimed'
+    | 'item_assigned'
+    | 'item_updated'
+    | 'hold_extended'
+    | 'hold_expiring_soon'
+    | 'hold_expired'
+    | 'invite_received';
+  event_id?: string;
+  item_id?: string;
+  reason?: 'nearby' | 'invited' | 'participant' | 'host';
   event_title?: string;
   event_date?: string;
   distance_km?: number;
@@ -21,6 +38,51 @@ export interface NotificationRecord {
   payload: NotificationPayload;
   read_at: string | null;
   created_at: string;
+}
+
+export type NotificationType = NotificationPayload['type'];
+
+export async function createNotification(params: {
+  userId: string;
+  type: NotificationType;
+  eventId?: string;
+  itemId?: string;
+  actorUserId?: string | null;
+  priority?: number;
+  payload?: Partial<NotificationPayload>;
+}): Promise<ServiceResult<{ id: string }>> {
+  try {
+    const row = {
+      user_id: params.userId,
+      type: params.type,
+      event_id: params.eventId ?? null,
+      item_id: params.itemId ?? null,
+      actor_user_id: params.actorUserId ?? null,
+      priority: params.priority ?? 0,
+      payload: {
+        type: params.type,
+        event_id: params.eventId,
+        item_id: params.itemId,
+        ...(params.payload || {}),
+      } satisfies NotificationPayload,
+    } as any;
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(row)
+      .select('id')
+      .single();
+
+    if (error) {
+      logger.error('[Notifications] createNotification failed', { error });
+      return { ok: false, error: error.message };
+    }
+
+    return { ok: true, data: { id: data!.id } };
+  } catch (err) {
+    logger.error('[Notifications] createNotification exception', { err });
+    return { ok: false, error: 'Failed to create notification' };
+  }
 }
 
 /**
@@ -48,8 +110,11 @@ export async function notifyNearbyUsers(
       return { ok: false, error: eventError?.message ?? 'Event not found' };
     }
 
-    const lat = eventData.locations?.latitude as number | null;
-    const lon = eventData.locations?.longitude as number | null;
+    const loc: any = Array.isArray((eventData as any).locations)
+      ? (eventData as any).locations[0]
+      : (eventData as any).locations;
+    const lat = loc?.latitude as number | null;
+    const lon = loc?.longitude as number | null;
     const radiusKm = 25;
 
     logger.info('[Notifications] Event location check', { eventId, lat, lon, radiusKm });
@@ -86,7 +151,7 @@ export async function notifyNearbyUsers(
         event_title: eventTitle,
         event_date: eventDate,
         distance_km: Math.round((user.distance_m / 1000) * 10) / 10,
-        city: eventData.locations?.formatted_address ?? null,
+        city: loc?.formatted_address ?? null,
       } satisfies NotificationPayload,
     }));
 
@@ -116,14 +181,17 @@ export async function notifyNearbyUsers(
 export async function getUserNotifications(
   userId: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  status?: 'unread' | 'all'
 ): Promise<ServiceResult<{ notifications: NotificationRecord[], total: number }>> {
   try {
     // Get total count
-    const { count, error: countError } = await supabase
+    let countQuery = supabase
       .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+      .select('*', { count: 'exact', head: true }) as any;
+    countQuery = countQuery.eq('user_id', userId);
+    if (status === 'unread') countQuery = countQuery.is('read_at', null);
+    const { count, error: countError } = await countQuery;
 
     if (countError) {
       logger.error('Error counting notifications:', countError);
@@ -131,10 +199,12 @@ export async function getUserNotifications(
     }
 
     // Get notifications with pagination
-    const { data: notifications, error: notificationsError } = await supabase
+    let listQuery = supabase
       .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
+      .select('*') as any;
+    listQuery = listQuery.eq('user_id', userId);
+    if (status === 'unread') listQuery = listQuery.is('read_at', null);
+    const { data: notifications, error: notificationsError } = await listQuery
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -236,5 +306,104 @@ export async function getUnreadNotificationCount(
   } catch (error) {
     logger.error('Error in getUnreadNotificationCount:', error);
     return { ok: false, error: 'Failed to count unread notifications' };
+  }
+}
+
+
+export async function registerPushToken(
+  userId: string,
+  platform: 'ios' | 'android' | 'web',
+  token: string
+): Promise<ServiceResult<{ id: string }>> {
+  try {
+    // Upsert by unique token
+    const { data, error } = await supabase
+      .from('push_tokens')
+      .upsert({ user_id: userId, platform, token, last_seen_at: new Date().toISOString() }, { onConflict: 'token' })
+      .select('id')
+      .single();
+
+    if (error) {
+      logger.error('[Notifications] registerPushToken failed', { error });
+      return { ok: false, error: error.message };
+    }
+    return { ok: true, data: { id: data!.id } };
+  } catch (err) {
+    logger.error('[Notifications] registerPushToken exception', { err });
+    return { ok: false, error: 'Failed to register push token' };
+  }
+}
+
+export async function getNotificationPreferences(userId: string): Promise<ServiceResult<any>> {
+  try {
+    const { data, error } = await supabase
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, data: data || { user_id: userId, in_app_enabled: true } };
+  } catch (err) {
+    return { ok: false, error: 'Failed to get notification preferences' };
+  }
+}
+
+export async function upsertNotificationPreferences(userId: string, prefs: any): Promise<ServiceResult<any>> {
+  try {
+    const payload = { ...prefs, user_id: userId, updated_at: new Date().toISOString() };
+    const { data, error } = await supabase
+      .from('notification_preferences')
+      .upsert(payload, { onConflict: 'user_id' })
+      .select('*')
+      .single();
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: 'Failed to update notification preferences' };
+  }
+}
+
+export async function notifyEventParticipantsCancelled(
+  eventId: string,
+  actorUserId: string,
+  reason: string
+): Promise<ServiceResult<{ notified_count: number }>> {
+  try {
+    // Get participants (accepted)
+    const { data: participants, error } = await supabase
+      .from('event_participants')
+      .select('user_id')
+      .eq('event_id', eventId)
+      .eq('status', 'accepted');
+    if (error) return { ok: false, error: error.message };
+
+    const { data: eventRow } = await supabase
+      .from('events')
+      .select('title, event_date')
+      .eq('id', eventId)
+      .single();
+
+    const rows = (participants || []).map(p => ({
+      user_id: p.user_id,
+      type: 'event_cancelled' as const,
+      event_id: eventId,
+      actor_user_id: actorUserId,
+      priority: 1,
+      payload: {
+        type: 'event_cancelled',
+        event_id: eventId,
+        cancel_reason: reason,
+        event_title: eventRow?.title,
+        event_date: eventRow?.event_date,
+      } satisfies NotificationPayload,
+    }));
+
+    if (!rows.length) return { ok: true, data: { notified_count: 0 } };
+
+    const { error: insErr } = await supabase.from('notifications').insert(rows as any);
+    if (insErr) return { ok: false, error: insErr.message };
+    return { ok: true, data: { notified_count: rows.length } };
+  } catch (err) {
+    return { ok: false, error: 'Failed to notify participants' };
   }
 }

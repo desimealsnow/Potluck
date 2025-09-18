@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabaseClient';
 import { } from '../services/participants.service';
 import logger from '../logger';
+import { notifyEventParticipantsCancelled } from './notifications.service';
 import {ServiceResult,mapDbError,toDbColumns} from "../utils/helper";
 import { schemas }  from '../validators';           // <- generated Zod objects
 
@@ -962,8 +963,12 @@ export async function cancelEvent(
 
   // 6️⃣ Optionally notify guests (stub, can expand later)
   if (payload.notifyGuests) {
-    // sendCancellationNotifications(eventId, payload.reason); // implement as needed
-    logger.info('[EventService] Guests would be notified (not implemented).');
+    const sent = await notifyEventParticipantsCancelled(eventId, actorId, payload.reason);
+    if (!sent.ok) {
+      logger.warn('[EventService] Failed to notify participants on cancel', { eventId, error: sent.error });
+    } else {
+      logger.info('[EventService] Notified participants on cancel', { eventId, notified_count: sent.data.notified_count });
+    }
   }
 
   // 7️⃣ Return full event details

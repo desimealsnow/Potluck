@@ -25,6 +25,7 @@ import { apiClient } from "@/services/apiClient";
 import { Input, Chip, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
+import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
   EventStatusMobile, 
@@ -183,11 +184,39 @@ export default function App() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const bgGradient = useMemo(
     () => gradients.header.cool,
     []
   );
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const data = await apiClient.get<{ count: number }>(`/discovery/notifications/unread-count`);
+      setUnreadCount(typeof data?.count === 'number' ? data.count : 0);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Register push token with server (best-effort)
+  const registerPush = useCallback(async () => {
+    try {
+      const perms = await Notifications.getPermissionsAsync();
+      if (!perms.granted) {
+        const req = await Notifications.requestPermissionsAsync();
+        if (!req.granted) return;
+      }
+      const expo = await Notifications.getExpoPushTokenAsync();
+      const token = expo?.data;
+      if (!token) return;
+      const platform = (Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web') as 'ios' | 'android' | 'web';
+      await apiClient.post(`/discovery/push/register`, { platform, token });
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -270,6 +299,12 @@ export default function App() {
       if (debTimer.current) clearTimeout(debTimer.current);
     };
   }, [query, statusTab, ownership, dietFilters, useNearby, reload]);
+
+  // Load unread count initially and when coming back from notifications
+  useEffect(() => {
+    fetchUnreadCount();
+    registerPush();
+  }, [fetchUnreadCount]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -454,7 +489,7 @@ export default function App() {
   }
   if (showNotifications) {
     return (
-      <NotificationsScreen onBack={() => { setShowNotifications(false); reload(); }} />
+      <NotificationsScreen onBack={() => { setShowNotifications(false); reload(); fetchUnreadCount(); }} />
     );
   }
 
@@ -508,6 +543,14 @@ export default function App() {
           <View style={styles.actions} testID="header-actions">
             <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
               <Ionicons name="add" size={20} color="#fff" />
+            </Pressable>
+            <Pressable onPress={() => setShowNotifications(true)} style={[styles.iconBtn]} testID="notifications-button">
+              <Ionicons name="notifications-outline" size={20} color="#fff" />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
+                </View>
+              )}
             </Pressable>
             <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
               <Ionicons name="card" size={20} color="#fff" />
@@ -859,6 +902,21 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   iconBtnAlt: { backgroundColor: "rgba(255,255,255,0.25)" },
+  badge: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FF3B30',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.8)'
+  },
+  badgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
 
   searchWrap: {
     marginTop: 10,

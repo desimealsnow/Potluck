@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { searchNearbyEvents, getEventWithLocation, searchEventsByCity, getPopularEvents } from '../services/location-discovery.service';
-import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRead, getUnreadNotificationCount } from '../services/notifications.service';
+import { getUserNotifications, markNotificationAsRead, markAllNotificationsAsRead, getUnreadNotificationCount, registerPushToken, getNotificationPreferences, upsertNotificationPreferences } from '../services/notifications.service';
 import logger from '../logger';
 
 // Validation schemas
@@ -55,10 +55,10 @@ export const searchNearbyEventsController = async (req: Request, res: Response) 
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in searchNearbyEventsController:', error.errors);
+      logger.warn('Validation error in searchNearbyEventsController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid query parameters', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -95,10 +95,10 @@ export const searchEventsByCityController = async (req: Request, res: Response) 
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in searchEventsByCityController:', error.errors);
+      logger.warn('Validation error in searchEventsByCityController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid query parameters', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -182,10 +182,11 @@ export const getUserNotificationsController = async (req: Request, res: Response
     
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+    const status = (req.query.status as string | undefined) === 'unread' ? 'unread' : undefined;
     
     logger.info(`Notifications request for user ${userId}: limit=${limit}, offset=${offset}`);
     
-    const result = await getUserNotifications(userId, limit, offset);
+    const result = await getUserNotifications(userId, limit, offset, status as any);
     
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
@@ -234,10 +235,10 @@ export const markNotificationAsReadController = async (req: Request, res: Respon
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in markNotificationAsReadController:', error.errors);
+      logger.warn('Validation error in markNotificationAsReadController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid parameters', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -298,6 +299,55 @@ export const getUnreadNotificationCountController = async (req: Request, res: Re
     
   } catch (error) {
     logger.error('Error in getUnreadNotificationCountController:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * POST /api/v1/push/register
+ * Register Expo/Web push token for current user
+ */
+export const registerPushTokenController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const { platform, token } = (req.body || {}) as { platform?: 'ios' | 'android' | 'web'; token?: string };
+    if (!platform || !token) return res.status(400).json({ error: 'platform and token are required' });
+    const result = await registerPushToken(userId, platform, token);
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json({ id: result.data.id });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * GET /api/v1/me/notification-preferences
+ */
+export const getNotificationPreferencesController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const result = await getNotificationPreferences(userId);
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json(result.data);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /api/v1/me/notification-preferences
+ */
+export const putNotificationPreferencesController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+    const prefs = req.body || {};
+    const result = await upsertNotificationPreferences(userId, prefs);
+    if (!result.ok) return res.status(400).json({ error: result.error });
+    res.json(result.data);
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
