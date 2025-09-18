@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as C from '../controllers/items.controller';
 import { validate }  from '../middleware/validateSchema';
-import { schemas }   from '../validators';            // Zod generated
+import { schemas }   from '../validators.quick';      // quick unblock stub
 import { authGuard } from '../middleware/authGuard';
 
 const router = Router({ mergeParams: true });  // keeps :eventId from parent

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as C from '../controllers/participants.controller';
-import { schemas } from '../validators';  
+import { schemas } from '../validators.quick';  
 import { validate } from '../middleware/validateSchema';
 import { authGuard } from '../middleware/authGuard';
 

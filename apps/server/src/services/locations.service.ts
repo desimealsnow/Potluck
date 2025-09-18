@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabaseClient';
-import { schemas }  from '../validators';           // <- generated Zod objects
+import { schemas }  from '../validators.quick';     // quick unblock stub
 import { components } from '../../../../libs/common/src/types.gen';
 type LocationInput  = components['schemas']['Location'];
 

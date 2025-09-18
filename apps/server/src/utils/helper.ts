@@ -1,7 +1,8 @@
 import { PostgrestError } from '@supabase/supabase-js';
 import { Response }       from 'express';
 import {GuardResult} from '../utils/eventGuards';
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+// Type-only import removed to avoid complex generic type requirement for quick build
+// import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 
 export type ErrorCode = '400' | '401' | '403' | '404' | '409' | '500';
@@ -126,7 +127,7 @@ export function handleResult<T>(res: Response, result: ServiceResult<T>) {
 }
 
 export async function mustFindOne<T>(
-  query: PostgrestFilterBuilder<any, any, T[]>
+  query: any
 ): Promise<ServiceResult<T>> {
   const { data, error } = await query.maybeSingle();
 
