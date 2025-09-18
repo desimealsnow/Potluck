@@ -66,7 +66,19 @@ const EventSearchQuerySchema = z.object({
   is_public: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined)
 });
 
-/** GET /events  – list events the caller can see (host or participant) */
+/**
+ * List events that the caller can see, either as a host or participant.
+ *
+ * The function first checks if the user is authenticated by verifying the presence of a user ID.
+ * It then parses and validates query parameters using EventSearchQuerySchema,
+ * calls the EventService to retrieve the events, and responds accordingly based on the result.
+ * If an error occurs during validation or processing, appropriate error responses are returned.
+ *
+ * @param req - The authenticated request object containing user information and query parameters.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @returns A JSON response containing the list of events or an error message.
+ * @throws z.ZodError If the query parameters are invalid.
+ */
 export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
   if (!req.user?.id) {
     return res.status(401).json({ ok: false, error: 'Unauthorized', code: '401' });
