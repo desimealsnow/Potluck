@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authGuard';
 import * as EventService from '../services/events.service';
+import { notifyNearbyUsers } from '../services/notifications.service';
 import { components } from '../../../../libs/common/src/types.gen';
 import debug from 'debug';
 import { handle } from '../utils/helper';          // httpStatus + JSON wrapper
@@ -110,7 +111,30 @@ export const publishEvent = async (req: AuthenticatedRequest, res: Response) => 
   }
 
   const result = await EventService.publishEvent(eventId, req.user.id);
-  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
+  
+  if (result.ok) {
+    // Trigger notifications for nearby users if event is public
+    if (result.data.is_public) {
+      try {
+        const notificationResult = await notifyNearbyUsers(
+          eventId,
+          result.data.title,
+          result.data.event_date
+        );
+        
+        if (notificationResult.ok) {
+          log(`Sent ${notificationResult.data.notified_count} nearby notifications for event ${eventId}`);
+        } else {
+          log(`Failed to send notifications for event ${eventId}: ${notificationResult.error}`);
+        }
+      } catch (error) {
+        log(`Error sending notifications for event ${eventId}:`, error);
+        // Don't fail the publish if notifications fail
+      }
+    }
+    
+    return res.status(200).json(result.data);      // 200 with EventFull
+  }
 
   return handle(res, result);                       // error → mapped status & JSON
 };
