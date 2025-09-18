@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import BillingController from '../controllers/billing.controller';
 import { raw } from 'body-parser';
-// import { createWebhookHandler } from '@payments/core';
+import { createWebhookHandler } from '@payments/core';
 import { createPaymentContainer } from '../services/payments.container';
 import { authGuard } from '../middleware/authGuard';
 
@@ -35,15 +35,14 @@ router.get('/invoices/:invoiceId/download', authGuard, BillingController.downloa
 
 // Webhooks (no auth required) - Generic provider webhook
 // Webhook with raw-body for signature verification
-// Disabled for quick-unblock build
-// const paymentsContainer = createPaymentContainer();
+const paymentsContainer = createPaymentContainer();
 // Map 'stripe' webhook to 'lemonsqueezy' provider
-// router.post('/webhook/:provider', raw({ type: '*/*' }), (req, res, next) => {
-//   if (req.params.provider === 'stripe') {
-//     req.params.provider = 'lemonsqueezy';
-//   }
-//   next();
-// }, createWebhookHandler(paymentsContainer));
+router.post('/webhook/:provider', raw({ type: '*/*' }), (req, res, next) => {
+  if (req.params.provider === 'stripe') {
+    req.params.provider = 'lemonsqueezy';
+  }
+  next();
+}, createWebhookHandler(paymentsContainer));
 
 export default router;
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { addLocation } from '../controllers/locations.controller';
 import { validate } from '../middleware/validateSchema';
-import { schemas }   from '../validators.quick';  
+import { schemas }   from '../validators';  
 
 const router = Router();
 

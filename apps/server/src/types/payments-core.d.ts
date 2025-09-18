@@ -20,6 +20,9 @@ declare module '@payments/core' {
   export interface WebhookInbox { seen(provider: string, eventId: string): Promise<boolean>; markProcessed(provider: string, eventId: string): Promise<void>; }
   export interface IdempotencyStore { withKey<T>(key: string, fn: () => Promise<T>): Promise<T>; }
   export const providerRegistry: Record<string, unknown>;
+  export interface PaymentContainer {}
+  export function createWebhookHandler(container?: any): any;
+  export function getProviderNames(): string[];
   export class PaymentService { constructor(container: any); }
 }
 

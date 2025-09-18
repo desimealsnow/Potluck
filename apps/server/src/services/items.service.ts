@@ -2,7 +2,7 @@ import { supabase } from '../config/supabaseClient';
 import { components } from '../../../../libs/common/src/types.gen';
 import logger from '../logger';
 import { z } from 'zod';
-import { schemas }  from '../validators.quick';     // quick unblock stub
+import { schemas }  from '../validators';           // <- generated Zod objects
 import {ServiceResult, toDbColumns, mapDbError } from '../utils/helper';
 import {GuardResult,ensureEventEditable,ensureActorCanAssign} from '../utils/eventGuards';
 type ItemCreate  = components['schemas']['ItemCreate'];

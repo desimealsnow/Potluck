@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authGuard }   from '../middleware/authGuard';
 import { validate }    from '../middleware/validateSchema';
 import { routeLogger } from '../middleware/logger.middleware';
-import { schemas }     from '../validators.quick';    // quick unblock stub
+import { schemas }     from '../validators';          // generated Zod
 
 // ───── Controllers ───────────────────────────────────────────
 import * as E from '../controllers/events.controller';

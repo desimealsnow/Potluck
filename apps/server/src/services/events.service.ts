@@ -3,7 +3,7 @@ import { } from '../services/participants.service';
 import logger from '../logger';
 import { notifyEventParticipantsCancelled } from './notifications.service';
 import {ServiceResult,mapDbError,toDbColumns} from "../utils/helper";
-import { schemas }  from '../validators.quick';     // quick unblock stub
+import { schemas }  from '../validators';           // <- generated Zod objects
 
 import { components } from '../../../../libs/common/src/types.gen';
 import { createClient } from '@supabase/supabase-js';
