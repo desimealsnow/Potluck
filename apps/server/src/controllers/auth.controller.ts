@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import * as AuthService from '../services/auth.service';
 
+/**
+ * Handles user signup by processing the request and invoking the AuthService.
+ */
 export const signup = async (req: Request, res: Response) => {
   const { 
     email, 
