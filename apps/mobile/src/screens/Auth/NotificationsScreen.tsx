@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiClient } from "@/services/apiClient";
 import EventDetailsPage from "./EventDetailsPage";
+import { supabase } from "@/config/supabaseClient";
 
 type NotificationItem = {
   id: string;
@@ -65,6 +66,28 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
     const timer = setTimeout(() => load(true), 1000);
     return () => clearTimeout(timer);
   }, [selectedEventId, load]);
+
+  // Realtime: subscribe to new notifications for this user
+  useEffect(() => {
+    const channel = supabase
+      .channel('notifications-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
+        const n = payload.new as any;
+        // Prepend only if unread view is active (we always request unread)
+        setItems(prev => [{
+          id: n.id,
+          type: n.type,
+          event_id: n.event_id || undefined,
+          payload: n.payload || {},
+          read_at: n.read_at,
+          created_at: n.created_at,
+        }, ...prev]);
+      });
+    channel.subscribe();
+    return () => {
+      try { supabase.removeChannel(channel); } catch {}
+    };
+  }, []);
 
   return (
     <LinearGradient colors={["#7b2ff7", "#ff2d91"]} style={{ flex: 1 }}>
