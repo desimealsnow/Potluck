@@ -24,6 +24,9 @@ type SettingsItem = {
 };
 
 /* ---------------- Screen ---------------- */
+/**
+ * Renders the settings screen with options for subscription, preferences, notifications, and more.
+ */
 export default function SettingsScreen({ 
   onBack, 
   onShowSubscription,

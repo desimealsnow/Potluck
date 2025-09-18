@@ -5,6 +5,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiClient } from "@/services/apiClient";
 
+/**
+ * Renders the user preferences screen for location and discovery settings.
+ *
+ * This component manages user preferences related to location, including latitude, longitude, city, and discovery radius.
+ * It fetches the user's current location, allows searching for places, and saves the preferences to an API.
+ * The component handles asynchronous operations for fetching data and saving preferences, with appropriate error handling and user feedback.
+ *
+ * @param {Object} props - The component props.
+ * @param {function} [props.onBack] - Optional callback function to be called when navigating back.
+ */
 export default function UserPreferencesScreen({ onBack }: { onBack?: () => void }) {
   const [latitude, setLatitude] = useState<string>(""); // hidden/internal
   const [longitude, setLongitude] = useState<string>(""); // hidden/internal

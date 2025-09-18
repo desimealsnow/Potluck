@@ -20,6 +20,15 @@ type NotificationItem = {
   created_at: string;
 };
 
+/**
+ * Renders the Notifications screen, displaying a list of notifications.
+ *
+ * This component manages the loading and refreshing of notifications, handles the selection of events, and provides a back navigation option. It utilizes hooks to manage state and side effects, including loading notifications from an API and handling user interactions. The notifications are displayed in a FlatList, with support for pagination and refreshing.
+ *
+ * @param {Object} props - The component props.
+ * @param {function} [props.onBack] - Optional callback function to handle back navigation.
+ * @returns {JSX.Element} The rendered Notifications screen component.
+ */
 export default function NotificationsScreen({ onBack }: { onBack?: () => void }) {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);

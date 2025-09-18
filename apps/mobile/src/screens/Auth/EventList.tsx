@@ -41,6 +41,14 @@ const PAGE_PADDING = 16;
 const PAGE_SIZE = 10;
 
 /* -------------------- API Helpers -------------------- */
+/**
+ * Fetch events based on the provided query parameters.
+ *
+ * This function constructs a URLSearchParams object to build the query string for the API request. It handles various filters such as status, ownership, diet, and nearby location. The response is processed to extract event items and determine if there are more events available based on pagination. The function ensures that the correct parameters are set according to the backend requirements and maps statuses appropriately.
+ *
+ * @param q - An object containing query parameters for fetching events, including optional nearby location.
+ * @returns A promise that resolves to an object containing an array of EventItem and a boolean indicating if more events are available.
+ */
 async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean }> {
   const params = new URLSearchParams();
   // backend expects limit/offset, not page
@@ -142,6 +150,13 @@ function confirmAsync(
 }
 
 /* ---------------------- Screen ---------------------- */
+/**
+ * Main application component that manages event listings and user interactions.
+ *
+ * This component handles the state for various UI elements, including event status, ownership filters, and search queries. It fetches event data based on user selections and provides functionality for creating, publishing, cancelling, completing, purging, and restoring events. The component also manages navigation to different screens and handles user preferences and settings.
+ *
+ * @returns {JSX.Element} The rendered application component.
+ */
 export default function App() {
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
   const [ownership, setOwnership] = useState<Ownership>("all");
