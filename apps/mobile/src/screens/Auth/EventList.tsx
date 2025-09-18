@@ -143,6 +143,17 @@ function confirmAsync(
 }
 
 /* ---------------------- Screen ---------------------- */
+/**
+ * Main application component that manages event listings and user interactions.
+ *
+ * This component handles various states including event status, ownership filters, and user preferences.
+ * It fetches event data, manages navigation between different screens, and provides functionalities for creating,
+ * publishing, cancelling, completing, and deleting events. The component also integrates push notifications and
+ * manages unread notification counts. It utilizes hooks for state management and side effects, ensuring a responsive
+ * user experience.
+ *
+ * @returns {JSX.Element} The rendered application component.
+ */
 export default function App() {
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
   const [ownership, setOwnership] = useState<Ownership>("all");
