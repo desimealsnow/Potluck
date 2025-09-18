@@ -2,6 +2,21 @@
 
 ## [Unreleased] - 2025-09-11
 
+### Added - Notifications System
+
+#### Backend
+- DB: Added `007_notifications_extend.sql` with richer `notifications` table, `notification_preferences`, `push_tokens`, indexes and RLS
+- Endpoints under `/api/v1/discovery`: inbox list with `status=unread`, unread count, mark read/mark all, push token register, preferences get/put
+- Services: `notifications.service.ts` (createNotification, unread count, status filter, event cancel broadcast)
+- Join Requests: notifications on approve/decline actions
+- Push: stub delivery service, server logs deliveries; real push delivery can be integrated later
+- Types: temporary shims for `@zodios/core` and `@payments/core` to keep TS builds green
+
+#### Mobile (React Native / Expo)
+- Header bell with unread badge in `EventList.tsx`
+- Inbox in `NotificationsScreen.tsx`: fetch unread, mark-all-read, Supabase Realtime prepend on INSERT
+- Expo push token registration (best-effort) calling server `/discovery/push/register`
+
 ### Added - Join Requests & Event Discovery System
 
 #### Backend
