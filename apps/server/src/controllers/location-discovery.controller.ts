@@ -28,8 +28,15 @@ const NotificationParams = z.object({
 });
 
 /**
- * GET /api/v1/events/discover/nearby
- * Search for events near a location
+ * Handles the search for events near a specified location.
+ *
+ * This controller processes the incoming request to search for nearby events based on the provided query parameters.
+ * It validates the parameters, logs the request, and calls the `searchNearbyEvents` function to retrieve the events.
+ * If the search is unsuccessful, it responds with an error message. In case of validation errors, it returns a detailed
+ * error response, while other errors result in a generic internal server error response.
+ *
+ * @param req - The request object containing query parameters for the location search.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const searchNearbyEventsController = async (req: Request, res: Response) => {
   try {
@@ -68,8 +75,12 @@ export const searchNearbyEventsController = async (req: Request, res: Response) 
 };
 
 /**
- * GET /api/v1/events/discover/city
- * Search for events by city name
+ * Handles the search for events by city name.
+ *
+ * This controller function processes a GET request to search for events based on the city name provided in the query parameters. It validates the input using CitySearchQuery, logs the request, and calls the searchEventsByCity function to retrieve the events. If the search is unsuccessful, it returns a 400 status with an error message. On success, it responds with the events and pagination details. It also handles validation errors and logs any unexpected errors.
+ *
+ * @param req - The request object containing query parameters for the city search.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const searchEventsByCityController = async (req: Request, res: Response) => {
   try {
@@ -169,8 +180,16 @@ export const getEventWithLocationController = async (req: Request, res: Response
 };
 
 /**
- * GET /api/v1/notifications
- * Get user notifications
+ * Get user notifications from the API.
+ *
+ * This function handles the GET request to retrieve notifications for a user. It checks for user authentication,
+ * processes query parameters for pagination and status filtering, and calls the getUserNotifications function
+ * to fetch the notifications. The response includes the notifications and pagination details.
+ * If any errors occur during the process, appropriate error responses are sent.
+ *
+ * @param req - The request object containing user information and query parameters.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If an internal server error occurs during the execution.
  */
 export const getUserNotificationsController = async (req: Request, res: Response) => {
   try {
@@ -209,8 +228,13 @@ export const getUserNotificationsController = async (req: Request, res: Response
 };
 
 /**
- * PATCH /api/v1/notifications/:notificationId/read
- * Mark notification as read
+ * Mark a notification as read for a user.
+ *
+ * This function retrieves the user ID from the request, validates the notification ID, and calls the markNotificationAsRead function to update the notification status. It handles authentication checks, validation errors, and logs relevant information throughout the process. If the operation fails, appropriate error responses are sent back to the client.
+ *
+ * @param req - The request object containing user information and notification parameters.
+ * @param res - The response object used to send back the result or error messages.
+ * @throws z.ZodError If the notification parameters are invalid.
  */
 export const markNotificationAsReadController = async (req: Request, res: Response) => {
   try {
@@ -304,8 +328,16 @@ export const getUnreadNotificationCountController = async (req: Request, res: Re
 };
 
 /**
- * POST /api/v1/push/register
- * Register Expo/Web push token for current user
+ * Register Expo/Web push token for the current user.
+ *
+ * This function handles the registration of a push token by first verifying the user's authentication status.
+ * It then checks for the presence of the required platform and token in the request body.
+ * If all validations pass, it calls the registerPushToken function to register the token and responds with the token ID.
+ * In case of errors, appropriate HTTP status codes and messages are returned.
+ *
+ * @param req - The request object containing user information and body data.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If an internal server error occurs during the process.
  */
 export const registerPushTokenController = async (req: Request, res: Response) => {
   try {
@@ -322,7 +354,11 @@ export const registerPushTokenController = async (req: Request, res: Response) =
 };
 
 /**
- * GET /api/v1/me/notification-preferences
+ * Handles the retrieval of notification preferences for the authenticated user.
+ *
+ * This function checks if the user is authenticated by verifying the presence of a user ID in the request.
+ * If authenticated, it calls the getNotificationPreferences function to fetch the user's preferences.
+ * It handles potential errors by returning appropriate HTTP status codes and messages based on the outcome of the operation.
  */
 export const getNotificationPreferencesController = async (req: Request, res: Response) => {
   try {
@@ -337,7 +373,13 @@ export const getNotificationPreferencesController = async (req: Request, res: Re
 };
 
 /**
- * PUT /api/v1/me/notification-preferences
+ * Handles the PUT request for updating notification preferences.
+ *
+ * This function retrieves the user ID from the request, checks for authentication, and then attempts to upsert the notification preferences using the provided data. If the operation is successful, it returns the updated preferences; otherwise, it handles errors appropriately by returning relevant status codes and messages.
+ *
+ * @param req - The request object containing user information and preferences in the body.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If an internal server error occurs during the process.
  */
 export const putNotificationPreferencesController = async (req: Request, res: Response) => {
   try {
