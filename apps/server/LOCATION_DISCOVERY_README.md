@@ -250,7 +250,30 @@ This will test:
 
 ## Usage Examples
 
-### Setting Up User Location
+### User Signup with Location
+
+```javascript
+// Sign up with location data
+const response = await fetch('/api/v1/auth/signup', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password123',
+    displayName: 'John Doe',
+    latitude: 37.7749,
+    longitude: -122.4194,
+    city: 'San Francisco',
+    geo_precision: 'exact',
+    discoverability_enabled: true,
+    discoverability_radius_km: 25
+  })
+});
+```
+
+### Setting Up User Location (for existing users)
 
 ```javascript
 // Update user location

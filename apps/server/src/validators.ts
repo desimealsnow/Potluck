@@ -10,6 +10,13 @@ const SignUp = z
     email: z.string().email(),
     password: z.string().min(6),
     displayName: z.string().optional(),
+    // Location fields for user profile
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
+    city: z.string().optional(),
+    geo_precision: z.enum(['exact', 'city']).optional().default('city'),
+    discoverability_enabled: z.boolean().optional().default(true),
+    discoverability_radius_km: z.number().int().min(1).max(200).optional().default(25),
   })
   .passthrough();
 const Login = z
