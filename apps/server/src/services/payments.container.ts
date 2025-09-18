@@ -18,18 +18,15 @@ const configs: ProviderConfigStore = new SupabaseConfigStore();
 
 export function createPaymentContainer(): PaymentContainer {
   const useMemory = process.env.PAYMENTS_USE_MEMORY_ADAPTERS === 'true';
-
   const memoryInbox = {
     _seen: new Set<string>(),
     async seen(provider: string, eventId: string) { return this._seen.has(`${provider}:${eventId}`); },
     async markProcessed(provider: string, eventId: string) { this._seen.add(`${provider}:${eventId}`); }
   } as const;
-
   const memoryIdempotency = {
     _keys: new Set<string>(),
     async withKey<T>(key: string, fn: () => Promise<T>) { if (!this._keys.has(key)) this._keys.add(key); return fn(); }
   } as const;
-
   return {
     providers: providerRegistry,
     persistence: supabasePersistence,

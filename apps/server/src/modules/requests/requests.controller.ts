@@ -69,7 +69,7 @@ export const createJoinRequest = async (req: AuthenticatedRequest, res: Response
       ok: false,
       error: 'Invalid request data',
       code: '400',
-      details: bodyResult.error.errors,
+      details: bodyResult.error.issues,
     });
   }
 
@@ -121,7 +121,7 @@ export const listJoinRequests = async (req: AuthenticatedRequest, res: Response)
       ok: false,
       error: 'Invalid query parameters',
       code: '400',
-      details: queryResult.error.errors,
+      details: queryResult.error.issues,
     });
   }
 

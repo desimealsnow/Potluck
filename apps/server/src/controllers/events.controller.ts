@@ -86,11 +86,11 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      log('Validation error in listEvents:', error.errors);
+      log('Validation error in listEvents:', error.issues);
       return res.status(400).json({ 
         ok: false,
         error: 'Invalid query parameters', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     

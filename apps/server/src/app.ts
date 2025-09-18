@@ -10,7 +10,8 @@ import mockRoutes       from './routes/mock.routes';
 import { createPaymentContainer } from './services/payments.container';
 import { authGuard } from './middleware/authGuard';
 import type { Request } from 'express';
-import { createDevPaymentsRoutes } from '@payments/core';
+// Temporarily disable dev payments routes to unblock build
+// import { createDevPaymentsRoutes } from '@payments/core';
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import { raw } from 'body-parser';
@@ -55,18 +56,17 @@ export const createApp = () => {
   
   /* ---------- Mock routes for testing ---------- */
   app.use('/', mockRoutes);
-  if (process.env.NODE_ENV !== 'production') {
-    const paymentsContainer = createPaymentContainer();
-    app.use(
-      '/api/v1/payments-dev',
-      authGuard,
-      createDevPaymentsRoutes(paymentsContainer, {
-        getUserId: (req: Request & { user?: { id?: string } }) => req.user?.id,
-        getUserEmail: (req: Request & { user?: { email?: string } }) => req.user?.email,
-      })
-    );
-
-  }
+  // if (process.env.NODE_ENV !== 'production') {
+  //   const paymentsContainer = createPaymentContainer();
+  //   app.use(
+  //     '/api/v1/payments-dev',
+  //     authGuard,
+  //     createDevPaymentsRoutes(paymentsContainer, {
+  //       getUserId: (req: Request & { user?: { id?: string } }) => req.user?.id,
+  //       getUserEmail: (req: Request & { user?: { email?: string } }) => req.user?.email,
+  //     })
+  //   );
+  // }
 
   // Always-on client log sink so logs appear in the server terminal even if NODE_ENV=production
   app.post('/api/v1/dev-log', express.json(), (req, res) => {

@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiClient } from "@/services/apiClient";
 import EventDetailsPage from "./EventDetailsPage";
+import { supabase } from "@/config/supabaseClient";
 
 type NotificationItem = {
   id: string;
@@ -32,7 +33,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
   const load = useCallback(async (reset: boolean = true) => {
     setLoading(true);
     try {
-      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset) });
+      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset), status: 'unread' });
       const res = await apiClient.request<any>(`/discovery/notifications?${qs.toString()}`, { method: 'GET', cache: 'no-store' });
       const list: NotificationItem[] = res.notifications ?? [];
       setItems(prev => (reset ? list : [...prev, ...list]));
@@ -65,6 +66,28 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
     const timer = setTimeout(() => load(true), 1000);
     return () => clearTimeout(timer);
   }, [selectedEventId, load]);
+
+  // Realtime: subscribe to new notifications for this user
+  useEffect(() => {
+    const channel = supabase
+      .channel('notifications-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
+        const n = payload.new as any;
+        // Prepend only if unread view is active (we always request unread)
+        setItems(prev => [{
+          id: n.id,
+          type: n.type,
+          event_id: n.event_id || undefined,
+          payload: n.payload || {},
+          read_at: n.read_at,
+          created_at: n.created_at,
+        }, ...prev]);
+      });
+    channel.subscribe();
+    return () => {
+      try { supabase.removeChannel(channel); } catch {}
+    };
+  }, []);
 
   return (
     <LinearGradient colors={["#7b2ff7", "#ff2d91"]} style={{ flex: 1 }}>
@@ -106,6 +129,23 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
             onEndReached={() => {
               if (!loading && hasMore && !selectedEventId) load(false);
             }}
+            ListHeaderComponent={
+              items.length > 0 ? (
+                <Pressable
+                  onPress={async () => {
+                    try {
+                      await apiClient.patch(`/discovery/notifications/read-all`);
+                      setItems([]);
+                      setOffset(0);
+                      setHasMore(false);
+                    } catch {}
+                  }}
+                  style={{ alignSelf: 'flex-end', paddingVertical: 8 }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>Mark all as read</Text>
+                </Pressable>
+              ) : null
+            }
           />
         )}
       </SafeAreaView>

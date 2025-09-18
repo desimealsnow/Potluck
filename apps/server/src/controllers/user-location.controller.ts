@@ -82,10 +82,10 @@ export const updateUserLocationController = async (req: Request, res: Response) 
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in updateUserLocationController:', error.errors);
+      logger.warn('Validation error in updateUserLocationController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid request data', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -120,10 +120,10 @@ export const updateDiscoverabilityController = async (req: Request, res: Respons
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in updateDiscoverabilityController:', error.errors);
+      logger.warn('Validation error in updateDiscoverabilityController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid request data', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
@@ -180,10 +180,10 @@ export const searchCitiesController = async (req: Request, res: Response) => {
     
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.warn('Validation error in searchCitiesController:', error.errors);
+      logger.warn('Validation error in searchCitiesController:', error.issues);
       return res.status(400).json({ 
         error: 'Invalid query parameters', 
-        details: error.errors 
+        details: error.issues 
       });
     }
     
