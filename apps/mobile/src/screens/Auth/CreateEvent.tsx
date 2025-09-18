@@ -28,6 +28,16 @@ const USE_MOCK = false; // Use real API
 /* ------------------------------------------------------------------ */
 /* Screen                                                              */
 /* ------------------------------------------------------------------ */
+/**
+ * Create a screen for event creation with multiple steps.
+ *
+ * This function manages the state and UI for creating an event, including details, location, items, and participants. It handles user input, validates data, and submits the event to an API. The function also manages navigation between steps and displays relevant information based on user interactions.
+ *
+ * @param {Object} params - The parameters for the component.
+ * @param {function} [params.onEventCreated] - Callback function to be called when an event is successfully created, receiving the event ID.
+ * @param {function} [params.onBack] - Callback function to be called when the back action is triggered.
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function CreateEventScreen({ 
   onEventCreated, 
   onBack 
@@ -102,6 +112,17 @@ export default function CreateEventScreen({
     }
   };
 
+  /**
+   * Submits an event creation request to the server.
+   *
+   * The function checks if a submission is already in progress and validates the selected location.
+   * It constructs a payload with event details, including title, description, date, guest limits, and location.
+   * After sending the request, it processes the response to extract the event ID or handle errors accordingly.
+   *
+   * @param {void}
+   * @returns {Promise<void>} A promise that resolves when the submission process is complete.
+   * @throws {Error} If an error occurs during the submission or response handling.
+   */
   const submit = async () => {
     if (isSubmitting) return;
     try {
