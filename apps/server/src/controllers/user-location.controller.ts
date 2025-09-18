@@ -29,8 +29,15 @@ const CitySearchQuery = z.object({
 });
 
 /**
- * GET /api/v1/me/location
- * Get user location profile
+ * Handles the retrieval of the user's location profile.
+ *
+ * This function checks for user authentication, retrieves the user ID from the request,
+ * and calls the getUserLocationProfile function to fetch the user's location data.
+ * It handles errors related to authentication and data retrieval, returning appropriate
+ * HTTP status codes and messages based on the outcome.
+ *
+ * @param req - The request object containing user information.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const getUserLocationController = async (req: Request, res: Response) => {
   try {
@@ -57,8 +64,15 @@ export const getUserLocationController = async (req: Request, res: Response) => 
 };
 
 /**
- * PATCH /api/v1/me/location
- * Update user location
+ * Update user location based on the provided request data.
+ *
+ * This function checks for user authentication, validates the incoming location data using LocationUpdateSchema,
+ * and then attempts to update the user's location. If the update is successful, it returns the updated data;
+ * otherwise, it handles errors appropriately, including validation errors and internal server errors.
+ *
+ * @param req - The request object containing user information and location data.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws z.ZodError If the request data fails validation.
  */
 export const updateUserLocationController = async (req: Request, res: Response) => {
   try {
@@ -95,8 +109,13 @@ export const updateUserLocationController = async (req: Request, res: Response) 
 };
 
 /**
- * PATCH /api/v1/me/discoverability
- * Update user discoverability settings
+ * Update user discoverability settings.
+ *
+ * This function handles the PATCH request to update the discoverability settings for a user. It first checks for user authentication, validates the request body against the DiscoverabilitySettingsSchema, and then attempts to update the settings using the updateDiscoverabilitySettings function. If the update is unsuccessful, it returns an error response. It also handles validation errors and logs relevant information.
+ *
+ * @param req - The request object containing user information and settings data.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws z.ZodError If the request data fails validation against the schema.
  */
 export const updateDiscoverabilityController = async (req: Request, res: Response) => {
   try {
@@ -133,8 +152,12 @@ export const updateDiscoverabilityController = async (req: Request, res: Respons
 };
 
 /**
- * DELETE /api/v1/me/location
- * Remove user location
+ * Removes the user's location from the database.
+ *
+ * This controller function handles the removal of a user's location by first checking if the user is authenticated.
+ * If the user ID is not present, it responds with a 401 status. It logs the action and calls the removeUserLocation
+ * function to perform the deletion. If the operation fails, it returns a 400 status with an error message;
+ * otherwise, it responds with a success message. Any errors during the process are logged and a 500 status is returned.
  */
 export const removeUserLocationController = async (req: Request, res: Response) => {
   try {
@@ -161,8 +184,14 @@ export const removeUserLocationController = async (req: Request, res: Response) 
 };
 
 /**
- * GET /api/v1/cities/search
- * Search for cities
+ * Handles the search for cities based on query parameters.
+ *
+ * This function parses the query parameters from the request, logs the search request,
+ * and calls the searchCities function to retrieve the results. If the search is unsuccessful,
+ * it responds with an error message. It also handles validation errors and logs them accordingly.
+ *
+ * @param req - The request object containing query parameters for the city search.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const searchCitiesController = async (req: Request, res: Response) => {
   try {
