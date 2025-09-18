@@ -5,6 +5,7 @@ import { notifyNearbyUsers } from '../services/notifications.service';
 import { components } from '../../../../libs/common/src/types.gen';
 import debug from 'debug';
 import { handle } from '../utils/helper';          // httpStatus + JSON wrapper
+import { z } from 'zod';
 
 const log = debug('potluck:events');
 log('Debug namespace is Event Controller');
@@ -47,38 +48,55 @@ export const getEvent = async (req: AuthenticatedRequest, res: Response) => {
   if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
   return handle(res, result);                            // 4xx / 5xx
 };
+// Validation schema for event search query parameters
+const EventSearchQuerySchema = z.object({
+  limit: z.string().optional().transform(val => val ? parseInt(val) : 20).refine(val => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
+  offset: z.string().optional().transform(val => val ? parseInt(val) : 0).refine(val => val >= 0, 'Offset must be non-negative'),
+  status: z.enum(['draft', 'published', 'cancelled', 'completed']).optional(),
+  ownership: z.enum(['all', 'mine', 'invited']).optional(),
+  startsAfter: z.string().datetime().optional(),
+  startsBefore: z.string().datetime().optional(),
+  // Location-based search parameters
+  lat: z.string().optional().transform(val => val ? parseFloat(val) : undefined).refine(val => val === undefined || (val >= -90 && val <= 90), 'Invalid latitude'),
+  lon: z.string().optional().transform(val => val ? parseFloat(val) : undefined).refine(val => val === undefined || (val >= -180 && val <= 180), 'Invalid longitude'),
+  radius_km: z.string().optional().transform(val => val ? parseInt(val) : undefined).refine(val => val === undefined || (val >= 1 && val <= 200), 'Radius must be between 1 and 200 km'),
+  near: z.string().optional(),
+  q: z.string().optional(),
+  diet: z.string().optional(),
+  is_public: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined)
+});
+
 /** GET /events  – list events the caller can see (host or participant) */
 export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
   if (!req.user?.id) {
     return res.status(401).json({ ok: false, error: 'Unauthorized', code: '401' });
   }
 
-  /*── Query-param parsing (defaults & coercion) ─────────────────────────────*/
-  const {
-    limit        = '20',
-    offset       = '0',
-    status,
-    ownership,
-    startsAfter,
-    startsBefore,
-  } = req.query as Record<string, string>;
+  try {
+    /*── Query-param parsing and validation ─────────────────────────────*/
+    const params = EventSearchQuerySchema.parse(req.query);
 
-  const params = {
-    limit:        Number(limit),
-    offset:       Number(offset),
-    status:       status as any,         // 'draft' | 'published' | 'cancelled' | 'completed' | undefined
-    ownership,                           // 'all' | 'mine' | 'invited' | undefined
-    startsAfter,
-    startsBefore,
-  };
+    /*── Service call ──────────────────────────────────────────────────────────*/
+    const result = await EventService.listEvents(req.user.id, params);
 
-  /*── Service call ──────────────────────────────────────────────────────────*/
-  const result = await EventService.listEvents(req.user.id, params);
+    /*── Respond ───────────────────────────────────────────────────────────────*/
+    if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
 
-  /*── Respond ───────────────────────────────────────────────────────────────*/
-  if (result.ok) return res.status(200).json(result.data);      // 200 with EventFull
+    return handle(res, result);                    // 400 / 403 etc. via helper
 
-  return handle(res, result);                    // 400 / 403 etc. via helper
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      log('Validation error in listEvents:', error.errors);
+      return res.status(400).json({ 
+        ok: false,
+        error: 'Invalid query parameters', 
+        details: error.errors 
+      });
+    }
+    
+    log('Error in listEvents:', error);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
 };
 
 /** PATCH /events/:eventId  – host edits title / dates / location etc. */
