@@ -173,6 +173,14 @@ interface ListEventsParams {
   meal_type?: string;
   startsAfter?: string;
   startsBefore?: string;
+  // Location-based search parameters
+  lat?: number;
+  lon?: number;
+  radius_km?: number;
+  near?: string;
+  q?: string;
+  diet?: string;
+  is_public?: boolean;
 }
 
 interface PaginatedEventSummary {
@@ -207,62 +215,297 @@ export async function listEvents(
     ownership,
     meal_type,
     startsAfter,
-    startsBefore
+    startsBefore,
+    // Location-based search parameters
+    lat,
+    lon,
+    radius_km,
+    near,
+    q,
+    diet,
+    is_public
   }: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  logger.info('[EventService] listEvents', { userId, limit, offset, status, ownership, meal_type, startsAfter, startsBefore });
+  logger.info('[EventService] listEvents', { 
+    userId, limit, offset, status, ownership, meal_type, startsAfter, startsBefore,
+    lat, lon, radius_km, near, q, diet, is_public 
+  });
 
-  // Step 1: Find all event_ids where the user is a participant (including host)
-  const { data: partRows, error: partErr } = await supabase
-    .from('event_participants')
-    .select('event_id')
-    .eq('user_id', userId);
+  // Check if this is a location-based search
+  const isLocationSearch = (lat && lon) || near;
+  const isDiscoveryMode = is_public === true || isLocationSearch;
 
-  if (partErr) {
-    logger.error('Error fetching participant events', partErr);
-    return { ok: false, error: partErr.message, code: '500' };
+  if (isLocationSearch) {
+    // Use location-based search
+    return await performLocationBasedSearch(userId, {
+      limit, offset, status, ownership, meal_type, startsAfter, startsBefore,
+      lat, lon, radius_km, near, q, diet, is_public
+    });
+  } else if (isDiscoveryMode) {
+    // Use discovery mode (public events + user's events)
+    return await performDiscoverySearch(userId, {
+      limit, offset, status, ownership, meal_type, startsAfter, startsBefore,
+      q, diet, is_public
+    });
+  } else {
+    // Use traditional mode (user's events only)
+    return await performTraditionalSearch(userId, {
+      limit, offset, status, ownership, meal_type, startsAfter, startsBefore
+    });
   }
-  const participantIds = partRows?.map(r => r.event_id) ?? [];
+}
 
-  // Step 2: Build the query for events where the user is host or participant
-  let query = supabase
-    .from('events')
-    .select('id, title, event_date, attendee_count, meal_type, status, created_by', { count: 'exact' })
-    .order('event_date', { ascending: false });
+// Location-based search using PostGIS
+async function performLocationBasedSearch(
+  userId: string,
+  params: ListEventsParams
+): Promise<ServiceResult<PaginatedEventSummary>> {
+  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0 } = params;
+  
+  try {
+    let events: any[] = [];
+    let totalCount = 0;
 
-  // Step 3: Apply all filters using the helper function
-  query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
+    if (lat && lon) {
+      // Search by coordinates
+      const { data, error } = await supabase
+        .rpc('find_nearby_events', {
+          user_lat: lat,
+          user_lon: lon,
+          radius_km: radius_km,
+          limit_count: limit,
+          offset_count: offset
+        });
 
-  const { data: events, error: listErr, count } = await query.range(
-    offset,
-    offset + limit - 1
-  );
+      if (error) {
+        logger.error('Error in location-based search:', error);
+        return { ok: false, error: error.message, code: '500' };
+      }
 
-  if (listErr) {
-    logger.error('Error fetching events', listErr);
-    return { ok: false, error: listErr.message, code: '500' };
-  }
+      events = data || [];
+      totalCount = events.length; // Note: This is approximate due to client-side filtering
+    } else if (near) {
+      // Search by city/area name
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title, event_date, attendee_count, meal_type, status, created_by, city, location_geog')
+        .eq('status', 'published')
+        .eq('is_public', true)
+        .ilike('city', `%${near}%`)
+        .order('event_date', { ascending: true })
+        .range(offset, offset + limit - 1);
 
-  const items: ViewerEventSummary[] = (events ?? []).map((e: EventRow) => ({
-    id: e.id,
-    title: e.title,
-    event_date: e.event_date,
-    attendee_count: e.attendee_count,
-    meal_type: e.meal_type,
-    ownership: e.created_by === userId ? 'mine' : 'invited',
-    viewer_role: e.created_by === userId ? 'host' : 'guest',
-  }));
-  const totalCount = (typeof count === 'number' ? count : items.length);
-  const nextOffset = offset + limit < totalCount ? offset + limit : null;
+      if (error) {
+        logger.error('Error in city-based search:', error);
+        return { ok: false, error: error.message, code: '500' };
+      }
 
-  return {
-    ok: true,
-    data: {
-      items,
-      totalCount,
-      nextOffset
+      events = data || [];
+      
+      // Get total count
+      const { count } = await supabase
+        .from('events')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'published')
+        .eq('is_public', true)
+        .ilike('city', `%${near}%`);
+      
+      totalCount = count || 0;
     }
-  };
+
+    // Apply client-side filters
+    let filteredEvents = events;
+
+    if (q) {
+      const searchTerm = q.toLowerCase();
+      filteredEvents = filteredEvents.filter(event => 
+        event.title.toLowerCase().includes(searchTerm) ||
+        event.description?.toLowerCase().includes(searchTerm) ||
+        event.city?.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    if (diet) {
+      const dietTypes = diet.split(',');
+      filteredEvents = filteredEvents.filter(event => 
+        dietTypes.includes(event.meal_type)
+      );
+    }
+
+    // Convert to ViewerEventSummary format
+    const items: ViewerEventSummary[] = filteredEvents.map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      event_date: e.event_date,
+      attendee_count: e.attendee_count,
+      meal_type: e.meal_type,
+      ownership: e.created_by === userId ? 'mine' : 'invited',
+      viewer_role: e.created_by === userId ? 'host' : 'guest',
+    }));
+
+    const nextOffset = offset + limit < totalCount ? offset + limit : null;
+
+    return {
+      ok: true,
+      data: {
+        items,
+        totalCount,
+        nextOffset
+      }
+    };
+
+  } catch (error) {
+    logger.error('Error in performLocationBasedSearch:', error);
+    return { ok: false, error: 'Failed to perform location-based search', code: '500' };
+  }
+}
+
+// Discovery mode search (public events + user's events)
+async function performDiscoverySearch(
+  userId: string,
+  params: ListEventsParams
+): Promise<ServiceResult<PaginatedEventSummary>> {
+  const { limit = 20, offset = 0, q, diet, status = 'published' } = params;
+  
+  try {
+    // Get user's participant events
+    const { data: partRows, error: partErr } = await supabase
+      .from('event_participants')
+      .select('event_id')
+      .eq('user_id', userId);
+
+    if (partErr) {
+      logger.error('Error fetching participant events', partErr);
+      return { ok: false, error: partErr.message, code: '500' };
+    }
+    const participantIds = partRows?.map(r => r.event_id) ?? [];
+
+    // Build query for public events + user's events
+    let query = supabase
+      .from('events')
+      .select('id, title, event_date, attendee_count, meal_type, status, created_by, city, description', { count: 'exact' })
+      .eq('status', status)
+      .order('event_date', { ascending: false });
+
+    // Apply ownership filter (public + user's events)
+    if (participantIds.length) {
+      const orCondition = `created_by.eq.${userId},id.in.(${participantIds.join(',')}),is_public.eq.true`;
+      query = query.or(orCondition);
+    } else {
+      const orCondition = `created_by.eq.${userId},is_public.eq.true`;
+      query = query.or(orCondition);
+    }
+
+    // Apply text search
+    if (q) {
+      const searchTerm = q.toLowerCase();
+      // Note: This is a simple implementation. For better search, consider using full-text search
+      query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`);
+    }
+
+    // Apply diet filter
+    if (diet) {
+      const dietTypes = diet.split(',');
+      query = query.in('meal_type', dietTypes);
+    }
+
+    const { data: events, error: listErr, count } = await query.range(offset, offset + limit - 1);
+
+    if (listErr) {
+      logger.error('Error fetching discovery events', listErr);
+      return { ok: false, error: listErr.message, code: '500' };
+    }
+
+    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => ({
+      id: e.id,
+      title: e.title,
+      event_date: e.event_date,
+      attendee_count: e.attendee_count,
+      meal_type: e.meal_type,
+      ownership: e.created_by === userId ? 'mine' : 'invited',
+      viewer_role: e.created_by === userId ? 'host' : 'guest',
+    }));
+
+    const totalCount = count || 0;
+    const nextOffset = offset + limit < totalCount ? offset + limit : null;
+
+    return {
+      ok: true,
+      data: {
+        items,
+        totalCount,
+        nextOffset
+      }
+    };
+
+  } catch (error) {
+    logger.error('Error in performDiscoverySearch:', error);
+    return { ok: false, error: 'Failed to perform discovery search', code: '500' };
+  }
+}
+
+// Traditional search (user's events only)
+async function performTraditionalSearch(
+  userId: string,
+  params: ListEventsParams
+): Promise<ServiceResult<PaginatedEventSummary>> {
+  const { limit = 20, offset = 0, status, ownership, meal_type, startsAfter, startsBefore } = params;
+  
+  try {
+    // Find all event_ids where the user is a participant (including host)
+    const { data: partRows, error: partErr } = await supabase
+      .from('event_participants')
+      .select('event_id')
+      .eq('user_id', userId);
+
+    if (partErr) {
+      logger.error('Error fetching participant events', partErr);
+      return { ok: false, error: partErr.message, code: '500' };
+    }
+    const participantIds = partRows?.map(r => r.event_id) ?? [];
+
+    // Build the query for events where the user is host or participant
+    let query = supabase
+      .from('events')
+      .select('id, title, event_date, attendee_count, meal_type, status, created_by', { count: 'exact' })
+      .order('event_date', { ascending: false });
+
+    // Apply all filters using the helper function
+    query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
+
+    const { data: events, error: listErr, count } = await query.range(offset, offset + limit - 1);
+
+    if (listErr) {
+      logger.error('Error fetching events', listErr);
+      return { ok: false, error: listErr.message, code: '500' };
+    }
+
+    const items: ViewerEventSummary[] = (events ?? []).map((e: EventRow) => ({
+      id: e.id,
+      title: e.title,
+      event_date: e.event_date,
+      attendee_count: e.attendee_count,
+      meal_type: e.meal_type,
+      ownership: e.created_by === userId ? 'mine' : 'invited',
+      viewer_role: e.created_by === userId ? 'host' : 'guest',
+    }));
+
+    const totalCount = count || 0;
+    const nextOffset = offset + limit < totalCount ? offset + limit : null;
+
+    return {
+      ok: true,
+      data: {
+        items,
+        totalCount,
+        nextOffset
+      }
+    };
+
+  } catch (error) {
+    logger.error('Error in performTraditionalSearch:', error);
+    return { ok: false, error: 'Failed to perform traditional search', code: '500' };
+  }
 }
 
 function applyEventFilters<B>(

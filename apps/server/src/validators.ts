@@ -10,6 +10,13 @@ const SignUp = z
     email: z.string().email(),
     password: z.string().min(6),
     displayName: z.string().optional(),
+    // Location fields for user profile
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
+    city: z.string().optional(),
+    geo_precision: z.enum(['exact', 'city']).optional().default('city'),
+    discoverability_enabled: z.boolean().optional().default(true),
+    discoverability_radius_km: z.number().int().min(1).max(200).optional().default(25),
   })
   .passthrough();
 const Login = z
@@ -21,6 +28,46 @@ const Location = z
     formatted_address: z.string().optional(),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
+  })
+  .passthrough();
+
+// Location-based discovery schemas
+const LocationUpdate = z
+  .object({
+    latitude: z.number().min(-90).max(90, 'Invalid latitude'),
+    longitude: z.number().min(-180).max(180, 'Invalid longitude'),
+    city: z.string().optional(),
+    geo_precision: z.enum(['exact', 'city']).optional()
+  })
+  .passthrough();
+
+const DiscoverabilitySettings = z
+  .object({
+    discoverability_enabled: z.boolean(),
+    discoverability_radius_km: z.number().int().min(1).max(200, 'Radius must be between 1 and 200 km'),
+    geo_precision: z.enum(['exact', 'city'])
+  })
+  .passthrough();
+
+const LocationSearchQuery = z
+  .object({
+    lat: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val >= -90 && val <= 90, 'Invalid latitude'),
+    lon: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val >= -180 && val <= 180, 'Invalid longitude'),
+    radius_km: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 200, 'Radius must be between 1 and 200 km'),
+    limit: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
+    offset: z.string().optional().transform(val => val ? parseInt(val) : 0).refine(val => val >= 0, 'Offset must be non-negative'),
+    q: z.string().optional(),
+    date_from: z.string().datetime().optional(),
+    date_to: z.string().datetime().optional(),
+    diet: z.string().optional()
+  })
+  .passthrough();
+
+const CitySearchQuery = z
+  .object({
+    city: z.string().min(1, 'City name is required'),
+    limit: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
+    offset: z.string().optional().transform(val => val ? parseInt(val) : 0).refine(val => val >= 0, 'Offset must be non-negative')
   })
   .passthrough();
 const EventBase = z
@@ -266,6 +313,11 @@ export const schemas = {
   Invoice,
   SubscriptionUpdate,
   EventIdParam,
+  // Location-based discovery schemas
+  LocationUpdate,
+  DiscoverabilitySettings,
+  LocationSearchQuery,
+  CitySearchQuery,
 };
 
 // Import join request schemas
