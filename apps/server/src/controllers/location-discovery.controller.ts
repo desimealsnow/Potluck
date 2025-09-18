@@ -28,8 +28,15 @@ const NotificationParams = z.object({
 });
 
 /**
- * GET /api/v1/events/discover/nearby
- * Search for events near a location
+ * Handles the search for events near a specified location.
+ *
+ * This controller processes the incoming request to search for nearby events based on the provided query parameters.
+ * It validates the parameters, logs the request, and calls the `searchNearbyEvents` function to retrieve the events.
+ * If the search is unsuccessful, it responds with an error message. In case of validation errors, it returns a 400 status
+ * with details about the validation issues. Any other errors result in a 500 status response.
+ *
+ * @param req - The request object containing query parameters for the location search.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const searchNearbyEventsController = async (req: Request, res: Response) => {
   try {
@@ -68,8 +75,12 @@ export const searchNearbyEventsController = async (req: Request, res: Response) 
 };
 
 /**
- * GET /api/v1/events/discover/city
- * Search for events by city name
+ * Handles the search for events by city name.
+ *
+ * This controller function processes a GET request to search for events based on the city name provided in the query parameters. It validates the input using CitySearchQuery, logs the request, and calls the searchEventsByCity function to retrieve the events. If the search is unsuccessful, it returns an error response. The function also handles validation errors and logs any unexpected errors that occur during execution.
+ *
+ * @param req - The request object containing query parameters for the city search.
+ * @param res - The response object used to send back the desired HTTP response.
  */
 export const searchEventsByCityController = async (req: Request, res: Response) => {
   try {
@@ -108,8 +119,15 @@ export const searchEventsByCityController = async (req: Request, res: Response) 
 };
 
 /**
- * GET /api/v1/events/discover/popular
- * Get popular events (fallback when no location)
+ * Handles the GET request for popular events with pagination.
+ *
+ * This function retrieves popular events based on the specified limit and offset from the request query parameters.
+ * It logs the request details and calls the getPopularEvents function to fetch the events. If the result is not successful,
+ * it responds with an error message. Otherwise, it returns the events along with pagination information.
+ *
+ * @param req - The request object containing query parameters for limit and offset.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If an internal error occurs during the processing of the request.
  */
 export const getPopularEventsController = async (req: Request, res: Response) => {
   try {
@@ -141,8 +159,15 @@ export const getPopularEventsController = async (req: Request, res: Response) =>
 };
 
 /**
- * GET /api/v1/events/:eventId/location
- * Get event details with location information
+ * Handles the GET request for event details with location information.
+ *
+ * This controller retrieves the event ID from the request parameters and validates its presence.
+ * It logs the request and calls the getEventWithLocation function to fetch the event details.
+ * If the event ID is missing or the event is not found, it responds with the appropriate error status.
+ * In case of an internal error, it logs the error and returns a 500 status.
+ *
+ * @param req - The request object containing the event ID in the parameters.
+ * @param res - The response object used to send the response back to the client.
  */
 export const getEventWithLocationController = async (req: Request, res: Response) => {
   try {
@@ -169,8 +194,15 @@ export const getEventWithLocationController = async (req: Request, res: Response
 };
 
 /**
- * GET /api/v1/notifications
- * Get user notifications
+ * Get user notifications from the API.
+ *
+ * This function handles the GET request to retrieve notifications for a user. It checks for user authentication,
+ * processes pagination parameters (limit and offset), and calls the getUserNotifications function to fetch the data.
+ * If the request is successful, it returns the notifications along with pagination details; otherwise, it handles errors accordingly.
+ *
+ * @param req - The request object containing user information and query parameters.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If an internal server error occurs during the process.
  */
 export const getUserNotificationsController = async (req: Request, res: Response) => {
   try {
@@ -208,8 +240,13 @@ export const getUserNotificationsController = async (req: Request, res: Response
 };
 
 /**
- * PATCH /api/v1/notifications/:notificationId/read
- * Mark notification as read
+ * Mark a notification as read for a user.
+ *
+ * This function retrieves the user ID from the request, validates the notification ID, and calls the markNotificationAsRead function to update the notification status. It handles authentication checks, validation errors, and logs relevant information throughout the process.
+ *
+ * @param req - The request object containing user information and parameters.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @throws Error If there is a validation error or an internal server error occurs.
  */
 export const markNotificationAsReadController = async (req: Request, res: Response) => {
   try {
@@ -247,8 +284,14 @@ export const markNotificationAsReadController = async (req: Request, res: Respon
 };
 
 /**
- * PATCH /api/v1/notifications/read-all
- * Mark all notifications as read
+ * Marks all notifications as read for the authenticated user.
+ *
+ * This controller function retrieves the user ID from the request object. If the user is not authenticated, it responds with a 401 status.
+ * It then calls the markAllNotificationsAsRead function to update the notifications. If the update fails, a 400 status is returned with the error.
+ * On success, it responds with the count of updated notifications. Any errors during the process are logged and a 500 status is returned.
+ *
+ * @param req - The request object containing user information.
+ * @param res - The response object used to send responses back to the client.
  */
 export const markAllNotificationsAsReadController = async (req: Request, res: Response) => {
   try {
@@ -275,8 +318,15 @@ export const markAllNotificationsAsReadController = async (req: Request, res: Re
 };
 
 /**
- * GET /api/v1/notifications/unread-count
- * Get unread notification count
+ * Handles the GET request for the unread notification count.
+ *
+ * This controller retrieves the user ID from the request, checks for authentication,
+ * and logs the request. It then calls the getUnreadNotificationCount function to
+ * fetch the count of unread notifications. If the request is successful, it responds
+ * with the count; otherwise, it handles errors appropriately.
+ *
+ * @param req - The request object containing user information.
+ * @param res - The response object used to send the response back to the client.
  */
 export const getUnreadNotificationCountController = async (req: Request, res: Response) => {
   try {
