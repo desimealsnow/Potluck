@@ -66,7 +66,18 @@ const EventSearchQuerySchema = z.object({
   is_public: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined)
 });
 
-/** GET /events  – list events the caller can see (host or participant) */
+/**
+ * List events that the caller can see, either as a host or participant.
+ *
+ * The function first checks if the user is authenticated. It then validates the query parameters using EventSearchQuerySchema.
+ * After that, it calls the EventService to retrieve the events based on the user's ID and the validated parameters.
+ * Finally, it responds with the event data or handles errors appropriately.
+ *
+ * @param req - The authenticated request object containing user information and query parameters.
+ * @param res - The response object used to send back the desired HTTP response.
+ * @returns A JSON response containing the event data or error information.
+ * @throws z.ZodError If the query parameters are invalid.
+ */
 export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
   if (!req.user?.id) {
     return res.status(401).json({ ok: false, error: 'Unauthorized', code: '401' });
@@ -120,7 +131,18 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
   return handle(res, result);                     // 400 / 403 / 404 / 409 via helper
 };
 
-/** POST /events/:eventId/publish  – transition draft → published */
+/**
+ * Publish an event and notify nearby users if the event is public.
+ *
+ * This function checks for user authorization, publishes the event using EventService,
+ * and if the event is public, it attempts to notify nearby users. It handles potential
+ * errors during notification without failing the publish process. The response is sent
+ * back to the client based on the success or failure of the operations.
+ *
+ * @param req - The authenticated request object containing the event ID and user information.
+ * @param res - The response object used to send back the result of the publish operation.
+ * @returns A JSON response with the published event data or an error message.
+ */
 export const publishEvent = async (req: AuthenticatedRequest, res: Response) => {
   const { eventId } = req.params;
 
