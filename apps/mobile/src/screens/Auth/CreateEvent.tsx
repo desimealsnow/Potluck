@@ -28,6 +28,15 @@ const USE_MOCK = false; // Use real API
 /* ------------------------------------------------------------------ */
 /* Screen                                                              */
 /* ------------------------------------------------------------------ */
+/**
+ * Create a screen for event creation in a potluck application.
+ *
+ * This function manages the multi-step process of creating an event, including gathering details such as title, description, date, time, location, and menu items. It handles user input, validates the data, and submits the event to an API. The function also manages state for the current step in the creation process and provides feedback to the user through alerts and UI updates.
+ *
+ * @param {Object} params - The parameters for the CreateEventScreen.
+ * @param {function} [params.onEventCreated] - Callback function to be called when an event is successfully created, receiving the event ID.
+ * @param {function} [params.onBack] - Callback function to be called when the back action is triggered.
+ */
 export default function CreateEventScreen({ 
   onEventCreated, 
   onBack 
@@ -102,6 +111,15 @@ export default function CreateEventScreen({
     }
   };
 
+  /**
+   * Submits an event creation request after validating the input data.
+   *
+   * The function checks if the submission is already in progress, validates the selected date and time to ensure they are in the future, and verifies that a location is selected. It constructs a payload for the event creation and sends it to the API. The function handles various response structures to extract the event ID and manages error handling for any issues that arise during the submission process.
+   *
+   * @param {void}
+   * @returns {Promise<void>} A promise that resolves when the submission process is complete.
+   * @throws {Error} If an error occurs during the event creation process.
+   */
   const submit = async () => {
     if (isSubmitting) return;
     try {
