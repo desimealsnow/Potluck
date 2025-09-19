@@ -11,6 +11,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
+/**
+ * Renders the About screen with app information and features.
+ */
 export default function AboutScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
 
