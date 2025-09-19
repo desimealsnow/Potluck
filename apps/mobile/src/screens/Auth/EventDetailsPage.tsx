@@ -168,6 +168,14 @@ function confirmAsync(
 }
 
 /* ===================== Data hook ===================== */
+/**
+ * Fetch and manage event data based on the provided event ID.
+ *
+ * This function initializes state variables for loading, refreshing, error handling, event details, items, and participants. It defines a load function that retrieves event data, items, and participants from an API, maps the data to local structures, and handles potential errors. The refresh function allows reloading of the event data. The useEffect hook triggers the load function on component mount.
+ *
+ * @param eventId - The unique identifier for the event to be fetched.
+ * @returns An object containing loading state, refreshing state, error information, event details, items, participants, a refresh function, and a function to set items.
+ */
 function useEventData(eventId: string) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -798,6 +806,17 @@ function TabsBar({
 }
 
 /* ===================== Overview tab ===================== */
+/**
+ * Renders the overview tab for an event, including RSVP options, notes, host information, and event details.
+ *
+ * The function first checks if the event is loading or if the event data is not available, in which case it displays a loading indicator.
+ * If the event data is present, it renders various sections including RSVP buttons, a notes input, host details, and event specifics.
+ *
+ * @param {Object} props - The properties for the OverviewTab component.
+ * @param {boolean} [props.isLoading] - Indicates if the event data is currently loading.
+ * @param {EventDTO|null} [props.event] - The event data to display, or null if not available.
+ * @returns {JSX.Element} The rendered overview tab component.
+ */
 function OverviewTab({
   isLoading,
   event,
