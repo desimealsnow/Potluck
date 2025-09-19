@@ -307,6 +307,18 @@ paths:
         "401": { $ref: "#/components/responses/UnauthorizedError" }
         "403": { $ref: "#/components/responses/ForbiddenError" }
 
+  /events/requests:
+    get:
+      tags: [Events]
+      summary: List pending join requests across my hosted events
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Pending join requests
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedJoinRequests" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
   /events/{eventId}/requests/{requestId}/approve:
     parameters:
       - $ref: "#/components/parameters/eventId"

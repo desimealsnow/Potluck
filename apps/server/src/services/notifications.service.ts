@@ -139,8 +139,26 @@ export async function notifyNearbyUsers(
       return { ok: true, data: { notified_count: 0 } };
     }
 
-    // Build notifications
-    const notifications = nearbyUsers.map((user: any) => ({
+    // Filter: exclude host and require active subscription
+    const { data: eventOwner } = await supabase
+      .from('events')
+      .select('created_by')
+      .eq('id', eventId)
+      .single();
+    const hostId = (eventOwner as any)?.created_by as string | undefined;
+
+    // Check subscriptions for users
+    const candidateIds: string[] = (nearbyUsers || []).map((u: any) => u.user_id);
+    const { data: subs } = await supabase
+      .from('user_subscriptions')
+      .select('user_id, status')
+      .in('user_id', candidateIds);
+    const activeSet = new Set<string>((subs || []).filter(s => ['active','trialing','past_due'].includes((s as any).status)).map(s => (s as any).user_id));
+
+    // Build notifications only for eligible users
+    const notifications = (nearbyUsers || [])
+      .filter((user: any) => user.user_id !== hostId && activeSet.has(user.user_id))
+      .map((user: any) => ({
       user_id: user.user_id,
       type: 'event_created' as const,
       event_id: eventId,
