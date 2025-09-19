@@ -195,7 +195,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description List events I host or attend */
+        /** @description Search/list public events for discovery or events I host/attend */
         get: {
             parameters: {
                 query?: {
@@ -203,12 +203,24 @@ export interface paths {
                     limit?: components["parameters"]["limit"];
                     /** @description Offset for pagination */
                     offset?: components["parameters"]["offset"];
+                    /** @description Text search across event title and description */
+                    q?: string;
                     /** @description Optional filter by event status */
                     status?: components["schemas"]["EventStatus"];
+                    /** @description Filter events starting from this date */
+                    dateFrom?: string;
+                    /** @description Filter events ending before this date */
+                    dateTo?: string;
                     /** @description Filter events whose start time is after the given timestamp */
                     startsAfter?: string;
                     /** @description Filter events whose start time is before the given timestamp */
                     startsBefore?: string;
+                    /** @description Geosearch: lat,lon,radiusKm */
+                    near?: string;
+                    /** @description Comma-separated dietary tags (veg,nonveg,mixed) */
+                    diet?: string;
+                    /** @description Filter by public events (omit for authenticated user's events) */
+                    is_public?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -497,6 +509,389 @@ export interface paths {
                 403: components["responses"]["ForbiddenError"];
                 404: components["responses"]["NotFoundError"];
                 409: components["responses"]["ConflictError"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{eventId}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+            };
+            cookie?: never;
+        };
+        /** Get event capacity availability */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Availability data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Availability"];
+                    };
+                };
+                404: components["responses"]["NotFoundError"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{eventId}/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+            };
+            cookie?: never;
+        };
+        /** List join requests (host-only, paginated) */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Maximum number of records to return */
+                    limit?: components["parameters"]["limit"];
+                    /** @description Offset for pagination */
+                    offset?: components["parameters"]["offset"];
+                    /** @description Filter by request status */
+                    status?: components["schemas"]["JoinRequestStatus"];
+                };
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Join requests list */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedJoinRequests"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+            };
+        };
+        put?: never;
+        /** Create join request (guest creates pending request + soft hold) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["JoinRequestAdd"];
+                };
+            };
+            responses: {
+                /** @description Request created with hold */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                400: components["responses"]["BadRequestError"];
+                404: components["responses"]["NotFoundError"];
+                /** @description Capacity unavailable or already requested */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{eventId}/requests/{requestId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Approve join request (host-only, atomic capacity check) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Request approved, participant created */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
+                /** @description Capacity unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/events/{eventId}/requests/{requestId}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Decline join request (host-only) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Request declined */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
+            };
+        };
+        trace?: never;
+    };
+    "/events/{eventId}/requests/{requestId}/waitlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Move join request to waitlist (host-only) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Request waitlisted */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
+            };
+        };
+        trace?: never;
+    };
+    "/events/{eventId}/requests/{requestId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Cancel join request (guest cancels own request) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Request cancelled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                404: components["responses"]["NotFoundError"];
+                /** @description Request expired or in invalid state */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/events/{eventId}/requests/{requestId}/extend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Extend hold expiration (host-only, optional) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Hold extended */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["JoinRequest"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
             };
         };
         delete?: never;
@@ -1650,6 +2045,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/user-profile/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete user profile setup
+         * @description Complete the initial profile setup with display name, meal preferences, and location
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ProfileSetupRequest"];
+                };
+            };
+            responses: {
+                /** @description Profile setup completed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProfileSetupResponse"];
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ValidationError"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                /** @description Internal server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user-profile/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user profile
+         * @description Retrieve the current user's profile information
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User profile retrieved successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserProfile"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                /** @description User profile not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description Internal server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1691,6 +2206,47 @@ export interface components {
             /** Format: uuid */
             eventId: string;
         };
+        /** @enum {string} */
+        JoinRequestStatus: "pending" | "approved" | "declined" | "waitlisted" | "expired" | "cancelled";
+        JoinRequestAdd: {
+            /** @description Number of guests in the party */
+            party_size: number;
+            /** @description Optional message to the host */
+            note?: string;
+        };
+        JoinRequest: components["schemas"]["JoinRequestAdd"] & {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            event_id: string;
+            /** Format: uuid */
+            user_id: string;
+            status: components["schemas"]["JoinRequestStatus"];
+            /**
+             * Format: date-time
+             * @description When the capacity hold expires (for pending requests)
+             */
+            hold_expires_at?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at?: string;
+        };
+        PaginatedJoinRequests: {
+            data?: components["schemas"]["JoinRequest"][];
+            nextOffset?: number;
+            totalCount?: number;
+        };
+        Availability: {
+            /** @description Total event capacity */
+            total: number;
+            /** @description Sum of accepted participants party sizes */
+            confirmed: number;
+            /** @description Sum of pending request holds (not expired) */
+            held: number;
+            /** @description Remaining capacity (total - confirmed - held) */
+            available: number;
+        };
         EventCreate: components["schemas"]["EventBase"] & {
             items: components["schemas"]["ItemCreate"][];
         };
@@ -1701,10 +2257,17 @@ export interface components {
             event_date: string;
             min_guests: number;
             max_guests?: number;
+            /** @description Total event capacity for join requests */
+            capacity_total?: number;
             /** @enum {string} */
             status?: "draft" | "published" | "cancelled" | "completed" | "purged";
             /** @enum {string} */
             meal_type: "veg" | "nonveg" | "mixed";
+            /**
+             * @description Whether event is discoverable by guests
+             * @default false
+             */
+            is_public: boolean;
             location: components["schemas"]["Location"];
         };
         EventWithItems: {
@@ -1744,6 +2307,11 @@ export interface components {
         ParticipantAdd: {
             /** Format: uuid */
             user_id: string;
+            /**
+             * @description Number of people this participant represents
+             * @default 1
+             */
+            party_size: number;
             /** @enum {string} */
             status?: "invited" | "pending" | "accepted" | "declined" | "maybe";
         };
@@ -1772,7 +2340,7 @@ export interface components {
             id: string;
             price_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             name: string;
             amount_cents: number;
             /** @example usd */
@@ -1794,7 +2362,7 @@ export interface components {
             plan_id: string;
             provider_subscription_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             /** @enum {string} */
             status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "incomplete_expired";
             /** Format: date-time */
@@ -1834,7 +2402,7 @@ export interface components {
             /** Format: uuid */
             user_id: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             method_id: string;
             is_default: boolean;
             brand?: string;
@@ -1846,7 +2414,7 @@ export interface components {
         };
         PaymentMethodCreate: {
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             method_id: string;
             /** @default false */
             is_default: boolean;
@@ -1863,7 +2431,7 @@ export interface components {
             user_id: string;
             invoice_id?: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             amount_cents: number;
             /** @example usd */
             currency: string;
@@ -1883,7 +2451,7 @@ export interface components {
             invoice_id: string;
             provider_transaction_id?: string;
             /** @enum {string} */
-            provider: "stripe" | "paypal" | "razorpay" | "square"| "lemonsqueezy";
+            provider: "stripe" | "paypal" | "razorpay" | "square" | "lemonsqueezy";
             amount_cents: number;
             /** @example usd */
             currency: string;
@@ -1898,6 +2466,98 @@ export interface components {
             cancel_at_period_end?: boolean;
             /** Format: uuid */
             plan_id?: string;
+        };
+        ProfileSetupRequest: {
+            /**
+             * @description User's display name
+             * @example John Doe
+             */
+            display_name: string;
+            /**
+             * @description Array of dietary preferences
+             * @example [
+             *       "Vegetarian",
+             *       "Gluten-Free"
+             *     ]
+             */
+            meal_preferences?: string[];
+            /**
+             * @description User's city
+             * @example San Francisco
+             */
+            city?: string;
+            /**
+             * Format: double
+             * @description Latitude coordinate
+             * @example 37.7749
+             */
+            latitude?: number;
+            /**
+             * Format: double
+             * @description Longitude coordinate
+             * @example -122.4194
+             */
+            longitude?: number;
+            /**
+             * @description Discovery radius in kilometers
+             * @default 25
+             * @example 25
+             */
+            discoverability_radius_km: number;
+        };
+        ProfileSetupResponse: {
+            /** @example true */
+            success?: boolean;
+            /** @example Profile setup completed successfully */
+            message?: string;
+        };
+        UserProfile: {
+            /**
+             * Format: uuid
+             * @description User profile ID (same as user_id)
+             */
+            id?: string;
+            /**
+             * Format: uuid
+             * @description User ID from auth
+             */
+            user_id?: string;
+            /** @description User's display name */
+            display_name?: string;
+            /** @description Array of dietary preferences */
+            meal_preferences?: string[];
+            /** @description User's city */
+            city?: string;
+            /** @description Whether user is discoverable */
+            discoverability_enabled?: boolean;
+            /** @description Discovery radius in kilometers */
+            discoverability_radius_km?: number;
+            /**
+             * @description Location precision level
+             * @enum {string}
+             */
+            geo_precision?: "exact" | "city";
+            /** @description Whether user has completed initial setup */
+            setup_completed?: boolean;
+            /**
+             * Format: date-time
+             * @description Profile creation timestamp
+             */
+            created_at?: string;
+            /**
+             * Format: date-time
+             * @description Profile last update timestamp
+             */
+            updated_at?: string;
+        };
+        ValidationError: {
+            /** @example Validation failed */
+            error?: string;
+            details?: {
+                code?: string;
+                message?: string;
+                path?: string[];
+            }[];
         };
     };
     responses: {

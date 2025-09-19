@@ -22,6 +22,10 @@ apps/*/coverage/
 test-results/
 apps/*/test-results/
 
+# Schema validation results
+schema-validation-results/
+apps/*/schema-validation-results/
+
 # Environment files - PROTECT ALL .env FILES
 .env
 .env.*

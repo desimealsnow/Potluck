@@ -1,11 +1,22 @@
 import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
+import { getProviderNames } from '@payments/core';
+
+// Dynamic provider enum based on supported providers
+const ProviderEnum = z.enum(getProviderNames() as [string, ...string[]]);
 
 const SignUp = z
   .object({
     email: z.string().email(),
     password: z.string().min(6),
     displayName: z.string().optional(),
+    // Location fields for user profile
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
+    city: z.string().optional(),
+    geo_precision: z.enum(['exact', 'city']).optional().default('city'),
+    discoverability_enabled: z.boolean().optional().default(true),
+    discoverability_radius_km: z.number().int().min(1).max(200).optional().default(25),
   })
   .passthrough();
 const Login = z
@@ -19,6 +30,46 @@ const Location = z
     longitude: z.number().optional(),
   })
   .passthrough();
+
+// Location-based discovery schemas
+const LocationUpdate = z
+  .object({
+    latitude: z.number().min(-90).max(90, 'Invalid latitude'),
+    longitude: z.number().min(-180).max(180, 'Invalid longitude'),
+    city: z.string().optional(),
+    geo_precision: z.enum(['exact', 'city']).optional()
+  })
+  .passthrough();
+
+const DiscoverabilitySettings = z
+  .object({
+    discoverability_enabled: z.boolean(),
+    discoverability_radius_km: z.number().int().min(1).max(200, 'Radius must be between 1 and 200 km'),
+    geo_precision: z.enum(['exact', 'city'])
+  })
+  .passthrough();
+
+const LocationSearchQuery = z
+  .object({
+    lat: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val >= -90 && val <= 90, 'Invalid latitude'),
+    lon: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val >= -180 && val <= 180, 'Invalid longitude'),
+    radius_km: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 200, 'Radius must be between 1 and 200 km'),
+    limit: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
+    offset: z.string().optional().transform(val => val ? parseInt(val) : 0).refine(val => val >= 0, 'Offset must be non-negative'),
+    q: z.string().optional(),
+    date_from: z.string().datetime().optional(),
+    date_to: z.string().datetime().optional(),
+    diet: z.string().optional()
+  })
+  .passthrough();
+
+const CitySearchQuery = z
+  .object({
+    city: z.string().min(1, 'City name is required'),
+    limit: z.string().optional().transform(val => val ? parseInt(val) : 25).refine(val => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
+    offset: z.string().optional().transform(val => val ? parseInt(val) : 0).refine(val => val >= 0, 'Offset must be non-negative')
+  })
+  .passthrough();
 const EventBase = z
   .object({
     title: z.string(),
@@ -26,7 +77,7 @@ const EventBase = z
     event_date: z.string().datetime({ offset: true }),
     min_guests: z.number().int().gte(1),
     max_guests: z.number().int().optional(),
-    capacity_total: z.number().int().gte(1).optional(),
+    capacity_total: z.number().int().gte(1),
     status: z
       .enum(["draft", "published", "cancelled", "completed", "purged"])
       .optional(),
@@ -93,7 +144,6 @@ const Item = ItemCreate.and(
 const ParticipantAdd = z
   .object({
     user_id: z.string().uuid(),
-    party_size: z.number().int().gte(1).optional().default(1),
     status: z
       .enum(["invited", "pending", "accepted", "declined", "maybe"])
       .optional(),
@@ -122,49 +172,6 @@ const EventCancel = z
     notifyGuests: z.boolean().optional().default(true),
   })
   .passthrough();
-const Availability = z
-  .object({
-    total: z.number().int(),
-    confirmed: z.number().int(),
-    held: z.number().int(),
-    available: z.number().int(),
-  })
-  .passthrough();
-const JoinRequestAdd = z
-  .object({
-    party_size: z.number().int().gte(1),
-    note: z.string().max(500).optional(),
-  })
-  .passthrough();
-const JoinRequestStatus = z.enum([
-  "pending",
-  "approved",
-  "declined",
-  "waitlisted",
-  "expired",
-  "cancelled",
-]);
-const JoinRequest = JoinRequestAdd.and(
-  z
-    .object({
-      id: z.string().uuid(),
-      event_id: z.string().uuid(),
-      user_id: z.string().uuid(),
-      status: JoinRequestStatus,
-      hold_expires_at: z.string().datetime({ offset: true }).optional(),
-      created_at: z.string().datetime({ offset: true }),
-      updated_at: z.string().datetime({ offset: true }).optional(),
-    })
-    .passthrough()
-);
-const PaginatedJoinRequests = z
-  .object({
-    data: z.array(JoinRequest),
-    nextOffset: z.number().int(),
-    totalCount: z.number().int(),
-  })
-  .partial()
-  .passthrough();
 const ItemUpdate = ItemCreate;
 const ItemAssign = z
   .object({ user_id: z.string().uuid() })
@@ -186,13 +193,7 @@ const BillingPlan = z
   .object({
     id: z.string().uuid(),
     price_id: z.string(),
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
     name: z.string(),
     amount_cents: z.number().int(),
     currency: z.string(),
@@ -204,13 +205,7 @@ const BillingPlan = z
 const postBillingcheckoutsubscription_Body = z
   .object({
     plan_id: z.string().uuid(),
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
   })
   .passthrough();
 const CheckoutSession = z
@@ -221,13 +216,7 @@ const Subscription = z
     id: z.string().uuid(),
     plan_id: z.string().uuid(),
     provider_subscription_id: z.string(),
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
     status: z.enum([
       "active",
       "trialing",
@@ -249,13 +238,7 @@ const PaymentMethod = z
   .object({
     id: z.string().uuid(),
     user_id: z.string().uuid(),
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
     method_id: z.string(),
     is_default: z.boolean(),
     brand: z.string().optional(),
@@ -267,13 +250,7 @@ const PaymentMethod = z
   .passthrough();
 const PaymentMethodCreate = z
   .object({
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
     method_id: z.string(),
     is_default: z.boolean().optional().default(false),
   })
@@ -288,13 +265,7 @@ const Invoice = z
     subscription_id: z.string().uuid().optional(),
     user_id: z.string().uuid(),
     invoice_id: z.string().optional(),
-    provider: z.enum([
-      "stripe",
-      "paypal",
-      "razorpay",
-      "square",
-      "lemonsqueezy",
-    ]),
+    provider: ProviderEnum,
     amount_cents: z.number().int(),
     currency: z.string(),
     status: z.enum(["draft", "open", "paid", "void", "uncollectible"]),
@@ -308,58 +279,6 @@ const SubscriptionUpdate = z
   .partial()
   .passthrough();
 const EventIdParam = z.object({ eventId: z.string().uuid() }).passthrough();
-const ProfileSetupRequest = z
-  .object({
-    display_name: z.string().min(1),
-    meal_preferences: z.array(z.string()).optional(),
-    city: z.string().optional(),
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
-    discoverability_radius_km: z
-      .number()
-      .int()
-      .gte(1)
-      .lte(200)
-      .optional()
-      .default(25),
-  })
-  .passthrough();
-const ProfileSetupResponse = z
-  .object({ success: z.boolean(), message: z.string() })
-  .partial()
-  .passthrough();
-const ValidationError = z
-  .object({
-    error: z.string(),
-    details: z.array(
-      z
-        .object({
-          code: z.string(),
-          message: z.string(),
-          path: z.array(z.string()),
-        })
-        .partial()
-        .passthrough()
-    ),
-  })
-  .partial()
-  .passthrough();
-const UserProfile = z
-  .object({
-    id: z.string().uuid(),
-    user_id: z.string().uuid(),
-    display_name: z.string(),
-    meal_preferences: z.array(z.string()),
-    city: z.string(),
-    discoverability_enabled: z.boolean(),
-    discoverability_radius_km: z.number().int(),
-    geo_precision: z.enum(["exact", "city"]),
-    setup_completed: z.boolean(),
-    created_at: z.string().datetime({ offset: true }),
-    updated_at: z.string().datetime({ offset: true }),
-  })
-  .partial()
-  .passthrough();
 
 export const schemas = {
   SignUp,
@@ -379,11 +298,6 @@ export const schemas = {
   EventFull,
   EventUpdate,
   EventCancel,
-  Availability,
-  JoinRequestAdd,
-  JoinRequestStatus,
-  JoinRequest,
-  PaginatedJoinRequests,
   ItemUpdate,
   ItemAssign,
   ParticipantUpdate,
@@ -399,11 +313,22 @@ export const schemas = {
   Invoice,
   SubscriptionUpdate,
   EventIdParam,
-  ProfileSetupRequest,
-  ProfileSetupResponse,
-  ValidationError,
-  UserProfile,
+  // Location-based discovery schemas
+  LocationUpdate,
+  DiscoverabilitySettings,
+  LocationSearchQuery,
+  CitySearchQuery,
 };
+
+// Import join request schemas
+export { 
+  JoinRequestStatus,
+  JoinRequestAdd,
+  JoinRequest,
+  PaginatedJoinRequests,
+  Availability,
+  ListRequestsQuery
+} from './modules/requests';
 
 const endpoints = makeApi([
   {
@@ -715,7 +640,7 @@ Stripe signs the payload; verify in the handler.
     method: "get",
     path: "/events",
     alias: "getEvents",
-    description: `Search/list public events for discovery or events I host/attend`,
+    description: `List events I host or attend`,
     requestFormat: "json",
     parameters: [
       {
@@ -729,26 +654,11 @@ Stripe signs the payload; verify in the handler.
         schema: z.number().int().gte(0).optional().default(0),
       },
       {
-        name: "q",
-        type: "Query",
-        schema: z.string().optional(),
-      },
-      {
         name: "status",
         type: "Query",
         schema: z
           .enum(["draft", "published", "cancelled", "completed", "purged"])
           .optional(),
-      },
-      {
-        name: "dateFrom",
-        type: "Query",
-        schema: z.string().datetime({ offset: true }).optional(),
-      },
-      {
-        name: "dateTo",
-        type: "Query",
-        schema: z.string().datetime({ offset: true }).optional(),
       },
       {
         name: "startsAfter",
@@ -759,21 +669,6 @@ Stripe signs the payload; verify in the handler.
         name: "startsBefore",
         type: "Query",
         schema: z.string().datetime({ offset: true }).optional(),
-      },
-      {
-        name: "near",
-        type: "Query",
-        schema: z.string().optional(),
-      },
-      {
-        name: "diet",
-        type: "Query",
-        schema: z.string().optional(),
-      },
-      {
-        name: "is_public",
-        type: "Query",
-        schema: z.boolean().optional(),
       },
     ],
     response: PaginatedEventSummary,
@@ -889,27 +784,6 @@ Stripe signs the payload; verify in the handler.
       {
         status: 409,
         description: `Request conflicts with current resource state`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "get",
-    path: "/events/:eventId/availability",
-    alias: "getEventsEventIdavailability",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: Availability,
-    errors: [
-      {
-        status: 404,
-        description: `Resource not found`,
         schema: Error,
       },
     ],
@@ -1463,272 +1337,6 @@ Stripe signs the payload; verify in the handler.
     ],
   },
   {
-    method: "post",
-    path: "/events/:eventId/requests",
-    alias: "postEventsEventIdrequests",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "body",
-        type: "Body",
-        schema: JoinRequestAdd,
-      },
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 400,
-        description: `Request conflicts with current resource state`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-      {
-        status: 409,
-        description: `Capacity unavailable or already requested`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "get",
-    path: "/events/:eventId/requests",
-    alias: "getEventsEventIdrequests",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "limit",
-        type: "Query",
-        schema: z.number().int().gte(1).optional().default(20),
-      },
-      {
-        name: "offset",
-        type: "Query",
-        schema: z.number().int().gte(0).optional().default(0),
-      },
-      {
-        name: "status",
-        type: "Query",
-        schema: z
-          .enum([
-            "pending",
-            "approved",
-            "declined",
-            "waitlisted",
-            "expired",
-            "cancelled",
-          ])
-          .optional(),
-      },
-    ],
-    response: PaginatedJoinRequests,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 403,
-        description: `The caller lacks permission`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "patch",
-    path: "/events/:eventId/requests/:requestId/approve",
-    alias: "patchEventsEventIdrequestsRequestIdapprove",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "requestId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 403,
-        description: `The caller lacks permission`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-      {
-        status: 409,
-        description: `Capacity unavailable`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "patch",
-    path: "/events/:eventId/requests/:requestId/cancel",
-    alias: "patchEventsEventIdrequestsRequestIdcancel",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "requestId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-      {
-        status: 409,
-        description: `Request expired or in invalid state`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "patch",
-    path: "/events/:eventId/requests/:requestId/decline",
-    alias: "patchEventsEventIdrequestsRequestIddecline",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "requestId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 403,
-        description: `The caller lacks permission`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "post",
-    path: "/events/:eventId/requests/:requestId/extend",
-    alias: "postEventsEventIdrequestsRequestIdextend",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "requestId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 403,
-        description: `The caller lacks permission`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "patch",
-    path: "/events/:eventId/requests/:requestId/waitlist",
-    alias: "patchEventsEventIdrequestsRequestIdwaitlist",
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "eventId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-      {
-        name: "requestId",
-        type: "Path",
-        schema: z.string().uuid(),
-      },
-    ],
-    response: JoinRequest,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 403,
-        description: `The caller lacks permission`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `Resource not found`,
-        schema: Error,
-      },
-    ],
-  },
-  {
     method: "get",
     path: "/locations",
     alias: "getLocations",
@@ -1755,63 +1363,6 @@ Stripe signs the payload; verify in the handler.
       },
     ],
     response: z.void(),
-  },
-  {
-    method: "get",
-    path: "/user-profile/me",
-    alias: "getUserProfileme",
-    description: `Retrieve the current user&#x27;s profile information`,
-    requestFormat: "json",
-    response: UserProfile,
-    errors: [
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 404,
-        description: `User profile not found`,
-        schema: Error,
-      },
-      {
-        status: 500,
-        description: `Internal server error`,
-        schema: Error,
-      },
-    ],
-  },
-  {
-    method: "post",
-    path: "/user-profile/setup",
-    alias: "postUserProfilesetup",
-    description: `Complete the initial profile setup with display name, meal preferences, and location`,
-    requestFormat: "json",
-    parameters: [
-      {
-        name: "body",
-        type: "Body",
-        schema: ProfileSetupRequest,
-      },
-    ],
-    response: ProfileSetupResponse,
-    errors: [
-      {
-        status: 400,
-        description: `Validation error`,
-        schema: ValidationError,
-      },
-      {
-        status: 401,
-        description: `Access token missing or invalid`,
-        schema: Error,
-      },
-      {
-        status: 500,
-        description: `Internal server error`,
-        schema: Error,
-      },
-    ],
   },
 ]);
 

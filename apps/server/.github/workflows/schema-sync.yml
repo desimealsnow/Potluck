@@ -1,0 +1,49 @@
+name: Schema snapshot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"   # daily 06:00 UTC
+  push:
+    paths:
+      - "db/migrations/**"  # when migrations change
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow committing changes
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Postgres client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Capture schema
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: npm run schema:capture
+
+      - name: Generate TypeScript types
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          npx supabase gen types typescript --db-url "$SUPABASE_DB_URL" > src/types/database.types.ts
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(db): snapshot schema and types"
+          file_pattern: |
+            db/schema.sql
+            db/snapshots/**
+            src/types/database.types.ts

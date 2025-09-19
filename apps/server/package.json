@@ -26,7 +26,16 @@
     "test:billing:unit": "cross-env NODE_ENV=test jest tests/unit --testPathPattern=\"billing|payment\"",
     "test:billing:integration": "cross-env NODE_ENV=test jest tests/integration/billing-comprehensive.spec.ts",
     "test:rest:nearby": "powershell -NoProfile -ExecutionPolicy Bypass -File ./tests/rest/cases/location-nearby.ps1",
-    "db:inspect:notifications": "node scripts/inspect-notifications.js"
+    "db:inspect:notifications": "node scripts/inspect-notifications.js",
+    "schema:generate": "npx openapi-zod-client ../../docs/api-spec.yaml -o src/validators.ts",
+    "schema:validate": "node scripts/validate-schema.mjs",
+    "schema:validate:verbose": "node scripts/validate-schema.mjs --verbose",
+    "schema:check": "node scripts/validate-schema.mjs --verbose",
+    "schema:capture": "node scripts/capture_schema.mjs",
+    "schema:capture:ps1": "powershell -ExecutionPolicy Bypass -File scripts/capture_schema.ps1",
+    "schema:capture:bash": "bash scripts/capture_schema.sh",
+    "schema:types": "supabase gen types typescript --db-url $SUPABASE_DB_URL > src/types/database.types.ts",
+    "schema:all": "npm run schema:capture && npm run schema:types"
   },
   "dependencies": {
     "@payments/core": "*",
