@@ -11,7 +11,12 @@ import mockRoutes       from './routes/mock.routes';
 import { createPaymentContainer } from './services/payments.container';
 import { authGuard } from './middleware/authGuard';
 import type { Request } from 'express';
-import { createDevPaymentsRoutes } from '@payments/core';
+// Dev payments routes are optional; only import if available
+let createDevPaymentsRoutes: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  createDevPaymentsRoutes = require('@payments/core').createDevPaymentsRoutes;
+} catch {}
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import { raw } from 'body-parser';
@@ -57,7 +62,7 @@ export const createApp = () => {
   
   /* ---------- Mock routes for testing ---------- */
   app.use('/', mockRoutes);
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' && createDevPaymentsRoutes) {
     const paymentsContainer = createPaymentContainer();
     app.use(
       '/api/v1/payments-dev',

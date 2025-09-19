@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../middleware/authGuard';
 import * as svc from '../services/participants.service';
 import { components } from '../../../../libs/common/src/types.gen';
 import { handle } from '../utils/helper';          // httpStatus + JSON wrapper
+import { transferParticipant } from '../services/participants.transfer.service';
 
 type AddParticipantInput   = components['schemas']['ParticipantAdd'];
 type UpdateParticipantInput = components['schemas']['ParticipantUpdate'];
@@ -74,5 +75,18 @@ export const resendInvite = async (
   res: Response
 ) => {
   const result = await svc.resendInvite(req.params.partId);
+  return handle(res, result);
+};
+
+/** POST /events/:eventId/participants/:partId/transfer */
+export const transfer = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const { eventId, partId } = req.params;
+  const actorId = req.user!.id;
+  const newUserId = (req.body as any)?.new_user_id as string;
+  const carryItems = Boolean((req.body as any)?.carry_items);
+  const result = await transferParticipant(eventId, partId, actorId, { newUserId, carryItems });
   return handle(res, result);
 };

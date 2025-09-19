@@ -307,6 +307,18 @@ paths:
         "401": { $ref: "#/components/responses/UnauthorizedError" }
         "403": { $ref: "#/components/responses/ForbiddenError" }
 
+  /events/requests:
+    get:
+      tags: [Events]
+      summary: List pending join requests across my hosted events
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Pending join requests
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedJoinRequests" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
   /events/{eventId}/requests/{requestId}/approve:
     parameters:
       - $ref: "#/components/parameters/eventId"
@@ -419,6 +431,51 @@ paths:
         "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
 
+  /events/{eventId}/requests/{requestId}/reorder:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Reorder a waitlisted request (host-only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [waitlist_pos]
+              properties:
+                waitlist_pos: { type: number }
+      responses:
+        "200": { description: Reordered }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/requests/promote:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Promote first eligible waitlisted request (host-only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Promotion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  moved: { type: integer }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+
   /events/{eventId}/items:
     parameters: [{ $ref: "#/components/parameters/eventId" }]
     get:
@@ -429,7 +486,9 @@ paths:
           description: OK
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/Item" }
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Item" }
         "401": { $ref: "#/components/responses/UnauthorizedError" }
         "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
@@ -440,13 +499,13 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/Item" }
+            schema: { $ref: "#/components/schemas/ItemCreate" }
       responses:
-        "200":
-          description: Completed
+        "201":
+          description: Created
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ItemCreate" }
+              schema: { $ref: "#/components/schemas/Item" }
         "401": { $ref: "#/components/responses/UnauthorizedError" }
         "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
@@ -530,6 +589,62 @@ paths:
                 type: array
                 items: { $ref: "#/components/schemas/Participant" }
         "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/rebalance:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Auto-assign unclaimed items to accepted participants
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_per_user:
+                  type: integer
+                  minimum: 1
+                  default: 2
+      responses:
+        "200":
+          description: Rebalance result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [assigned]
+                properties:
+                  assigned:
+                    type: integer
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/participants/{partId}/transfer:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - $ref: "#/components/parameters/partId"
+    post:
+      tags: [Participants]
+      summary: Transfer RSVP to another user
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TransferParticipantRequest" }
+      responses:
+        "200":
+          description: Transfer completed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TransferParticipantResponse" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
 
   # /events/{eventId}/participants/{partId}: Get/Update/Kick/Leave
@@ -1232,6 +1347,28 @@ components:
                 - type: string
                   format: uuid
                 - type: "null"
+
+    TransferParticipantRequest:
+      type: object
+      required: [new_user_id]
+      properties:
+        new_user_id:
+          type: string
+          format: uuid
+        carry_items:
+          type: boolean
+          default: false
+
+    TransferParticipantResponse:
+      type: object
+      required: [old_participant_id, new_participant_id]
+      properties:
+        old_participant_id:
+          type: string
+          format: uuid
+        new_participant_id:
+          type: string
+          format: uuid
     BillingPlan:
       type: object
       required: [id, price_id, name, amount_cents, currency, interval, provider]

@@ -50,10 +50,15 @@ Or via npm script:
 npm run test:rest:nearby
 ```
 
-This script will:
+Quick scripts:
+- `tests/rest/cases/location-nearby.ps1`: nearby discovery + notifications
+- `tests/rest/cases/rebalance-and-transfer.ps1`: items rebalance + participant transfer
+
+These scripts will:
 - Login as two users and set their `user_profiles` location and discoverability
 - Create and publish an event for the host
-- Verify nearby event search and fetch discovery notifications
+- Verify nearby event search and fetch discovery notifications (filtered to subscribed non-host users)
+- Exercise item assignment rebalance and participant transfer flows end-to-end
 - Emit detailed `[Notifications]` logs to help diagnose missing notifications
 
 ### Test Framework Options
