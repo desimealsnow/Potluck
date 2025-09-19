@@ -9,6 +9,11 @@ This document describes the notification system added/updated in this repo: sche
 - Item activity (claim accepted/changed, unclaimed items remaining)
 - Hold/RSVP status (pending expiring soon → approved)
 
+When an event is published, nearby notifications are sent only to:
+- Users within radius AND
+- With an active/trialing subscription (or past_due) AND
+- Excluding the host
+
 ## Where it shows up
 - Mobile (React Native / Expo)
   - Global bell in the header with unread badge
@@ -75,7 +80,10 @@ Row Level Security is applied in the migration file.
 
 Server implementation highlights
 - `apps/server/src/services/notifications.service.ts` contains helpers: createNotification, unread count, query with status filter, and `notifyEventParticipantsCancelled` which inserts high-priority cancellation notifications to event participants.
-- Join-request flows in `apps/server/src/modules/requests/requests.service.ts` create requester notifications on approve/decline.
+- Publish notifications are filtered to exclude the host and require active subscription. Nearby users receive `event_created`.
+- Join-request flows in `apps/server/src/modules/requests/requests.service.ts` create:
+  - `join_request_received` to the host on request creation
+  - `request_approved` / `request_declined` / `request_waitlisted` to the requester on decision
 - Push delivery is stubbed in `apps/server/src/services/push.service.ts` (logs intended deliveries and enumerates push tokens); can be swapped for real Expo/web push later.
 
 ## Mobile updates
