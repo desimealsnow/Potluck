@@ -151,6 +151,13 @@ interface EventListProps {
   userLocation?: { lat: number; lon: number; radius_km: number } | null;
 }
 
+/**
+ * Main application component for managing events and user interactions.
+ *
+ * This component handles the state and logic for displaying events, managing user preferences, and navigating between different screens. It includes functionalities for searching, filtering events, and performing actions on events such as publishing, cancelling, and deleting. The component also manages user location updates and push notifications registration.
+ *
+ * @param {EventListProps} [props] - The properties for the EventList component, including userLocation.
+ */
 export default function App({ userLocation: propUserLocation }: EventListProps = {}) {
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
   const [ownership, setOwnership] = useState<Ownership>("all");
@@ -497,6 +504,14 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
     setShowCreateEvent(false);
   };
 
+  /**
+   * Handles the back navigation for different pages in the application.
+   *
+   * The function closes the current page based on the provided pageName and refreshes the user location if navigating from preferences.
+   * If the navigation context indicates that the user came from settings, it will display the settings page and reset the navigation context.
+   *
+   * @param pageName - The name of the page to navigate back from.
+   */
   const handleBackNavigation = (pageName: string) => {
     // Close the current page
     switch (pageName) {

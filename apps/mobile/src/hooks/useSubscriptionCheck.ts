@@ -9,6 +9,16 @@ export interface SubscriptionStatus {
   subscription: any | null;
 }
 
+/**
+ * Manages the subscription status of a user by checking their active subscriptions.
+ *
+ * The function initializes the subscription status and sets up an effect to check the user's subscription
+ * whenever their authentication state changes. It retrieves the user's session, checks for active subscriptions,
+ * and updates the status accordingly. In case of an error during the subscription check, it logs the error and
+ * updates the status to reflect the failure.
+ *
+ * @returns An object containing the subscription status, loading state, error message, and a refetch function.
+ */
 export function useSubscriptionCheck() {
   const [status, setStatus] = useState<SubscriptionStatus>({
     hasActiveSubscription: false,
