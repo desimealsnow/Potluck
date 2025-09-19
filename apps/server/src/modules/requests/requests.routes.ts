@@ -25,6 +25,7 @@ const router = Router({ mergeParams: true });
 router.post(
   '/',
   routeLogger('POST /events/:eventId/requests'),
+  authGuard,
   RequestsController.createJoinRequest
 );
 
@@ -95,6 +96,43 @@ router.post(
   authGuard,
   routeLogger('POST /events/:eventId/requests/:requestId/extend'),
   RequestsController.extendJoinRequestHold
+);
+
+// Reorder waitlist position (host-only)
+router.patch(
+  '/:requestId/reorder',
+  authGuard,
+  routeLogger('PATCH /events/:eventId/requests/:requestId/reorder'),
+  async (req, res) => {
+    const { eventId, requestId } = req.params as any;
+    const pos = Number((req.body || {}).waitlist_pos);
+    if (!isFinite(pos)) return res.status(400).json({ ok: false, error: 'waitlist_pos required', code: '400' });
+    const { supabase } = await import('../../config/supabaseClient');
+    const { data, error } = await supabase
+      .from('event_join_requests')
+      .update({ waitlist_pos: pos })
+      .eq('id', requestId)
+      .eq('event_id', eventId)
+      .eq('status', 'waitlisted')
+      .select('*')
+      .single();
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    return res.json(data);
+  }
+);
+
+// Promote first eligible from waitlist (host-only)
+router.post(
+  '/promote',
+  authGuard,
+  routeLogger('POST /events/:eventId/requests/promote'),
+  async (req, res) => {
+    const { eventId } = req.params as any;
+    const { supabase } = await import('../../config/supabaseClient');
+    const { data, error } = await supabase.rpc('promote_from_waitlist', { p_event_id: eventId });
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    return res.json({ moved: Number(data) || 0 });
+  }
 );
 
 export default router;

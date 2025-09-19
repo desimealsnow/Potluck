@@ -51,22 +51,15 @@ export class RequestsRepository {
     holdTtlMinutes = 30
   ): Promise<ServiceResult<JoinRequestRow>> {
     try {
-      // Calculate hold expiration
-      const holdExpiresAt = new Date();
-      holdExpiresAt.setMinutes(holdExpiresAt.getMinutes() + holdTtlMinutes);
-
-      const { data, error } = await supabase
-        .from('event_join_requests')
-        .insert({
-          event_id: eventId,
-          user_id: userId,
-          party_size: partySize,
-          note: note || null,
-          status: 'pending',
-          hold_expires_at: holdExpiresAt.toISOString(),
-        })
-        .select('*')
-        .single();
+      // Use RPC to atomically process the request
+      const { data, error } = await supabase.rpc('process_join_request', {
+        p_event_id: eventId,
+        p_user_id: userId,
+        p_party_size: partySize,
+        p_note: note || null,
+        p_hold_ttl_minutes: holdTtlMinutes,
+        p_auto_approve: false,
+      });
 
       if (error) {
         logger.error('[RequestsRepo] Failed to create request', { eventId, userId, error });

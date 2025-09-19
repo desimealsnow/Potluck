@@ -431,6 +431,51 @@ paths:
         "403": { $ref: "#/components/responses/ForbiddenError" }
         "404": { $ref: "#/components/responses/NotFoundError" }
 
+  /events/{eventId}/requests/{requestId}/reorder:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+      - name: requestId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Events]
+      summary: Reorder a waitlisted request (host-only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [waitlist_pos]
+              properties:
+                waitlist_pos: { type: number }
+      responses:
+        "200": { description: Reordered }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+        "404": { $ref: "#/components/responses/NotFoundError" }
+
+  /events/{eventId}/requests/promote:
+    parameters:
+      - $ref: "#/components/parameters/eventId"
+    post:
+      tags: [Events]
+      summary: Promote first eligible waitlisted request (host-only)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Promotion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  moved: { type: integer }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "403": { $ref: "#/components/responses/ForbiddenError" }
+
   /events/{eventId}/items:
     parameters: [{ $ref: "#/components/parameters/eventId" }]
     get:

@@ -162,6 +162,11 @@ export async function updateParticipant(
               itemId: item.id,
             });
           }
+          // Attempt to promote from waitlist
+          try {
+            const { supabase } = await import('../config/supabaseClient');
+            await supabase.rpc('promote_from_waitlist', { p_event_id: eventId });
+          } catch {}
         } catch {}
       }
     }
