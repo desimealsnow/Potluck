@@ -186,7 +186,13 @@ function useEventData(eventId: string) {
         api<ItemDTO[]>(`/events/${eventId}/items`),
         api<ParticipantDTO[]>(`/events/${eventId}/participants`),
       ]);
+      const { data: { session } } = await supabase.auth.getSession();
+      const meDisplay = session?.user?.user_metadata?.display_name as string | undefined;
+      const meEmail = session?.user?.email as string | undefined;
       // Map backend EventFull to local EventDTO shape
+      const hostFromParticipants = Array.isArray(p)
+        ? (p.find((pp: any) => pp.role === 'host' && pp.name)?.name as string | undefined)
+        : undefined;
       const mappedEvent: EventDTO | null = e && e.event ? {
         id: e.event.id,
         title: e.event.title,
@@ -195,12 +201,43 @@ function useEventData(eventId: string) {
         location: e.event.location?.name || e.event.location?.formatted_address || '',
         perks: [],
         attendingCount: e.event.attendee_count ?? 0,
-        host: { name: '', role: 'host' },
-        details: { intro: '', bring: '', backup: '' },
+        host: { 
+          name: (e.host?.name as string | undefined)
+            || hostFromParticipants
+            || (e.event.ownership === 'mine' ? (meDisplay || (meEmail ? meEmail.split('@')[0] : 'You')) : ''),
+          role: 'Host',
+          avatar: (e.host?.avatar_url as string | undefined) || e.event.host?.avatar_url || e.event.host?.avatar
+        },
+        details: { 
+          intro: e.event.description || e.event.details?.intro || 'Join us for this event!',
+          bring: e.event.details?.bring || 'Bring your favorite dish to share!',
+          backup: e.event.details?.backup || 'Indoor backup location available.'
+        },
         status: e.event.status,
         ownership: e.event.ownership,
       } : null;
       setEvent(mappedEvent);
+
+      // Client-side fallback: if host name is still missing, try fetch from user_profiles by created_by
+      if (e && e.event && (!mappedEvent?.host?.name || mappedEvent?.host?.name === 'Host') && e.event.created_by) {
+        try {
+          const { data: profile, error: profErr } = await supabase
+            .from('user_profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', e.event.created_by)
+            .maybeSingle();
+          if (!profErr && (profile?.display_name || profile?.avatar_url)) {
+            setEvent((prev) => prev ? {
+              ...prev,
+              host: {
+                name: (profile?.display_name as string) || prev.host.name || 'Host',
+                role: 'Host',
+                avatar: (profile?.avatar_url as string) || prev.host.avatar,
+              }
+            } : prev);
+          }
+        } catch {}
+      }
       const itemsRaw = Array.isArray(it) ? it : [];
       const mappedItems: ItemDTO[] = itemsRaw.map((x: any) => ({
         id: x.id,
@@ -835,7 +872,6 @@ function OverviewTab({
           <Avatar name={event.host.name} src={event.host.avatar} />
           <View style={styles.hostInfo}>
             <Text style={styles.hostName}>{event.host.name}</Text>
-            <Text style={styles.hostRole}>{event.host.role}</Text>
           </View>
         </View>
       </Card>

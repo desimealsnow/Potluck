@@ -33,7 +33,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
   const load = useCallback(async (reset: boolean = true) => {
     setLoading(true);
     try {
-      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset), status: 'unread' });
+      const qs = new URLSearchParams({ limit: String(limit), offset: String(reset ? 0 : offset), status: 'all' });
       const res = await apiClient.request<any>(`/discovery/notifications?${qs.toString()}`, { method: 'GET', cache: 'no-store' });
       const list: NotificationItem[] = res.notifications ?? [];
       setItems(prev => (reset ? list : [...prev, ...list]));
@@ -73,7 +73,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
       .channel('notifications-realtime')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
         const n = payload.new as any;
-        // Prepend only if unread view is active (we always request unread)
+        // Prepend new notifications at top
         setItems(prev => [{
           id: n.id,
           type: n.type,
@@ -135,9 +135,8 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
                   onPress={async () => {
                     try {
                       await apiClient.patch(`/discovery/notifications/read-all`);
-                      setItems([]);
-                      setOffset(0);
-                      setHasMore(false);
+                      // Keep items visible but mark them as read locally
+                      setItems(prev => prev.map(n => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
                     } catch {}
                   }}
                   style={{ alignSelf: 'flex-end', paddingVertical: 8 }}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { supabase } from "../../config/supabaseClient";
+import type { User } from "@supabase/supabase-js";
 
 /* ---------------- Types ---------------- */
 type SettingsItem = {
@@ -27,21 +29,41 @@ type SettingsItem = {
 export default function SettingsScreen({ 
   onBack, 
   onShowSubscription,
-  onShowNotifications,
-  onShowPreferences
+  onShowPreferences,
+  onShowAbout,
+  onShowPrivacy,
+  onShowHelp
 }: { 
   onBack?: () => void;
   onShowSubscription?: () => void;
-  onShowNotifications?: () => void;
   onShowPreferences?: () => void;
+  onShowAbout?: () => void;
+  onShowPrivacy?: () => void;
+  onShowHelp?: () => void;
 }) {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   const gradient = useMemo(
     () => ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const, // purple → hot pink → soft coral
     []
   );
+
+  // Get current user data
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+        }
+      } catch (error) {
+        console.error("Error getting user:", error);
+      }
+    };
+    getCurrentUser();
+  }, []);
 
   const settingsItems: SettingsItem[] = [
     {
@@ -63,21 +85,11 @@ export default function SettingsScreen({
       showChevron: true,
     },
     {
-      id: "notifications",
-      title: "Notifications",
-      subtitle: "View your notifications",
-      icon: "notifications",
-      onPress: () => onShowNotifications?.(),
-      showChevron: true,
-    },
-    {
       id: "privacy",
       title: "Privacy & Security",
       subtitle: "Data and privacy settings",
       icon: "shield-checkmark",
-      onPress: () => {
-        Alert.alert("Privacy", "Privacy settings coming soon!");
-      },
+      onPress: () => onShowPrivacy?.(),
       showChevron: true,
     },
     {
@@ -85,9 +97,7 @@ export default function SettingsScreen({
       title: "Help & Support",
       subtitle: "Get help and contact support",
       icon: "help-circle",
-      onPress: () => {
-        Alert.alert("Help", "Help center coming soon!");
-      },
+      onPress: () => onShowHelp?.(),
       showChevron: true,
     },
     {
@@ -95,9 +105,7 @@ export default function SettingsScreen({
       title: "About",
       subtitle: "App version and info",
       icon: "information-circle",
-      onPress: () => {
-        Alert.alert("About", "Potluck App v1.0.0\nBuilt with React Native & Expo");
-      },
+      onPress: () => onShowAbout?.(),
       showChevron: true,
     },
     {
@@ -144,8 +152,10 @@ export default function SettingsScreen({
                 <Ionicons name="person" size={32} color="#fff" />
               </View>
               <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>John Doe</Text>
-                <Text style={styles.profileEmail}>john.doe@example.com</Text>
+                <Text style={styles.profileName}>
+                  {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
+                </Text>
+                <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
               </View>
             </View>
           </View>

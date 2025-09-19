@@ -21,6 +21,9 @@ import SettingsScreen from "./SettingsScreen";
 import NotificationsScreen from "./NotificationsScreen";
 import UserPreferencesScreen from "./UserPreferencesScreen";
 import SubscriptionScreen from "./SubscriptionScreen";
+import AboutScreen from "./AboutScreen";
+import PrivacyScreen from "./PrivacyScreen";
+import HelpScreen from "./HelpScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
@@ -184,6 +187,9 @@ export default function App() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const bgGradient = useMemo(
@@ -476,13 +482,21 @@ export default function App() {
           setShowSettings(false);
           setShowSubscription(true);
         }}
-        onShowNotifications={() => {
-          setShowSettings(false);
-          setShowNotifications(true);
-        }}
         onShowPreferences={() => {
           setShowSettings(false);
           setShowPreferences(true);
+        }}
+        onShowAbout={() => {
+          setShowSettings(false);
+          setShowAbout(true);
+        }}
+        onShowPrivacy={() => {
+          setShowSettings(false);
+          setShowPrivacy(true);
+        }}
+        onShowHelp={() => {
+          setShowSettings(false);
+          setShowHelp(true);
         }}
       />
     );
@@ -496,6 +510,24 @@ export default function App() {
   if (showPreferences) {
     return (
       <UserPreferencesScreen onBack={() => setShowPreferences(false)} />
+    );
+  }
+
+  if (showAbout) {
+    return (
+      <AboutScreen onBack={() => setShowAbout(false)} />
+    );
+  }
+
+  if (showPrivacy) {
+    return (
+      <PrivacyScreen onBack={() => setShowPrivacy(false)} />
+    );
+  }
+
+  if (showHelp) {
+    return (
+      <HelpScreen onBack={() => setShowHelp(false)} />
     );
   }
 

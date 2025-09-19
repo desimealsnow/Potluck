@@ -156,7 +156,7 @@ export async function getEventDetails(
   eventId: string,
   jwt?: string                    // token now OPTIONAL
 ): Promise<ServiceResult<
-  EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited' } }
+  EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited' } } & { host?: { name?: string | null; avatar_url?: string | null } }
 >> {
   /* 1️⃣ Build a Supabase client.
         - If jwt is present  → user-scoped client (RLS enforced)
@@ -217,7 +217,55 @@ export async function getEventDetails(
     return { ok: false, error: 'Event not found', code: '404' };
   }
 
-  /* 4️⃣  Assemble payload */
+  /* 4️⃣  Fetch host profile (created_by → user_profiles.display_name) */
+  let hostProfile: { display_name?: string | null; avatar_url?: string | null } | null = null;
+  try {
+    // Try to get from user_profiles table
+    const { data: host, error: hostError } = await supabase
+      .from('user_profiles')
+      .select('display_name, avatar_url')
+      .eq('user_id', data.created_by)
+      .maybeSingle();
+    if (!hostError && host) {
+      hostProfile = host as any;
+    }
+
+    // If no display_name, try to get from auth.users using admin client
+    if (!hostProfile || !hostProfile.display_name) {
+      try {
+        const admin = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data: userData, error: userError } = await admin.auth.admin.getUserById(data.created_by);
+        if (!userError && userData?.user) {
+          const user = userData.user;
+          const display = user.user_metadata?.display_name || (user.email ? String(user.email).split('@')[0] : null);
+          if (display) {
+            hostProfile = {
+              display_name: display,
+              avatar_url: user.user_metadata?.avatar_url ?? null,
+            };
+          }
+        }
+      } catch (authError) {
+        logger.warn('[EventService] Failed to fetch user from auth.users', { error: authError, userId: data.created_by });
+      }
+    }
+
+    // Final fallback: Use a more meaningful default when display_name is still null
+    if (!hostProfile || !hostProfile.display_name) {
+      // If we still don't have a display name, use a generic fallback
+      hostProfile = {
+        display_name: 'Host',
+        avatar_url: null,
+      };
+    }
+  } catch {
+    // Non-fatal; continue without host profile
+  }
+
+  /* 5️⃣  Assemble payload */
   // Determine ownership based on created_by and current user
   const isOwner = jwt ? (() => {
     try {
@@ -228,7 +276,7 @@ export async function getEventDetails(
     }
   })() : false;
 
-  const response: EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited', is_public: boolean } } = {
+  const response: EventFull & { event: EventFull['event'] & { ownership: 'mine' | 'invited', is_public: boolean } } & { host?: { name?: string | null; avatar_url?: string | null } } = {
     event: {
       id: data.id,
       title: data.title,
@@ -245,7 +293,11 @@ export async function getEventDetails(
       location: Array.isArray(data.location) ? data.location[0] : data.location
     },
     items: data.items ?? [],
-    participants: data.participants ?? []
+    participants: data.participants ?? [],
+    host: hostProfile ? { 
+      name: hostProfile.display_name || 'Host', 
+      avatar_url: hostProfile.avatar_url ?? null 
+    } : { name: 'Host', avatar_url: null }
   };
 
   logger.info('[EventService] getEventDetails success', { eventId });
