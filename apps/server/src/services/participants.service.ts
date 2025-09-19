@@ -63,7 +63,7 @@ export async function listParticipants(
 ): Promise<ServiceResult<Participant[]>> {
   const { data, error } = await supabase
     .from('event_participants')
-    .select('id, user_id, status, joined_at')
+    .select('id, user_id, status, joined_at, party_size')
     .eq('event_id', eventId)
     .order('joined_at', { ascending: true });
 
@@ -156,11 +156,10 @@ export async function updateParticipant(
           const { createNotification } = await import('../services/notifications.service');
           for (const item of affectedItems) {
             await createNotification({
-              userId, // optional: could notify host/others; using owner for stub
+              userId,
               type: 'item_unclaimed',
               eventId,
               itemId: item.id,
-              payload: { reason: 'rsvp_drop' }
             });
           }
         } catch {}
@@ -229,7 +228,7 @@ export async function getParticipant(
   // Query with maybeSingle to avoid throwing on no rows
   const { data, error } = await supabase
     .from('event_participants')
-    .select('id, user_id, status, joined_at, event_id')
+    .select('id, user_id, status, joined_at, event_id, party_size')
     .eq('event_id', eventId)
     .eq('id', partId)
     .maybeSingle();

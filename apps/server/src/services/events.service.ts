@@ -196,7 +196,7 @@ export async function getEventDetails(
         id, name, category, per_guest_qty, required_qty, assigned_to
       ),
       participants:event_participants (
-        id, user_id, status, joined_at
+        id, user_id, status, joined_at, party_size
       )
     `)
     .eq('id', eventId)
