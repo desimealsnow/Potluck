@@ -58,4 +58,11 @@ router.post(
   C.resendInvite
 );
 
+// Transfer RSVP to another user (host-only)
+router.post(
+  '/:partId/transfer',
+  authGuard,
+  C.transfer
+);
+
 export default router;

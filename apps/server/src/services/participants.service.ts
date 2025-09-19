@@ -90,7 +90,21 @@ export async function updateParticipant(
   partId: string,
   input: UpdateParticipantInput
 ): Promise<ServiceResult<Participant>> {
-  // Try to update the status
+  // 1) Fetch current participant to know event and user
+  const { data: current, error: fetchErr } = await supabase
+    .from('event_participants')
+    .select('id, event_id, user_id, status')
+    .eq('id', partId)
+    .maybeSingle();
+
+  if (fetchErr) {
+    return { ok: false, error: fetchErr.message, code: '500' };
+  }
+  if (!current) {
+    return { ok: false, error: 'Participant not found', code: '404' };
+  }
+
+  // 2) Update the status
   const { data, error } = await supabase
     .from('event_participants')
     .update({ status: input.status })
@@ -114,6 +128,44 @@ export async function updateParticipant(
       error: 'Participant not found',
       code: '404',
     };
+  }
+
+  // 3) If they dropped from accepted → (maybe|declined), unassign their items
+  const dropped = current.status === 'accepted' && (input.status === 'maybe' || input.status === 'declined');
+  if (dropped) {
+    const eventId = (current as any).event_id as string;
+    const userId  = (current as any).user_id as string;
+
+    // Unassign all items assigned_to this user for the event
+    const { data: affectedItems, error: listErr } = await supabase
+      .from('event_items')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('assigned_to', userId);
+
+    if (!listErr && affectedItems && affectedItems.length) {
+      const ids = affectedItems.map(r => r.id);
+      const { error: unassignErr } = await supabase
+        .from('event_items')
+        .update({ assigned_to: null })
+        .in('id', ids);
+
+      // Best-effort notifications for each unclaimed item
+      if (!unassignErr) {
+        try {
+          const { createNotification } = await import('../services/notifications.service');
+          for (const item of affectedItems) {
+            await createNotification({
+              userId, // optional: could notify host/others; using owner for stub
+              type: 'item_unclaimed',
+              eventId,
+              itemId: item.id,
+              payload: { reason: 'rsvp_drop' }
+            });
+          }
+        } catch {}
+      }
+    }
   }
 
   // Success

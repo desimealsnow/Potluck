@@ -7,6 +7,7 @@ import { schemas }     from '../validators';          // generated Zod
 // ───── Controllers ───────────────────────────────────────────
 import * as E from '../controllers/events.controller';
 import * as R from '../modules/requests';
+import * as RB from '../controllers/rebalance.controller';
 
 // child routers
 import itemsRouter        from './items.routes';
@@ -94,6 +95,14 @@ router.post(
   authGuard,
   routeLogger('POST /events/:eventId/restore'),
   E.restoreEvent
+);
+
+// Host utility: auto-rebalance unassigned items to accepted participants
+router.post(
+  '/:eventId/rebalance',
+  authGuard,
+  routeLogger('POST /events/:eventId/rebalance'),
+  RB.rebalance
 );
 /*──────────────────────────────────────────────────────────────
   Nested resources
