@@ -12,6 +12,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 
+/**
+ * Renders the HelpScreen component providing help and support information.
+ * @param {Object} props - The component props.
+ * @param {function} [props.onBack] - Optional callback for back navigation.
+ */
 export default function HelpScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
 
@@ -42,10 +47,16 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
     }
   ];
 
+  /**
+   * Opens the default mail client to send a help request to support.
+   */
   const handleContactSupport = () => {
     Linking.openURL('mailto:support@potluck.app?subject=Help Request');
   };
 
+  /**
+   * Opens the FAQ page in the default web browser.
+   */
   const handleOpenFAQ = () => {
     Linking.openURL('https://potluck.app/faq');
   };
