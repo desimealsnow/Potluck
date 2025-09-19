@@ -23,6 +23,16 @@ interface ProfileSetupScreenProps {
   onSkip: () => void;
 }
 
+/**
+ * Profile setup screen component for user profile configuration.
+ *
+ * This component manages the multi-step process of setting up a user profile, including entering a display name, selecting a location, and specifying meal preferences. It handles user input, fetches city suggestions, and manages state transitions between steps. The component also provides functionality to save user data and handle errors during the setup process.
+ *
+ * @param {ProfileSetupScreenProps} props - The properties for the ProfileSetupScreen component.
+ * @param {function} props.onComplete - Callback function to be called upon successful completion of the profile setup.
+ * @param {function} props.onSkip - Callback function to be called when the user opts to skip the setup process.
+ * @returns {JSX.Element} The rendered ProfileSetupScreen component.
+ */
 export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupScreenProps) {
   const [displayName, setDisplayName] = useState("");
   const [city, setCity] = useState("");
@@ -35,6 +45,13 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
   const [mealPreferences, setMealPreferences] = useState<string[]>([]);
 
   // Debug function to clear user data for testing
+  /**
+   * Clears user data and resets the setup flag for testing purposes.
+   *
+   * This function updates the user's metadata in Supabase by setting the display_name and meal_preferences to null.
+   * It then retrieves the current user and, if a valid user ID is found, updates the user_profiles table to reset
+   * the setup_completed flag to false. Any errors encountered during the process are logged to the console.
+   */
   const clearUserDataForTesting = async () => {
     try {
       // Clear user metadata
@@ -62,6 +79,9 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     (window as any).clearUserDataForTesting = clearUserDataForTesting;
   }
 
+  /**
+   * Handles the profile setup by validating the display name and moving to the next step.
+   */
   const handleProfileSetup = async () => {
     if (!displayName.trim()) {
       Alert.alert("Required Field", "Please enter your display name");
@@ -137,6 +157,17 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     setSearchTimeout(timeout);
   }, [fetchCitySuggestions, searchTimeout]);
 
+  /**
+   * Handles the setup of location services and permissions.
+   *
+   * This function requests location permissions from the user and, if granted, retrieves the current location.
+   * It attempts to reverse geocode the location to obtain a city name, using a fallback if the city name is not provided.
+   * The location data is stored locally, and the loading state is managed throughout the process.
+   * Errors during the process are caught and displayed to the user.
+   *
+   * @returns {Promise<void>} A promise that resolves when the location setup is complete.
+   * @throws {Error} If there is an issue with location permissions or fetching the location.
+   */
   const handleLocationSetup = async () => {
     setLoading(true);
     try {
@@ -188,22 +219,34 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     }
   };
 
+  /**
+   * Moves to the next step (meal preferences).
+   */
   const handleLocationContinue = () => {
     // Move to next step (meal preferences)
     setStep(3);
   };
 
+  /**
+   * Moves to the completion step.
+   */
   const handleMealPreferences = () => {
     // Move to completion step
     setStep(4);
   };
 
+  /**
+   * Decreases the step by one if it is greater than one.
+   */
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1);
     }
   };
 
+  /**
+   * Toggles the specified meal preference in the state.
+   */
   const toggleMealPreference = (preference: string) => {
     setMealPreferences(prev => 
       prev.includes(preference) 
@@ -212,6 +255,15 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     );
   };
 
+  /**
+   * Handles the completion of a save process.
+   *
+   * This function sets a loading state to true, initiates the save process by calling
+   * saveAllData, and handles success or failure of the operation. Upon successful save,
+   * it invokes the onComplete callback. In case of an error, it logs the error and
+   * displays an alert with the error message. Finally, it ensures the loading state is
+   * reset to false.
+   */
   const handleComplete = async () => {
     setLoading(true);
     try {
@@ -231,6 +283,14 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     }
   };
 
+  /**
+   * Handles the skip action by saving minimal data and updating the loading state.
+   *
+   * This function sets the loading state to true, attempts to save minimal data using
+   * the saveMinimalData function, and calls the onSkip function upon success. If an error
+   * occurs during the save process, it displays an alert with the error message. Finally,
+   * it ensures that the loading state is set back to false regardless of the outcome.
+   */
   const handleSkip = async () => {
     setLoading(true);
     try {
@@ -244,6 +304,15 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     }
   };
 
+  /**
+   * Save minimal user data, including display name and profile completion status.
+   *
+   * The function checks if a display name is provided and updates the user's display name in Supabase.
+   * It then creates or updates a minimal user profile in the 'user_profiles' table, marking the setup as completed.
+   * If no display name is provided, it still marks the setup as completed to prevent showing the setup again.
+   *
+   * @throws Error If there is an error updating the user's display name or creating the user profile.
+   */
   const saveMinimalData = async () => {
     // Only save display name if provided
     if (displayName.trim()) {
@@ -292,6 +361,14 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     }
   };
 
+  /**
+   * Saves user profile data via a REST API.
+   *
+   * This function retrieves the current location if the city is provided and there is no existing location.
+   * It then sends a POST request to the '/user-profile/setup' endpoint with the user's display name, meal preferences,
+   * city, latitude, longitude, and discoverability radius. The function handles potential errors when fetching the
+   * current location and logs the completion of the profile setup.
+   */
   const saveAllData = async () => {
     console.log("Saving profile data via REST API...");
     
@@ -336,12 +413,22 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     };
   }, [searchTimeout]);
 
+  /**
+   * Renders a back button using Pressable and Ionicons.
+   */
   const renderBackButton = () => (
     <Pressable style={styles.backButton} onPress={handleBack}>
       <Ionicons name="arrow-back" size={24} color="white" />
     </Pressable>
   );
 
+  /**
+   * Renders the first step of the profile setup process.
+   *
+   * This function displays a user interface for setting up a profile, including a back button if the step is greater than 1.
+   * It prompts the user to enter their display name and provides a button to continue, which is disabled until a valid display name is entered.
+   * The button's appearance changes based on the loading state and the validity of the input.
+   */
   const renderStep1 = () => (
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
@@ -385,6 +472,14 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     </View>
   );
 
+  /**
+   * Renders the second step of the location setup process.
+   *
+   * This function checks if the user already has a location set up. If so, it displays a completion message.
+   * If not, it presents options to enable location services, including input fields for city and discovery radius,
+   * as well as buttons for enabling location and continuing to the next step. It also handles city suggestions
+   * based on user input and manages loading states during the location setup process.
+   */
   const renderStep2 = () => {
     // If user already has location setup, show completion message
     if (hasExistingLocation) {
@@ -517,6 +612,14 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     );
   };
 
+  /**
+   * Renders the meal preferences selection step in the user interface.
+   *
+   * This function displays a view containing a title, description, and a list of dietary preferences.
+   * Users can select their preferences, which are visually indicated. The function also includes a
+   * button to continue to the next step, invoking the handleMealPreferences function upon pressing it.
+   * The renderBackButton function is conditionally called based on the current step.
+   */
   const renderStep3 = () => (
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
@@ -574,6 +677,9 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     </View>
   );
 
+  /**
+   * Renders the fourth step of the profile setup, including a save button and preferences review.
+   */
   const renderStep4 = () => (
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
