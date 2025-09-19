@@ -27,6 +27,20 @@ type SettingsItem = {
 };
 
 /* ---------------- Screen ---------------- */
+/**
+ * Renders the settings screen for the application.
+ *
+ * This component manages user settings, including preferences, subscription, privacy, and help options. It retrieves the current user's data from Supabase and updates the local state accordingly. The settings items are displayed in a scrollable view, allowing users to navigate to different settings sections. The component also handles user logout with a confirmation alert.
+ *
+ * @param {Object} props - The properties for the SettingsScreen component.
+ * @param {function} [props.onBack] - Callback function to handle back navigation.
+ * @param {function} [props.onShowSubscription] - Callback function to show subscription settings.
+ * @param {function} [props.onShowPreferences] - Callback function to show user preferences.
+ * @param {function} [props.onShowAbout] - Callback function to show about information.
+ * @param {function} [props.onShowPrivacy] - Callback function to show privacy settings.
+ * @param {function} [props.onShowHelp] - Callback function to show help and support.
+ * @returns {JSX.Element} The rendered settings screen component.
+ */
 export default function SettingsScreen({ 
   onBack, 
   onShowSubscription,
@@ -53,6 +67,14 @@ export default function SettingsScreen({
 
   // Get current user data
   useEffect(() => {
+    /**
+     * Fetch the current user session and update user metadata with profile data.
+     *
+     * The function retrieves the current session from Supabase and checks if a user is present. If a user exists, it attempts to load the user profile from a REST API. Upon successful retrieval of meal preferences, it updates the user's metadata in Supabase and the local user state. Error handling is implemented for both session retrieval and API calls.
+     *
+     * @returns {Promise<void>} A promise that resolves when the operation is complete.
+     * @throws Error If there is an issue retrieving the session or updating user metadata.
+     */
     const getCurrentUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
