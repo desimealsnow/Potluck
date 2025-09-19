@@ -21,6 +21,20 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
 
   const payload = req.body as CreateEventInput;
 
+  // Validate event date is in the future
+  if (payload.event_date) {
+    const eventDate = new Date(payload.event_date);
+    const now = new Date();
+    
+    if (eventDate <= now) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Event date must be in the future', 
+        code: '400' 
+      });
+    }
+  }
+
   const result = await EventService.createEventWithItems(payload, req.user.id);
 
   // `handle` sends {ok:false} errors with proper status.

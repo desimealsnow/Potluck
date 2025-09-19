@@ -106,8 +106,30 @@ export default function CreateEventScreen({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
+      
+      // Validate event date is in the future
+      if (!selectedDate || !selectedTime) {
+        Alert.alert("Missing Date/Time", "Please select both date and time for your event.");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const eventDateTime = combineDateTime(selectedDate, selectedTime);
+      const now = new Date();
+      
+      if (eventDateTime <= now) {
+        Alert.alert(
+          "Invalid Event Time", 
+          "Please select a future date and time for your event. The event cannot be scheduled in the past.",
+          [{ text: "OK" }]
+        );
+        setIsSubmitting(false);
+        return;
+      }
+      
       if (!selectedLoc) {
         Alert.alert("Missing location", "Please select a location for your event.");
+        setIsSubmitting(false);
         return;
       }
 
@@ -580,9 +602,25 @@ export default function CreateEventScreen({
         visible={showDatePicker}
         onDismiss={() => setShowDatePicker(false)}
         date={selectedDate}
+        validRange={{
+          startDate: new Date(), // Today is the minimum date
+        }}
         onConfirm={(params) => {
           setShowDatePicker(false);
           if (params.date) {
+            // Additional validation to ensure date is not in the past
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day
+            
+            if (params.date < today) {
+              Alert.alert(
+                "Invalid Date", 
+                "Please select a future date for your event.",
+                [{ text: "OK" }]
+              );
+              return;
+            }
+            
             setSelectedDate(params.date);
           }
         }}

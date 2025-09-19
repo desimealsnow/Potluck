@@ -392,7 +392,7 @@ export async function listEvents(
   } else {
     // Use traditional mode (user's events only)
     return await performTraditionalSearch(userId, {
-      limit, offset, status, ownership, meal_type, startsAfter, startsBefore
+      limit, offset, status, ownership, meal_type, startsAfter, startsBefore, q
     });
   }
 }
@@ -439,7 +439,7 @@ async function performLocationBasedSearch(
             `)
             .eq('status', 'published')
             // Include all published events; some schemas may not persist is_public yet
-            .order('event_date', { ascending: true })
+            .order('event_date', { ascending: false })
             .range(offset, offset + limit - 1);
 
           if (joinErr) {
@@ -505,7 +505,7 @@ async function performLocationBasedSearch(
         .eq('status', 'published')
         .eq('is_public', true)
         .ilike('city', `%${near}%`)
-        .order('event_date', { ascending: true })
+        .order('event_date', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (error) {
@@ -662,7 +662,7 @@ async function performTraditionalSearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { limit = 20, offset = 0, status, ownership, meal_type, startsAfter, startsBefore } = params;
+  const { limit = 20, offset = 0, status, ownership, meal_type, startsAfter, startsBefore, q } = params;
   
   try {
     // Find all event_ids where the user is a participant (including host)
@@ -684,7 +684,7 @@ async function performTraditionalSearch(
       .order('event_date', { ascending: false });
 
     // Apply all filters using the helper function
-    query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore });
+    query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore, q });
 
     const { data: events, error: listErr, count } = await query.range(offset, offset + limit - 1);
 
@@ -730,7 +730,8 @@ function applyEventFilters<B>(
     ownership,
     meal_type,
     startsAfter,
-    startsBefore
+    startsBefore,
+    q
   }: {
     userId: string,
     participantIds: string[],
@@ -738,7 +739,8 @@ function applyEventFilters<B>(
     ownership?: string,
     meal_type?: string,
     startsAfter?: string,
-    startsBefore?: string
+    startsBefore?: string,
+    q?: string
   }
 ): B {
   logger.info('[EventService] applyEventFilters', { 
@@ -748,7 +750,8 @@ function applyEventFilters<B>(
     ownership, 
     meal_type, 
     startsAfter, 
-    startsBefore 
+    startsBefore,
+    q
   });
 
   // Apply ownership filter
@@ -808,6 +811,14 @@ function applyEventFilters<B>(
   if (startsBefore) {
     logger.info('[EventService] Adding startsBefore filter', { startsBefore });
     b = b.lte('event_date', startsBefore);
+  }
+  
+  // Add text search filter
+  if (q && q.trim()) {
+    logger.info('[EventService] Adding text search filter', { q });
+    const searchTerm = q.trim();
+    // Search in title and description using case-insensitive pattern matching
+    b = b.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
   }
   
   return b as B;

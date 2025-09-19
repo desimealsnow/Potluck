@@ -877,6 +877,61 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EventIdParam"
+
+  # User Profile Management
+  /user-profile/setup:
+    post:
+      summary: Complete user profile setup
+      description: Complete the initial profile setup with display name, meal preferences, and location
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileSetupRequest" }
+      responses:
+        "200":
+          description: Profile setup completed successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileSetupResponse" }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationError" }
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /user-profile/me:
+    get:
+      summary: Get current user profile
+      description: Retrieve the current user's profile information
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserProfile" }
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          description: User profile not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1309,6 +1364,119 @@ components:
       properties:
         cancel_at_period_end: { type: boolean }
         plan_id: { type: string, format: uuid }
+
+    # User Profile Management schemas
+    ProfileSetupRequest:
+      type: object
+      required: [display_name]
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          description: User's display name
+          example: "John Doe"
+        meal_preferences:
+          type: array
+          items:
+            type: string
+          description: Array of dietary preferences
+          example: ["Vegetarian", "Gluten-Free"]
+        city:
+          type: string
+          description: User's city
+          example: "San Francisco"
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate
+          example: 37.7749
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate
+          example: -122.4194
+        discoverability_radius_km:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 25
+          description: Discovery radius in kilometers
+          example: 25
+
+    ProfileSetupResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Profile setup completed successfully"
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User profile ID (same as user_id)
+        user_id:
+          type: string
+          format: uuid
+          description: User ID from auth
+        display_name:
+          type: string
+          description: User's display name
+        meal_preferences:
+          type: array
+          items:
+            type: string
+          description: Array of dietary preferences
+        city:
+          type: string
+          description: User's city
+        discoverability_enabled:
+          type: boolean
+          description: Whether user is discoverable
+        discoverability_radius_km:
+          type: integer
+          description: Discovery radius in kilometers
+        geo_precision:
+          type: string
+          enum: [exact, city]
+          description: Location precision level
+        setup_completed:
+          type: boolean
+          description: Whether user has completed initial setup
+        created_at:
+          type: string
+          format: date-time
+          description: Profile creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Profile last update timestamp
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Validation failed"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              path:
+                type: array
+                items:
+                  type: string
+
   responses:
     UnauthorizedError:
       description: Access token missing or invalid

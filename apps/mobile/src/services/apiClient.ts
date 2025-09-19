@@ -16,29 +16,50 @@ export class ApiError extends Error {
 
 export class ApiClient {
   private baseUrl: string;
+  private staticToken?: string;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 
+  // Allow app to set a token explicitly to avoid timing issues
+  setAuthToken(token?: string) {
+    this.staticToken = token;
+  }
+
   private async getAuthHeaders(): Promise<Record<string, string>> {
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    
-    console.log('🔐 Auth Debug:', {
-      hasSession: !!session,
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
-    });
-    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn('⚠️ No authentication token found');
+    try {
+      if (this.staticToken) {
+        headers.Authorization = `Bearer ${this.staticToken}`;
+        console.log('🔐 Auth Debug (getAuthHeaders): using static token');
+        return headers;
+      }
+      // Add timeout to prevent hanging
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Auth session timeout')), 3000)
+      );
+      const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+      const token = session?.access_token;
+      
+      console.log('🔐 Auth Debug (getAuthHeaders):', {
+        hasSession: !!session,
+        hasToken: !!token,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+      });
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      } else {
+        console.warn('⚠️ No authentication token found');
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to get auth session:', error);
+      // Continue without auth token - some endpoints might work without it
     }
     
     return headers;
@@ -48,15 +69,42 @@ export class ApiClient {
     path: string, 
     init?: RequestInit
   ): Promise<T> {
-    const headers = await this.getAuthHeaders();
+    let headers = await this.getAuthHeaders();
+    let authHeader = (headers as any).Authorization as string | undefined;
+
+    // If Authorization header is missing, wait briefly for auth to be ready (protected routes)
+    const isProtected = path.startsWith('/'); // treat all our API paths as protected by default
+    if (!authHeader && isProtected) {
+      console.log('⏳ Waiting for auth token before calling', path);
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        await new Promise(r => setTimeout(r, 250));
+        headers = await this.getAuthHeaders();
+        authHeader = (headers as any).Authorization as string | undefined;
+        if (authHeader) break;
+      }
+      if (!authHeader) {
+        console.warn('⚠️ Proceeding without auth header for', path);
+      }
+    }
     
-    const response = await fetch(`${this.baseUrl}${path}`, {
+    const url = `${this.baseUrl}${path}`;
+    const authHeaderPreview2 = (headers as any).Authorization;
+    console.log('🌐 API Request:', {
+      url,
+      method: (init?.method || 'GET'),
+      hasAuthHeader: !!authHeaderPreview2,
+      authHeaderPreview: authHeaderPreview2 ? `${String(authHeaderPreview2).slice(0, 24)}...` : 'none'
+    });
+
+    const response = await fetch(url, {
       ...init,
       headers: {
         ...headers,
         ...((init?.headers as Record<string, string>) || {}),
       },
     });
+
+    console.log('🌐 API Response:', { url, status: response.status });
 
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status}`;

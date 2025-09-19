@@ -15,12 +15,129 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../config/supabaseClient";
+import { apiClient } from "../../services/apiClient";
 import type { User, AuthError } from "@supabase/supabase-js";
 import EventList from "./EventList";
+import ProfileSetupScreen from "./ProfileSetupScreen";
+import SubscriptionScreen from "./SubscriptionScreen";
+import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
 
 export default function SupabaseAuthUI() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number; radius_km: number } | null>(null);
+  
+  const { hasActiveSubscription, isLoading: subscriptionLoading } = useSubscriptionCheck();
+
+  // Function to load user location
+  const loadUserLocation = async () => {
+    try {
+      const response = await apiClient.get('/user-profile/me') as any;
+      console.log('🔎 /me payload:', {
+        hasLat: !!response.latitude,
+        hasLon: !!response.longitude,
+        city: response.city,
+        radius: response.discoverability_radius_km,
+        home_geog: response.home_geog ? 'present' : 'absent'
+      });
+      // Prefer server-provided coordinates
+      if (response.latitude && response.longitude) {
+        const radius = response.discoverability_radius_km || 10;
+        setUserLocation({
+          lat: response.latitude,
+          lon: response.longitude,
+          radius_km: radius
+        });
+        console.log("User location loaded:", { lat: response.latitude, lon: response.longitude, radius });
+        return;
+      }
+
+      // Fallback: if we have a city string but no coordinates, geocode the city
+      if (response.city && typeof response.city === 'string') {
+        try {
+          const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(response.city)}&limit=1`;
+          console.log('🌍 Geocoding city via Nominatim:', url);
+          const geoRes = await fetch(url, { headers: { 'Accept': 'application/json' } });
+          const list = await geoRes.json();
+          console.log('🌍 Geocoding result length:', Array.isArray(list) ? list.length : 'not-array');
+          if (Array.isArray(list) && list.length > 0) {
+            const first = list[0];
+            const lat = parseFloat(first.lat);
+            const lon = parseFloat(first.lon);
+            if (!Number.isNaN(lat) && !Number.isNaN(lon)) {
+              const radius = response.discoverability_radius_km || 10;
+              setUserLocation({ lat, lon, radius_km: radius });
+              console.log("User location derived from city:", { lat, lon, radius });
+              return;
+            }
+          }
+          // Fallback: progressively shorten the query (strip postal codes and deep locality parts)
+          const components = String(response.city).split(',').map(s => s.trim()).filter(Boolean);
+          const cleaned = components.filter(c => !/^\d{4,}$/.test(c));
+          // Try from broader to narrower: last 3 -> last 2 -> middle city-like tokens
+          const candidates: string[] = [];
+          if (cleaned.length >= 3) candidates.push(cleaned.slice(-3).join(', '));
+          if (cleaned.length >= 2) candidates.push(cleaned.slice(-2).join(', '));
+          if (cleaned.length >= 1) candidates.push(cleaned[cleaned.length - 1]);
+          if (cleaned.length >= 1) candidates.push(cleaned[0]);
+          for (const q of candidates) {
+            const url2 = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`;
+            console.log('🌍 Geocoding fallback:', q, url2);
+            const r2 = await fetch(url2, { headers: { 'Accept': 'application/json' } });
+            const l2 = await r2.json();
+            if (Array.isArray(l2) && l2.length > 0) {
+              const lat2 = parseFloat(l2[0].lat);
+              const lon2 = parseFloat(l2[0].lon);
+              if (!Number.isNaN(lat2) && !Number.isNaN(lon2)) {
+                const radius = response.discoverability_radius_km || 10;
+                setUserLocation({ lat: lat2, lon: lon2, radius_km: radius });
+                console.log('User location derived from fallback:', { q, lat: lat2, lon: lon2, radius });
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          console.log('City geocoding failed:', e);
+        }
+      }
+    } catch (error) {
+      console.log("Could not load user location:", error);
+    }
+  };
+
+  // Debug function for testing - can be called from browser console
+  const resetSetupForTesting = async () => {
+    try {
+      // Reset setup_completed flag in database
+      if (user?.id) {
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({ setup_completed: false })
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Failed to reset setup flag:', error);
+        } else {
+          console.log('Setup flag reset successfully');
+        }
+      }
+      
+      // Show setup screen
+      setShowProfileSetup(true);
+      setShowSubscription(false);
+      setIsNewUser(true);
+    } catch (error) {
+      console.error('Error resetting setup:', error);
+    }
+  };
+
+  // Make debug function available globally for testing
+  if (typeof window !== 'undefined') {
+    (window as any).resetSetupForTesting = resetSetupForTesting;
+  }
 
   useEffect(() => {
     // Check for existing session
@@ -31,6 +148,9 @@ export default function SupabaseAuthUI() {
           console.error("Session error:", error);
         } else if (session?.user) {
           setUser(session.user);
+          if ((session as any).access_token) {
+            try { (apiClient as any).setAuthToken?.((session as any).access_token); } catch {}
+          }
         }
       } catch (error) {
         console.error("Session check failed:", error);
@@ -46,14 +166,98 @@ export default function SupabaseAuthUI() {
         console.log("Auth state changed:", event, session?.user?.email);
         if (session?.user) {
           setUser(session.user);
+          if ((session as any).access_token) {
+            try { (apiClient as any).setAuthToken?.((session as any).access_token); } catch {}
+          }
+          
+          // Check if user needs profile setup
+          const needsProfileSetup = !session.user.user_metadata?.display_name;
+          
+          // Check if user has completed setup using our REST API
+          let setupCompleted = false;
+          try {
+            console.log("Checking setup completion via REST API...");
+            
+            // Add a small delay to ensure auth token is ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Only make the API call if we have a valid session
+            if (session?.access_token) {
+              console.log('🔐 Access token present, calling /me');
+              const response = await apiClient.get('/user-profile/me') as any;
+              console.log("Profile check response:", response);
+            
+              if (response.setup_completed) {
+                setupCompleted = true;
+                console.log("Setup completed based on API response");
+              } else {
+                console.log("Setup not completed based on API response");
+              }
+              
+              // Also extract user location for EventList
+              if (response.latitude && response.longitude) {
+                const radius = response.discoverability_radius_km || 10;
+                setUserLocation({
+                  lat: response.latitude,
+                  lon: response.longitude,
+                  radius_km: radius
+                });
+                console.log("User location loaded for EventList:", { lat: response.latitude, lon: response.longitude, radius });
+              }
+            } else {
+              console.log("No access token available, skipping API call");
+            }
+          } catch (apiError) {
+            // If API call fails, fall back to user metadata check
+            console.log("Could not check setup completion via API:", apiError);
+            console.log("Falling back to user metadata check");
+            
+            // Check if user has display_name in metadata (indicates setup completed)
+            if (session.user.user_metadata?.display_name) {
+              setupCompleted = true;
+              console.log("Setup completed based on user metadata fallback");
+            } else {
+              console.log("Setup not completed - no display_name in metadata");
+            }
+          }
+
+          // Show setup if user hasn't completed it
+          if (needsProfileSetup || !setupCompleted) {
+            console.log("Showing profile setup - needsSetup:", needsProfileSetup, "setupCompleted:", setupCompleted);
+            setIsNewUser(true);
+            setShowProfileSetup(true);
+          } else {
+            console.log("Profile setup completed, showing main app");
+          }
+
+          // For testing: Check if user wants to reset setup
+          // You can add a query parameter or localStorage flag to trigger this
+          const shouldResetSetup = false; // Set to true for testing
+          if (shouldResetSetup) {
+            setIsNewUser(true);
+            setShowProfileSetup(true);
+          }
         } else {
           setUser(null);
+          setShowProfileSetup(false);
+          setShowSubscription(false);
+          setIsNewUser(false);
+          try { (apiClient as any).setAuthToken?.(undefined); } catch {}
         }
       }
     );
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Ensure we attempt to load location when main app becomes visible
+  useEffect(() => {
+    const inApp = !!user && !showProfileSetup && !showSubscription && !loading;
+    if (inApp && !userLocation) {
+      console.log('🔁 Loading user location on app view mount');
+      loadUserLocation();
+    }
+  }, [user, showProfileSetup, showSubscription, loading]);
 
   // Show loading screen
   if (loading) {
@@ -68,9 +272,62 @@ export default function SupabaseAuthUI() {
     );
   }
 
-  // If user is authenticated, show EventList
-  if (user) {
-    return <EventList />;
+  // Show profile setup for new users or users without profile
+  if (user && showProfileSetup) {
+    return (
+      <ProfileSetupScreen
+        onComplete={() => {
+          setShowProfileSetup(false);
+          // Load user location after profile setup
+          loadUserLocation();
+          // After profile setup, check subscription
+          if (!hasActiveSubscription) {
+            setShowSubscription(true);
+          }
+        }}
+        onSkip={() => {
+          setShowProfileSetup(false);
+          // Load user location after profile setup
+          loadUserLocation();
+          // After skipping profile setup, check subscription
+          if (!hasActiveSubscription) {
+            setShowSubscription(true);
+          }
+        }}
+      />
+    );
+  }
+
+  // Show subscription screen if user doesn't have active subscription
+  // Only show if user is authenticated and subscription check is complete
+  if (user && showSubscription && !hasActiveSubscription && !subscriptionLoading) {
+    return (
+      <SubscriptionScreen
+        onBack={() => {
+          setShowSubscription(false);
+          // Allow user to continue without subscription for now
+        }}
+      />
+    );
+  }
+
+  // If user is authenticated and has completed setup, show EventList
+  if (user && !showProfileSetup && !showSubscription && !loading) {
+    return <EventList userLocation={userLocation} />;
+  }
+
+  // Show loading while checking profile setup
+  if (user && loading) {
+    return (
+      <LinearGradient colors={["#5A60F6", "#3C8CE7", "#00B8D4"]} style={styles.container}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="white" />
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
   }
 
   // Show Auth UI

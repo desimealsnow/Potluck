@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Platform,
   Alert,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -146,7 +147,11 @@ function confirmAsync(
 }
 
 /* ---------------------- Screen ---------------------- */
-export default function App() {
+interface EventListProps {
+  userLocation?: { lat: number; lon: number; radius_km: number } | null;
+}
+
+export default function App({ userLocation: propUserLocation }: EventListProps = {}) {
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
   const [ownership, setOwnership] = useState<Ownership>("all");
   const [dietFilters, setDietFilters] = useState<Diet[]>([]);
@@ -154,7 +159,7 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState<EventItem[]>([]);
   const [useNearby, setUseNearby] = useState(false);
-  const defaultNearby = { lat: 37.7849, lon: -122.4094, radius_km: 25 } as const;
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number; radius_km: number } | null>(propUserLocation || null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -191,6 +196,24 @@ export default function App() {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [navigationContext, setNavigationContext] = useState<string | null>(null);
+  const refreshUserLocation = useCallback(async () => {
+    try {
+      const response = await apiClient.get('/user-profile/me') as any;
+      if (response?.latitude && response?.longitude) {
+        setUserLocation({
+          lat: Number(response.latitude),
+          lon: Number(response.longitude),
+          radius_km: Number(response.discoverability_radius_km || 10)
+        });
+      } else if (response?.city) {
+        // keep previous until SupabaseAuthUI geocodes; don't clear to avoid flicker
+        console.log('UserLocation updated city only; waiting for coords');
+      }
+    } catch (e) {
+      console.log('refreshUserLocation failed:', e);
+    }
+  }, []);
 
   const bgGradient = useMemo(
     () => gradients.header.cool,
@@ -235,7 +258,7 @@ export default function App() {
         status: statusTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
-        nearby: useNearby ? defaultNearby : null,
+        nearby: useNearby && userLocation ? userLocation : null,
       });
       setData(res.items);
       setHasMore(res.hasMore);
@@ -246,7 +269,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [query, statusTab, ownership, dietFilters]);
+  }, [query, statusTab, ownership, dietFilters, useNearby, userLocation]);
 
   // Reload with explicit status tab (avoids stale fetch after switching tabs)
   const reloadWith = useCallback(async (nextTab: EventStatusMobile) => {
@@ -260,7 +283,7 @@ export default function App() {
         status: nextTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
-        nearby: useNearby ? defaultNearby : null,
+        nearby: useNearby && userLocation ? userLocation : null,
       });
       setData(res.items);
       setHasMore(res.hasMore);
@@ -271,7 +294,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [query, ownership, dietFilters]);
+  }, [query, ownership, dietFilters, useNearby, userLocation]);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -285,7 +308,7 @@ export default function App() {
         status: statusTab,
         ownership,
         diet: dietFilters.length ? dietFilters : undefined,
-        nearby: useNearby ? defaultNearby : null,
+        nearby: useNearby && userLocation ? userLocation : null,
       });
       setData((d) => [...d, ...res.items]);
       setPage(next);
@@ -295,16 +318,26 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [page, query, statusTab, ownership, dietFilters, hasMore, loading]);
+  }, [page, query, statusTab, ownership, dietFilters, hasMore, loading, useNearby, userLocation]);
 
   // Debounce search input
   useEffect(() => {
     if (debTimer.current) clearTimeout(debTimer.current);
-    debTimer.current = setTimeout(() => reload(), 250);
+    debTimer.current = setTimeout(() => {
+      console.log("Search triggered with query:", query);
+      reload();
+    }, 300);
     return () => {
       if (debTimer.current) clearTimeout(debTimer.current);
     };
   }, [query, statusTab, ownership, dietFilters, useNearby, reload]);
+
+  // Update userLocation when prop changes
+  useEffect(() => {
+    if (propUserLocation) {
+      setUserLocation(propUserLocation);
+    }
+  }, [propUserLocation]);
 
   // Load unread count initially and when coming back from notifications
   useEffect(() => {
@@ -464,11 +497,40 @@ export default function App() {
     setShowCreateEvent(false);
   };
 
+  const handleBackNavigation = (pageName: string) => {
+    // Close the current page
+    switch (pageName) {
+      case 'preferences':
+        setShowPreferences(false);
+        // Pull latest profile so Nearby reflects immediately after saving
+        refreshUserLocation();
+        break;
+      case 'subscription':
+        setShowSubscription(false);
+        break;
+      case 'about':
+        setShowAbout(false);
+        break;
+      case 'privacy':
+        setShowPrivacy(false);
+        break;
+      case 'help':
+        setShowHelp(false);
+        break;
+    }
+    
+    // If we came from settings, go back to settings
+    if (navigationContext === 'settings') {
+      setShowSettings(true);
+      setNavigationContext(null);
+    }
+  };
+
   // Show SubscriptionScreen if subscription is selected
   if (showSubscription) {
     return (
       <SubscriptionScreen 
-        onBack={() => setShowSubscription(false)}
+        onBack={() => handleBackNavigation('subscription')}
       />
     );
   }
@@ -481,22 +543,27 @@ export default function App() {
         onShowSubscription={() => {
           setShowSettings(false);
           setShowSubscription(true);
+          setNavigationContext('settings');
         }}
         onShowPreferences={() => {
           setShowSettings(false);
           setShowPreferences(true);
+          setNavigationContext('settings');
         }}
         onShowAbout={() => {
           setShowSettings(false);
           setShowAbout(true);
+          setNavigationContext('settings');
         }}
         onShowPrivacy={() => {
           setShowSettings(false);
           setShowPrivacy(true);
+          setNavigationContext('settings');
         }}
         onShowHelp={() => {
           setShowSettings(false);
           setShowHelp(true);
+          setNavigationContext('settings');
         }}
       />
     );
@@ -509,25 +576,33 @@ export default function App() {
 
   if (showPreferences) {
     return (
-      <UserPreferencesScreen onBack={() => setShowPreferences(false)} />
+      <UserPreferencesScreen 
+        onBack={() => handleBackNavigation('preferences')}
+      />
     );
   }
 
   if (showAbout) {
     return (
-      <AboutScreen onBack={() => setShowAbout(false)} />
+      <AboutScreen 
+        onBack={() => handleBackNavigation('about')}
+      />
     );
   }
 
   if (showPrivacy) {
     return (
-      <PrivacyScreen onBack={() => setShowPrivacy(false)} />
+      <PrivacyScreen 
+        onBack={() => handleBackNavigation('privacy')}
+      />
     );
   }
 
   if (showHelp) {
     return (
-      <HelpScreen onBack={() => setShowHelp(false)} />
+      <HelpScreen 
+        onBack={() => handleBackNavigation('help')}
+      />
     );
   }
 
@@ -601,16 +676,39 @@ export default function App() {
         </View>
 
         {/* Search */}
-        <View style={styles.searchWrap} testID="search-container">
-          <Input
-            placeholder="Search events..."
-            value={query}
-            onChangeText={setQuery}
-            leftIcon="search"
-            style={styles.searchInput}
-            testID="search-input"
-          />
+        <View style={styles.searchContainer} testID="search-container">
+          <View style={styles.searchWrap}>
+            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
+            <TextInput
+              placeholder="Search events..."
+              placeholderTextColor="rgba(255,255,255,0.6)"
+              value={query}
+              onChangeText={setQuery}
+              style={styles.searchInput}
+              testID="search-input"
+              returnKeyType="search"
+              onSubmitEditing={() => reload()}
+            />
+            {query.length > 0 && (
+              <Pressable 
+                onPress={() => setQuery('')} 
+                style={styles.clearButton}
+                testID="clear-search-button"
+              >
+                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.7)" />
+              </Pressable>
+            )}
+          </View>
         </View>
+
+        {/* Search Results Indicator */}
+        {query.length > 0 && (
+          <View style={styles.searchResultsIndicator}>
+            <Text style={styles.searchResultsText}>
+              {loading ? "Searching..." : `Found ${data.length} event${data.length !== 1 ? 's' : ''} for "${query}"`}
+            </Text>
+          </View>
+        )}
 
         {/* Segmented control */}
         <View style={styles.segmentWrap} testID="status-filter-container">
@@ -642,20 +740,50 @@ export default function App() {
               </Chip>
             </View>
           ))}
-          {useNearby !== null && (
+          {userLocation && (
             <View style={styles.chipItem}>
               <Chip
                 selected={useNearby}
                 onPress={() => {
                   setUseNearby(v => !v);
-                  setTimeout(() => reload(), 0);
+                  // Reload will be triggered by effects bound to useNearby/userLocation
                 }}
                 icon={useNearby ? "location" : "location-outline"}
                 tone="violet"
                 testID={`ownership-filter-nearby`}
               >
-                Nearby
+                Nearby ({userLocation.radius_km}km)
               </Chip>
+            </View>
+          )}
+          
+          {/* Radius adjustment when Nearby is selected */}
+          {useNearby && userLocation && (
+            <View style={styles.radiusContainer}>
+              <Text style={styles.radiusLabel}>Radius: {userLocation.radius_km}km</Text>
+              <View style={styles.radiusSlider}>
+                <Pressable 
+                  onPress={() => {
+                    const newRadius = Math.max(1, userLocation.radius_km - 5);
+                    setUserLocation(prev => prev ? { ...prev, radius_km: newRadius } : null);
+                    // Reload will be triggered by effects when userLocation changes
+                  }}
+                  style={styles.radiusButton}
+                >
+                  <Ionicons name="remove" size={16} color="#7b2ff7" />
+                </Pressable>
+                <Text style={styles.radiusValue}>{userLocation.radius_km}km</Text>
+                <Pressable 
+                  onPress={() => {
+                    const newRadius = Math.min(100, userLocation.radius_km + 5);
+                    setUserLocation(prev => prev ? { ...prev, radius_km: newRadius } : null);
+                    // Reload will be triggered by effects when userLocation changes
+                  }}
+                  style={styles.radiusButton}
+                >
+                  <Ionicons name="add" size={16} color="#7b2ff7" />
+                </Pressable>
+              </View>
             </View>
           )}
         </View>
@@ -690,10 +818,28 @@ export default function App() {
             loading ? (
               <View style={styles.emptyWrap} testID="loading-container">
                 <ActivityIndicator color="#fff" testID="loading-indicator" />
+                <Text style={styles.loadingText}>Loading events...</Text>
+              </View>
+            ) : query.length > 0 ? (
+              <View style={styles.emptyWrap} testID="no-search-results">
+                <Ionicons name="search" size={48} color="rgba(255,255,255,0.4)" />
+                <Text style={styles.noResultsTitle}>No events found</Text>
+                <Text style={styles.noResultsText}>
+                  No events match your search for "{query}". Try adjusting your search terms or filters.
+                </Text>
+                <Pressable 
+                  onPress={() => setQuery('')} 
+                  style={styles.clearSearchButton}
+                  testID="clear-search-results-button"
+                >
+                  <Text style={styles.clearSearchButtonText}>Clear Search</Text>
+                </Pressable>
               </View>
             ) : (
               <View style={styles.emptyWrap} testID="empty-state">
-                <Text style={{ color: "#fff" }} testID="empty-text">No events found</Text>
+                <Ionicons name="calendar-outline" size={48} color="rgba(255,255,255,0.4)" />
+                <Text style={styles.emptyTitle}>No events yet</Text>
+                <Text style={styles.emptyText}>Create your first event to get started!</Text>
               </View>
             )
           }
@@ -950,19 +1096,54 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
 
-  searchWrap: {
-    marginTop: 10,
+  searchContainer: {
+    marginTop: 12,
     marginHorizontal: 0,
-    height: 42,
+  },
+  searchWrap: {
+    height: 48,
     borderRadius: 12,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderColor: "rgba(255,255,255,0.3)",
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderColor: "rgba(255,255,255,0.25)",
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  searchInput: { marginLeft: 8, flex: 1, color: "#fff", fontSize: 15 },
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: { 
+    flex: 1, 
+    color: "#fff", 
+    fontSize: 16,
+    fontWeight: "500",
+    paddingVertical: 0,
+  },
+  clearButton: {
+    marginLeft: 8,
+    padding: 4,
+  },
+  searchResultsIndicator: {
+    marginTop: 8,
+    marginHorizontal: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#7b2ff7",
+  },
+  searchResultsText: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 14,
+    fontWeight: "500",
+  },
 
   // NEW – aligns segmented with everything else
   segmentWrap: { paddingHorizontal: 0, marginTop: 10 },
@@ -1006,7 +1187,97 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.25)",
   },
   avatar: { width: "100%", height: "100%", borderRadius: 14 },
-  emptyWrap: { alignItems: "center", paddingVertical: 40 },
+  emptyWrap: { 
+    alignItems: "center", 
+    paddingVertical: 40,
+    paddingHorizontal: 32,
+  },
+  loadingText: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 16,
+    marginTop: 12,
+    fontWeight: "500",
+  },
+  noResultsTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 16,
+    textAlign: "center",
+  },
+  noResultsText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  clearSearchButton: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  clearSearchButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  emptyTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 16,
+    textAlign: "center",
+  },
+  emptyText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  radiusContainer: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  radiusLabel: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  radiusSlider: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radiusButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  radiusValue: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+    marginHorizontal: 16,
+    minWidth: 40,
+    textAlign: "center",
+  },
 
   // Standardized list padding
   listContent: { paddingHorizontal: PAGE_PADDING, paddingBottom: 24 },

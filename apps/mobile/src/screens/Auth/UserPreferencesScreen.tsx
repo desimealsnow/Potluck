@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiClient } from "@/services/apiClient";
+import { supabase } from "../../config/supabaseClient";
 
 export default function UserPreferencesScreen({ onBack }: { onBack?: () => void }) {
   const [latitude, setLatitude] = useState<string>(""); // hidden/internal
@@ -11,10 +12,13 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
   const [city, setCity] = useState<string>("");
   const [radiusKm, setRadiusKm] = useState<string>("25");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState<string>("");
   const [searching, setSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [mealPreferences, setMealPreferences] = useState<string[]>([]);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -29,14 +33,91 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
     })();
   }, []);
 
+  // Load user data and meal preferences
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          
+          // Load user profile from our REST API
+          try {
+            console.log("Loading user profile from REST API...");
+            const response = await apiClient.get('/user-profile/me') as any;
+            console.log("Profile response:", response);
+            
+            if (response.meal_preferences) {
+              console.log("Setting meal preferences from API:", response.meal_preferences);
+              setMealPreferences(response.meal_preferences);
+            } else if (session.user.user_metadata?.meal_preferences) {
+              // Fallback to user metadata
+              console.log("Setting meal preferences from user metadata:", session.user.user_metadata.meal_preferences);
+              setMealPreferences(session.user.user_metadata.meal_preferences);
+            } else {
+              console.log("No meal preferences found in API or metadata");
+            }
+
+            // Load location data
+            if (response.city) {
+              console.log("Setting city from API:", response.city);
+              setCity(response.city);
+            }
+            
+            if (response.discoverability_radius_km) {
+              console.log("Setting radius from API:", response.discoverability_radius_km);
+              setRadiusKm(response.discoverability_radius_km.toString());
+            }
+
+            // Load coordinates if available
+            if (response.latitude && response.longitude) {
+              console.log("Setting coordinates from API:", { lat: response.latitude, lon: response.longitude });
+              setLatitude(response.latitude.toString());
+              setLongitude(response.longitude.toString());
+            }
+          } catch (apiError) {
+            console.error("API error:", apiError);
+            // Fallback to user metadata if API call fails
+            if (session.user.user_metadata?.meal_preferences) {
+              console.log("Fallback to user metadata:", session.user.user_metadata.meal_preferences);
+              setMealPreferences(session.user.user_metadata.meal_preferences);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadUserData();
+  }, []);
+
+  const toggleMealPreference = (preference: string) => {
+    setMealPreferences(prev => 
+      prev.includes(preference) 
+        ? prev.filter(p => p !== preference)
+        : [...prev, preference]
+    );
+  };
+
   const save = useCallback(async () => {
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
-    if (Number.isNaN(lat) || Number.isNaN(lon)) {
-      Alert.alert('Invalid coordinates', 'Please enter valid latitude and longitude.');
+    console.log("Save button clicked!");
+    console.log("Current meal preferences:", mealPreferences);
+    console.log("Current location:", { latitude, longitude, city });
+    
+    const lat = latitude ? parseFloat(latitude) : undefined;
+    const lon = longitude ? parseFloat(longitude) : undefined;
+    console.log("Parsed coordinates:", { lat, lon, hasLat: !!lat, hasLon: !!lon });
+    
+    // Only require coordinates if we don't have a city
+    if (!city && (Number.isNaN(lat) || Number.isNaN(lon))) {
+      console.log("No city and invalid coordinates detected, showing alert");
+      Alert.alert('Location required', 'Please either enter a city or use "Use Current Location" to get coordinates.');
       return;
     }
     const radius = Math.max(1, Math.min(200, parseInt(radiusKm || '25', 10)));
+    console.log("Starting save process...");
     setSaving(true);
     try {
       // Ensure a city value when saving (reverse geocode if missing)
@@ -49,28 +130,40 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
         } catch {}
       }
 
-      await apiClient.patch(`/user-location/me/location`, {
-        latitude: lat,
-        longitude: lon,
+      // Save everything using our REST API
+      console.log("Saving preferences via REST API...");
+      const payload: any = {
+        display_name: user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User',
+        meal_preferences: mealPreferences,
         city: cityToSend || null,
-        geo_precision: 'exact'
-      });
-      // Try to update discoverability; ignore if endpoint not present
+        discoverability_radius_km: radius
+      };
+      
+      // Only include coordinates if we have them
+      if (lat && lon) {
+        payload.latitude = lat;
+        payload.longitude = lon;
+      }
+      
+      console.log("API payload:", payload);
+      
       try {
-        await apiClient.patch(`/user-location/me/discoverability`, {
-          discoverability_enabled: true,
-          discoverability_radius_km: radius,
-          geo_precision: 'exact'
-        });
-      } catch {}
-      Alert.alert('Preferences saved', 'Your location and discovery radius have been updated.');
+        console.log("About to call apiClient.post...");
+        const response = await apiClient.post('/user-profile/setup', payload);
+        console.log("API response:", response);
+        console.log("Preferences saved successfully");
+      } catch (apiError) {
+        console.error("API call failed:", apiError);
+        throw apiError; // Re-throw to be caught by outer try-catch
+      }
+      Alert.alert('Preferences saved', 'Your location, discovery radius, and meal preferences have been updated.');
       onBack?.();
     } catch (e: any) {
       Alert.alert('Save failed', e?.message ?? 'Unknown error');
     } finally {
       setSaving(false);
     }
-  }, [latitude, longitude, city, radiusKm, onBack]);
+  }, [latitude, longitude, city, radiusKm, mealPreferences, user, onBack]);
 
   const useCurrentLocation = useCallback(async () => {
     try {
@@ -172,6 +265,14 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
             <View style={{ width: 40 }} />
           </View>
           <ScrollView contentContainerStyle={{ padding: 16 }}>
+            {/* Loading Overlay */}
+            {loading && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#fff" />
+                <Text style={styles.loadingText}>Loading preferences...</Text>
+              </View>
+            )}
+            
             <View style={styles.card}>
               <Text style={styles.label}>Search place (powered by OpenStreetMap)</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -216,7 +317,50 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
                 keyboardType="number-pad"
                 style={styles.input}
               />
-              <Pressable style={[styles.button, { opacity: saving ? 0.6 : 1 }]} onPress={save} disabled={saving}>
+              
+              {/* Meal Preferences Section */}
+              <Text style={styles.label}>Dietary Preferences</Text>
+              <Text style={styles.subLabel}>Select your dietary preferences to help us suggest better events</Text>
+              <View style={styles.preferencesContainer}>
+                {[
+                  "Vegetarian",
+                  "Vegan", 
+                  "Gluten-Free",
+                  "Dairy-Free",
+                  "Nut-Free",
+                  "Halal",
+                  "Kosher",
+                  "No Spicy Food"
+                ].map((preference) => (
+                  <Pressable
+                    key={preference}
+                    style={[
+                      styles.preferenceItem,
+                      mealPreferences.includes(preference) && styles.preferenceItemSelected
+                    ]}
+                    onPress={() => toggleMealPreference(preference)}
+                  >
+                    <Text style={[
+                      styles.preferenceText,
+                      mealPreferences.includes(preference) && styles.preferenceTextSelected
+                    ]}>
+                      {preference}
+                    </Text>
+                    {mealPreferences.includes(preference) && (
+                      <Ionicons name="checkmark" size={16} color="#fff" />
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+
+              <Pressable 
+                style={[styles.button, { opacity: saving ? 0.6 : 1 }]} 
+                onPress={() => {
+                  console.log("Button pressed!");
+                  save();
+                }} 
+                disabled={saving}
+              >
                 <Text style={styles.buttonText}>{saving ? 'Saving…' : 'Save Preferences'}</Text>
               </Pressable>
             </View>
@@ -260,11 +404,36 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10
   },
-  buttonText: { color: '#fff', fontWeight: '800' }
-});
-
-// Extra styles for suggestions
-Object.assign(styles, {
+  buttonText: { color: '#fff', fontWeight: '800' },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 16,
+  },
+  smallBtn: {
+    backgroundColor: '#7b2ff7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  smallBtnText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600'
+  },
   suggestionsBox: {
     marginTop: 8,
     backgroundColor: '#fff',
@@ -282,6 +451,44 @@ Object.assign(styles, {
   suggestionText: {
     color: '#111827',
     fontSize: 14,
+    fontWeight: '600'
+  },
+  subLabel: {
+    color: '#6B7280',
+    fontSize: 12,
+    marginTop: 2,
+    marginBottom: 8
+  },
+  preferencesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16
+  },
+  preferenceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    minWidth: 100
+  },
+  preferenceItemSelected: {
+    backgroundColor: '#7b2ff7',
+    borderColor: '#6d28d9'
+  },
+  preferenceText: {
+    color: '#374151',
+    fontSize: 12,
+    fontWeight: '500',
+    marginRight: 4
+  },
+  preferenceTextSelected: {
+    color: 'white',
     fontWeight: '600'
   }
 });

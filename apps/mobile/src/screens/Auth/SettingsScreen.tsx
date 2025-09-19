@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../config/supabaseClient";
+import { apiClient } from "../../services/apiClient";
 import type { User } from "@supabase/supabase-js";
 
 /* ---------------- Types ---------------- */
@@ -57,6 +58,36 @@ export default function SettingsScreen({
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
+          
+          // Load user profile from our REST API
+          try {
+            console.log("Settings: Loading user profile from REST API...");
+            const response = await apiClient.get('/user-profile/me') as any;
+            console.log("Settings: Profile response:", response);
+            
+            if (response.meal_preferences) {
+              console.log("Settings: Updating user metadata with profile data:", response.meal_preferences);
+              // Update user metadata with profile data
+              const { error: updateError } = await supabase.auth.updateUser({
+                data: { meal_preferences: response.meal_preferences }
+              });
+              
+              if (!updateError) {
+                // Update local user state to reflect the changes
+                setUser(prev => prev ? {
+                  ...prev,
+                  user_metadata: {
+                    ...prev.user_metadata,
+                    meal_preferences: response.meal_preferences
+                  }
+                } : null);
+              } else {
+                console.error("Failed to update user metadata:", updateError);
+              }
+            }
+          } catch (apiError) {
+            console.log("Settings: Could not load profile from API:", apiError);
+          }
         }
       } catch (error) {
         console.error("Error getting user:", error);
@@ -79,7 +110,7 @@ export default function SettingsScreen({
     {
       id: "preferences",
       title: "User Preferences",
-      subtitle: "Location & discovery radius",
+      subtitle: "Profile and account settings",
       icon: "person-circle",
       onPress: () => onShowPreferences?.(),
       showChevron: true,
@@ -156,6 +187,18 @@ export default function SettingsScreen({
                   {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
                 </Text>
                 <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
+                {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
+                  <View style={styles.mealPreferencesContainer}>
+                    <Text style={styles.mealPreferencesLabel}>Dietary Preferences:</Text>
+                    <View style={styles.mealPreferencesTags}>
+                      {user.user_metadata.meal_preferences.map((preference: string, index: number) => (
+                        <View key={index} style={styles.mealPreferenceTag}>
+                          <Text style={styles.mealPreferenceText}>{preference}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           </View>
@@ -328,5 +371,32 @@ const styles = StyleSheet.create({
   copyrightText: {
     fontSize: 12,
     color: "rgba(255,255,255,0.6)",
+  },
+  mealPreferencesContainer: {
+    marginTop: 8,
+  },
+  mealPreferencesLabel: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.7)",
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+  mealPreferencesTags: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+  },
+  mealPreferenceTag: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.3)",
+  },
+  mealPreferenceText: {
+    fontSize: 11,
+    color: "white",
+    fontWeight: "500",
   },
 });

@@ -9,6 +9,7 @@ import {
   Text,
   View,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -202,7 +203,10 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
     return (
       <LinearGradient colors={gradient} style={{ flex: 1 }}>
         <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Loading...</Text>
+          <ActivityIndicator size="large" color="#7b2ff7" />
+          <Text style={{ color: '#2a2a2a', fontSize: 16, fontWeight: '600', marginTop: 10 }}>
+            Loading subscription...
+          </Text>
         </SafeAreaView>
       </LinearGradient>
     );
