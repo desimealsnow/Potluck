@@ -1,69 +1,21 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { getTheme } from '@/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, borderRadius } from '@/theme';
 
-export interface FoodOptionProps {
-  selected?: boolean;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  style?: any;
-}
-
-export function FoodOption({
-  selected = false,
-  label,
-  icon,
-  onPress,
-  style,
-}: FoodOptionProps) {
+export function FoodOption({ label, icon, selected, onPress }: { label: string; icon?: string; selected?: boolean; onPress?: () => void }) {
+  const t = getTheme();
   return (
     <Pressable
       onPress={onPress}
-      style={[
-        styles.option,
-        selected && styles.optionSelected,
-        style,
-      ]}
+      style={{ flex: 1, height: 64, borderRadius: 16, borderWidth: 1, borderColor: selected ? 'transparent' : t.colors.line, backgroundColor: selected ? 'rgba(34,197,94,0.2)' : t.colors.card, alignItems: 'center', justifyContent: 'center' }}
+      accessibilityRole="button"
+      accessibilityState={{ selected: !!selected }}
     >
-      <Ionicons
-        name={icon}
-        size={18}
-        color={selected ? colors.text.inverse : '#9c6'}
-      />
-      <Text style={[
-        styles.label,
-        selected && styles.labelSelected,
-      ]}>
-        {label}
-      </Text>
+      <View style={{ alignItems: 'center' }}>
+        {icon && <Ionicons name={icon as any} size={16} color={selected ? t.colors.success : t.colors.text} />}
+        <Text style={{ marginTop: 6, fontWeight: '800', color: t.colors.text }}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  option: {
-    flex: 1,
-    height: 64,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.12)',
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  optionSelected: {
-    backgroundColor: '#1BAC55',
-    borderColor: 'transparent',
-  },
-  label: {
-    marginTop: 6,
-    fontWeight: '800',
-    color: '#585858',
-  },
-  labelSelected: {
-    color: colors.text.inverse,
-    fontWeight: '800',
-  },
-});

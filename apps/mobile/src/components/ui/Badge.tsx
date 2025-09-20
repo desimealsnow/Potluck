@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, borderRadius, badgeTones } from '@/theme';
+import { getTheme } from '@/theme';
 import type { BadgeTone } from '@common/types';
 
 export interface BadgeProps {
@@ -11,21 +11,22 @@ export interface BadgeProps {
 }
 
 export function Badge({ text, tone = 'peach', style, textStyle }: BadgeProps) {
-  const toneConfig = badgeTones[tone];
+  const t = getTheme();
+  const toneMap: Record<string, { bg: string; fg: string }> = {
+    peach: { bg: 'rgba(255, 214, 194, 0.7)', fg: '#7A3E00' },
+    indigo: { bg: 'rgba(208, 199, 255, 0.8)', fg: '#3A2A8C' },
+  };
+  const toneConfig = toneMap[tone] || { bg: t.colors.line, fg: t.colors.text };
   
   return (
     <View style={[
       styles.badge,
-      {
-        backgroundColor: toneConfig.background,
-      },
+      { backgroundColor: toneConfig.bg },
       style,
     ]}>
       <Text style={[
         styles.text,
-        {
-          color: toneConfig.text,
-        },
+        { color: toneConfig.fg },
         textStyle,
       ]}>
         {text}

@@ -17,6 +17,8 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
+    "@expo-google-fonts/manrope": "^0.4.2",
     "@expo/metro-runtime": "~5.0.4",
     "@expo/vector-icons": "^14.0.4",
     "@react-native-community/datetimepicker": "8.4.1",
@@ -24,10 +26,12 @@
     "expo": "~53.0.22",
     "expo-auth-session": "^5.5.2",
     "expo-blur": "~14.1.5",
+    "expo-font": "^14.0.8",
     "expo-linear-gradient": "~14.1.5",
     "expo-status-bar": "~2.2.3",
     "expo-web-browser": "^14.2.0",
     "lucide-react": "^0.542.0",
+    "lucide-react-native": "^0.544.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",

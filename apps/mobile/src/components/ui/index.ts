@@ -5,3 +5,5 @@ export { Chip } from './Chip';
 export { Badge } from './Badge';
 export { Label } from './Label';
 export { Segmented } from './Segmented';
+export { Icon } from './Icon';
+export { getTheme, setTheme, tokens, categoryColors } from '@/theme';

@@ -1,40 +1,38 @@
 import React from 'react';
 import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { colors, borderRadius, typography } from '@/theme';
-
-export interface SegmentedOption {
-  key: string;
-  label: string;
-}
+import { getTheme } from '@/theme';
 
 export interface SegmentedProps {
-  options: SegmentedOption[];
+  options: { key: string; label: string }[];
   value: string;
-  onChange: (key: string) => void;
-  style?: any;
+  onChange: (v: string) => void;
   testID?: string;
 }
 
-export function Segmented({ options, value, onChange, style, testID }: SegmentedProps) {
+export function Segmented({ options, value, onChange, testID }: SegmentedProps) {
+  const t = getTheme();
   return (
-    <View style={[styles.container, style]} testID={testID}>
-      {options.map((option) => {
-        const selected = option.key === value;
+    <View style={[styles.container, { borderColor: t.colors.line }]}
+      accessibilityRole="tablist"
+      testID={testID}
+    >
+      {options.map((o) => {
+        const active = o.key === value;
         return (
           <Pressable
-            key={option.key}
-            onPress={() => onChange(option.key)}
+            key={o.key}
+            onPress={() => onChange(o.key)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
             style={[
-              styles.option,
-              selected && styles.optionSelected,
+              styles.item,
+              active
+                ? { backgroundColor: t.colors.brand }
+                : { backgroundColor: 'transparent' },
             ]}
-            testID={`${testID}-option-${option.key}`}
           >
-            <Text style={[
-              styles.text,
-              selected && styles.textSelected,
-            ]} testID={`${testID}-text-${option.key}`}>
-              {option.label}
+            <Text style={[styles.label, { color: active ? t.colors.white : t.colors.text }]}>
+              {o.label}
             </Text>
           </Pressable>
         );
@@ -46,27 +44,18 @@ export function Segmented({ options, value, onChange, style, testID }: Segmented
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderRadius: 14,
-    padding: 4,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 2,
   },
-  option: {
+  item: {
     flex: 1,
-    height: 38,
-    borderRadius: 10,
+    paddingVertical: 8,
     alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 10,
   },
-  optionSelected: {
-    backgroundColor: colors.background.primary,
-  },
-  text: {
-    color: '#374151',
-    fontWeight: typography.fontWeight.bold,
-    fontSize: typography.fontSize.sm,
-  },
-  textSelected: {
-    color: colors.text.primary,
-    fontWeight: typography.fontWeight.extrabold,
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
