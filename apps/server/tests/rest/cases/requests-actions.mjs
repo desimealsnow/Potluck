@@ -46,41 +46,53 @@ async function main() {
   const eventId = (await create.json()).event.id;
   if (!(await authed('POST', `/events/${eventId}/publish`, host)).ok) throw new Error('publish failed');
 
-  // Guest creates a request (pending)
-  const reqRes = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1, note: 'pls' });
-  if (reqRes.status !== 201) throw new Error(`create request failed ${reqRes.status}`);
-  const request = await reqRes.json();
+  // 1) Guest creates a request and host extends hold (pending)
+  let res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1, note: 'pls' });
+  if (res.status !== 201) throw new Error(`create request failed ${res.status}`);
+  const reqPending = await res.json();
 
-  // Extend hold while pending
-  let r = await authed('POST', `/events/${eventId}/requests/${request.id}/extend`, host, { extension_minutes: 30 });
-  if (!r.ok) throw new Error(`extend failed ${r.status}`);
+  res = await authed('POST', `/events/${eventId}/requests/${reqPending.id}/extend`, host, { extension_minutes: 30 });
+  if (!res.ok) throw new Error(`extend failed ${res.status}`);
 
-  // Move to waitlist and reorder
-  r = await authed('PATCH', `/events/${eventId}/requests/${request.id}/waitlist`, host);
-  if (!r.ok) throw new Error(`waitlist failed ${r.status}`);
+  // 2) Host declines a separate pending request
+  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
+  if (res.status !== 201) throw new Error(`create request#decline failed ${res.status}`);
+  const reqToDecline = await res.json();
 
-  r = await authed('PATCH', `/events/${eventId}/requests/${request.id}/reorder`, host, { waitlist_pos: 1 });
-  if (!r.ok) throw new Error(`reorder failed ${r.status}`);
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqToDecline.id}/decline`, host);
+  if (!res.ok) throw new Error(`decline failed ${res.status}`);
 
-  // Decline
-  r = await authed('PATCH', `/events/${eventId}/requests/${request.id}/decline`, host);
-  if (!r.ok) throw new Error(`decline failed ${r.status}`);
+  // 3) Host waitlists and reorders a new pending request
+  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
+  if (res.status !== 201) throw new Error(`create request#waitlist failed ${res.status}`);
+  const reqWaitlist = await res.json();
 
-  // Create second request and approve it
-  const req2 = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
-  if (req2.status !== 201) throw new Error(`create request#2 failed ${req2.status}`);
-  const request2 = await req2.json();
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqWaitlist.id}/waitlist`, host);
+  if (!res.ok) throw new Error(`waitlist failed ${res.status}`);
 
-  r = await authed('PATCH', `/events/${eventId}/requests/${request2.id}/approve`, host);
-  if (!r.ok) throw new Error(`approve failed ${r.status}`);
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqWaitlist.id}/reorder`, host, { waitlist_pos: 1 });
+  if (!res.ok) throw new Error(`reorder failed ${res.status}`);
 
-  // Guest cancels a new pending request
-  const req3 = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
-  if (req3.status !== 201) throw new Error(`create request#3 failed ${req3.status}`);
-  const request3 = await req3.json();
+  // 4) Host approves a pending request
+  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
+  if (res.status !== 201) throw new Error(`create request#approve failed ${res.status}`);
+  const reqApprove = await res.json();
 
-  r = await authed('PATCH', `/events/${eventId}/requests/${request3.id}/cancel`, guest);
-  if (!r.ok) throw new Error(`cancel failed ${r.status}`);
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqApprove.id}/approve`, host);
+  if (!res.ok) throw new Error(`approve failed ${res.status}`);
+
+  // 5) Guest cancels a new pending request
+  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
+  if (res.status !== 201) throw new Error(`create request#cancel failed ${res.status}`);
+  const reqCancel = await res.json();
+
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqCancel.id}/cancel`, guest);
+  if (!res.ok) throw new Error(`cancel failed ${res.status}`);
+
+  // Optional: try promote endpoint if available; do not fail suite if not
+  try {
+    await authed('POST', `/events/${eventId}/requests/promote`, host);
+  } catch {}
 
   console.log('✅ requests-actions OK');
 }
