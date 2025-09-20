@@ -24,6 +24,24 @@ interface HeaderProps {
   showNavigation?: boolean;
 }
 
+/**
+ * Render the Header component with navigation, search, and action buttons.
+ *
+ * This component adapts its layout based on the device width, displaying different sections for tablet and mobile views.
+ * It includes functionality for searching events, creating events, and accessing notifications, settings, and user plans.
+ * The component also handles the display of unread notifications and adjusts styles accordingly.
+ *
+ * @param onSearch - Callback function to handle search input changes.
+ * @param onCreateEvent - Callback function to create a new event.
+ * @param onNotifications - Callback function to handle notifications.
+ * @param onSettings - Callback function to access settings.
+ * @param onPlans - Callback function to view plans.
+ * @param onLogout - Callback function to log out the user.
+ * @param searchQuery - The current search query string (default is an empty string).
+ * @param unreadCount - The count of unread notifications (default is 0).
+ * @param showSearch - Flag to determine if the search bar should be displayed (default is true).
+ * @param showNavigation - Flag to determine if the navigation should be displayed (default is false).
+ */
 export default function Header({
   onSearch,
   onCreateEvent,
@@ -39,6 +57,9 @@ export default function Header({
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
+  /**
+   * Handles the search input change.
+   */
   const handleSearchChange = (text: string) => {
     onSearch?.(text);
   };
