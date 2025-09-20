@@ -11,6 +11,9 @@ export interface FoodOptionProps {
   style?: any;
 }
 
+/**
+ * Renders a selectable food option with an icon and label.
+ */
 export function FoodOption({
   selected = false,
   label,

@@ -17,6 +17,17 @@ const steps = [
   { key: 3, icon: "Users", label: "Participants" },
 ] as const;
 
+/**
+ * Renders a stepper component displaying a series of steps.
+ *
+ * The Stepper function takes in a step and style, and maps over the steps array to render each step's icon and label.
+ * It applies different styles based on whether the step is active or not, and conditionally renders a connecting bar
+ * between steps. The active step is highlighted with a gradient background and different text color.
+ *
+ * @param {Object} props - The properties for the Stepper component.
+ * @param {number} props.step - The current active step key.
+ * @param {Object} props.style - Additional styles to apply to the Stepper component.
+ */
 export function Stepper({ step, style }: StepperProps) {
   return (
     <View style={[styles.container, style]}>
