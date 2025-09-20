@@ -154,6 +154,13 @@ interface EventListProps {
   userLocation?: { lat: number; lon: number; radius_km: number } | null;
 }
 
+/**
+ * Render a list of events with various filters and navigation options.
+ *
+ * This component manages the state for displaying events based on user preferences, including location, dietary filters, and event status. It handles user interactions for creating, publishing, cancelling, and managing events, while also providing navigation to different screens. The sidebar visibility is animated based on the device type, and the component fetches data from an API to keep the event list updated. It also includes debounced search functionality and manages unread notifications.
+ *
+ * @param {EventListProps} [props] - The properties for the EventList component, including userLocation.
+ */
 export default function EventList({ userLocation: propUserLocation }: EventListProps = {}) {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -1091,6 +1098,16 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
   );
 }
 
+/**
+ * Renders an event card displaying event details and action buttons.
+ *
+ * The function formats the event date and determines the role label based on ownership. It constructs the card layout, including the title, date, venue, attendee count, and any action buttons provided. Each action button is equipped with a handler that prevents the card press event from triggering.
+ *
+ * @param item - The event item containing details such as title, date, venue, and attendee information.
+ * @param onPress - A function to be called when the card is pressed.
+ * @param actions - An optional array of action objects, each containing a key, label, icon, color, and handler function.
+ * @param testID - An optional string for testing purposes, used to identify the component in tests.
+ */
 function EventCard({ 
   item, 
   onPress, 
