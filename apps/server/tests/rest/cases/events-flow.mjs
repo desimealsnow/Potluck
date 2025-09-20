@@ -47,34 +47,40 @@ async function main() {
   const created = await res.json();
   const eventId = created.event.id;
 
-  // Publish
-  res = await authed('POST', `/events/${eventId}/publish`, host);
-  if (!res.ok) throw new Error(`publish failed ${res.status}`);
+  try {
+    // Publish
+    res = await authed('POST', `/events/${eventId}/publish`, host);
+    if (!res.ok) throw new Error(`publish failed ${res.status}`);
 
-  // Guest creates join request
-  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 2 });
-  if (res.status !== 201) throw new Error(`join request failed ${res.status}`);
-  const jr = await res.json();
+    // Guest creates join request
+    res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 2 });
+    if (res.status !== 201) throw new Error(`join request failed ${res.status}`);
+    const jr = await res.json();
 
-  // Host approves
-  res = await authed('PATCH', `/events/${eventId}/requests/${jr.id}/approve`, host);
-  if (!res.ok) throw new Error(`approve failed ${res.status}`);
+    // Host approves
+    res = await authed('PATCH', `/events/${eventId}/requests/${jr.id}/approve`, host);
+    if (!res.ok) throw new Error(`approve failed ${res.status}`);
 
-  // Guest self-assign first item
-  res = await authed('GET', `/events/${eventId}/items`, guest);
-  if (!res.ok) throw new Error(`list items failed ${res.status}`);
-  const items = await res.json();
-  const firstItem = items[0];
-  res = await authed('POST', `/events/${eventId}/items/${firstItem.id}/assign`, guest, {});
-  if (!res.ok) throw new Error(`assign failed ${res.status}`);
+    // Guest self-assign first item
+    res = await authed('GET', `/events/${eventId}/items`, guest);
+    if (!res.ok) throw new Error(`list items failed ${res.status}`);
+    const items = await res.json();
+    const firstItem = items[0];
+    res = await authed('POST', `/events/${eventId}/items/${firstItem.id}/assign`, guest, {});
+    if (!res.ok) throw new Error(`assign failed ${res.status}`);
 
-  // Validate availability
-  res = await fetch(`${API}/events/${eventId}/availability`);
-  if (!res.ok) throw new Error(`availability failed ${res.status}`);
-  const avail = await res.json();
-  if (typeof avail.available !== 'number') throw new Error('invalid availability');
+    // Validate availability
+    res = await fetch(`${API}/events/${eventId}/availability`);
+    if (!res.ok) throw new Error(`availability failed ${res.status}`);
+    const avail = await res.json();
+    if (typeof avail.available !== 'number') throw new Error('invalid availability');
 
-  console.log('✅ events-flow OK');
+    console.log('✅ events-flow OK');
+  } finally {
+    // Cleanup: cancel → purge (ignore errors)
+    try { await authed('POST', `/events/${eventId}/cancel`, host, { reason: 'test-cleanup', notifyGuests: false }); } catch {}
+    try { await authed('POST', `/events/${eventId}/purge`, host); } catch {}
+  }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
