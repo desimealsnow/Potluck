@@ -37,9 +37,10 @@ export function AppliedFiltersBar({
     }
     
     dietFilters.forEach((diet) => {
+      const pretty = diet === 'veg' ? 'Veg' : diet === 'nonveg' ? 'Non-veg' : 'Mixed';
       filters.push({
         key: `diet-${diet}`,
-        label: `Diet: ${diet === 'veg' ? 'Veg' : diet === 'nonveg' ? 'Non-veg' : 'Mixed'}`,
+        label: `Diet: ${pretty}`,
         onRemove: () => onRemoveFilter('diet', diet),
       });
     });
