@@ -122,8 +122,6 @@ router.get(
   R.RequestsController.getEventAvailability
 );
 
-<<<<<<< Current (Your changes)
-=======
 // Host-level aggregate: list pending requests across my events
 router.get(
   '/requests',
@@ -152,5 +150,4 @@ router.get(
   }
 );
 
->>>>>>> Incoming (Background Agent changes)
 export default router;

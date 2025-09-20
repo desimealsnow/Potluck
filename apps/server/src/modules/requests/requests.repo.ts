@@ -24,16 +24,17 @@ export class RequestsRepository {
         event_uuid: eventId
       });
 
+      if (!error && data && data.length) {
+        return { ok: true, data: data[0] as AvailabilityRow };
+      }
+
+      // Fallback to direct queries if RPC is missing or errored
       if (error) {
-        logger.error('[RequestsRepo] Failed to get availability', { eventId, error });
-        return mapDbError(error);
+        logger.warn('[RequestsRepo] RPC availability_for_event failed, using fallback', { eventId, error });
       }
-
-      if (!data || data.length === 0) {
-        return { ok: false, error: 'Event not found', code: '404' };
-      }
-
-      return { ok: true, data: data[0] as AvailabilityRow };
+      const fb = await fallbackAvailability(eventId);
+      if (!fb) return { ok: false, error: 'Event not found', code: '404' };
+      return { ok: true, data: fb };
     } catch (err) {
       logger.error('[RequestsRepo] Exception getting availability', { eventId, err });
       return { ok: false, error: 'Failed to get availability', code: '500' };
@@ -61,18 +62,37 @@ export class RequestsRepository {
         p_auto_approve: false,
       });
 
-      if (error) {
-        logger.error('[RequestsRepo] Failed to create request', { eventId, userId, error });
-        
-        // Map specific error codes
-        if (error.code === '23505') { // unique violation
-          return { ok: false, error: 'Already have a pending request for this event', code: '409' };
-        }
-        
-        return mapDbError(error);
+      if (!error && data) {
+        return { ok: true, data: data as JoinRequestRow };
       }
 
-      return { ok: true, data: data as JoinRequestRow };
+      // Fallback path when RPC not available
+      logger.warn('[RequestsRepo] RPC process_join_request failed, using fallback', { eventId, userId, error });
+
+      const fb = await fallbackAvailability(eventId);
+      if (!fb) return { ok: false, error: 'Event not found', code: '404' };
+      if ((fb.available ?? 0) < partySize) {
+        return { ok: false, error: `Insufficient capacity: need ${partySize}, have ${fb.available}`, code: '409' };
+      }
+
+      const holdExpiry = new Date(Date.now() + holdTtlMinutes * 60 * 1000).toISOString();
+      const insert = await supabase
+        .from('event_join_requests')
+        .insert({
+          event_id: eventId,
+          user_id: userId,
+          party_size: partySize,
+          note: note || null,
+          status: 'pending',
+          hold_expires_at: holdExpiry,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select('*')
+        .single();
+
+      if (insert.error || !insert.data) return mapDbError(insert.error);
+      return { ok: true, data: insert.data as unknown as JoinRequestRow };
     } catch (err) {
       logger.error('[RequestsRepo] Exception creating request', { eventId, userId, err });
       return { ok: false, error: 'Failed to create request', code: '500' };
@@ -163,35 +183,64 @@ export class RequestsRepository {
     expectedCurrentStatus?: string
   ): Promise<ServiceResult<JoinRequestRow>> {
     try {
-      // Use a transaction for atomic update with capacity check for approvals
+      // Use a transaction-like RPC first
       const { data, error } = await supabase.rpc('update_request_status', {
         request_id: requestId,
         new_status: newStatus,
         expected_status: expectedCurrentStatus || null,
       });
 
-      if (error) {
-        logger.error('[RequestsRepo] Failed to update request status', { 
-          requestId, newStatus, error 
-        });
-        
-        // Map specific errors
-        if (error.message?.includes('capacity')) {
+      if (!error && data) {
+        return { ok: true, data: data as JoinRequestRow };
+      }
+
+      // Fallback: emulate the transition using direct queries
+      logger.warn('[RequestsRepo] RPC update_request_status failed, using fallback', { requestId, newStatus, error });
+
+      // Load existing request
+      const current = await supabase
+        .from('event_join_requests')
+        .select('*')
+        .eq('id', requestId)
+        .single();
+      if (current.error || !current.data) return mapDbError(current.error);
+
+      const row = current.data as any;
+      if (expectedCurrentStatus && row.status !== expectedCurrentStatus) {
+        return { ok: false, error: 'Invalid status transition', code: '409' };
+      }
+
+      // For approval, verify capacity and create participant row
+      if (newStatus === 'approved') {
+        const fb = await fallbackAvailability(row.event_id);
+        if (!fb) return { ok: false, error: 'Event not found', code: '404' };
+        if ((fb.available ?? 0) < row.party_size) {
           return { ok: false, error: 'Insufficient capacity', code: '409' };
         }
-        
-        if (error.message?.includes('status')) {
-          return { ok: false, error: 'Invalid status transition', code: '409' };
-        }
-        
-        return mapDbError(error);
+        // Create participant
+        const insPart = await supabase
+          .from('event_participants')
+          .insert({
+            event_id: row.event_id,
+            user_id: row.user_id,
+            status: 'accepted',
+            party_size: row.party_size,
+            joined_at: new Date().toISOString(),
+          })
+          .select('id')
+          .single();
+        if (insPart.error) return mapDbError(insPart.error);
       }
 
-      if (!data) {
-        return { ok: false, error: 'Request not found or invalid transition', code: '404' };
-      }
-
-      return { ok: true, data: data as JoinRequestRow };
+      // Update request status
+      const upd = await supabase
+        .from('event_join_requests')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', requestId)
+        .select('*')
+        .single();
+      if (upd.error || !upd.data) return mapDbError(upd.error);
+      return { ok: true, data: upd.data as unknown as JoinRequestRow };
     } catch (err) {
       logger.error('[RequestsRepo] Exception updating request status', { 
         requestId, newStatus, err 
@@ -279,6 +328,40 @@ export class RequestsRepository {
       updated_at: row.updated_at,
     };
   }
+}
+
+// Fallback availability computation using direct tables
+async function fallbackAvailability(eventId: string): Promise<AvailabilityRow | null> {
+  // Get event capacity_total
+  const ev = await supabase
+    .from('events')
+    .select('capacity_total')
+    .eq('id', eventId)
+    .maybeSingle();
+  if (ev.error) return null;
+  if (!ev.data) return null;
+  const total = (ev.data as any).capacity_total ?? 0;
+
+  // Sum confirmed party sizes from participants
+  const acc = await supabase
+    .from('event_participants')
+    .select('party_size')
+    .eq('event_id', eventId)
+    .eq('status', 'accepted');
+  const confirmed = (acc.data || []).reduce((s: number, r: any) => s + (r.party_size || 0), 0);
+
+  // Sum held party sizes from pending requests with non-expired hold
+  const nowIso = new Date().toISOString();
+  const holds = await supabase
+    .from('event_join_requests')
+    .select('party_size, hold_expires_at, status')
+    .eq('event_id', eventId)
+    .eq('status', 'pending')
+    .gt('hold_expires_at', nowIso);
+  const held = (holds.data || []).reduce((s: number, r: any) => s + (r.party_size || 0), 0);
+
+  const available = Math.max(0, Number(total) - Number(confirmed) - Number(held));
+  return { total: Number(total), confirmed, held, available } as AvailabilityRow;
 }
 
 // We'll need this stored procedure for atomic status updates

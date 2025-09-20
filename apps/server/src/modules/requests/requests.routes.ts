@@ -83,6 +83,7 @@ router.patch(
  */
 router.patch(
   '/:requestId/cancel',
+  authGuard,
   routeLogger('PATCH /events/:eventId/requests/:requestId/cancel'),
   RequestsController.cancelJoinRequest
 );
@@ -98,8 +99,6 @@ router.post(
   RequestsController.extendJoinRequestHold
 );
 
-<<<<<<< Current (Your changes)
-=======
 // Reorder waitlist position (host-only)
 router.patch(
   '/:requestId/reorder',
@@ -137,5 +136,4 @@ router.post(
   }
 );
 
->>>>>>> Incoming (Background Agent changes)
 export default router;
