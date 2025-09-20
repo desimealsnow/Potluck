@@ -16,7 +16,15 @@ import type {
 export class RequestsRepository {
   
   /**
-   * Get event availability (total, confirmed, held, available)
+   * Get event availability (total, confirmed, held, available).
+   *
+   * This function attempts to retrieve event availability data using a remote procedure call (RPC) to the Supabase service.
+   * If the RPC fails or returns no data, it falls back to a direct query using the fallbackAvailability function.
+   * It handles errors gracefully, logging them and returning appropriate error messages.
+   *
+   * @param eventId - The unique identifier for the event whose availability is being queried.
+   * @returns A Promise that resolves to a ServiceResult containing the availability data or an error message.
+   * @throws Error If an exception occurs during the availability retrieval process.
    */
   static async getEventAvailability(eventId: string): Promise<ServiceResult<AvailabilityRow>> {
     try {
@@ -42,7 +50,19 @@ export class RequestsRepository {
   }
 
   /**
-   * Create a new join request with capacity hold
+   * Create a new join request with capacity hold.
+   *
+   * This function attempts to create a join request by first invoking a remote procedure call (RPC) to process the request atomically.
+   * If the RPC fails, it falls back to checking availability and inserts the request into the database.
+   * It handles various scenarios including insufficient capacity and errors during the insertion process.
+   *
+   * @param eventId - The ID of the event for which the join request is being created.
+   * @param userId - The ID of the user making the join request.
+   * @param partySize - The size of the party for the join request.
+   * @param note - An optional note associated with the join request.
+   * @param holdTtlMinutes - The time-to-live for the hold in minutes (default is 30).
+   * @returns A promise that resolves to a ServiceResult containing the JoinRequestRow or an error.
+   * @throws Error If an exception occurs during the request creation process.
    */
   static async createRequest(
     eventId: string,
@@ -175,7 +195,15 @@ export class RequestsRepository {
   }
 
   /**
-   * Update request status (with optimistic locking via SELECT FOR UPDATE)
+   * Update the status of a request with optimistic locking via RPC.
+   *
+   * This function attempts to update the request status using a remote procedure call. If the RPC fails, it falls back to loading the current request and performing direct database queries. It verifies the expected current status and checks availability for approval status before creating a participant row. Finally, it updates the request status in the database and handles any errors that may occur during the process.
+   *
+   * @param requestId - The ID of the request to update.
+   * @param newStatus - The new status to set for the request.
+   * @param expectedCurrentStatus - The expected current status of the request for validation (optional).
+   * @returns A Promise resolving to a ServiceResult containing the updated JoinRequestRow or an error.
+   * @throws Error If an exception occurs during the update process.
    */
   static async updateRequestStatus(
     requestId: string,
@@ -331,6 +359,16 @@ export class RequestsRepository {
 }
 
 // Fallback availability computation using direct tables
+/**
+ * Retrieve the availability of an event based on its capacity and participant statuses.
+ *
+ * The function first fetches the total capacity of the event. It then sums the confirmed party sizes from participants with an accepted status.
+ * Additionally, it calculates the held party sizes from pending requests that have not expired. Finally, it computes the available spots by subtracting
+ * the confirmed and held sizes from the total capacity and returns an object containing total, confirmed, held, and available counts.
+ *
+ * @param eventId - The unique identifier of the event for which availability is being checked.
+ * @returns A Promise that resolves to an AvailabilityRow object containing total capacity, confirmed sizes, held sizes, and available spots, or null if an error occurs.
+ */
 async function fallbackAvailability(eventId: string): Promise<AvailabilityRow | null> {
   // Get event capacity_total
   const ev = await supabase
