@@ -4,6 +4,11 @@ import { Separator } from "./ui/separator"
 import { ChevronDown, MapPin } from "lucide-react"
 import { useState } from "react"
 
+/**
+ * Renders a sidebar component with various filter options for event discovery.
+ *
+ * The FilterSidebar component maintains state for multiple sections, including event scope, categories, location, and dietary preferences. Each section can be expanded or collapsed, allowing users to customize their view. The component also displays quick statistics related to active events, this month's events, and total attendees.
+ */
 export function FilterSidebar() {
   const [showExpanded, setShowExpanded] = useState(true)
   const [locationExpanded, setLocationExpanded] = useState(true)
