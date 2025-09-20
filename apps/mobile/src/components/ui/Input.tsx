@@ -34,6 +34,9 @@ export function Input({
         </View>
       )}
       <TextInput
+        accessibilityRole="textbox"
+        accessible
+        accessibilityLabel={props.placeholder || 'input'}
         placeholderTextColor={colors.text.muted}
         style={[
           styles.input,

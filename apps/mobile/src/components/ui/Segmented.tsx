@@ -29,6 +29,9 @@ export function Segmented({ options, value, onChange, style, testID }: Segmented
               selected && styles.optionSelected,
             ]}
             testID={`${testID}-option-${option.key}`}
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            accessibilityLabel={option.label}
           >
             <Text style={[
               styles.text,

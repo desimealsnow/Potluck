@@ -68,6 +68,9 @@ export function Button({
         testID={testID}
         onPressIn={() => animateTo(0.98)}
         onPressOut={() => animateTo(1)}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: disabled || loading }}
+        accessibilityLabel={title}
       >
         <Animated.View style={{ transform: [{ scale }] }}>
           <LinearGradient
@@ -91,6 +94,9 @@ export function Button({
       testID={testID}
       onPressIn={() => animateTo(0.98)}
       onPressOut={() => animateTo(1)}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: disabled || loading }}
+      accessibilityLabel={title}
     >
       <Animated.View style={{ transform: [{ scale }] }}>
         {content}
