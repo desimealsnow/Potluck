@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { apiClient } from "@/services/apiClient";
 import { supabase } from "../../config/supabaseClient";
 
@@ -259,7 +259,7 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={styles.topBar}>
             <Pressable onPress={onBack} style={styles.iconBtn}>
-              <Ionicons name="chevron-back" size={20} color="#fff" />
+              <Icon name="ChevronLeft" size={20} color="#fff" />
             </Pressable>
             <Text style={styles.title}>User Preferences</Text>
             <View style={{ width: 40 }} />
@@ -347,7 +347,7 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
                       {preference}
                     </Text>
                     {mealPreferences.includes(preference) && (
-                      <Ionicons name="checkmark" size={16} color="#fff" />
+                      <Icon name="Check" size={16} color="#fff" />
                     )}
                   </Pressable>
                 ))}

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 
 export default function HelpScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
@@ -56,7 +56,7 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>Help & Support</Text>
           <View style={{ width: 40 }} />
@@ -72,15 +72,15 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
               </Text>
               
               <Pressable style={styles.helpButton} onPress={handleContactSupport}>
-                <Ionicons name="mail" size={20} color="#7b2ff7" />
+                <Icon name="Mail" size={20} color="#7b2ff7" />
                 <Text style={styles.helpButtonText}>Contact Support</Text>
-                <Ionicons name="chevron-forward" size={16} color="#6b7280" />
+                <Icon name="ChevronRight" size={16} color="#6b7280" />
               </Pressable>
 
               <Pressable style={styles.helpButton} onPress={handleOpenFAQ}>
-                <Ionicons name="help-circle" size={20} color="#7b2ff7" />
+                <Icon name="CircleHelp" size={20} color="#7b2ff7" />
                 <Text style={styles.helpButtonText}>Browse FAQ</Text>
-                <Ionicons name="chevron-forward" size={16} color="#6b7280" />
+                <Icon name="ChevronRight" size={16} color="#6b7280" />
               </Pressable>
             </View>
           </View>
@@ -132,17 +132,17 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
               </Text>
               
               <View style={styles.contactItem}>
-                <Ionicons name="mail" size={16} color="#6b7280" />
+                <Icon name="Mail" size={16} color="#6b7280" />
                 <Text style={styles.contactText}>support@potluck.app</Text>
               </View>
               
               <View style={styles.contactItem}>
-                <Ionicons name="time" size={16} color="#6b7280" />
+                <Icon name="Clock" size={16} color="#6b7280" />
                 <Text style={styles.contactText}>Response time: Within 24 hours</Text>
               </View>
               
               <View style={styles.contactItem}>
-                <Ionicons name="globe" size={16} color="#6b7280" />
+                <Icon name="Globe" size={16} color="#6b7280" />
                 <Text style={styles.contactText}>www.potluck.app/help</Text>
               </View>
             </View>
