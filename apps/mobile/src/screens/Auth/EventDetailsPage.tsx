@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Icon, Segmented } from "@/components";
+import { Icon, Segmented, ProgressBar } from "@/components";
 import { gradients } from "@/theme";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
@@ -912,6 +912,16 @@ function ItemsTab({
 }) {
   // Safety check to ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
+  const colorForName = (name: string) => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('appetizer') || n.includes('starter')) return '#06B6D4';
+    if (n.includes('main')) return '#22C55E';
+    if (n.includes('side')) return '#84CC16';
+    if (n.includes('dessert')) return '#F472B6';
+    if (n.includes('drink') || n.includes('beverage')) return '#38BDF8';
+    if (n.includes('supply') || n.includes('supplies')) return '#F59E0B';
+    return '#7C3AED';
+  };
   const handleClaim = async (id: string) => {
     // optimistic
     setItems((prev) => {
@@ -951,7 +961,7 @@ function ItemsTab({
                 </Pressable>
               </View>
             </View>
-            <Progress value={pct} />
+            <ProgressBar value={pct} color={colorForName(it.name)} />
             {complete && (
               <Text style={styles.completeText}>✓ Complete</Text>
             )}

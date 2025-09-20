@@ -870,14 +870,14 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
 
 function DietTag({ diet }: { diet: Diet }) {
   const map = {
-    veg: { bg: "rgba(74,222,128,0.95)", fg: "#0B3D1E", label: "veg" },
-    nonveg: { bg: "rgba(251,146,60,0.95)", fg: "#4A1D00", label: "non-veg" },
-    mixed: { bg: "rgba(250,204,21,0.95)", fg: "#3F2D00", label: "mixed" },
+    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
+    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
+    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
   } as const;
   const d = map[diet];
   return (
-    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12 }}>{d.label}</Text>
+    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
+      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
     </View>
   );
 }
