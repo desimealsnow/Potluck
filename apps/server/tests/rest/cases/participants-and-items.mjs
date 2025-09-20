@@ -69,7 +69,7 @@ async function main() {
   items = await res.json();
   const newItem = items.find((i) => i.name === 'Salad' || i.name === 'Green Salad') || items[items.length - 1];
 
-  res = await authed('PUT', `/events/${eventId}/items/${newItem.id}`, host, { name: 'Green Salad', category: 'side', per_guest_qty: 1 });
+  res = await authed('PATCH', `/events/${eventId}/items/${newItem.id}`, host, { name: 'Green Salad', category: 'side', per_guest_qty: 1 });
   if (!res.ok) throw new Error(`update item failed ${res.status}`);
 
   res = await authed('DELETE', `/events/${eventId}/items/${newItem.id}`, host);
