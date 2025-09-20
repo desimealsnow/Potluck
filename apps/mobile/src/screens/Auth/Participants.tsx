@@ -440,7 +440,7 @@ function StatusButton({
 }: {
   active?: boolean;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import("@/components/ui/Icon").IconName;
   onPress: () => void;
 }) {
   return (
@@ -451,7 +451,7 @@ function StatusButton({
         active && { backgroundColor: "rgba(0,0,0,0.85)" },
       ]}
     >
-      <Ionicons name={icon} size={12} color={active ? "#fff" : "#333"} />
+      <Icon name={icon} size={12} color={active ? "#fff" : "#333"} />
       <Text style={{ fontSize: 11, fontWeight: "800", color: active ? "#fff" : "#333", marginLeft: 4 }}>
         {label}
       </Text>

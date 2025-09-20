@@ -21,7 +21,7 @@ type SettingsItem = {
   id: string;
   title: string;
   subtitle?: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import("@/components/ui/Icon").IconName;
   onPress: () => void;
   showChevron?: boolean;
   danger?: boolean;

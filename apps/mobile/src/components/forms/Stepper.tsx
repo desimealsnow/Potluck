@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components';
 import { colors, borderRadius } from '@/theme';
 import type { StepperStep } from '@common/types';
 
@@ -11,10 +11,10 @@ export interface StepperProps {
 }
 
 const steps = [
-  { key: 0, icon: "restaurant", label: "Details" },
-  { key: 1, icon: "pin", label: "Location" },
-  { key: 2, icon: "egg", label: "Items" },
-  { key: 3, icon: "people", label: "Participants" },
+  { key: 0, icon: "Utensils", label: "Details" },
+  { key: 1, icon: "MapPin", label: "Location" },
+  { key: 2, icon: "Egg", label: "Items" },
+  { key: 3, icon: "Users", label: "Participants" },
 ] as const;
 
 export function Stepper({ step, style }: StepperProps) {
@@ -31,7 +31,7 @@ export function Stepper({ step, style }: StepperProps) {
                 active && styles.iconContainerActive,
               ]}
             >
-              <Ionicons
+              <Icon
                 name={s.icon as any}
                 size={20}
                 color={active ? colors.text.inverse : "#FF7A00"}

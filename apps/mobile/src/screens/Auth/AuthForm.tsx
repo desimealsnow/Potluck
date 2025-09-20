@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 
 export function AuthForm() {
@@ -126,7 +126,7 @@ export function AuthForm() {
         {/* Email Input */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            <Ionicons name="mail" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+            <Icon name="Mail" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Email"
@@ -146,7 +146,7 @@ export function AuthForm() {
         {/* Password Input */}
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+            <Icon name="Lock" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
@@ -157,8 +157,8 @@ export function AuthForm() {
               autoCapitalize="none"
             />
             <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-              <Ionicons 
-                name={showPassword ? "eye-off" : "eye"} 
+              <Icon 
+                name={showPassword ? "EyeOff" : "Eye"} 
                 size={20} 
                 color="rgba(255,255,255,0.7)" 
               />
@@ -173,7 +173,7 @@ export function AuthForm() {
         {isSignUp && (
           <View style={styles.inputContainer}>
             <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
+              <Icon name="Lock" size={20} color="rgba(255,255,255,0.7)" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Confirm Password"
@@ -216,7 +216,7 @@ export function AuthForm() {
           onPress={handleGoogleAuth}
           disabled={loading}
         >
-          <Ionicons name="logo-google" size={20} color="white" style={styles.googleIcon} />
+          <Icon name="Chrome" size={20} color="white" style={styles.googleIcon} />
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </Pressable>
 

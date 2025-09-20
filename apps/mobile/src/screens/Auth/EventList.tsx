@@ -15,6 +15,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import { Icon } from "@/components";
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -770,7 +771,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                   }}
                   style={styles.radiusButton}
                 >
-                  <Ionicons name="remove" size={16} color="#7b2ff7" />
+                  <Icon name="Minus" size={16} color="#7b2ff7" />
                 </Pressable>
                 <Text style={styles.radiusValue}>{userLocation.radius_km}km</Text>
                 <Pressable 
@@ -781,7 +782,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                   }}
                   style={styles.radiusButton}
                 >
-                  <Ionicons name="add" size={16} color="#7b2ff7" />
+                  <Icon name="Plus" size={16} color="#7b2ff7" />
                 </Pressable>
               </View>
             </View>
@@ -916,8 +917,15 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
       }
       testID={testID}
     >
-      <Ionicons
-        name={config.icon as any}
+      <Icon
+        name={
+          (status === "active" && "CheckCircle") ||
+          (status === "cancelled" && "XCircle") ||
+          (status === "draft" && "Pencil") ||
+          (status === "deleted" && "Trash2") ||
+          (status === "past" && "Clock") ||
+          "Circle"
+        }
         size={14}
         color="#fff"
         style={{ marginRight: 4 }}
@@ -929,11 +937,11 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
 
 function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
   const config = role === 'host'
-    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'person' }
-    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'people-outline' };
+    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'User' }
+    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'Users' };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
-      <Ionicons name={config.icon as any} size={12} color="#fff" />
+      <Icon name={config.icon as any} size={12} color="#fff" />
       <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
     </View>
   );
@@ -947,8 +955,8 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
           {p.avatarUrl ? (
             <Image source={{ uri: p.avatarUrl }} style={styles.avatar} />
           ) : (
-            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}>
-              <Ionicons name="person" size={14} color="#fff" />
+            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}> 
+              <Icon name="User" size={14} color="#fff" />
             </View>
           )}
         </View>
@@ -1042,7 +1050,13 @@ function EventCard({
               style={[styles.actionButton, { backgroundColor: action.color }]}
               testID={`${testID}-action-${action.key}`}
             >
-              <Ionicons name={action.icon as any} size={14} color="#fff" style={{ marginRight: 4 }} />
+              <Icon name={
+                action.icon === 'rocket-outline' ? 'Rocket' :
+                action.icon === 'trash-outline' ? 'Trash2' :
+                action.icon === 'close-circle-outline' ? 'XCircle' :
+                action.icon === 'checkmark-circle-outline' ? 'CheckCircle' :
+                action.icon === 'refresh-outline' ? 'RefreshCw' : 'Circle'
+              } size={14} color="#fff" style={{ marginRight: 4 }} />
               <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
             </Pressable>
           ))}

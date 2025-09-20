@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
 import type { User, AuthError } from "@supabase/supabase-js";
@@ -476,7 +476,7 @@ function AuthFormComponent() {
         {/* Email Input */}
         <View style={authStyles.inputContainer}>
           <View style={authStyles.inputWrapper}>
-            <Ionicons name="mail" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
+            <Icon name="Mail" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
             <TextInput
               style={authStyles.input}
               placeholder="Email"
@@ -497,7 +497,7 @@ function AuthFormComponent() {
         {/* Password Input */}
         <View style={authStyles.inputContainer}>
           <View style={authStyles.inputWrapper}>
-            <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
+            <Icon name="Lock" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
             <TextInput
               style={authStyles.input}
               placeholder="Password"
@@ -509,8 +509,8 @@ function AuthFormComponent() {
               testID="password-input"
             />
             <Pressable onPress={() => setShowPassword(!showPassword)} style={authStyles.eyeIcon} testID="password-toggle">
-              <Ionicons 
-                name={showPassword ? "eye-off" : "eye"} 
+              <Icon 
+                name={showPassword ? "EyeOff" : "Eye"} 
                 size={20} 
                 color="rgba(255,255,255,0.7)" 
               />
@@ -525,7 +525,7 @@ function AuthFormComponent() {
         {isSignUp && (
           <View style={authStyles.inputContainer}>
             <View style={authStyles.inputWrapper}>
-              <Ionicons name="lock-closed" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
+              <Icon name="Lock" size={20} color="rgba(255,255,255,0.7)" style={authStyles.inputIcon} />
               <TextInput
                 style={authStyles.input}
                 placeholder="Confirm Password"
