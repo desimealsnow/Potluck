@@ -12,9 +12,9 @@ Prereqs
   - `node apps/server/scripts/seed-users.mjs`
 
 Quick start
-- Set base URL for tests (defaults to http://localhost:3000/api/v1):
+- Set base URL for tests (defaults to http://localhost:3000/api/v1). The CI workflow also uses this value.
   - `export API_BASE='http://localhost:3000/api/v1'`
-- Run individual cases (Node 18+):
+- Run individual cases (Node 18+). Each case performs cleanup of all data created by the test user(s):
   - `node tests/rest/cases/auth-and-profile.mjs`
   - `node tests/rest/cases/events-flow.mjs`
   - `node tests/rest/cases/requests-actions.mjs`
@@ -76,13 +76,17 @@ Implemented cases
 - `billing-payment-methods.mjs`: list → add → get → set default → delete (Note: insert currently returns 500 in live DB; see Notes)
 
 Notes / Known Issues
-- Payment Method add currently returns 500 from `/billing/payment-methods` on insert. The controller posts `{ user_id, provider, method_id, is_default }`. Check:
-  - RLS on `payment_methods` to allow inserts by JWT user
-  - Any additional NOT NULL or enum constraints (provider enum limited to stripe|paypal|razorpay|square per schema)
-  - If using LemonSqueezy, you may set provider to `stripe` or extend enum/constraint
+- The Payment Methods case uses `provider=stripe` to align with common provider enums. If your schema is different, update provider or extend the enum.
 - Join request flows abide by allowed transitions; declining is done from pending (not from waitlisted).
 
 Troubleshooting
 - Ensure server dev logs show `API server is up`. If auth fails, re-run `node scripts/seed-users.mjs`.
 - To update OpenAPI -> validators: `npm run schema:generate` (server).
 - To change base URL: `export API_BASE='http://<host>:<port>/api/v1'`.
+
+CI / GitHub Actions
+- A workflow at `.github/workflows/rest-e2e.yml` builds the server, seeds users, launches the API, and runs all REST cases against a live Supabase project.
+- Required repository secrets:
+  - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`
+  - `LEMONSQUEEZY_API_KEY`, `LEMONSQUEEZY_STORE_ID`, `LEMONSQUEEZY_WEBHOOK_SECRET`
+- The workflow starts the API from the compiled output `dist/src/index.js` and hits `/health` before tests.
