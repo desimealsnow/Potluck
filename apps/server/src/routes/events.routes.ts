@@ -7,6 +7,8 @@ import { schemas }     from '../validators';          // generated Zod
 // ───── Controllers ───────────────────────────────────────────
 import * as E from '../controllers/events.controller';
 import * as R from '../modules/requests';
+import { RequestsService } from '../modules/requests';
+import * as RB from '../controllers/rebalance.controller';
 
 // child routers
 import itemsRouter        from './items.routes';
@@ -95,6 +97,14 @@ router.post(
   routeLogger('POST /events/:eventId/restore'),
   E.restoreEvent
 );
+
+// Host utility: auto-rebalance unassigned items to accepted participants
+router.post(
+  '/:eventId/rebalance',
+  authGuard,
+  routeLogger('POST /events/:eventId/rebalance'),
+  RB.rebalance
+);
 /*──────────────────────────────────────────────────────────────
   Nested resources
 ──────────────────────────────────────────────────────────────*/
@@ -112,4 +122,35 @@ router.get(
   R.RequestsController.getEventAvailability
 );
 
+<<<<<<< Current (Your changes)
+=======
+// Host-level aggregate: list pending requests across my events
+router.get(
+  '/requests',
+  authGuard,
+  routeLogger('GET /events/requests'),
+  async (req: any, res) => {
+    const userId = req.user!.id;
+    // find events where user is host
+    const { supabase } = await import('../config/supabaseClient');
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('id')
+      .eq('created_by', userId);
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    const ids = (events || []).map(e => (e as any).id);
+    if (!ids.length) return res.json({ data: [], totalCount: 0, nextOffset: null });
+
+    const { data, error: listErr } = await supabase
+      .from('event_join_requests')
+      .select('*')
+      .in('event_id', ids)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+    if (listErr) return res.status(500).json({ ok: false, error: listErr.message });
+    return res.json({ data: data || [], totalCount: (data || []).length, nextOffset: null });
+  }
+);
+
+>>>>>>> Incoming (Background Agent changes)
 export default router;

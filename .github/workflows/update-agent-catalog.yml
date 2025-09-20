@@ -1,0 +1,69 @@
+name: Update Agent Catalog
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'libs/**'
+      - 'tools/**'
+      - 'tsconfig.json'
+      - 'package.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'libs/**'
+      - 'tools/**'
+      - 'tsconfig.json'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  update-catalog:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Generate agent catalog
+      run: npm run agent:update
+      
+    - name: Run code analysis
+      run: npm run code:analyze
+      
+    - name: Generate API documentation
+      run: npm run api:docs
+      
+    - name: Validate agent context
+      run: npm run context:validate
+      
+    - name: Check for changes
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain .agent/ docs/)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .agent/ docs/
+        git commit -m "🤖 Auto-update agent catalog and documentation [skip ci]"
+        git push

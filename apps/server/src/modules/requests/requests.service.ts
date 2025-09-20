@@ -80,6 +80,23 @@ export class RequestsService {
       userId 
     });
 
+    // Notify host: join_request_received
+    try {
+      const { data: ev } = await (await import('../../config/supabaseClient')).supabase
+        .from('events')
+        .select('created_by')
+        .eq('id', eventId)
+        .single();
+      if (ev?.created_by) {
+        await createNotification({
+          userId: ev.created_by,
+          type: 'join_request_received',
+          eventId,
+          payload: { request_id: result.data.id }
+        });
+      }
+    } catch {}
+
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
 

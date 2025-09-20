@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 0Az6MyOqAJd0BAiXQ3X4NnQJV6ELWdjiMwGdobHWPDRgw0peyQ6IaC9y8dVsqjl
+\restrict chArOqluzWfvOkhTvpwKs9sfEgC96VpFvUJoQETdZthfx81yMKgInRDod3bNgq7
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6
@@ -525,6 +525,177 @@ CREATE FUNCTION public.find_nearby_users_for_latlon(p_lat double precision, p_lo
 $$;
 
 
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: event_join_requests; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.event_join_requests (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    party_size integer NOT NULL,
+    note text,
+    status text NOT NULL,
+    hold_expires_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    waitlist_pos numeric,
+    CONSTRAINT event_join_requests_party_size_check CHECK ((party_size >= 1)),
+    CONSTRAINT event_join_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'declined'::text, 'waitlisted'::text, 'expired'::text, 'cancelled'::text])))
+);
+
+
+--
+-- Name: TABLE event_join_requests; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.event_join_requests IS 'Join requests for events with capacity holds';
+
+
+--
+-- Name: COLUMN event_join_requests.party_size; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.event_join_requests.party_size IS 'Number of people in the requesting party';
+
+
+--
+-- Name: COLUMN event_join_requests.hold_expires_at; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.event_join_requests.hold_expires_at IS 'When the capacity hold expires (for pending requests only)';
+
+
+--
+-- Name: process_join_request(uuid, uuid, integer, text, integer, boolean); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.process_join_request(p_event_id uuid, p_user_id uuid, p_party_size integer, p_note text, p_hold_ttl_minutes integer DEFAULT 30, p_auto_approve boolean DEFAULT false) RETURNS public.event_join_requests
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  v_total int;
+  v_confirmed int;
+  v_held int;
+  v_available int;
+  v_req public.event_join_requests;
+  v_hold_expires timestamptz;
+BEGIN
+  -- Lock event row to serialize capacity decisions
+  SELECT capacity_total INTO v_total
+  FROM public.events
+  WHERE id = p_event_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN RAISE EXCEPTION 'Event not found'; END IF;
+
+  -- Seats in use: accepted participants (sum party_size)
+  SELECT COALESCE(SUM(party_size),0) INTO v_confirmed
+  FROM public.event_participants
+  WHERE event_id = p_event_id AND status = 'accepted'
+  FOR UPDATE;
+
+  -- Held seats: pending requests not expired
+  SELECT COALESCE(SUM(party_size),0) INTO v_held
+  FROM public.event_join_requests
+  WHERE event_id = p_event_id AND status = 'pending' AND (hold_expires_at IS NOT NULL AND hold_expires_at > now())
+  FOR UPDATE;
+
+  v_available := CASE WHEN v_total IS NULL THEN NULL ELSE v_total - v_confirmed - v_held END;
+
+  IF v_total IS NULL THEN
+    -- Unlimited: approve immediately
+    INSERT INTO public.event_participants(event_id, user_id, status, party_size, joined_at)
+    VALUES (p_event_id, p_user_id, 'accepted', p_party_size, now());
+
+    INSERT INTO public.event_join_requests(event_id, user_id, party_size, note, status)
+    VALUES (p_event_id, p_user_id, p_party_size, p_note, 'approved')
+    RETURNING * INTO v_req;
+
+    RETURN v_req;
+  END IF;
+
+  IF p_auto_approve AND v_available >= p_party_size THEN
+    -- Auto-approve path
+    INSERT INTO public.event_participants(event_id, user_id, status, party_size, joined_at)
+    VALUES (p_event_id, p_user_id, 'accepted', p_party_size, now());
+
+    INSERT INTO public.event_join_requests(event_id, user_id, party_size, note, status)
+    VALUES (p_event_id, p_user_id, p_party_size, p_note, 'approved')
+    RETURNING * INTO v_req;
+
+    RETURN v_req;
+  ELSIF v_available >= p_party_size THEN
+    -- Seat is available but host wants approval: place a timed hold
+    v_hold_expires := now() + make_interval(mins => p_hold_ttl_minutes);
+    INSERT INTO public.event_join_requests(event_id, user_id, party_size, note, status, hold_expires_at)
+    VALUES (p_event_id, p_user_id, p_party_size, p_note, 'pending', v_hold_expires)
+    RETURNING * INTO v_req;
+
+    RETURN v_req;
+  ELSE
+    -- Not enough seats → waitlist (priority FIFO by default)
+    INSERT INTO public.event_join_requests(event_id, user_id, party_size, note, status, waitlist_pos)
+    VALUES (p_event_id, p_user_id, p_party_size, p_note, 'waitlisted', EXTRACT(EPOCH FROM now()))
+    RETURNING * INTO v_req;
+
+    RETURN v_req;
+  END IF;
+END;
+$$;
+
+
+--
+-- Name: promote_from_waitlist(uuid); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.promote_from_waitlist(p_event_id uuid) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  v_total int;
+  v_confirmed int;
+  v_held int;
+  v_available int;
+  v_req record;
+  v_moved int := 0;
+BEGIN
+  -- Lock event for capacity snapshot
+  SELECT capacity_total INTO v_total FROM public.events WHERE id = p_event_id FOR UPDATE;
+  IF NOT FOUND THEN RETURN 0; END IF;
+
+  SELECT COALESCE(SUM(party_size),0) INTO v_confirmed
+  FROM public.event_participants WHERE event_id = p_event_id AND status = 'accepted' FOR UPDATE;
+
+  SELECT COALESCE(SUM(party_size),0) INTO v_held
+  FROM public.event_join_requests
+  WHERE event_id = p_event_id AND status = 'pending' AND (hold_expires_at IS NOT NULL AND hold_expires_at > now())
+  FOR UPDATE;
+
+  v_available := CASE WHEN v_total IS NULL THEN 999999 ELSE v_total - v_confirmed - v_held END;
+
+  -- Find first promotable request by priority and size
+  SELECT * INTO v_req
+  FROM public.event_join_requests
+  WHERE event_id = p_event_id AND status = 'waitlisted' AND party_size <= v_available
+  ORDER BY waitlist_pos NULLS LAST, created_at
+  LIMIT 1
+  FOR UPDATE SKIP LOCKED;
+
+  IF NOT FOUND THEN RETURN 0; END IF;
+
+  PERFORM public.update_request_status(v_req.id, 'approved', 'waitlisted');
+  v_moved := 1;
+
+  RETURN v_moved;
+END;
+$$;
+
+
 --
 -- Name: trg_recalc_required_qty(); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -574,27 +745,44 @@ $$;
 CREATE FUNCTION public.trg_update_attendee_count() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
-begin
-  if tg_op = 'INSERT' and new.status = 'accepted' then
-      update events set attendee_count = attendee_count + 1
-      where id = new.event_id;
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.status = 'accepted' THEN
+      UPDATE events
+      SET attendee_count = attendee_count + COALESCE(NEW.party_size, 1)
+      WHERE id = NEW.event_id;
+    END IF;
 
-  elsif tg_op = 'UPDATE' then
-      if old.status = 'accepted' and new.status <> 'accepted' then
-        update events set attendee_count = attendee_count - 1
-        where id = new.event_id;
-      elsif old.status <> 'accepted' and new.status = 'accepted' then
-        update events set attendee_count = attendee_count + 1
-        where id = new.event_id;
-      end if;
+  ELSIF TG_OP = 'UPDATE' THEN
+    -- Status change away from accepted: subtract OLD party size
+    IF OLD.status = 'accepted' AND NEW.status <> 'accepted' THEN
+      UPDATE events
+      SET attendee_count = attendee_count - COALESCE(OLD.party_size, 1)
+      WHERE id = NEW.event_id;
 
-  elsif tg_op = 'DELETE' and old.status = 'accepted' then
-      update events set attendee_count = attendee_count - 1
-      where id = old.event_id;
-  end if;
+    -- Status change to accepted: add NEW party size
+    ELSIF OLD.status <> 'accepted' AND NEW.status = 'accepted' THEN
+      UPDATE events
+      SET attendee_count = attendee_count + COALESCE(NEW.party_size, 1)
+      WHERE id = NEW.event_id;
 
-  return null;
-end;
+    -- Party size changed while accepted: adjust by delta
+    ELSIF NEW.status = 'accepted' AND COALESCE(OLD.party_size, 1) <> COALESCE(NEW.party_size, 1) THEN
+      UPDATE events
+      SET attendee_count = attendee_count + (COALESCE(NEW.party_size, 1) - COALESCE(OLD.party_size, 1))
+      WHERE id = NEW.event_id;
+    END IF;
+
+  ELSIF TG_OP = 'DELETE' THEN
+    IF OLD.status = 'accepted' THEN
+      UPDATE events
+      SET attendee_count = attendee_count - COALESCE(OLD.party_size, 1)
+      WHERE id = OLD.event_id;
+    END IF;
+  END IF;
+
+  RETURN COALESCE(NEW, OLD);
+END;
 $$;
 
 
@@ -610,50 +798,6 @@ BEGIN
     RETURN NEW;
 END;
 $$;
-
-
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
---
--- Name: event_join_requests; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.event_join_requests (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    event_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    party_size integer NOT NULL,
-    note text,
-    status text NOT NULL,
-    hold_expires_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT event_join_requests_party_size_check CHECK ((party_size >= 1)),
-    CONSTRAINT event_join_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'approved'::text, 'declined'::text, 'waitlisted'::text, 'expired'::text, 'cancelled'::text])))
-);
-
-
---
--- Name: TABLE event_join_requests; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.event_join_requests IS 'Join requests for events with capacity holds';
-
-
---
--- Name: COLUMN event_join_requests.party_size; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.event_join_requests.party_size IS 'Number of people in the requesting party';
-
-
---
--- Name: COLUMN event_join_requests.hold_expires_at; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.event_join_requests.hold_expires_at IS 'When the capacity hold expires (for pending requests only)';
 
 
 --
@@ -683,7 +827,7 @@ BEGIN
   END IF;
   
   -- For approvals, check capacity and create participant
-  IF new_status = 'approved' AND request_row.status = 'pending' THEN
+  IF new_status = 'approved' AND (request_row.status = 'pending' OR request_row.status = 'waitlisted') THEN
     -- Get current availability atomically
     SELECT * FROM availability_for_event(request_row.event_id) INTO availability_data;
     
@@ -3478,6 +3622,13 @@ CREATE INDEX idx_join_requests_user ON public.event_join_requests USING btree (u
 
 
 --
+-- Name: idx_join_requests_waitlist; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_join_requests_waitlist ON public.event_join_requests USING btree (event_id, status, waitlist_pos, created_at);
+
+
+--
 -- Name: idx_notifications_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4448,5 +4599,5 @@ ALTER TABLE storage.s3_multipart_uploads_parts ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 0Az6MyOqAJd0BAiXQ3X4NnQJV6ELWdjiMwGdobHWPDRgw0peyQ6IaC9y8dVsqjl
+\unrestrict chArOqluzWfvOkhTvpwKs9sfEgC96VpFvUJoQETdZthfx81yMKgInRDod3bNgq7
 
