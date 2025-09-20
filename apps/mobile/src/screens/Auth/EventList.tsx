@@ -17,6 +17,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components/ui/Icon";
+import Header from "../../components/Header";
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -157,7 +158,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const isMobile = width < 768;
-  const [sidebarVisible, setSidebarVisible] = useState(true); // For web/tablet sidebar
+  const [sidebarVisible, setSidebarVisible] = useState(false); // For web/tablet sidebar
   const sidebarTranslateX = useRef(new Animated.Value(0)).current; // 0 = visible, -280 = hidden
   
   // Animate sidebar visibility
@@ -682,123 +683,36 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   return (
     <LinearGradient colors={bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={[styles.content, isTablet && sidebarVisible && styles.contentWithSidebar]}>
-        <View style={styles.header} testID="events-header">
-          <Text style={styles.headerTitle} testID="events-title">Events</Text>
-          <View style={styles.actions} testID="header-actions">
-            <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
-              <Icon name="Plus" size={20} color="#fff" />
-            </Pressable>
-            <Pressable onPress={() => setShowNotifications(true)} style={[styles.iconBtn]} testID="notifications-button">
-              <Icon name="Bell" size={20} color="#fff" />
-              {unreadCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
-                </View>
-              )}
-            </Pressable>
-            <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
-              <Icon name="CreditCard" size={20} color="#fff" />
-            </Pressable>
-            <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn} testID="settings-button">
-              <Icon name="Settings" size={20} color="#fff" />
-            </Pressable>
-            <Pressable
-              onPress={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
-              style={styles.iconBtn}
-              testID="logout-button"
-            >
-              <Icon name="LogOut" size={20} color="#fff" />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Search */}
-        <View style={styles.searchContainer} testID="search-container">
-          <View style={styles.searchWrap}>
-            <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
-            <TextInput
-              placeholder="Search events..."
-              placeholderTextColor="rgba(255,255,255,0.6)"
-              value={query}
-              onChangeText={setQuery}
-              style={styles.searchInput}
-              testID="search-input"
-              returnKeyType="search"
-              onSubmitEditing={() => reload()}
-            />
-            {query.length > 0 && (
-              <Pressable 
-                onPress={() => setQuery('')} 
-                style={styles.clearButton}
-                testID="clear-search-button"
-              >
-                <Icon name="CircleX" size={20} color="rgba(255,255,255,0.7)" />
-              </Pressable>
-            )}
-          </View>
-        </View>
-
-        {/* Search Results Indicator */}
-        {query.length > 0 && (
-          <View style={styles.searchResultsIndicator}>
-            <Text style={styles.searchResultsText}>
-              {loading ? "Searching..." : `Found ${data.length} event${data.length !== 1 ? 's' : ''} for "${query}"`}
-            </Text>
-          </View>
-        )}
-
-        {/* Segmented control */}
-        <View style={styles.segmentWrap} testID="status-filter-container">
-          <Segmented
-            options={[
-              { key: "upcoming", label: "Upcoming" },
-              { key: "drafts", label: "Drafts" },
-              { key: "past", label: "Past" },
-              { key: "deleted", label: "Deleted" },
-            ]}
-            value={statusTab}
-            onChange={(v) => setStatusTab(v as EventStatusMobile)}
-            testID="status-filter"
-          />
-        </View>
-
-        {/* Applied Filters Bar */}
-        <AppliedFiltersBar
-          ownership={ownership}
-          dietFilters={dietFilters}
-          useNearby={useNearby}
-          userLocation={userLocation}
-          onRemoveFilter={handleRemoveFilter}
+        {/* Reusable Header Component */}
+        <Header
+          onSearch={setQuery}
+          onCreateEvent={handleCreateEvent}
+          onNotifications={() => setShowNotifications(true)}
+          onSettings={() => setShowSettings(true)}
+          onPlans={() => setShowPlans(true)}
+          onLogout={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
+          searchQuery={query}
+          unreadCount={unreadCount}
+          showSearch={true}
+          showNavigation={false}
         />
-
-        {/* Filter Toggle Button for Mobile */}
-        {isMobile && (
+        
+        {/* Filter Toggle Button - Always Visible */}
+        <View style={styles.filterToggleContainer}>
           <Pressable 
+            onPress={() => {
+              if (isMobile) {
+                setFiltersVisible(true); // Open bottom sheet on mobile
+              } else {
+                setSidebarVisible(!sidebarVisible); // Toggle sidebar on tablet/desktop
+              }
+            }} 
             style={styles.filterToggleButton}
-            onPress={() => setFiltersVisible(true)}
             testID="filter-toggle-button"
           >
-            <Icon name="ListFilter" size={16} color="#fff" />
-            <Text style={styles.filterToggleText}>Filters</Text>
-            {getActiveFiltersCount() > 0 && (
-              <View style={styles.filterBadge}>
-                <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
-              </View>
-            )}
-          </Pressable>
-        )}
-
-        {/* Sidebar Toggle Button for Tablet/Desktop */}
-        {isTablet && (
-          <Pressable 
-            style={styles.sidebarToggleButton}
-            onPress={() => setSidebarVisible(!sidebarVisible)}
-            testID="sidebar-toggle-button"
-          >
-            <Icon name={sidebarVisible ? "PanelLeftClose" : "PanelLeftOpen"} size={16} color="#fff" />
-            <Text style={styles.sidebarToggleText}>
-              {sidebarVisible ? "Hide Filters" : "Show Filters"}
+            <Icon name="SlidersHorizontal" size={20} color="rgba(255,255,255,0.8)" />
+            <Text style={styles.filterToggleText}>
+              {isMobile ? "Filters" : (sidebarVisible ? "Hide Filters" : "Show Filters")}
             </Text>
             {getActiveFiltersCount() > 0 && (
               <View style={styles.filterBadge}>
@@ -806,10 +720,195 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
               </View>
             )}
           </Pressable>
-        )}
+        </View>
 
-        {/* List */}
-        <FlatList
+        {/* Main Content Area - Two Column Layout */}
+        <View style={styles.mainContentArea}>
+          {/* Left Sidebar - Smart Filter (Tablet/Desktop only) */}
+          {isTablet && (
+            <View style={[styles.sidebar, !sidebarVisible && styles.sidebarHidden]}>
+            <View style={styles.sidebarHeader}>
+              <Text style={styles.sidebarTitle}>Smart Filter</Text>
+            </View>
+            
+            {/* Filter Content */}
+            <View style={styles.filterContent}>
+              {/* Status Tabs */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Status</Text>
+                <Segmented
+                  value={statusTab}
+                  onChange={(value: string) => {
+                    setStatusTab(value as EventStatusMobile);
+                    reloadWith(value as EventStatusMobile);
+                  }}
+                  options={[
+                    { key: "upcoming", label: "Upcoming" },
+                    { key: "past", label: "Past" },
+                    { key: "drafts", label: "Drafts" },
+                  ]}
+                  testID="status-segmented"
+                />
+              </View>
+
+              {/* Ownership Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Ownership</Text>
+                <View style={styles.chipContainer}>
+                  <FilterChip
+                    selected={ownership === "all"}
+                    onPress={() => {
+                      setOwnership("all");
+                      reload();
+                    }}
+                    testID="ownership-all"
+                  >
+                    All Events
+                  </FilterChip>
+                  <FilterChip
+                    selected={ownership === "mine"}
+                    onPress={() => {
+                      setOwnership("mine");
+                      reload();
+                    }}
+                    testID="ownership-mine"
+                  >
+                    My Events
+                  </FilterChip>
+                  <FilterChip
+                    selected={ownership === "invited"}
+                    onPress={() => {
+                      setOwnership("invited");
+                      reload();
+                    }}
+                    testID="ownership-invited"
+                  >
+                    Invited Events
+                  </FilterChip>
+                </View>
+              </View>
+
+              {/* Diet Filters */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Dietary Preferences</Text>
+                <View style={styles.chipContainer}>
+                  {(["veg", "nonveg", "mixed"] as Diet[]).map((diet) => (
+                    <FilterChip
+                      key={diet}
+                      selected={dietFilters.includes(diet)}
+                      onPress={() => {
+                        const newFilters = dietFilters.includes(diet)
+                          ? dietFilters.filter((f) => f !== diet)
+                          : [...dietFilters, diet];
+                        setDietFilters(newFilters);
+                        reload();
+                      }}
+                      testID={`diet-${diet.toLowerCase()}`}
+                    >
+                      {diet === "veg" ? "Veg" : diet === "nonveg" ? "Non-veg" : "Mixed"}
+                    </FilterChip>
+                  ))}
+                </View>
+              </View>
+
+              {/* Location Filter */}
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>Location</Text>
+                <FilterChip
+                  selected={useNearby}
+                  onPress={() => {
+                    setUseNearby(!useNearby);
+                    reload();
+                  }}
+                  testID="location-nearby"
+                >
+                  {useNearby ? "Nearby Events" : "All Locations"}
+                </FilterChip>
+              </View>
+            </View>
+          </View>
+          )}
+
+          {/* Right Section - Events */}
+          <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
+            {/* Events Section Header */}
+            <View style={styles.eventsHeader}>
+              <View style={styles.eventsHeaderLeft}>
+                <Text style={styles.eventsTitle}>Events</Text>
+                <Text style={styles.eventsSubtitle}>
+                  {loading ? "Loading..." : `${data.length} event${data.length !== 1 ? 's' : ''} found`}
+                </Text>
+              </View>
+              <View style={styles.eventsHeaderActions}>
+                <Pressable onPress={handleCreateEvent} style={styles.createEventButton} testID="create-event-button">
+                  <Icon name="Plus" size={16} color="#fff" />
+                  <Text style={styles.createEventButtonText}>Create Event</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Search */}
+            <View style={styles.searchContainer} testID="search-container">
+              <View style={styles.searchWrap}>
+                <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
+                <TextInput
+                  placeholder="Search events..."
+                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  value={query}
+                  onChangeText={setQuery}
+                  style={styles.searchInput}
+                  testID="search-input"
+                  returnKeyType="search"
+                  onSubmitEditing={() => reload()}
+                />
+                {query.length > 0 && (
+                  <Pressable 
+                    onPress={() => setQuery('')} 
+                    style={styles.clearButton}
+                    testID="clear-search-button"
+                  >
+                    <Icon name="CircleX" size={20} color="rgba(255,255,255,0.7)" />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+
+            {/* Search Results Indicator */}
+            {query.length > 0 && (
+              <View style={styles.searchResultsIndicator}>
+                <Text style={styles.searchResultsText}>
+                  {loading ? "Searching..." : `Found ${data.length} event${data.length !== 1 ? 's' : ''} for "${query}"`}
+                </Text>
+              </View>
+            )}
+
+            {/* Segmented control */}
+            <View style={styles.segmentWrap} testID="status-filter-container">
+              <Segmented
+                options={[
+                  { key: "upcoming", label: "Upcoming" },
+                  { key: "drafts", label: "Drafts" },
+                  { key: "past", label: "Past" },
+                  { key: "deleted", label: "Deleted" },
+                ]}
+                value={statusTab}
+                onChange={(v) => setStatusTab(v as EventStatusMobile)}
+                testID="status-filter"
+              />
+            </View>
+
+            {/* Applied Filters Bar */}
+            <AppliedFiltersBar
+              ownership={ownership}
+              dietFilters={dietFilters}
+              useNearby={useNearby}
+              userLocation={userLocation}
+              onRemoveFilter={handleRemoveFilter}
+            />
+
+
+            {/* List */}
+            <FlatList
           data={data}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
@@ -862,7 +961,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             loadMore();
           }}
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
-        />
+            />
+          </View>
         </View>
 
         {/* Filter Bottom Sheet for Mobile */}
@@ -883,30 +983,6 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           />
         )}
 
-        {/* Filter Sidebar for Tablet/Desktop */}
-        {isTablet && (
-          <Animated.View 
-            style={[
-              styles.sidebarOverlay,
-              {
-                transform: [{ translateX: sidebarTranslateX }],
-              },
-            ]}
-          >
-            <FilterSidebar
-              ownership={ownership}
-              onOwnershipChange={(value) => setOwnership(value as Ownership)}
-              dietFilters={dietFilters}
-              onDietChange={(diet) => toggleDiet(diet as Diet)}
-              useNearby={useNearby}
-              onNearbyChange={setUseNearby}
-              userLocation={userLocation}
-              onRadiusChange={(radius) => {
-                setUserLocation(prev => prev ? { ...prev, radius_km: radius } : null);
-              }}
-            />
-          </Animated.View>
-        )}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -1037,12 +1113,7 @@ function EventCard({
   const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
   return (
     <Pressable onPress={onPress} testID={testID}>
-      <LinearGradient
-        colors={cardColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.card}
-      >
+      <View style={[styles.card, { backgroundColor: '#FFFFFF' }]}>
       <View style={styles.cardHeader} testID={`${testID}-header`}>
         <Text style={styles.cardTitle} testID={`${testID}-title`}>{item.title}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1053,19 +1124,19 @@ function EventCard({
         </View>
       </View>
 
-      <View style={styles.metaRow}>
-        <Icon name="Calendar" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
-        <Text style={styles.metaText}>{dateLabel}</Text>
-      </View>
+        <View style={styles.metaRow}>
+          <Icon name="Calendar" size={16} color="#6B7280" style={{ marginRight: 8 }} />
+          <Text style={styles.metaText}>{dateLabel}</Text>
+        </View>
 
-      <View style={[styles.metaRow, { marginTop: 4 }]}>
-        <Icon name="MapPin" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
-        <Text style={styles.metaText}>{item.venue}</Text>
-      </View>
+        <View style={[styles.metaRow, { marginTop: 4 }]}>
+          <Icon name="MapPin" size={16} color="#6B7280" style={{ marginRight: 8 }} />
+          <Text style={styles.metaText}>{item.venue}</Text>
+        </View>
 
-      <View style={styles.footerRow}>
-        <View style={styles.footerLeft}>
-          <Icon name="Users" size={16} color="#EAF2FF" />
+        <View style={styles.footerRow}>
+          <View style={styles.footerLeft}>
+            <Icon name="Users" size={16} color="#6B7280" />
           <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
         </View>
 
@@ -1106,8 +1177,8 @@ function EventCard({
             </Pressable>
           ))}
         </View>
-      )}
-      </LinearGradient>
+        )}
+      </View>
     </Pressable>
   );
 }
@@ -1124,12 +1195,140 @@ const styles = StyleSheet.create({
   contentWithSidebar: {
     marginLeft: 280, // Width of the sidebar
   },
-  sidebarOverlay: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: 1000,
+  // Two Column Layout Styles
+  mainContentArea: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  sidebar: {
+    width: 280,
+    backgroundColor: "transparent",
+    borderRightWidth: 1,
+    borderRightColor: "rgba(255,255,255,0.1)",
+  },
+  sidebarHidden: {
+    width: 0,
+    overflow: "hidden",
+  },
+  sidebarHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+  },
+  sidebarTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  filterToggle: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  filterContent: {
+    padding: 16,
+  },
+  filterSection: {
+    marginBottom: 24,
+  },
+  filterSectionTitle: {
+    color: "rgba(255,255,255,0.8)",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+  chipContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  eventsSection: {
+    flex: 1,
+    backgroundColor: "transparent",
+  },
+  eventsSectionMobile: {
+    width: "100%", // Full width on mobile when no sidebar
+  },
+  eventsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+  },
+  eventsHeaderLeft: {
+    flex: 1,
+  },
+  eventsTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  eventsSubtitle: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 14,
+    marginTop: 2,
+  },
+  eventsHeaderActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  createEventButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  createEventButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 6,
+  },
+  // Filter Toggle Styles
+  filterToggleContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+  },
+  filterToggleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  filterToggleText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  filterBadge: {
+    backgroundColor: "#ef4444",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+  },
+  filterBadgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
   },
   header: {
     paddingHorizontal: 0,
@@ -1240,10 +1439,10 @@ const styles = StyleSheet.create({
     }),
   },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  cardTitle: { color: "#fff", fontSize: 18, fontWeight: "800", flex: 1, paddingRight: 12 },
+  cardTitle: { color: "#1F2937", fontSize: 18, fontWeight: "800", flex: 1, paddingRight: 12 },
 
   metaRow: { flexDirection: "row", alignItems: "center", marginTop: 10 },
-  metaText: { color: "#EAF2FF", fontSize: 14, fontWeight: "600" },
+  metaText: { color: "#6B7280", fontSize: 14, fontWeight: "600" },
 
   // UPDATED – fixed 3-zone footer so center never drifts
   footerRow: { marginTop: 14, flexDirection: "row", alignItems: "center" },
@@ -1338,39 +1537,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "700",
-  },
-  // Filter toggle button styles
-  filterToggleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginHorizontal: 16,
-    marginTop: 8,
-  },
-  filterToggleText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  filterBadge: {
-    backgroundColor: '#7B2FF7',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginLeft: 8,
-    minWidth: 20,
-    alignItems: 'center',
-  },
-  filterBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
   },
   // Sidebar toggle button styles
   sidebarToggleButton: {
