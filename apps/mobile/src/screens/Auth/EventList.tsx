@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -649,10 +649,10 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
           <Text style={styles.headerTitle} testID="events-title">Events</Text>
           <View style={styles.actions} testID="header-actions">
             <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
-              <Ionicons name="add" size={20} color="#fff" />
+              <Icon name="Plus" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowNotifications(true)} style={[styles.iconBtn]} testID="notifications-button">
-              <Ionicons name="notifications-outline" size={20} color="#fff" />
+              <Icon name="Bell" size={20} color="#fff" />
               {unreadCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
@@ -660,17 +660,17 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               )}
             </Pressable>
             <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
-              <Ionicons name="card" size={20} color="#fff" />
+              <Icon name="CreditCard" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn} testID="settings-button">
-              <Ionicons name="settings" size={20} color="#fff" />
+              <Icon name="Settings" size={20} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
               style={styles.iconBtn}
               testID="logout-button"
             >
-              <Ionicons name="log-out" size={20} color="#fff" />
+              <Icon name="LogOut" size={20} color="#fff" />
             </Pressable>
           </View>
         </View>
@@ -678,7 +678,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
         {/* Search */}
         <View style={styles.searchContainer} testID="search-container">
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
+            <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
             <TextInput
               placeholder="Search events..."
               placeholderTextColor="rgba(255,255,255,0.6)"
@@ -695,7 +695,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                 style={styles.clearButton}
                 testID="clear-search-button"
               >
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.7)" />
+                <Icon name="XCircle" size={20} color="rgba(255,255,255,0.7)" />
               </Pressable>
             )}
           </View>
@@ -822,7 +822,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : query.length > 0 ? (
               <View style={styles.emptyWrap} testID="no-search-results">
-                <Ionicons name="search" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.noResultsTitle}>No events found</Text>
                 <Text style={styles.noResultsText}>
                   No events match your search for "{query}". Try adjusting your search terms or filters.
@@ -837,7 +837,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : (
               <View style={styles.emptyWrap} testID="empty-state">
-                <Ionicons name="calendar-outline" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.emptyTitle}>No events yet</Text>
                 <Text style={styles.emptyText}>Create your first event to get started!</Text>
               </View>
@@ -1001,18 +1001,18 @@ function EventCard({
       </View>
 
       <View style={styles.metaRow}>
-        <Ionicons name="calendar-clear-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="Calendar" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{dateLabel}</Text>
       </View>
 
       <View style={[styles.metaRow, { marginTop: 4 }]}>
-        <Ionicons name="location-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="MapPin" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{item.venue}</Text>
       </View>
 
       <View style={styles.footerRow}>
         <View style={styles.footerLeft}>
-          <Ionicons name="people-outline" size={16} color="#EAF2FF" />
+          <Icon name="Users" size={16} color="#EAF2FF" />
           <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
         </View>
 
