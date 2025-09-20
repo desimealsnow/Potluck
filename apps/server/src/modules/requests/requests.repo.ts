@@ -41,7 +41,16 @@ export class RequestsRepository {
   }
 
   /**
-   * Create a new join request with capacity hold
+   * Create a new join request with capacity hold.
+   *
+   * This function uses an RPC call to atomically process the join request, passing the event ID, user ID, party size, optional note, and hold TTL in minutes. It handles errors by logging them and mapping specific error codes to user-friendly messages. If the request is successful, it returns the created join request data; otherwise, it returns an error response.
+   *
+   * @param eventId - The ID of the event for which the join request is being created.
+   * @param userId - The ID of the user making the join request.
+   * @param partySize - The size of the party for the join request.
+   * @param note - An optional note associated with the join request.
+   * @param holdTtlMinutes - The time-to-live for the hold in minutes (default is 30).
+   * @returns A Promise that resolves to a ServiceResult containing the JoinRequestRow or an error.
    */
   static async createRequest(
     eventId: string,

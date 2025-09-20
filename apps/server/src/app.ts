@@ -21,6 +21,13 @@ import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import { raw } from 'body-parser';
 
+/**
+ * Create and configure an Express application.
+ *
+ * This function initializes an Express app, sets up CORS with specific origins and headers, and defines various API routes for authentication, events, locations, billing, discovery, user location, and user profile. It also includes mock routes for testing, a development payments route if not in production, a logging endpoint, a health check route, and a global error handler.
+ *
+ * @returns The configured Express application instance.
+ */
 export const createApp = () => {
   const app = express();
   
