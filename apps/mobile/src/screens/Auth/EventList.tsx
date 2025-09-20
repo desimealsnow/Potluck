@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   Pressable,
-  Image,
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
@@ -12,9 +11,11 @@ import {
   Alert,
   TextInput,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
+import { Icon } from "@/components";
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -649,10 +650,10 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
           <Text style={styles.headerTitle} testID="events-title">Events</Text>
           <View style={styles.actions} testID="header-actions">
             <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
-              <Ionicons name="add" size={20} color="#fff" />
+              <Icon name="Plus" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowNotifications(true)} style={[styles.iconBtn]} testID="notifications-button">
-              <Ionicons name="notifications-outline" size={20} color="#fff" />
+              <Icon name="Bell" size={20} color="#fff" />
               {unreadCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
@@ -660,17 +661,17 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               )}
             </Pressable>
             <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
-              <Ionicons name="card" size={20} color="#fff" />
+              <Icon name="CreditCard" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn} testID="settings-button">
-              <Ionicons name="settings" size={20} color="#fff" />
+              <Icon name="Settings" size={20} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
               style={styles.iconBtn}
               testID="logout-button"
             >
-              <Ionicons name="log-out" size={20} color="#fff" />
+              <Icon name="LogOut" size={20} color="#fff" />
             </Pressable>
           </View>
         </View>
@@ -678,7 +679,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
         {/* Search */}
         <View style={styles.searchContainer} testID="search-container">
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
+            <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
             <TextInput
               placeholder="Search events..."
               placeholderTextColor="rgba(255,255,255,0.6)"
@@ -695,7 +696,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                 style={styles.clearButton}
                 testID="clear-search-button"
               >
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.7)" />
+                <Icon name="XCircle" size={20} color="rgba(255,255,255,0.7)" />
               </Pressable>
             )}
           </View>
@@ -770,7 +771,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                   }}
                   style={styles.radiusButton}
                 >
-                  <Ionicons name="remove" size={16} color="#7b2ff7" />
+                  <Icon name="Minus" size={16} color="#7b2ff7" />
                 </Pressable>
                 <Text style={styles.radiusValue}>{userLocation.radius_km}km</Text>
                 <Pressable 
@@ -781,7 +782,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                   }}
                   style={styles.radiusButton}
                 >
-                  <Ionicons name="add" size={16} color="#7b2ff7" />
+                  <Icon name="Plus" size={16} color="#7b2ff7" />
                 </Pressable>
               </View>
             </View>
@@ -822,7 +823,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : query.length > 0 ? (
               <View style={styles.emptyWrap} testID="no-search-results">
-                <Ionicons name="search" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.noResultsTitle}>No events found</Text>
                 <Text style={styles.noResultsText}>
                   No events match your search for "{query}". Try adjusting your search terms or filters.
@@ -837,7 +838,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : (
               <View style={styles.emptyWrap} testID="empty-state">
-                <Ionicons name="calendar-outline" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.emptyTitle}>No events yet</Text>
                 <Text style={styles.emptyText}>Create your first event to get started!</Text>
               </View>
@@ -870,14 +871,14 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
 
 function DietTag({ diet }: { diet: Diet }) {
   const map = {
-    veg: { bg: "rgba(74,222,128,0.95)", fg: "#0B3D1E", label: "veg" },
-    nonveg: { bg: "rgba(251,146,60,0.95)", fg: "#4A1D00", label: "non-veg" },
-    mixed: { bg: "rgba(250,204,21,0.95)", fg: "#3F2D00", label: "mixed" },
+    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
+    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
+    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
   } as const;
   const d = map[diet];
   return (
-    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12 }}>{d.label}</Text>
+    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
+      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
     </View>
   );
 }
@@ -916,8 +917,15 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
       }
       testID={testID}
     >
-      <Ionicons
-        name={config.icon as any}
+      <Icon
+        name={
+          (status === "active" && "CheckCircle") ||
+          (status === "cancelled" && "XCircle") ||
+          (status === "draft" && "Pencil") ||
+          (status === "deleted" && "Trash2") ||
+          (status === "past" && "Clock") ||
+          "Circle"
+        }
         size={14}
         color="#fff"
         style={{ marginRight: 4 }}
@@ -929,11 +937,11 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
 
 function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
   const config = role === 'host'
-    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'person' }
-    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'people-outline' };
+    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'User' }
+    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'Users' };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
-      <Ionicons name={config.icon as any} size={12} color="#fff" />
+      <Icon name={config.icon as any} size={12} color="#fff" />
       <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
     </View>
   );
@@ -947,8 +955,8 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
           {p.avatarUrl ? (
             <Image source={{ uri: p.avatarUrl }} style={styles.avatar} />
           ) : (
-            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}>
-              <Ionicons name="person" size={14} color="#fff" />
+            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}> 
+              <Icon name="User" size={14} color="#fff" />
             </View>
           )}
         </View>
@@ -1001,18 +1009,18 @@ function EventCard({
       </View>
 
       <View style={styles.metaRow}>
-        <Ionicons name="calendar-clear-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="Calendar" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{dateLabel}</Text>
       </View>
 
       <View style={[styles.metaRow, { marginTop: 4 }]}>
-        <Ionicons name="location-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="MapPin" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{item.venue}</Text>
       </View>
 
       <View style={styles.footerRow}>
         <View style={styles.footerLeft}>
-          <Ionicons name="people-outline" size={16} color="#EAF2FF" />
+          <Icon name="Users" size={16} color="#EAF2FF" />
           <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
         </View>
 
@@ -1042,7 +1050,13 @@ function EventCard({
               style={[styles.actionButton, { backgroundColor: action.color }]}
               testID={`${testID}-action-${action.key}`}
             >
-              <Ionicons name={action.icon as any} size={14} color="#fff" style={{ marginRight: 4 }} />
+              <Icon name={
+                action.icon === 'rocket-outline' ? 'Rocket' :
+                action.icon === 'trash-outline' ? 'Trash2' :
+                action.icon === 'close-circle-outline' ? 'XCircle' :
+                action.icon === 'checkmark-circle-outline' ? 'CheckCircle' :
+                action.icon === 'refresh-outline' ? 'RefreshCw' : 'Circle'
+              } size={14} color="#fff" style={{ marginRight: 4 }} />
               <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
             </Pressable>
           ))}

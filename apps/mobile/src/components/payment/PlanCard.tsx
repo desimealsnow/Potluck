@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components';
 import { Button } from '../ui/Button';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 import type { BillingPlan } from '../../services/payment.service';
@@ -55,7 +55,7 @@ export function PlanCard({
           isCurrent && styles.currentBadge,
           isPopular && styles.popularBadge,
         ]}>
-          {isPopular && <Ionicons name="star" size={12} color="#fff" style={styles.badgeIcon} />}
+          {isPopular && <Icon name="Star" size={12} color="#fff" style={styles.badgeIcon} />}
           <Text style={styles.badgeText}>
             {isCurrent ? 'Current' : 'Popular'}
           </Text>
@@ -128,8 +128,8 @@ export function PlanCard({
 function FeatureRow({ label, included }: { label: string; included: boolean }) {
   return (
     <View style={styles.featureRow}>
-      <Ionicons
-        name={included ? 'checkmark-circle' : 'remove-circle'}
+      <Icon
+        name={included ? 'CheckCircle2' : 'MinusCircle'}
         size={16}
         color={included ? '#10B981' : '#D1D5DB'}
       />

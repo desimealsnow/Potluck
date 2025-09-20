@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
 import * as Location from "expo-location";
@@ -338,7 +338,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
 
   const renderBackButton = () => (
     <Pressable style={styles.backButton} onPress={handleBack}>
-      <Ionicons name="arrow-back" size={24} color="white" />
+      <Icon name="ChevronLeft" size={24} color="white" />
     </Pressable>
   );
 
@@ -346,7 +346,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
       <View style={styles.iconContainer}>
-        <Ionicons name="person-circle" size={80} color="#fff" />
+        <Icon name="UserCircle2" size={80} color="#fff" />
       </View>
       <Text style={styles.stepTitle}>Set Up Your Profile</Text>
       <Text style={styles.stepDescription}>
@@ -391,7 +391,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
       return (
         <View style={styles.stepContainer}>
           <View style={styles.iconContainer}>
-            <Ionicons name="checkmark-circle" size={80} color="#4CAF50" />
+            <Icon name="CheckCircle2" size={80} color="#4CAF50" />
           </View>
           <Text style={styles.stepTitle}>Location Already Set Up!</Text>
           <Text style={styles.stepDescription}>
@@ -417,7 +417,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
       <View style={styles.stepContainer}>
         {step > 1 && renderBackButton()}
         <View style={styles.iconContainer}>
-          <Ionicons name="location" size={80} color="#fff" />
+          <Icon name="MapPin" size={80} color="#fff" />
         </View>
         <Text style={styles.stepTitle}>Enable Location Services</Text>
         <Text style={styles.stepDescription}>
@@ -454,7 +454,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
                     setCitySuggestions([]);
                   }}
                 >
-                  <Ionicons name="location-outline" size={16} color="rgba(255,255,255,0.7)" />
+                  <Icon name="MapPin" size={16} color="rgba(255,255,255,0.7)" />
                   <Text style={styles.suggestionText} numberOfLines={2}>
                     {suggestion.display_name}
                   </Text>
@@ -521,7 +521,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
       <View style={styles.iconContainer}>
-        <Ionicons name="restaurant" size={80} color="#FF6B6B" />
+        <Icon name="Utensils" size={80} color="#FF6B6B" />
       </View>
       <Text style={styles.stepTitle}>Meal Preferences</Text>
       <Text style={styles.stepDescription}>
@@ -554,7 +554,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
               {preference}
             </Text>
             {mealPreferences.includes(preference) && (
-              <Ionicons name="checkmark" size={20} color="#fff" />
+              <Icon name="Check" size={20} color="#fff" />
             )}
           </Pressable>
         ))}
@@ -578,7 +578,7 @@ export default function ProfileSetupScreen({ onComplete, onSkip }: ProfileSetupS
     <View style={styles.stepContainer}>
       {step > 1 && renderBackButton()}
       <View style={styles.iconContainer}>
-        <Ionicons name="save" size={80} color="#fff" />
+        <Icon name="Save" size={80} color="#fff" />
       </View>
       <Text style={styles.stepTitle}>Save Your Preferences</Text>
       <Text style={styles.stepDescription}>

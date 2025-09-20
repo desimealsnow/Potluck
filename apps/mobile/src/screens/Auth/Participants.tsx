@@ -9,12 +9,12 @@ import {
   StyleSheet,
   Platform,
   Alert,
-  Image,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 // Note: expo-clipboard not available in this setup
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 
 /* ---------------- Config / REST toggle ---------------- */
@@ -211,14 +211,14 @@ export default function ParticipantsScreen({
         {showHeader && (
           <View style={styles.topBar}>
             <Pressable onPress={onBack} style={styles.iconBtn}>
-              <Ionicons name="chevron-back" size={20} color="#5B5B5B" />
+              <Icon name="ChevronLeft" size={20} color="#5B5B5B" />
             </Pressable>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Ionicons name="people" size={18} color="#A44500" />
+              <Icon name="Users" size={18} color="#A44500" />
               <Text style={styles.topTitle}>Participants</Text>
             </View>
             <Pressable style={styles.iconBtn}>
-              <Ionicons name="ellipsis-horizontal" size={18} color="#6B6B6B" />
+              <Icon name="MoreHorizontal" size={18} color="#6B6B6B" />
             </Pressable>
           </View>
         )}
@@ -230,7 +230,7 @@ export default function ParticipantsScreen({
 
             <Text style={styles.label}>Email or Phone</Text>
             <View style={styles.inviteRow}>
-              <Ionicons name="mail" size={16} color="#9AA0A6" />
+              <Icon name="Mail" size={16} color="#9AA0A6" />
               <TextInput
                 style={styles.inviteInput}
                 placeholder="friend@email.com or +1234567890"
@@ -246,9 +246,9 @@ export default function ParticipantsScreen({
             </View>
 
             <Pressable onPress={copyLink} style={styles.copyLink}>
-              <Ionicons name="link" size={16} color="#6B7AFF" />
+              <Icon name="Link" size={16} color="#6B7AFF" />
               <Text style={styles.copyLinkText}>Copy invite link</Text>
-              <Ionicons name="copy" size={16} color="#6B7AFF" style={{ marginLeft: "auto" }} />
+              <Icon name="Copy" size={16} color="#6B7AFF" style={{ marginLeft: "auto" }} />
             </Pressable>
           </View>
 
@@ -326,7 +326,7 @@ function FilterChip({
   active?: boolean;
   label: string;
   onPress: () => void;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import("@/components/ui/Icon").IconName;
 }) {
   return (
     <Pressable
@@ -336,12 +336,7 @@ function FilterChip({
         active && { backgroundColor: "rgba(255,140,90,0.14)", borderColor: "transparent" },
       ]}
     >
-      <Ionicons
-        name={icon}
-        size={14}
-        color={active ? "#F24E1E" : "#9DA4AE"}
-        style={{ marginRight: 6 }}
-      />
+      <Icon name={icon} size={14} color={active ? "#F24E1E" : "#9DA4AE"} style={{ marginRight: 6 }} />
       <Text style={[styles.chipText, active && { color: "#D84E29", fontWeight: "800" }]}>
         {label}
       </Text>
@@ -445,7 +440,7 @@ function StatusButton({
 }: {
   active?: boolean;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import("@/components/ui/Icon").IconName;
   onPress: () => void;
 }) {
   return (
@@ -456,7 +451,7 @@ function StatusButton({
         active && { backgroundColor: "rgba(0,0,0,0.85)" },
       ]}
     >
-      <Ionicons name={icon} size={12} color={active ? "#fff" : "#333"} />
+      <Icon name={icon} size={12} color={active ? "#fff" : "#333"} />
       <Text style={{ fontSize: 11, fontWeight: "800", color: active ? "#fff" : "#333", marginLeft: 4 }}>
         {label}
       </Text>
@@ -472,7 +467,7 @@ function Pill({
 }: {
   label: string;
   tone: "green" | "amber" | "rose" | "orange" | "pink" | "blue";
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: import("@/components/ui/Icon").IconName;
   style?: any;
 }) {
   const map = {
@@ -486,7 +481,7 @@ function Pill({
   const t = map[tone];
   return (
     <View style={[{ backgroundColor: t.bg, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, flexDirection: "row", alignItems: "center" }, style]}>
-      {icon ? <Ionicons name={icon} size={12} color={t.fg} style={{ marginRight: 4 }} /> : null}
+      {icon ? <Icon name={icon} size={12} color={t.fg} style={{ marginRight: 4 }} /> : null}
       <Text style={{ color: t.fg, fontWeight: "800", fontSize: 12 }}>{label}</Text>
     </View>
   );

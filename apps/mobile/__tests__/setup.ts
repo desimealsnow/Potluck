@@ -9,9 +9,7 @@ jest.mock('expo-linear-gradient', () => ({
   LinearGradient: 'LinearGradient',
 }));
 
-jest.mock('@expo/vector-icons', () => ({
-  Ionicons: 'Ionicons',
-}));
+// Mock Expo vector icons removed
 
 jest.mock('expo-constants', () => ({
   default: {

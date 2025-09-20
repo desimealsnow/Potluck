@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 import { paymentService, type BillingPlan, type Subscription } from "../../services/payment.service";
 import { PlanCard as PaymentPlanCard } from "../../components/payment";
@@ -128,7 +128,7 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={18} color="#1e1e1e" />
+            <Icon name="ChevronLeft" size={18} color="#1e1e1e" />
           </Pressable>
           <Text style={styles.title}>Plans</Text>
           <View style={{ width: 36 }} />
@@ -259,7 +259,7 @@ function FAQ({ q, a }: { q: string; a: string }) {
     <View style={styles.faqItem}>
       <Pressable onPress={() => setOpen((v) => !v)} style={styles.faqQ}>
         <Text style={styles.faqQText}>{q}</Text>
-        <Ionicons name={open ? "chevron-up" : "chevron-down"} size={18} color="#111" />
+        <Icon name={open ? "ChevronUp" : "ChevronDown"} size={18} color="#111" />
       </Pressable>
       {open && <Text style={styles.faqA}>{a}</Text>}
     </View>

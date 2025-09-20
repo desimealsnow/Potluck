@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator, Pressable, StyleSheet, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { apiClient } from "@/services/apiClient";
 import EventDetailsPage from "./EventDetailsPage";
 import { supabase } from "@/config/supabaseClient";
@@ -94,7 +94,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>Notifications</Text>
           <View style={{ width: 40 }} />
@@ -116,7 +116,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
             renderItem={({ item }) => (
               <Pressable style={styles.card} onPress={() => item.event_id && setSelectedEventId(item.event_id)}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-                  <Ionicons name="notifications" color="#7b2ff7" size={16} />
+                  <Icon name="Bell" color="#7b2ff7" size={16} />
                   <Text style={{ color: '#111827', fontWeight: '800', marginLeft: 8 }}>{item.payload?.event_title || 'Event update'}</Text>
                 </View>
                 <Text style={{ color: '#374151' }}>{item.payload?.reason === 'nearby' ? 'Nearby event' : item.type}</Text>

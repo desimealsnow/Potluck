@@ -29,6 +29,9 @@ export function Segmented({ options, value, onChange, style, testID }: Segmented
               selected && styles.optionSelected,
             ]}
             testID={`${testID}-option-${option.key}`}
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            accessibilityLabel={option.label}
           >
             <Text style={[
               styles.text,
@@ -58,10 +61,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionSelected: {
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.neutral.card,
   },
   text: {
-    color: '#374151',
+    color: colors.text.secondary,
     fontWeight: typography.fontWeight.bold,
     fontSize: typography.fontSize.sm,
   },

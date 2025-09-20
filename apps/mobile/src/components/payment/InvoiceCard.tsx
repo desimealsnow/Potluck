@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components';
 import { PaymentStatusBadge } from './PaymentStatusBadge';
 import type { Invoice } from '../../services/payment.service';
 
@@ -73,7 +73,7 @@ export function InvoiceCard({ invoice, onDownload }: InvoiceCardProps) {
               style={styles.downloadButton}
               onPress={onDownload}
             >
-              <Ionicons name="download-outline" size={16} color="#6B7280" />
+              <Icon name="Download" size={16} color="#6B7280" />
             </Pressable>
           )}
         </View>

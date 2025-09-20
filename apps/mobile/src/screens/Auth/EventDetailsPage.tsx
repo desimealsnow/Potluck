@@ -7,15 +7,15 @@ import {
   TextInput,
   ActivityIndicator,
   StyleSheet,
-  Image,
   Alert,
   Platform,
   Modal,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import { Segmented } from "@/components";
+import { Icon, Segmented, ProgressBar } from "@/components";
+import { gradients } from "@/theme";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
@@ -550,10 +550,7 @@ export default function EventDetailsPage({
     }
   };
 
-  const gradient = useMemo(
-    () => ["#ddd6fe", "#e9d5ff", "#fce7f3"] as const,
-    []
-  );
+  const gradient = useMemo(() => gradients.header.event, []);
 
   // Determine available actions based on event status and ownership
   const getAvailableActions = () => {
@@ -571,21 +568,21 @@ export default function EventDetailsPage({
     if (isOwner) {
       switch (status) {
         case 'draft':
-          actions.push({ key: 'publish', label: pendingActionKey === 'publish' ? 'Tap again to confirm' : 'Publish Event', icon: 'rocket-outline', color: '#4CAF50', handler: () => requestConfirmThenRun('publish', handlePublishEvent) });
-          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
+          actions.push({ key: 'publish', label: pendingActionKey === 'publish' ? 'Tap again to confirm' : 'Publish Event', icon: 'Rocket', color: '#4CAF50', handler: () => requestConfirmThenRun('publish', handlePublishEvent) });
+          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'Trash2', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
           break;
         case 'published':
-          actions.push({ key: 'cancel', label: pendingActionKey === 'cancel' ? 'Tap again to confirm' : 'Cancel Event', icon: 'close-circle-outline', color: '#FF9800', handler: () => requestConfirmThenRun('cancel', handleCancelEvent) });
-          actions.push({ key: 'complete', label: pendingActionKey === 'complete' ? 'Tap again to confirm' : 'Complete Event', icon: 'checkmark-circle-outline', color: '#2196F3', handler: () => requestConfirmThenRun('complete', handleCompleteEvent) });
+          actions.push({ key: 'cancel', label: pendingActionKey === 'cancel' ? 'Tap again to confirm' : 'Cancel Event', icon: 'XCircle', color: '#FF9800', handler: () => requestConfirmThenRun('cancel', handleCancelEvent) });
+          actions.push({ key: 'complete', label: pendingActionKey === 'complete' ? 'Tap again to confirm' : 'Complete Event', icon: 'CheckCircle2', color: '#2196F3', handler: () => requestConfirmThenRun('complete', handleCompleteEvent) });
           break;
         case 'cancelled':
-          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
+          actions.push({ key: 'purge', label: pendingActionKey === 'purge' ? 'Tap again to confirm' : 'Delete Event', icon: 'Trash2', color: '#F44336', handler: () => requestConfirmThenRun('purge', handlePurgeEvent) });
           break;
         case 'completed':
           // Backend does not allow purging completed events; no actions
           break;
         case 'purged':
-          actions.push({ key: 'restore', label: pendingActionKey === 'restore' ? 'Tap again to confirm' : 'Restore Event', icon: 'refresh-outline', color: '#9C27B0', handler: () => requestConfirmThenRun('restore', handleRestoreEvent) });
+          actions.push({ key: 'restore', label: pendingActionKey === 'restore' ? 'Tap again to confirm' : 'Restore Event', icon: 'RotateCcw', color: '#9C27B0', handler: () => requestConfirmThenRun('restore', handleRestoreEvent) });
           break;
       }
     }
@@ -668,7 +665,7 @@ function TopBar({
   return (
     <View style={styles.topBar}>
       <Pressable onPress={onBack} style={styles.topBarButton}>
-        <Ionicons name="arrow-back" size={20} color="#374151" />
+        <Icon name="ChevronLeft" size={20} color="#374151" />
       </Pressable>
       {title ? (
         <Text style={styles.topBarTitle}>{title}</Text>
@@ -677,13 +674,13 @@ function TopBar({
       )}
       <View style={styles.topBarActions}>
         <Pressable onPress={onRefresh} style={styles.topBarButton}>
-          <Ionicons name="refresh" size={20} color="#374151" />
+          <Icon name="RefreshCcw" size={20} color="#374151" />
         </Pressable>
         <Pressable style={styles.topBarButton}>
-          <Ionicons name="share-outline" size={20} color="#374151" />
+          <Icon name="Share2" size={20} color="#374151" />
         </Pressable>
         <Pressable style={styles.topBarButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color="#374151" />
+          <Icon name="MoreHorizontal" size={20} color="#374151" />
         </Pressable>
       </View>
     </View>
@@ -738,7 +735,7 @@ function EventHeader({
               }} 
               style={[styles.actionButton, { backgroundColor: action.color }]}
             >
-              <Ionicons name={action.icon as any} size={18} color="#fff" style={{ marginRight: 8 }} />
+              <Icon name={action.icon as any} size={18} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.actionButtonText}>{action.label}</Text>
             </Pressable>
           ))}
@@ -826,7 +823,7 @@ function OverviewTab({
               rsvp === "accepted" ? styles.rsvpButtonAccepted : styles.rsvpButtonAcceptedInactive
             ]}
           >
-            <Ionicons name="checkmark" size={16} color={rsvp === "accepted" ? "#ffffff" : "#166534"} />
+            <Icon name="Check" size={16} color={rsvp === "accepted" ? "#ffffff" : "#166534"} />
             <Text style={[
               styles.rsvpButtonText,
               rsvp === "accepted" ? styles.rsvpButtonTextAccepted : styles.rsvpButtonTextAcceptedInactive
@@ -839,7 +836,7 @@ function OverviewTab({
               rsvp === "declined" ? styles.rsvpButtonDeclined : styles.rsvpButtonDeclinedInactive
             ]}
           >
-            <Ionicons name="close" size={16} color={rsvp === "declined" ? "#ffffff" : "#dc2626"} />
+            <Icon name="X" size={16} color={rsvp === "declined" ? "#ffffff" : "#dc2626"} />
             <Text style={[
               styles.rsvpButtonText,
               rsvp === "declined" ? styles.rsvpButtonTextDeclined : styles.rsvpButtonTextDeclinedInactive
@@ -915,6 +912,16 @@ function ItemsTab({
 }) {
   // Safety check to ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
+  const colorForName = (name: string) => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('appetizer') || n.includes('starter')) return '#06B6D4';
+    if (n.includes('main')) return '#22C55E';
+    if (n.includes('side')) return '#84CC16';
+    if (n.includes('dessert')) return '#F472B6';
+    if (n.includes('drink') || n.includes('beverage')) return '#38BDF8';
+    if (n.includes('supply') || n.includes('supplies')) return '#F59E0B';
+    return '#7C3AED';
+  };
   const handleClaim = async (id: string) => {
     // optimistic
     setItems((prev) => {
@@ -954,7 +961,7 @@ function ItemsTab({
                 </Pressable>
               </View>
             </View>
-            <Progress value={pct} />
+            <ProgressBar value={pct} color={colorForName(it.name)} />
             {complete && (
               <Text style={styles.completeText}>✓ Complete</Text>
             )}
@@ -1024,7 +1031,7 @@ function InlineEditableItem({ item, onChange, onDelete }: { item: ItemDTO; onCha
       <TextInput value={name} onChangeText={(t) => { setName(t); onChange({ name: t }); }} style={[styles.textInput, { height: 40 }]} />
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
         <Pressable onPress={onDelete} style={[styles.qtyBtn, { backgroundColor: '#ef4444' }]}>
-          <Ionicons name="trash-outline" size={14} color="#fff" />
+          <Icon name="Trash2" size={14} color="#fff" />
         </Pressable>
       </View>
     </View>
@@ -1037,7 +1044,7 @@ function Chip({
   tone = "sky",
 }: {
   children: React.ReactNode;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: import("@/components/ui/Icon").IconName;
   tone?: "sky" | "emerald" | "violet";
 }) {
   const toneStyles = {
@@ -1053,7 +1060,7 @@ function Chip({
   
   return (
     <View style={[styles.chip, toneStyles[tone]]}>
-      {icon && <Ionicons name={icon} size={12} color={textStyles[tone].color} style={styles.chipIcon} />}
+      {icon && <Icon name={icon} size={12} color={textStyles[tone].color} style={styles.chipIcon} />}
       <Text style={[styles.chipText, textStyles[tone]]}>{children}</Text>
     </View>
   );
@@ -1066,7 +1073,7 @@ function Pill({
 }: {
   children: React.ReactNode;
   tone: "green" | "amber" | "rose" | "indigo";
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: import("@/components/ui/Icon").IconName;
 }) {
   const toneStyles = {
     green: styles.pillGreen,
@@ -1083,7 +1090,7 @@ function Pill({
   
   return (
     <View style={[styles.pill, toneStyles[tone]]}>
-      {icon && <Ionicons name={icon} size={12} color={textStyles[tone].color} style={styles.pillIcon} />}
+      {icon && <Icon name={icon} size={12} color={textStyles[tone].color} style={styles.pillIcon} />}
       <Text style={[styles.pillText, textStyles[tone]]}>{children}</Text>
     </View>
   );
