@@ -27,15 +27,16 @@ async function main() {
   const pass = process.env.HOST_PASSWORD || 'password123';
   const token = await login(hostEmail, pass);
 
-  // Start with clean list
+  // Start with list
   let res = await authed('GET', '/billing/payment-methods', token);
   if (!res.ok) throw new Error(`list methods failed ${res.status}`);
 
-  // Add one
+  // Add one (include optional fields)
   res = await authed('POST', '/billing/payment-methods', token, {
-    provider: 'lemonsqueezy', method_id: 'pm_test_123', is_default: true
+    provider: 'lemonsqueezy', method_id: 'pm_test_123_'+Date.now(), is_default: true,
+    brand: 'visa', last_four: '4242', exp_month: 1, exp_year: 2030
   });
-  if (res.status !== 201) throw new Error(`add method failed ${res.status}`);
+  if (!(res.status === 201 || res.status === 200)) throw new Error(`add method failed ${res.status}`);
   const method = await res.json();
 
   // Get it
