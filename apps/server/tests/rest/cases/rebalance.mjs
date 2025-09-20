@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import 'dotenv/config';
+import { hardDeleteEventCascade } from '../helpers/admin-cleanup.mjs';
 
 const API = process.env.API_BASE || 'http://localhost:3000/api/v1';
 
@@ -48,18 +49,25 @@ async function main() {
   });
   if (create.status !== 201) throw new Error(`create event failed ${create.status}`);
   const eventId = (await create.json()).event.id;
-  if (!(await authed('POST', `/events/${eventId}/publish`, host)).ok) throw new Error('publish failed');
 
-  // Invite guest
-  await authed('POST', `/events/${eventId}/participants`, host, { user_id: '22222222-2222-2222-2222-222222222222' });
+  try {
+    if (!(await authed('POST', `/events/${eventId}/publish`, host)).ok) throw new Error('publish failed');
 
-  // Run rebalance
-  const rb = await authed('POST', `/events/${eventId}/rebalance`, host, { max_per_user: 2 });
-  if (!rb.ok) throw new Error(`rebalance failed ${rb.status}`);
-  const result = await rb.json();
-  if (typeof result.assigned !== 'number') throw new Error('rebalance invalid response');
+    // Invite guest
+    await authed('POST', `/events/${eventId}/participants`, host, { user_id: '22222222-2222-2222-2222-222222222222' });
 
-  console.log('✅ rebalance OK');
+    // Run rebalance
+    const rb = await authed('POST', `/events/${eventId}/rebalance`, host, { max_per_user: 2 });
+    if (!rb.ok) throw new Error(`rebalance failed ${rb.status}`);
+    const result = await rb.json();
+    if (typeof result.assigned !== 'number') throw new Error('rebalance invalid response');
+
+    console.log('✅ rebalance OK');
+  } finally {
+    try { await authed('POST', `/events/${eventId}/cancel`, host, { reason: 'test-cleanup', notifyGuests: false }); } catch {}
+    try { await authed('POST', `/events/${eventId}/purge`, host); } catch {}
+    try { await hardDeleteEventCascade(eventId); } catch {}
+  }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import 'dotenv/config';
+import { hardDeleteEventCascade } from '../helpers/admin-cleanup.mjs';
 
 const API = process.env.API_BASE || 'http://localhost:3000/api/v1';
 
@@ -77,9 +78,9 @@ async function main() {
 
     console.log('✅ events-flow OK');
   } finally {
-    // Cleanup: cancel → purge (ignore errors)
     try { await authed('POST', `/events/${eventId}/cancel`, host, { reason: 'test-cleanup', notifyGuests: false }); } catch {}
     try { await authed('POST', `/events/${eventId}/purge`, host); } catch {}
+    try { await hardDeleteEventCascade(eventId); } catch {}
   }
 }
 
