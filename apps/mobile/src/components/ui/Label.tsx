@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   required: {
-    color: colors.error[500],
+    color: colors.state.error,
   },
 });

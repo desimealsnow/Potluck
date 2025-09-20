@@ -1,12 +1,12 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 import { colors, borderRadius } from '@/theme';
 
 export interface FoodOptionProps {
   selected?: boolean;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import('@/components/ui/Icon').IconName;
   onPress: () => void;
   style?: any;
 }
@@ -27,7 +27,7 @@ export function FoodOption({
         style,
       ]}
     >
-      <Ionicons
+      <Icon
         name={icon}
         size={18}
         color={selected ? colors.text.inverse : '#9c6'}

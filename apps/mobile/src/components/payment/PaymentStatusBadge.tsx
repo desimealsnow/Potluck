@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Icon } from '@/components/ui/Icon';
 
 export interface PaymentStatusBadgeProps {
   status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete' | 'incomplete_expired';
@@ -15,49 +15,49 @@ export function PaymentStatusBadge({ status, size = 'md' }: PaymentStatusBadgePr
           text: 'Active',
           color: '#10B981',
           bgColor: '#D1FAE5',
-          icon: 'checkmark-circle' as const,
+          icon: 'CheckCircle2' as const,
         };
       case 'trialing':
         return {
           text: 'Trial',
           color: '#3B82F6',
           bgColor: '#DBEAFE',
-          icon: 'time' as const,
+          icon: 'Clock' as const,
         };
       case 'past_due':
         return {
           text: 'Past Due',
           color: '#F59E0B',
           bgColor: '#FEF3C7',
-          icon: 'warning' as const,
+          icon: 'TriangleAlert' as const,
         };
       case 'canceled':
         return {
           text: 'Canceled',
           color: '#EF4444',
           bgColor: '#FEE2E2',
-          icon: 'close-circle' as const,
+          icon: 'XCircle' as const,
         };
       case 'incomplete':
         return {
           text: 'Incomplete',
           color: '#6B7280',
           bgColor: '#F3F4F6',
-          icon: 'help-circle' as const,
+          icon: 'CircleHelp' as const,
         };
       case 'incomplete_expired':
         return {
           text: 'Expired',
           color: '#6B7280',
           bgColor: '#F3F4F6',
-          icon: 'time-outline' as const,
+          icon: 'Clock' as const,
         };
       default:
         return {
           text: status,
           color: '#6B7280',
           bgColor: '#F3F4F6',
-          icon: 'help-circle' as const,
+          icon: 'CircleHelp' as const,
         };
     }
   };
@@ -80,8 +80,8 @@ export function PaymentStatusBadge({ status, size = 'md' }: PaymentStatusBadgePr
         paddingVertical: currentSize.padding,
       }
     ]}>
-      <Ionicons
-        name={config.icon}
+      <Icon
+        name={config.icon as any}
         size={currentSize.iconSize}
         color={config.color}
         style={styles.icon}

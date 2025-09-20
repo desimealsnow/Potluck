@@ -4,17 +4,19 @@ import {
   Text,
   FlatList,
   Pressable,
-  Image,
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
   Platform,
   Alert,
   TextInput,
+  useWindowDimensions,
+  Animated,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components/ui/Icon";
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -26,7 +28,7 @@ import AboutScreen from "./AboutScreen";
 import PrivacyScreen from "./PrivacyScreen";
 import HelpScreen from "./HelpScreen";
 import { apiClient } from "@/services/apiClient";
-import { Input, Chip, Segmented } from "@/components";
+import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
 import * as Notifications from 'expo-notifications';
@@ -151,12 +153,30 @@ interface EventListProps {
   userLocation?: { lat: number; lon: number; radius_km: number } | null;
 }
 
-export default function App({ userLocation: propUserLocation }: EventListProps = {}) {
+export default function EventList({ userLocation: propUserLocation }: EventListProps = {}) {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const isMobile = width < 768;
+  const [sidebarVisible, setSidebarVisible] = useState(true); // For web/tablet sidebar
+  const sidebarTranslateX = useRef(new Animated.Value(0)).current; // 0 = visible, -280 = hidden
+  
+  // Animate sidebar visibility
+  useEffect(() => {
+    if (isTablet) {
+      Animated.timing(sidebarTranslateX, {
+        toValue: sidebarVisible ? 0 : -280,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [sidebarVisible, isTablet, sidebarTranslateX]);
+  
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
   const [ownership, setOwnership] = useState<Ownership>("all");
   const [dietFilters, setDietFilters] = useState<Diet[]>([]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [data, setData] = useState<EventItem[]>([]);
   const [useNearby, setUseNearby] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number; radius_km: number } | null>(propUserLocation || null);
@@ -216,7 +236,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
   }, []);
 
   const bgGradient = useMemo(
-    () => gradients.header.cool,
+    () => gradients.header.event,
     []
   );
 
@@ -353,6 +373,24 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
 
   const toggleDiet = (d: Diet) =>
     setDietFilters((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
+
+  const handleRemoveFilter = useCallback((filterType: string, value?: string) => {
+    if (filterType === 'ownership') {
+      setOwnership('all');
+    } else if (filterType === 'nearby') {
+      setUseNearby(false);
+    } else if (filterType === 'diet' && value) {
+      setDietFilters(prev => prev.filter(d => d !== value));
+    }
+  }, []);
+
+  const getActiveFiltersCount = useCallback(() => {
+    let count = 0;
+    if (ownership !== 'all') count++;
+    if (dietFilters.length > 0) count++;
+    if (useNearby) count++;
+    return count;
+  }, [ownership, dietFilters, useNearby]);
 
   // Navigation functions
   const handleEventPress = (eventId: string) => {
@@ -644,15 +682,15 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
   return (
     <LinearGradient colors={bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.content}>
+        <View style={[styles.content, isTablet && sidebarVisible && styles.contentWithSidebar]}>
         <View style={styles.header} testID="events-header">
           <Text style={styles.headerTitle} testID="events-title">Events</Text>
           <View style={styles.actions} testID="header-actions">
             <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
-              <Ionicons name="add" size={20} color="#fff" />
+              <Icon name="Plus" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowNotifications(true)} style={[styles.iconBtn]} testID="notifications-button">
-              <Ionicons name="notifications-outline" size={20} color="#fff" />
+              <Icon name="Bell" size={20} color="#fff" />
               {unreadCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
@@ -660,17 +698,17 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               )}
             </Pressable>
             <Pressable onPress={() => setShowPlans(true)} style={styles.iconBtn} testID="plans-button">
-              <Ionicons name="card" size={20} color="#fff" />
+              <Icon name="CreditCard" size={20} color="#fff" />
             </Pressable>
             <Pressable onPress={() => setShowSettings(true)} style={styles.iconBtn} testID="settings-button">
-              <Ionicons name="settings" size={20} color="#fff" />
+              <Icon name="Settings" size={20} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
               style={styles.iconBtn}
               testID="logout-button"
             >
-              <Ionicons name="log-out" size={20} color="#fff" />
+              <Icon name="LogOut" size={20} color="#fff" />
             </Pressable>
           </View>
         </View>
@@ -678,7 +716,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
         {/* Search */}
         <View style={styles.searchContainer} testID="search-container">
           <View style={styles.searchWrap}>
-            <Ionicons name="search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
+            <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
             <TextInput
               placeholder="Search events..."
               placeholderTextColor="rgba(255,255,255,0.6)"
@@ -695,7 +733,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
                 style={styles.clearButton}
                 testID="clear-search-button"
               >
-                <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.7)" />
+                <Icon name="CircleX" size={20} color="rgba(255,255,255,0.7)" />
               </Pressable>
             )}
           </View>
@@ -725,86 +763,50 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
           />
         </View>
 
-        {/* Ownership chips */}
-        <View style={styles.rowChips} testID="ownership-filter-container">
-          {(["all", "mine", "invited"] as Ownership[]).map((o) => (
-            <View style={styles.chipItem} key={o}>
-              <Chip
-                selected={ownership === o}
-                onPress={() => setOwnership(o)}
-                icon={o === "all" ? "options-outline" : o === "mine" ? "person" : "people-outline"}
-                tone="sky"
-                testID={`ownership-filter-${o}`}
-              >
-                {o === "all" ? "All" : o[0].toUpperCase() + o.slice(1)}
-              </Chip>
-            </View>
-          ))}
-          {userLocation && (
-            <View style={styles.chipItem}>
-              <Chip
-                selected={useNearby}
-                onPress={() => {
-                  setUseNearby(v => !v);
-                  // Reload will be triggered by effects bound to useNearby/userLocation
-                }}
-                icon={useNearby ? "location" : "location-outline"}
-                tone="violet"
-                testID={`ownership-filter-nearby`}
-              >
-                Nearby ({userLocation.radius_km}km)
-              </Chip>
-            </View>
-          )}
-          
-          {/* Radius adjustment when Nearby is selected */}
-          {useNearby && userLocation && (
-            <View style={styles.radiusContainer}>
-              <Text style={styles.radiusLabel}>Radius: {userLocation.radius_km}km</Text>
-              <View style={styles.radiusSlider}>
-                <Pressable 
-                  onPress={() => {
-                    const newRadius = Math.max(1, userLocation.radius_km - 5);
-                    setUserLocation(prev => prev ? { ...prev, radius_km: newRadius } : null);
-                    // Reload will be triggered by effects when userLocation changes
-                  }}
-                  style={styles.radiusButton}
-                >
-                  <Ionicons name="remove" size={16} color="#7b2ff7" />
-                </Pressable>
-                <Text style={styles.radiusValue}>{userLocation.radius_km}km</Text>
-                <Pressable 
-                  onPress={() => {
-                    const newRadius = Math.min(100, userLocation.radius_km + 5);
-                    setUserLocation(prev => prev ? { ...prev, radius_km: newRadius } : null);
-                    // Reload will be triggered by effects when userLocation changes
-                  }}
-                  style={styles.radiusButton}
-                >
-                  <Ionicons name="add" size={16} color="#7b2ff7" />
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </View>
+        {/* Applied Filters Bar */}
+        <AppliedFiltersBar
+          ownership={ownership}
+          dietFilters={dietFilters}
+          useNearby={useNearby}
+          userLocation={userLocation}
+          onRemoveFilter={handleRemoveFilter}
+        />
 
-        {/* Diet chips (multi-select) */}
-        <View style={[styles.rowChips, { marginTop: 6 }]} testID="diet-filter-container">
-          {(["veg", "nonveg", "mixed"] as Diet[]).map((d) => (
-            <View style={styles.chipItem} key={d}>
-              <Chip
-                selected={dietFilters.includes(d)}
-                onPress={() => toggleDiet(d)}
-                icon={d === "veg" ? "leaf" : d === "nonveg" ? "fast-food-outline" : "color-filter-outline"}
-                tone="emerald"
-                testID={`diet-filter-${d}`}
-              >
-                {d === "veg" ? "Veg" : d === "nonveg" ? "Non-veg" : "Mixed"}
-              </Chip>
-            </View>
-          ))}
-        </View>
-        </View>
+        {/* Filter Toggle Button for Mobile */}
+        {isMobile && (
+          <Pressable 
+            style={styles.filterToggleButton}
+            onPress={() => setFiltersVisible(true)}
+            testID="filter-toggle-button"
+          >
+            <Icon name="ListFilter" size={16} color="#fff" />
+            <Text style={styles.filterToggleText}>Filters</Text>
+            {getActiveFiltersCount() > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
+              </View>
+            )}
+          </Pressable>
+        )}
+
+        {/* Sidebar Toggle Button for Tablet/Desktop */}
+        {isTablet && (
+          <Pressable 
+            style={styles.sidebarToggleButton}
+            onPress={() => setSidebarVisible(!sidebarVisible)}
+            testID="sidebar-toggle-button"
+          >
+            <Icon name={sidebarVisible ? "PanelLeftClose" : "PanelLeftOpen"} size={16} color="#fff" />
+            <Text style={styles.sidebarToggleText}>
+              {sidebarVisible ? "Hide Filters" : "Show Filters"}
+            </Text>
+            {getActiveFiltersCount() > 0 && (
+              <View style={styles.filterBadge}>
+                <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
+              </View>
+            )}
+          </Pressable>
+        )}
 
         {/* List */}
         <FlatList
@@ -822,7 +824,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : query.length > 0 ? (
               <View style={styles.emptyWrap} testID="no-search-results">
-                <Ionicons name="search" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.noResultsTitle}>No events found</Text>
                 <Text style={styles.noResultsText}>
                   No events match your search for "{query}". Try adjusting your search terms or filters.
@@ -837,7 +839,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
               </View>
             ) : (
               <View style={styles.emptyWrap} testID="empty-state">
-                <Ionicons name="calendar-outline" size={48} color="rgba(255,255,255,0.4)" />
+                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
                 <Text style={styles.emptyTitle}>No events yet</Text>
                 <Text style={styles.emptyText}>Create your first event to get started!</Text>
               </View>
@@ -861,6 +863,50 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
           }}
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
         />
+        </View>
+
+        {/* Filter Bottom Sheet for Mobile */}
+        {isMobile && (
+          <FilterBottomSheet
+            visible={filtersVisible}
+            onClose={() => setFiltersVisible(false)}
+            ownership={ownership}
+            onOwnershipChange={(value) => setOwnership(value as Ownership)}
+            dietFilters={dietFilters}
+            onDietChange={(diet) => toggleDiet(diet as Diet)}
+            useNearby={useNearby}
+            onNearbyChange={setUseNearby}
+            userLocation={userLocation}
+            onRadiusChange={(radius) => {
+              setUserLocation(prev => prev ? { ...prev, radius_km: radius } : null);
+            }}
+          />
+        )}
+
+        {/* Filter Sidebar for Tablet/Desktop */}
+        {isTablet && (
+          <Animated.View 
+            style={[
+              styles.sidebarOverlay,
+              {
+                transform: [{ translateX: sidebarTranslateX }],
+              },
+            ]}
+          >
+            <FilterSidebar
+              ownership={ownership}
+              onOwnershipChange={(value) => setOwnership(value as Ownership)}
+              dietFilters={dietFilters}
+              onDietChange={(diet) => toggleDiet(diet as Diet)}
+              useNearby={useNearby}
+              onNearbyChange={setUseNearby}
+              userLocation={userLocation}
+              onRadiusChange={(radius) => {
+                setUserLocation(prev => prev ? { ...prev, radius_km: radius } : null);
+              }}
+            />
+          </Animated.View>
+        )}
       </SafeAreaView>
     </LinearGradient>
   );
@@ -870,14 +916,14 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
 
 function DietTag({ diet }: { diet: Diet }) {
   const map = {
-    veg: { bg: "rgba(74,222,128,0.95)", fg: "#0B3D1E", label: "veg" },
-    nonveg: { bg: "rgba(251,146,60,0.95)", fg: "#4A1D00", label: "non-veg" },
-    mixed: { bg: "rgba(250,204,21,0.95)", fg: "#3F2D00", label: "mixed" },
+    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
+    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
+    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
   } as const;
   const d = map[diet];
   return (
-    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12 }}>{d.label}</Text>
+    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
+      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
     </View>
   );
 }
@@ -916,8 +962,15 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
       }
       testID={testID}
     >
-      <Ionicons
-        name={config.icon as any}
+      <Icon
+        name={
+          (status === "active" && "CircleCheck") ||
+          (status === "cancelled" && "CircleX") ||
+          (status === "draft" && "Pencil") ||
+          (status === "deleted" && "Trash2") ||
+          (status === "past" && "Clock") ||
+          "Circle"
+        }
         size={14}
         color="#fff"
         style={{ marginRight: 4 }}
@@ -929,11 +982,11 @@ function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draf
 
 function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
   const config = role === 'host'
-    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'person' }
-    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'people-outline' };
+    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'User' }
+    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'Users' };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
-      <Ionicons name={config.icon as any} size={12} color="#fff" />
+      <Icon name={config.icon as any} size={12} color="#fff" />
       <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
     </View>
   );
@@ -947,8 +1000,8 @@ function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
           {p.avatarUrl ? (
             <Image source={{ uri: p.avatarUrl }} style={styles.avatar} />
           ) : (
-            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}>
-              <Ionicons name="person" size={14} color="#fff" />
+            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}> 
+              <Icon name="User" size={14} color="#fff" />
             </View>
           )}
         </View>
@@ -980,7 +1033,7 @@ function EventCard({
   testID?: string;
 }) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
-  const cardColors = gradients.card.pink;
+  const cardColors = gradients.button.primary;
   const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
   return (
     <Pressable onPress={onPress} testID={testID}>
@@ -1001,18 +1054,18 @@ function EventCard({
       </View>
 
       <View style={styles.metaRow}>
-        <Ionicons name="calendar-clear-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="Calendar" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{dateLabel}</Text>
       </View>
 
       <View style={[styles.metaRow, { marginTop: 4 }]}>
-        <Ionicons name="location-outline" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
+        <Icon name="MapPin" size={16} color="#EAF2FF" style={{ marginRight: 8 }} />
         <Text style={styles.metaText}>{item.venue}</Text>
       </View>
 
       <View style={styles.footerRow}>
         <View style={styles.footerLeft}>
-          <Ionicons name="people-outline" size={16} color="#EAF2FF" />
+          <Icon name="Users" size={16} color="#EAF2FF" />
           <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
         </View>
 
@@ -1042,7 +1095,13 @@ function EventCard({
               style={[styles.actionButton, { backgroundColor: action.color }]}
               testID={`${testID}-action-${action.key}`}
             >
-              <Ionicons name={action.icon as any} size={14} color="#fff" style={{ marginRight: 4 }} />
+              <Icon name={
+                action.icon === 'rocket-outline' ? 'Rocket' :
+                action.icon === 'trash-outline' ? 'Trash2' :
+                action.icon === 'close-circle-outline' ? 'CircleX' :
+                action.icon === 'checkmark-circle-outline' ? 'CircleCheck' :
+                action.icon === 'refresh-outline' ? 'RefreshCw' : 'Circle'
+              } size={14} color="#fff" style={{ marginRight: 4 }} />
               <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
             </Pressable>
           ))}
@@ -1059,7 +1118,18 @@ function EventCard({
 const styles = StyleSheet.create({
   // Centered column for top controls on large screens (web) while keeping padding
   content: {
+    flex: 1,
     paddingHorizontal: PAGE_PADDING,
+  },
+  contentWithSidebar: {
+    marginLeft: 280, // Width of the sidebar
+  },
+  sidebarOverlay: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: 1000,
   },
   header: {
     paddingHorizontal: 0,
@@ -1240,44 +1310,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
-  radiusContainer: {
-    marginTop: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  radiusLabel: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  radiusSlider: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  radiusButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-  },
-  radiusValue: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-    marginHorizontal: 16,
-    minWidth: 40,
-    textAlign: "center",
-  },
 
   // Standardized list padding
   listContent: { paddingHorizontal: PAGE_PADDING, paddingBottom: 24 },
@@ -1306,5 +1338,57 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "700",
+  },
+  // Filter toggle button styles
+  filterToggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 16,
+    marginTop: 8,
+  },
+  filterToggleText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  filterBadge: {
+    backgroundColor: '#7B2FF7',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginLeft: 8,
+    minWidth: 20,
+    alignItems: 'center',
+  },
+  filterBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  // Sidebar toggle button styles
+  sidebarToggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 16,
+    marginTop: 8,
+  },
+  sidebarToggleText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });

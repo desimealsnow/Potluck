@@ -5,7 +5,7 @@ import {
 import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import ParticipantsScreen from "./Participants";
 import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
@@ -84,7 +84,7 @@ export default function CreateEventScreen({
   const canNextFromLocation = !!selectedLoc;
 
   const headerGradient = useMemo(
-    () => gradients.header.warm,
+    () => gradients.header.event,
     []
   );
 
@@ -117,7 +117,7 @@ export default function CreateEventScreen({
       const eventDateTime = combineDateTime(selectedDate, selectedTime);
       const now = new Date();
       
-      if (eventDateTime <= now) {
+      if (new Date(eventDateTime) <= now) {
         Alert.alert(
           "Invalid Event Time", 
           "Please select a future date and time for your event. The event cannot be scheduled in the past.",
@@ -204,13 +204,13 @@ export default function CreateEventScreen({
           <View style={styles.topLeft}>
             {onBack && (
               <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10} testID="back-button">
-                <Ionicons name="arrow-back" size={20} color="#CC3B2B" />
+                <Icon name="ChevronLeft" size={20} color="#CC3B2B" />
               </Pressable>
             )}
-            <Ionicons name="restaurant" size={20} color="#CC3B2B" />
+            <Icon name="Utensils" size={20} color="#CC3B2B" />
             <Text style={styles.topTitle} testID="create-event-title">Create Potluck</Text>
           </View>
-          <Ionicons name="moon" size={18} color="#D38B2E" />
+          <Icon name="Moon" size={18} color="#D38B2E" />
         </View>
 
         {/* Stepper */}
@@ -242,7 +242,7 @@ export default function CreateEventScreen({
                   <Label>Date</Label>
                   <Pressable onPress={() => setShowDatePicker(true)} style={styles.inputWrap} testID="date-picker-button">
                     <View style={styles.inputIcon}>
-                      <Ionicons name="calendar" size={16} color="#9DA4AE" />
+                      <Icon name="Calendar" size={16} color="#9DA4AE" />
                     </View>
                     <Text style={[styles.input, { color: "#1a1a1a" }]} testID="date-display">
                       {formatDate(selectedDate)}
@@ -253,7 +253,7 @@ export default function CreateEventScreen({
                   <Label>Time</Label>
                   <Pressable onPress={() => setShowTimePicker(true)} style={styles.inputWrap} testID="time-picker-button">
                     <View style={styles.inputIcon}>
-                      <Ionicons name="time" size={16} color="#9DA4AE" />
+                      <Icon name="Clock" size={16} color="#9DA4AE" />
                     </View>
                     <Text style={[styles.input, { color: "#1a1a1a" }]} testID="time-display">
                       {formatTime(selectedTime)}
@@ -288,19 +288,19 @@ export default function CreateEventScreen({
                 <FoodOption
                   selected={mealType === "veg"}
                   label="Vegetarian"
-                  icon="leaf"
+                  icon="Leaf"
                   onPress={() => setMealType("veg")}
                 />
                 <FoodOption
                   selected={mealType === "nonveg"}
                   label="Non-Veg"
-                  icon="restaurant"
+                  icon="Utensils"
                   onPress={() => setMealType("nonveg")}
                 />
                 <FoodOption
                   selected={mealType === "mixed"}
                   label="Mixed"
-                  icon="fast-food"
+                  icon="Utensils"
                   onPress={() => setMealType("mixed")}
                 />
               </View>
@@ -335,7 +335,7 @@ export default function CreateEventScreen({
                     }
                   }, 300);
                 }}
-                leftIcon="home"
+                leftIcon="House"
               />
               {locSuggestions.length > 0 && (
                 <View style={{ marginTop: 8, backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
@@ -406,7 +406,7 @@ export default function CreateEventScreen({
                   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                     <Text style={styles.locTitle}>{selectedLoc.label}</Text>
                     <Pressable onPress={() => setSelectedLoc(null)} hitSlop={10}>
-                      <Ionicons name="close" size={18} color="#db4d4d" />
+                      <Icon name="X" size={18} color="#db4d4d" />
                     </Pressable>
                   </View>
                   <Text style={styles.locAddr}>{selectedLoc.address}</Text>
@@ -434,7 +434,7 @@ export default function CreateEventScreen({
                     <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                       <Text style={styles.dishTitle}>🍖 Dish #{idx + 1}</Text>
                       <Pressable onPress={() => removeDish(d.id, setDishes)} hitSlop={10}>
-                        <Ionicons name="close" size={18} color="#a36" />
+                        <Icon name="X" size={18} color="#a36" />
                       </Pressable>
                     </View>
 
@@ -533,8 +533,7 @@ export default function CreateEventScreen({
           )}
         </ScrollView>
 
-        {/* Sticky footer */
-        }
+        {/* Sticky footer */}
         <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer} testID="create-event-footer">
           <View style={styles.footerInner} testID="footer-actions">
             {createdEventId ? (
@@ -682,7 +681,7 @@ function ParticipantPlanningInput({
   return (
     <View>
       <View style={styles.inviteRow}>
-        <Ionicons name="mail" size={16} color="#9AA0A6" />
+        <Icon name="Mail" size={16} color="#9AA0A6" />
         <TextInput
           style={styles.inviteInput}
           placeholder="friend@email.com"
@@ -703,10 +702,10 @@ function ParticipantPlanningInput({
           <Text style={[styles.label, { fontSize: 14 }]}>Planned Participants ({participants.length})</Text>
           {participants.map((participant, index) => (
             <View key={index} style={styles.participantPlanItem}>
-              <Ionicons name="person" size={16} color="#666" />
+              <Icon name="User" size={16} color="#666" />
               <Text style={{ flex: 1, marginLeft: 8, color: "#333" }}>{participant}</Text>
               <Pressable onPress={() => onRemoveParticipant(index)} hitSlop={10}>
-                <Ionicons name="close" size={16} color="#db4d4d" />
+                <Icon name="X" size={16} color="#db4d4d" />
               </Pressable>
             </View>
           ))}

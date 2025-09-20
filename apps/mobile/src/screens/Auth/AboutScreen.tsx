@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 
 export default function AboutScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
@@ -20,7 +20,7 @@ export default function AboutScreen({ onBack }: { onBack?: () => void }) {
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>About</Text>
           <View style={{ width: 40 }} />
@@ -32,7 +32,7 @@ export default function AboutScreen({ onBack }: { onBack?: () => void }) {
             <View style={styles.card}>
               <View style={styles.appInfo}>
                 <View style={styles.appIcon}>
-                  <Ionicons name="restaurant" size={40} color="#7b2ff7" />
+                  <Icon name="Utensils" size={40} color="#7b2ff7" />
                 </View>
                 <Text style={styles.appName}>Potluck</Text>
                 <Text style={styles.appVersion}>Version 1.0.0</Text>
@@ -55,23 +55,23 @@ export default function AboutScreen({ onBack }: { onBack?: () => void }) {
               <Text style={styles.sectionTitle}>Features</Text>
               <View style={styles.featureList}>
                 <View style={styles.featureItem}>
-                  <Ionicons name="calendar" size={16} color="#7b2ff7" />
+                  <Icon name="Calendar" size={16} color="#7b2ff7" />
                   <Text style={styles.featureText}>Event Management</Text>
                 </View>
                 <View style={styles.featureItem}>
-                  <Ionicons name="people" size={16} color="#7b2ff7" />
+                  <Icon name="Users" size={16} color="#7b2ff7" />
                   <Text style={styles.featureText}>Guest Coordination</Text>
                 </View>
                 <View style={styles.featureItem}>
-                  <Ionicons name="restaurant" size={16} color="#7b2ff7" />
+                  <Icon name="Utensils" size={16} color="#7b2ff7" />
                   <Text style={styles.featureText}>Food Item Tracking</Text>
                 </View>
                 <View style={styles.featureItem}>
-                  <Ionicons name="location" size={16} color="#7b2ff7" />
+                  <Icon name="MapPin" size={16} color="#7b2ff7" />
                   <Text style={styles.featureText}>Location Discovery</Text>
                 </View>
                 <View style={styles.featureItem}>
-                  <Ionicons name="notifications" size={16} color="#7b2ff7" />
+                  <Icon name="Bell" size={16} color="#7b2ff7" />
                   <Text style={styles.featureText}>Smart Notifications</Text>
                 </View>
               </View>

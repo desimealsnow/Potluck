@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 
 export default function PrivacyScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
@@ -20,7 +20,7 @@ export default function PrivacyScreen({ onBack }: { onBack?: () => void }) {
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>Privacy & Security</Text>
           <View style={{ width: 40 }} />

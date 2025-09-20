@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, TextInput, StyleSheet, Platform, Pressable } from 'react-native';
 import { colors, borderRadius } from '@/theme';
+import { Icon } from './Icon';
 
 export interface InputProps extends React.ComponentProps<typeof TextInput> {
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: import('./Icon').IconName;
+  rightIcon?: import('./Icon').IconName;
   onRightIconPress?: () => void;
   error?: boolean;
   multiline?: boolean;
@@ -30,11 +30,13 @@ export function Input({
     ]} testID={`${testID}-container`}>
       {leftIcon && (
         <View style={styles.leftIcon}>
-          <Ionicons name={leftIcon} size={16} color={colors.neutral[400]} />
+          <Icon name={leftIcon} size={18} color={colors.text.muted} />
         </View>
       )}
       <TextInput
-        placeholderTextColor={colors.neutral[400]}
+        accessible
+        accessibilityLabel={props.placeholder || 'input'}
+        placeholderTextColor={colors.text.muted}
         style={[
           styles.input,
           multiline && styles.inputMultiline,
@@ -45,14 +47,9 @@ export function Input({
         {...props}
       />
       {rightIcon && (
-        <View style={styles.rightIcon}>
-          <Ionicons 
-            name={rightIcon} 
-            size={16} 
-            color={colors.neutral[400]}
-            onPress={onRightIconPress}
-          />
-        </View>
+        <Pressable style={styles.rightIcon} onPress={onRightIconPress} accessibilityRole="button">
+          <Icon name={rightIcon} size={18} color={colors.text.muted} />
+        </Pressable>
       )}
     </View>
   );
@@ -63,8 +60,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
+    borderColor: colors.border.subtle,
+    backgroundColor: colors.neutral.bg,
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 8,
@@ -77,7 +74,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   containerError: {
-    borderColor: colors.error[500],
+    borderColor: colors.state.error,
   },
   leftIcon: {
     width: 40,

@@ -13,14 +13,14 @@ import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import EventList from "./EventList";
 import SignupScreen from "./SignupScreen";
 
 // Type definitions
-type IconName = keyof typeof Ionicons.glyphMap;
+import type { IconName } from "@/components/ui/Icon";
 type KeyboardType = "default" | "email-address" | "numeric" | "phone-pad";
 type AutoCapitalize = "none" | "sentences" | "words" | "characters";
 
@@ -127,7 +127,7 @@ export default function App() {
         {/* Theme toggle */}
         <View style={styles.header}>
           <Pressable onPress={() => setTheme((t) => (t === "dark" ? "light" : "dark"))} style={styles.modeBtn}>
-            <Ionicons name={theme === "dark" ? "moon" : "sunny"} size={18} color="#fff" />
+            <Icon name={theme === "dark" ? "Moon" : "Sun"} size={18} color="#fff" />
           </Pressable>
         </View>
 
@@ -141,16 +141,16 @@ export default function App() {
 
                 {/* Social row (placeholders) */}
                 <View style={styles.socialRow}>
-                  {(["logo-google", "logo-apple", "logo-slack", "logo-discord", "logo-github"] as IconName[]).map((icon) => (
+                  {(["Chrome", "Apple", "Github", "MessageSquare", "Globe"] as IconName[]).map((icon) => (
                     <Pressable key={icon} style={styles.socialBtn}>
-                      <Ionicons name={icon} size={18} color="#EAF2FF" />
+                      <Icon name={icon} size={18} color="#EAF2FF" />
                     </Pressable>
                   ))}
                 </View>
 
                 {/* Email */}
                 <Field
-                  icon="mail"
+                  icon="Mail"
                   placeholder="Enter your email"
                   value={email}
                   onChangeText={setEmail}
@@ -172,12 +172,12 @@ export default function App() {
 
                 {/* Password */}
                 <Field
-                  icon="lock-closed"
+                  icon="Lock"
                   placeholder="Enter your password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={secure}
-                  rightIcon={secure ? "eye" : "eye-off"}
+                  rightIcon={secure ? "Eye" : "EyeOff"}
                   onPressRight={() => setSecure((s) => !s)}
                   keyboardType="default"
                   autoCapitalize="none"
@@ -264,7 +264,7 @@ function Field({
   return (
     <View style={styles.fieldWrap}>
       <View style={styles.fieldIcon}>
-        <Ionicons name={icon} size={18} color="#EAF2FF" />
+        <Icon name={icon} size={18} color="#EAF2FF" />
       </View>
       <TextInput
         style={styles.input}
@@ -279,7 +279,7 @@ function Field({
       />
       {rightIcon ? (
         <Pressable onPress={onPressRight} style={styles.fieldIconRight}>
-          <Ionicons name={rightIcon} size={18} color="#EAF2FF" />
+          <Icon name={rightIcon} size={18} color="#EAF2FF" />
         </Pressable>
       ) : null}
     </View>

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { colors, borderRadius, chipTones } from '@/theme';
+import { Icon } from './Icon';
 import type { ChipTone } from '@common/types';
 
 export interface ChipProps {
   children: React.ReactNode;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: import('./Icon').IconName;
   tone?: ChipTone;
   selected?: boolean;
   onPress?: () => void;
@@ -48,11 +48,11 @@ export function Chip({
   const content = (
     <>
       {icon && (
-        <Ionicons 
-          name={icon} 
-          size={14} 
-          color={selected ? toneConfig.text : '#EAF2FF'} 
-          style={styles.icon} 
+        <Icon 
+          name={icon}
+          size={14}
+          color={selected ? toneConfig.text : '#EAF2FF'}
+          style={styles.icon}
         />
       )}
       <Text style={textStyleCombined}>{children}</Text>

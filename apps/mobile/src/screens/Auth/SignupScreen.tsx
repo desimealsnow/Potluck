@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { supabase } from "../../config/supabaseClient";
 
 
@@ -83,14 +83,14 @@ export default function SignupScreen({ onNavigateBack, onSignupSuccess }: Signup
                 <Text style={styles.subtitle}>Join thousands of users today</Text>
 
                 <Field
-                  icon="person"
+                  icon="User"
                   placeholder="Enter your display name"
                   value={name}
                   onChangeText={setName}
                   autoCapitalize="words"
                 />
                 <Field
-                  icon="mail"
+                  icon="Mail"
                   placeholder="Enter your email"
                   value={email}
                   onChangeText={setEmail}
@@ -98,19 +98,19 @@ export default function SignupScreen({ onNavigateBack, onSignupSuccess }: Signup
                   keyboardType="email-address"
                 />
                 <Field
-                  icon="lock-closed"
+                  icon="Lock"
                   placeholder="Create a strong password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={secure}
-                  rightIcon={secure ? "eye" : "eye-off"}
+                  rightIcon={secure ? "Eye" : "EyeOff"}
                   onPressRight={() => setSecure((s) => !s)}
                 />
 
                 {/* Terms row */}
                 <Pressable onPress={() => setAgree((a) => !a)} style={styles.termsRow}>
                   <View style={[styles.checkbox, agree && styles.checkboxOn]}>
-                    {agree ? <Ionicons name="checkmark" size={14} color="#0b3d2a" /> : null}
+                    {agree ? <Icon name="Check" size={14} color="#0b3d2a" /> : null}
                   </View>
                   <Text style={styles.termsText}>I agree to the </Text>
                   <Pressable onPress={() => Linking.openURL("https://example.com/terms")}>
@@ -160,7 +160,7 @@ function Field({
   return (
     <View style={styles.field}>
       <View style={styles.leftIcon}>
-        <Ionicons name={icon} size={18} color="#EAF2FF" />
+        <Icon name={icon} size={18} color="#EAF2FF" />
       </View>
       <TextInput
         {...props}
@@ -169,7 +169,7 @@ function Field({
       />
       {rightIcon ? (
         <Pressable onPress={onPressRight} style={styles.rightIcon}>
-          <Ionicons name={rightIcon} size={18} color="#EAF2FF" />
+          <Icon name={rightIcon} size={18} color="#EAF2FF" />
         </Pressable>
       ) : null}
     </View>

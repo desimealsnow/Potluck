@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
+import { useTheme } from "@/theme";
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
 import type { User } from "@supabase/supabase-js";
@@ -20,7 +21,7 @@ type SettingsItem = {
   id: string;
   title: string;
   subtitle?: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: import("@/components/ui/Icon").IconName;
   onPress: () => void;
   showChevron?: boolean;
   danger?: boolean;
@@ -42,6 +43,7 @@ export default function SettingsScreen({
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
 }) {
+  const { mode, setMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -101,7 +103,7 @@ export default function SettingsScreen({
       id: "subscription",
       title: "Subscription",
       subtitle: "Manage your plan",
-      icon: "card",
+      icon: "CreditCard",
       onPress: () => {
         onShowSubscription?.();
       },
@@ -111,7 +113,7 @@ export default function SettingsScreen({
       id: "preferences",
       title: "User Preferences",
       subtitle: "Profile and account settings",
-      icon: "person-circle",
+      icon: "User",
       onPress: () => onShowPreferences?.(),
       showChevron: true,
     },
@@ -119,7 +121,7 @@ export default function SettingsScreen({
       id: "privacy",
       title: "Privacy & Security",
       subtitle: "Data and privacy settings",
-      icon: "shield-checkmark",
+      icon: "ShieldCheck",
       onPress: () => onShowPrivacy?.(),
       showChevron: true,
     },
@@ -127,7 +129,7 @@ export default function SettingsScreen({
       id: "help",
       title: "Help & Support",
       subtitle: "Get help and contact support",
-      icon: "help-circle",
+      icon: "Hand",
       onPress: () => onShowHelp?.(),
       showChevron: true,
     },
@@ -135,7 +137,7 @@ export default function SettingsScreen({
       id: "about",
       title: "About",
       subtitle: "App version and info",
-      icon: "information-circle",
+      icon: "Info",
       onPress: () => onShowAbout?.(),
       showChevron: true,
     },
@@ -143,7 +145,7 @@ export default function SettingsScreen({
       id: "logout",
       title: "Sign Out",
       subtitle: "Sign out of your account",
-      icon: "log-out",
+      icon: "LogOut",
       onPress: () => {
         Alert.alert(
           "Sign Out",
@@ -168,7 +170,7 @@ export default function SettingsScreen({
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
+            <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>Settings</Text>
           <View style={{ width: 40 }} />
@@ -180,7 +182,7 @@ export default function SettingsScreen({
           <View style={styles.section}>
             <View style={styles.profileCard}>
               <View style={styles.avatar}>
-                <Ionicons name="person" size={32} color="#fff" />
+                <Icon name="User" size={28} color="#fff" />
               </View>
               <View style={styles.profileInfo}>
                 <Text style={styles.profileName}>
@@ -210,6 +212,24 @@ export default function SettingsScreen({
             ))}
           </View>
 
+          {/* Theme toggle */}
+          <View style={styles.section}>
+            <View style={styles.settingsItem}>
+              <View style={styles.settingsItemLeft}>
+                <View style={styles.iconContainer}>
+                  <Icon name="Moon" size={20} color="#7b2ff7" />
+                </View>
+                <View style={styles.settingsItemText}>
+                  <Text style={styles.settingsItemTitle}>Appearance</Text>
+                  <Text style={styles.settingsItemSubtitle}>{mode === 'system' ? 'Match System' : mode === 'dark' ? 'Dark' : 'Light'}</Text>
+                </View>
+              </View>
+              <Pressable onPress={() => setMode(mode === 'system' ? 'dark' : mode === 'dark' ? 'light' : 'system')}>
+                <Icon name="SwitchCamera" size={18} color="#9ca3af" />
+              </Pressable>
+            </View>
+          </View>
+
           {/* App Version */}
           <View style={styles.footer}>
             <Text style={styles.versionText}>Potluck App v1.0.0</Text>
@@ -227,11 +247,7 @@ function SettingsItemComponent({ item }: { item: SettingsItem }) {
     <Pressable onPress={item.onPress} style={styles.settingsItem}>
       <View style={styles.settingsItemLeft}>
         <View style={[styles.iconContainer, item.danger && styles.dangerIcon]}>
-          <Ionicons 
-            name={item.icon} 
-            size={20} 
-            color={item.danger ? "#ef4444" : "#7b2ff7"} 
-          />
+          <Icon name={item.icon as any} size={20} color={item.danger ? "#ef4444" : "#7b2ff7"} />
         </View>
         <View style={styles.settingsItemText}>
           <Text style={[styles.settingsItemTitle, item.danger && styles.dangerText]}>
@@ -243,7 +259,7 @@ function SettingsItemComponent({ item }: { item: SettingsItem }) {
         </View>
       </View>
       {item.showChevron && (
-        <Ionicons name="chevron-forward" size={16} color="#9ca3af" />
+        <Icon name="ChevronRight" size={16} color="#9ca3af" />
       )}
     </Pressable>
   );
