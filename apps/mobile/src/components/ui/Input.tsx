@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Platform } from 'react-native';
+import { View, TextInput, StyleSheet, Platform, Pressable } from 'react-native';
 import { colors, borderRadius } from '@/theme';
 import { Icon } from './Icon';
 
@@ -34,7 +34,7 @@ export function Input({
         </View>
       )}
       <TextInput
-        placeholderTextColor={colors.neutral[400]}
+        placeholderTextColor={colors.text.muted}
         style={[
           styles.input,
           multiline && styles.inputMultiline,
@@ -45,9 +45,9 @@ export function Input({
         {...props}
       />
       {rightIcon && (
-        <View style={styles.rightIcon}>
-          <Icon name={rightIcon} size={18} color={colors.text.muted} onPress={onRightIconPress as any} />
-        </View>
+        <Pressable style={styles.rightIcon} onPress={onRightIconPress} accessibilityRole="button">
+          <Icon name={rightIcon} size={18} color={colors.text.muted} />
+        </Pressable>
       )}
     </View>
   );
