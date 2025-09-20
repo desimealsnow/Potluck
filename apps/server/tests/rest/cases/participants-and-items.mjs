@@ -53,16 +53,21 @@ async function main() {
   // Guest lists items and self-assign
   let res = await authed('GET', `/events/${eventId}/items`, guest);
   if (!res.ok) throw new Error(`list items failed ${res.status}`);
-  const items = await res.json();
+  let items = await res.json();
   const itemId = items[0].id;
 
   res = await authed('POST', `/events/${eventId}/items/${itemId}/assign`, guest, {});
   if (!res.ok) throw new Error(`assign failed ${res.status}`);
 
-  // Host adds another item, updates it, then deletes it
+  // Host adds another item, then fetch it back to get exact id, update it, then delete it
   res = await authed('POST', `/events/${eventId}/items`, host, { name: 'Salad', category: 'side', per_guest_qty: 1 });
   if (!(res.status === 201 || res.status === 200)) throw new Error(`add item failed ${res.status}`);
-  const newItem = await res.json();
+
+  // Fetch items again to find the newly added one by name/category
+  res = await authed('GET', `/events/${eventId}/items`, host);
+  if (!res.ok) throw new Error(`list items (host) failed ${res.status}`);
+  items = await res.json();
+  const newItem = items.find((i) => i.name === 'Salad' || i.name === 'Green Salad') || items[items.length - 1];
 
   res = await authed('PUT', `/events/${eventId}/items/${newItem.id}`, host, { name: 'Green Salad', category: 'side', per_guest_qty: 1 });
   if (!res.ok) throw new Error(`update item failed ${res.status}`);
