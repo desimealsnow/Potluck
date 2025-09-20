@@ -16,6 +16,25 @@ interface EventCardProps {
   status?: string
 }
 
+/**
+ * Render an event card displaying event details and status.
+ *
+ * The EventCard component takes various props to display the title, date, time, location, attendees, and status of an event. It conditionally renders badges for host, guest, and active status, as well as dietary preferences. The layout includes a gradient overlay and responsive design elements to enhance user interaction.
+ *
+ * @param {Object} props - The properties for the EventCard component.
+ * @param {string} props.title - The title of the event.
+ * @param {string} props.date - The date of the event.
+ * @param {string} props.time - The time of the event.
+ * @param {string} props.location - The location of the event.
+ * @param {number} props.attendees - The number of attendees registered for the event.
+ * @param {boolean} props.isHost - Indicates if the user is the host of the event.
+ * @param {boolean} props.isGuest - Indicates if the user is a guest of the event.
+ * @param {boolean} props.isActive - Indicates if the event is currently active.
+ * @param {string} props.dietary - The dietary preference for the event.
+ * @param {string} props.category - The category of the event.
+ * @param {string} props.status - The current status of the event.
+ * @returns {JSX.Element} The rendered event card component.
+ */
 export function EventCard({ 
   title, 
   date, 
