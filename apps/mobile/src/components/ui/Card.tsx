@@ -28,9 +28,9 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: borderRadius.lg,
     padding: 16,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.neutral.card,
     borderWidth: 1,
-    borderColor: colors.border.light,
+    borderColor: colors.border.subtle,
     marginBottom: 14,
     ...Platform.select({
       android: { elevation: 2 },

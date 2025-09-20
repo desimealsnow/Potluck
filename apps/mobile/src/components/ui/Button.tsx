@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, borderRadius, typography } from '@/theme';
+import { colors, borderRadius, typography, gradients } from '@/theme';
 
 export interface ButtonProps {
   title: string;
@@ -56,7 +56,7 @@ export function Button({
     return (
       <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle} testID={testID}>
         <LinearGradient
-          colors={['#FF7A00', '#FF3D71']}
+          colors={gradients.button.primary as unknown as string[]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.gradient, styles[`button_${size}`]]}
@@ -75,7 +75,7 @@ export function Button({
 }
 
 function getTextColor(variant: string, disabled: boolean): string {
-  if (disabled) return colors.neutral[400];
+  if (disabled) return colors.text.muted;
   
   switch (variant) {
     case 'primary':
@@ -126,18 +126,18 @@ const styles = StyleSheet.create({
   
   // Variants
   button_primary: {
-    backgroundColor: colors.primary[600],
+    backgroundColor: colors.primary.main,
   },
   button_secondary: {
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.neutral.card,
     borderWidth: 1,
-    borderColor: colors.border.medium,
+    borderColor: colors.border.subtle,
   },
   button_ghost: {
     backgroundColor: 'transparent',
   },
   button_danger: {
-    backgroundColor: colors.error[600],
+    backgroundColor: colors.state.error,
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -169,6 +169,6 @@ const styles = StyleSheet.create({
     color: colors.text.inverse,
   },
   textDisabled: {
-    color: colors.neutral[400],
+    color: colors.text.muted,
   },
 });

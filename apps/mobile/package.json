@@ -14,7 +14,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
@@ -28,6 +29,9 @@
     "expo-status-bar": "~2.2.3",
     "expo-web-browser": "^14.2.0",
     "lucide-react": "^0.542.0",
+    "lucide-react-native": "^0.542.0",
+    "@expo-google-fonts/inter": "^0.2.4",
+    "@expo-google-fonts/manrope": "^0.2.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",

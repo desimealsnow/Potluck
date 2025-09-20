@@ -1,131 +1,90 @@
 /**
  * Centralized theme system for the mobile app
+ * Now token-driven to match .design/tokens.json
  */
 
-export const colors = {
-  // Primary colors
-  primary: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    200: '#bae6fd',
-    300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9',
-    600: '#0284c7',
-    700: '#0369a1',
-    800: '#075985',
-    900: '#0c4a6e',
+// Token surface for RN consumers
+export type DesignTokens = {
+  brand: { primary: string; primaryAlt: string; secondary: string; accent: string };
+  neutral: { bg: string; bgAlt: string; card: string; muted: string; line: string; white: string; black: string };
+  state: { success: string; warning: string; error: string; info: string };
+  radius: { sm: number; md: number; lg: number; xl: number };
+  shadow: { sm: string; md: string };
+  space: number[];
+  font: { display: { family: string; weight: number }; ui: { family: string; weight: number } };
+};
+
+// Default tokens as a TS export (kept in sync with .design/tokens.json)
+export const tokens: DesignTokens = {
+  brand: {
+    primary: '#7C3AED',
+    primaryAlt: '#EC4899',
+    secondary: '#10B981',
+    accent: '#F59E0B',
   },
-  
-  // Secondary colors
-  secondary: {
-    50: '#fdf2f8',
-    100: '#fce7f3',
-    200: '#fbcfe8',
-    300: '#f9a8d4',
-    400: '#f472b6',
-    500: '#ec4899',
-    600: '#db2777',
-    700: '#be185d',
-    800: '#9d174d',
-    900: '#831843',
-  },
-  
-  // Neutral colors
   neutral: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
+    bg: '#0B1020',
+    bgAlt: '#0F1529',
+    card: '#121a33',
+    muted: '#94A3B8',
+    line: '#1E293B',
+    white: '#FFFFFF',
+    black: '#000000',
   },
-  
-  // Status colors
-  success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    200: '#bbf7d0',
-    300: '#86efac',
-    400: '#4ade80',
-    500: '#22c55e',
-    600: '#16a34a',
-    700: '#15803d',
-    800: '#166534',
-    900: '#14532d',
+  state: {
+    success: '#22C55E',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#38BDF8',
   },
-  
-  warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    200: '#fde68a',
-    300: '#fcd34d',
-    400: '#fbbf24',
-    500: '#f59e0b',
-    600: '#d97706',
-    700: '#b45309',
-    800: '#92400e',
-    900: '#78350f',
+  radius: { sm: 6, md: 12, lg: 16, xl: 24 },
+  shadow: {
+    sm: '0 2px 8px rgba(0,0,0,0.15)',
+    md: '0 8px 24px rgba(0,0,0,0.25)'
   },
-  
-  error: {
-    50: '#fef2f2',
-    100: '#fee2e2',
-    200: '#fecaca',
-    300: '#fca5a5',
-    400: '#f87171',
-    500: '#ef4444',
-    600: '#dc2626',
-    700: '#b91c1c',
-    800: '#991b1b',
-    900: '#7f1d1d',
+  space: [0, 4, 8, 12, 16, 20, 24, 32, 40],
+  font: {
+    display: { family: 'Manrope', weight: 700 },
+    ui: { family: 'Inter', weight: 500 },
   },
-  
-  // Semantic colors
-  background: {
-    primary: '#ffffff',
-    secondary: '#f9fafb',
-    tertiary: '#f3f4f6',
+};
+
+// Derived RN colors from tokens
+export const colors = {
+  primary: {
+    main: tokens.brand.primary,
+    alt: tokens.brand.primaryAlt,
+    secondary: tokens.brand.secondary,
+    accent: tokens.brand.accent,
   },
-  
+  neutral: {
+    bg: tokens.neutral.bg,
+    bgAlt: tokens.neutral.bgAlt,
+    card: tokens.neutral.card,
+    muted: tokens.neutral.muted,
+    line: tokens.neutral.line,
+    white: tokens.neutral.white,
+    black: tokens.neutral.black,
+  },
+  state: tokens.state,
   text: {
-    primary: '#111827',
-    secondary: '#374151',
-    tertiary: '#6b7280',
-    inverse: '#ffffff',
+    primary: tokens.neutral.white,
+    secondary: 'rgba(255,255,255,0.82)',
+    muted: 'rgba(255,255,255,0.64)',
+    inverse: tokens.neutral.black,
   },
-  
   border: {
-    light: 'rgba(0, 0, 0, 0.05)',
-    medium: 'rgba(0, 0, 0, 0.1)',
-    strong: 'rgba(0, 0, 0, 0.2)',
+    subtle: 'rgba(255,255,255,0.08)',
+    strong: 'rgba(255,255,255,0.16)',
   },
 } as const;
 
 export const gradients = {
-  // Header gradients
   header: {
-    warm: ['#FFE0C2', '#FFD4E1', '#FFF0CC'] as const,
-    cool: ['#7b2ff7', '#ff2d91', '#ff8a8a'] as const,
-    soft: ['#ddd6fe', '#e9d5ff', '#fce7f3'] as const,
+    event: [tokens.brand.primary, tokens.brand.primaryAlt] as const,
   },
-  
-  // Card gradients
-  card: {
-    pink: ['#f45bc6', '#f06392', '#e07ac7'] as const,
-    blue: ['#3b82f6', '#1d4ed8', '#1e40af'] as const,
-    green: ['#10b981', '#059669', '#047857'] as const,
-  },
-  
-  // Button gradients
   button: {
-    primary: ['#FF7A00', '#FF3D71'] as const,
-    secondary: ['#6b7280', '#4b5563'] as const,
-    success: ['#16a34a', '#15803d'] as const,
+    primary: [tokens.brand.primary, tokens.brand.primaryAlt] as const,
   },
 } as const;
 
@@ -161,112 +120,136 @@ export const typography = {
 } as const;
 
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  '2xl': 24,
-  '3xl': 32,
-  '4xl': 40,
+  xs: tokens.space[1],
+  sm: tokens.space[2],
+  md: tokens.space[3],
+  lg: tokens.space[4],
+  xl: tokens.space[5],
+  '2xl': tokens.space[6],
+  '3xl': tokens.space[7],
+  '4xl': tokens.space[8],
   '5xl': 48,
   '6xl': 64,
 } as const;
 
 export const borderRadius = {
   none: 0,
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  '2xl': 20,
-  '3xl': 24,
+  sm: tokens.radius.sm,
+  md: tokens.radius.md,
+  lg: tokens.radius.lg,
+  xl: tokens.radius.xl,
+  '2xl': Math.max(tokens.radius.xl, tokens.radius.lg + 4),
+  '3xl': Math.max(tokens.radius.xl + 4, 28),
   full: 9999,
 } as const;
 
 export const shadows = {
-  sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  xl: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
-  },
+  sm: { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.08, shadowRadius: 2, elevation: 1 },
+  md: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 6, elevation: 3 },
+  lg: { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.16, shadowRadius: 12, elevation: 6 },
+  xl: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.2, shadowRadius: 16, elevation: 10 },
 } as const;
 
 // Chip tone mappings
 export const chipTones = {
-  sky: {
-    background: colors.primary[100],
-    text: colors.primary[800],
-  },
-  emerald: {
-    background: colors.success[100],
-    text: colors.success[800],
-  },
-  violet: {
-    background: colors.secondary[100],
-    text: colors.secondary[800],
-  },
-  peach: {
-    background: 'rgba(255, 214, 194, 0.7)',
-    text: '#7A3E00',
-  },
-  indigo: {
-    background: 'rgba(208, 199, 255, 0.8)',
-    text: '#3A2A8C',
-  },
+  sky: { background: 'rgba(56,189,248,0.18)', text: '#EAF2FF' },
+  emerald: { background: 'rgba(16,185,129,0.22)', text: '#E8FFF4' },
+  violet: { background: 'rgba(124,58,237,0.22)', text: '#F0E9FF' },
+  peach: { background: 'rgba(245,158,11,0.22)', text: '#FFEFD6' },
+  indigo: { background: 'rgba(99,102,241,0.22)', text: '#E7E9FF' },
 } as const;
 
 // Pill tone mappings
 export const pillTones = {
-  green: {
-    background: colors.success[100],
-    text: colors.success[800],
-  },
-  amber: {
-    background: colors.warning[100],
-    text: colors.warning[800],
-  },
-  rose: {
-    background: colors.secondary[100],
-    text: colors.secondary[800],
-  },
-  indigo: {
-    background: colors.primary[100],
-    text: colors.primary[800],
-  },
+  green: { background: 'rgba(34,197,94,0.18)', text: '#E8FFF4' },
+  amber: { background: 'rgba(245,158,11,0.18)', text: '#FFF7E6' },
+  rose: { background: 'rgba(236,72,153,0.18)', text: '#FFE8F3' },
+  indigo: { background: 'rgba(99,102,241,0.18)', text: '#E7E9FF' },
 } as const;
 
 // Badge tone mappings
 export const badgeTones = {
-  peach: {
-    background: 'rgba(255, 214, 194, 0.7)',
-    text: '#7A3E00',
-  },
-  indigo: {
-    background: 'rgba(208, 199, 255, 0.8)',
-    text: '#3A2A8C',
-  },
+  peach: { background: 'rgba(245,158,11,0.28)', text: '#FFEFD6' },
+  indigo: { background: 'rgba(124,58,237,0.28)', text: '#F0E9FF' },
+} as const;
+
+// Theme objects and provider
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { Appearance, ColorSchemeName, AccessibilityInfo } from 'react-native';
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type Theme = {
+  tokens: DesignTokens;
+  colors: typeof colors;
+  spacing: typeof spacing;
+  typography: typeof typography;
+  borderRadius: typeof borderRadius;
+  shadows: typeof shadows;
+  gradients: typeof gradients;
+  colorScheme: Exclude<ColorSchemeName, null>;
+  reducedMotion: boolean;
+  mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
+};
+
+const ThemeContext = createContext<Theme | undefined>(undefined);
+
+export function useTheme(): Theme {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+  return ctx;
+}
+
+export function ThemeProvider({ children, mode: initialMode = 'system' as ThemeMode }: { children: React.ReactNode; mode?: ThemeMode }) {
+  const [mode, setMode] = useState<ThemeMode>(initialMode);
+  const [scheme, setScheme] = useState<Exclude<ColorSchemeName, null>>((Appearance.getColorScheme() || 'dark') as Exclude<ColorSchemeName, null>);
+  const [reducedMotion, setReducedMotion] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Reduced motion
+    AccessibilityInfo.isReduceMotionEnabled().then(setReducedMotion).catch(() => {});
+    const rmSub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReducedMotion);
+    return () => {
+      try { rmSub.remove(); } catch {}
+    };
+  }, []);
+
+  useEffect(() => {
+    if (mode !== 'system') {
+      setScheme(mode);
+      return;
+    }
+    const sub = Appearance.addChangeListener(({ colorScheme }) => {
+      setScheme((colorScheme || 'dark') as Exclude<ColorSchemeName, null>);
+    });
+    return () => sub.remove();
+  }, [mode]);
+
+  const theme = useMemo<Theme>(() => {
+    return {
+      tokens,
+      colors,
+      spacing,
+      typography,
+      borderRadius,
+      shadows,
+      gradients,
+      colorScheme: scheme,
+      reducedMotion,
+      mode,
+      setMode,
+    };
+  }, [scheme, reducedMotion, mode]);
+
+  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
+}
+
+// Category color mapping
+export const categoryColors = {
+  Appetizer: '#06B6D4',
+  Main: '#22C55E',
+  Side: '#84CC16',
+  Dessert: '#F472B6',
+  Beverage: '#38BDF8',
+  Supplies: '#F59E0B',
 } as const;

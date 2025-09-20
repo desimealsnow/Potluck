@@ -5,3 +5,7 @@ export { Chip } from './Chip';
 export { Badge } from './Badge';
 export { Label } from './Label';
 export { Segmented } from './Segmented';
+export { Icon } from './Icon';
+export { Banner } from './Banner';
+export { ProgressBar } from './ProgressBar';
+export { EmptyState } from './EmptyState';

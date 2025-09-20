@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { colors, borderRadius } from '@/theme';
+import { Icon } from './Icon';
 
 export interface InputProps extends React.ComponentProps<typeof TextInput> {
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: import('./Icon').IconName;
+  rightIcon?: import('./Icon').IconName;
   onRightIconPress?: () => void;
   error?: boolean;
   multiline?: boolean;
@@ -30,7 +30,7 @@ export function Input({
     ]} testID={`${testID}-container`}>
       {leftIcon && (
         <View style={styles.leftIcon}>
-          <Ionicons name={leftIcon} size={16} color={colors.neutral[400]} />
+          <Icon name={leftIcon} size={18} color={colors.text.muted} />
         </View>
       )}
       <TextInput
@@ -46,12 +46,7 @@ export function Input({
       />
       {rightIcon && (
         <View style={styles.rightIcon}>
-          <Ionicons 
-            name={rightIcon} 
-            size={16} 
-            color={colors.neutral[400]}
-            onPress={onRightIconPress}
-          />
+          <Icon name={rightIcon} size={18} color={colors.text.muted} onPress={onRightIconPress as any} />
         </View>
       )}
     </View>
