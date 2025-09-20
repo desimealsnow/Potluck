@@ -275,6 +275,17 @@ function useEventData(eventId: string) {
 /* ===================== Page ===================== */
 type Tab = "overview" | "items" | "participants" | "requests";
 
+/**
+ * Renders the Event Details Page with various functionalities for event management.
+ *
+ * This component manages the state and actions related to an event, including publishing, cancelling, completing, and purging events. It utilizes hooks for state management and side effects, and provides inline handlers for item management. The available actions are determined based on the event's status and ownership, and a modal is used for user confirmations and notifications.
+ *
+ * @param {Object} params - The parameters for the component.
+ * @param {string} [params.eventId=EVENT_ID] - The ID of the event to display.
+ * @param {function} [params.onBack] - Callback function to execute when the back action is triggered.
+ * @param {function} [params.onActionCompleted] - Callback function to execute when an action is completed, with the next tab as an argument.
+ * @returns {JSX.Element} The rendered Event Details Page component.
+ */
 export default function EventDetailsPage({ 
   eventId = EVENT_ID, 
   onBack, 
