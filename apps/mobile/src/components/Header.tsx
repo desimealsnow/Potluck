@@ -23,6 +23,19 @@ interface HeaderProps {
   showNavigation?: boolean;
 }
 
+/**
+ * Renders the Header component with navigation and action buttons.
+ *
+ * This component adapts its layout based on the device width, displaying a mobile menu for smaller screens and a full navigation bar for tablets. It includes options for notifications, settings, plans, and logout, with conditional rendering based on the provided props. The mobile menu can be toggled, and it displays relevant actions when opened.
+ *
+ * @param {Object} props - The properties for the Header component.
+ * @param {function} props.onNotifications - Callback function for notifications action.
+ * @param {function} props.onSettings - Callback function for settings action.
+ * @param {function} props.onPlans - Callback function for plans action.
+ * @param {function} props.onLogout - Callback function for logout action.
+ * @param {number} [props.unreadCount=0] - The count of unread notifications.
+ * @param {boolean} [props.showNavigation=false] - Flag to show navigation links.
+ */
 export default function Header({
   onNotifications,
   onSettings,

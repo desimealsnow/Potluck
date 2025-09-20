@@ -29,6 +29,16 @@ const USE_MOCK = false; // Use real API
 /* ------------------------------------------------------------------ */
 /* Screen                                                              */
 /* ------------------------------------------------------------------ */
+/**
+ * Create a screen for event creation with multiple steps.
+ *
+ * This function manages the state and UI for creating an event, including details, location, items, and participants. It validates inputs, handles API requests for event creation, and manages the submission process. The function also provides feedback to the user through alerts and updates the UI based on the current step in the event creation process.
+ *
+ * @param {Object} params - The parameters for the component.
+ * @param {function} [params.onEventCreated] - Callback function to be called when an event is successfully created, receiving the event ID.
+ * @param {function} [params.onBack] - Callback function to be called when the back action is triggered.
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function CreateEventScreen({ 
   onEventCreated, 
   onBack 

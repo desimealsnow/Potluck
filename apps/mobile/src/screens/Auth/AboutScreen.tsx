@@ -12,6 +12,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
 import Header from "@/components/Header";
 
+/**
+ * Renders the About screen with app information and features.
+ * @param {Object} props - The component props.
+ * @param {function} [props.onBack] - Optional callback for back navigation.
+ */
 export default function AboutScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
 

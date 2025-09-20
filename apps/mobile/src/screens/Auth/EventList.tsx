@@ -49,6 +49,14 @@ const PAGE_PADDING = 16;
 const PAGE_SIZE = 10;
 
 /* -------------------- API Helpers -------------------- */
+/**
+ * Fetch events based on the provided query parameters.
+ *
+ * This function constructs a URL with query parameters based on the input `q`, which includes pagination, status, ownership, diet, and nearby location filters. It then makes an API call to retrieve event data, processes the response to extract relevant event items, and determines if there are more events available based on pagination. The function also includes logic to handle different event statuses and ownership types.
+ *
+ * @param q - An object containing query parameters for fetching events, including pagination, status, ownership, diet, and optional nearby location data.
+ * @returns A promise that resolves to an object containing an array of event items and a boolean indicating if more events are available.
+ */
 async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean }> {
   const params = new URLSearchParams();
   // backend expects limit/offset, not page
@@ -167,6 +175,13 @@ interface EventListProps {
   userLocation?: { lat: number; lon: number; radius_km: number } | null;
 }
 
+/**
+ * Render a list of events with various filters and navigation options.
+ *
+ * This component manages the state for displaying events based on user preferences, including location, dietary filters, and event status. It handles user interactions for creating, publishing, cancelling, and managing events, while also providing a responsive layout for different device sizes. The component utilizes hooks for managing side effects, such as fetching data and handling animations, and integrates with an API for event management.
+ *
+ * @param {EventListProps} [props] - The properties for the EventList component, including userLocation.
+ */
 export default function EventList({ userLocation: propUserLocation }: EventListProps = {}) {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
