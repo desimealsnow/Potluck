@@ -77,7 +77,9 @@ const EventSearchQuerySchema = z.object({
   near: z.string().optional(),
   q: z.string().optional(),
   diet: z.string().optional(),
-  is_public: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined)
+  is_public: z.string().optional().transform(val => val === 'true' ? true : val === 'false' ? false : undefined),
+  // Include related data
+  include: z.string().optional()
 });
 
 /** GET /events  – list events the caller can see (host or participant) */
@@ -89,6 +91,10 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
   try {
     /*── Query-param parsing and validation ─────────────────────────────*/
     const params = EventSearchQuerySchema.parse(req.query);
+    
+    // Debug logging for include parameter
+    console.log('🔍 Events controller - parsed params:', JSON.stringify(params, null, 2));
+    require('fs').appendFileSync('debug.log', `🔍 Events controller - parsed params: ${JSON.stringify(params, null, 2)}\n`);
 
     /*── Service call ──────────────────────────────────────────────────────────*/
     const result = await EventService.listEvents(req.user.id, params);

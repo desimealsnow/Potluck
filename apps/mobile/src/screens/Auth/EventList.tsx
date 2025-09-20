@@ -55,6 +55,8 @@ async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: numbe
   params.set("limit", String(q.limit));
   params.set("offset", String((q.page - 1) * q.limit));
   if (q.q) params.set("q", q.q);
+  // Include location data in the response
+    // Location data is now always included in the API response
   if (q.status) {
     // Map mobile status to backend enum values
     const statusMap: Record<string, string> = {
@@ -95,12 +97,23 @@ async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: numbe
 
   const items: EventItem[] = itemsRaw.map((e: any) => {
     const ownershipFromApi = e.ownership as Ownership | undefined;
+    
+    // Debug: Log location data from API (can be removed in production)
+    console.log('Event location data:', {
+      id: e.id,
+      title: e.title || e.name,
+      location: e.location,
+      venue: e.venue,
+      address: e.address,
+      location_id: e.location_id,
+    });
+    
     return {
       id: e.id,
       title: e.title || e.name || "Untitled Event",
       date: e.event_date || e.date || new Date().toISOString(),
       time: undefined,
-      venue: e.location?.label || e.venue || e.address || "",
+      venue: e.location?.name || e.location?.formatted_address || e.venue || e.address || (e.location_id ? "Location details loading..." : "Location not specified"),
       attendeeCount: e.attendeeCount ?? e.participants_count ?? 0,
       diet: (e.meal_type as Diet) || "mixed",
       statusBadge: e.status === "purged"
@@ -684,43 +697,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     <LinearGradient colors={bgGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Reusable Header Component */}
-        <Header
-          onSearch={setQuery}
-          onCreateEvent={handleCreateEvent}
-          onNotifications={() => setShowNotifications(true)}
-          onSettings={() => setShowSettings(true)}
-          onPlans={() => setShowPlans(true)}
-          onLogout={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
-          searchQuery={query}
-          unreadCount={unreadCount}
-          showSearch={true}
-          showNavigation={false}
-        />
+              <Header
+                onNotifications={() => setShowNotifications(true)}
+                onSettings={() => setShowSettings(true)}
+                onPlans={() => setShowPlans(true)}
+                onLogout={() => Alert.alert("Logout", "Logout functionality will be handled by the parent component")}
+                unreadCount={unreadCount}
+                showNavigation={false}
+              />
         
-        {/* Filter Toggle Button - Always Visible */}
-        <View style={styles.filterToggleContainer}>
-          <Pressable 
-            onPress={() => {
-              if (isMobile) {
-                setFiltersVisible(true); // Open bottom sheet on mobile
-              } else {
-                setSidebarVisible(!sidebarVisible); // Toggle sidebar on tablet/desktop
-              }
-            }} 
-            style={styles.filterToggleButton}
-            testID="filter-toggle-button"
-          >
-            <Icon name="SlidersHorizontal" size={20} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.filterToggleText}>
-              {isMobile ? "Filters" : (sidebarVisible ? "Hide Filters" : "Show Filters")}
-            </Text>
-            {getActiveFiltersCount() > 0 && (
-              <View style={styles.filterBadge}>
-                <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
-              </View>
-            )}
-          </Pressable>
-        </View>
 
         {/* Main Content Area - Two Column Layout */}
         <View style={styles.mainContentArea}>
@@ -840,6 +825,29 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 </Text>
               </View>
               <View style={styles.eventsHeaderActions}>
+                {/* Filter Toggle Button */}
+                <Pressable 
+                  onPress={() => {
+                    if (isMobile) {
+                      setFiltersVisible(true); // Open bottom sheet on mobile
+                    } else {
+                      setSidebarVisible(!sidebarVisible); // Toggle sidebar on tablet/desktop
+                    }
+                  }} 
+                  style={styles.filterToggleButton}
+                  testID="filter-toggle-button"
+                >
+                  <Icon name="SlidersHorizontal" size={16} color="rgba(255,255,255,0.8)" />
+                  <Text style={styles.filterToggleText}>
+                    {isMobile ? "Filters" : (sidebarVisible ? "Hide" : "Show")}
+                  </Text>
+                  {getActiveFiltersCount() > 0 && (
+                    <View style={styles.filterBadge}>
+                      <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
+                    </View>
+                  )}
+                </Pressable>
+                
                 <Pressable onPress={handleCreateEvent} style={styles.createEventButton} testID="create-event-button">
                   <Icon name="Plus" size={16} color="#fff" />
                   <Text style={styles.createEventButtonText}>Create Event</Text>
@@ -1202,7 +1210,7 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: 280,
-    backgroundColor: "transparent",
+    backgroundColor: "#351657",
     borderRightWidth: 1,
     borderRightColor: "rgba(255,255,255,0.1)",
   },
@@ -1230,10 +1238,13 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.1)",
   },
   filterContent: {
-    padding: 16,
+    padding: 8,
   },
   filterSection: {
-    marginBottom: 24,
+    marginBottom: 16,
+    backgroundColor: "#373244",
+    borderRadius: 12,
+    padding: 16,
   },
   filterSectionTitle: {
     color: "rgba(255,255,255,0.8)",
@@ -1248,7 +1259,7 @@ const styles = StyleSheet.create({
   },
   eventsSection: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "#351657",
   },
   eventsSectionMobile: {
     width: "100%", // Full width on mobile when no sidebar
@@ -1294,13 +1305,6 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   // Filter Toggle Styles
-  filterToggleContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "rgba(0,0,0,0.1)",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
-  },
   filterToggleButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -1308,7 +1312,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    alignSelf: "flex-start",
+    marginRight: 8,
   },
   filterToggleText: {
     color: "#fff",

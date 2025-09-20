@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,64 +7,52 @@ import {
   StyleSheet,
   useWindowDimensions,
   Platform,
+  Modal,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from '@/components/ui/Icon';
 
 interface HeaderProps {
-  onSearch?: (query: string) => void;
-  onCreateEvent?: () => void;
   onNotifications?: () => void;
   onSettings?: () => void;
   onPlans?: () => void;
   onLogout?: () => void;
-  searchQuery?: string;
   unreadCount?: number;
-  showSearch?: boolean;
   showNavigation?: boolean;
 }
 
 export default function Header({
-  onSearch,
-  onCreateEvent,
   onNotifications,
   onSettings,
   onPlans,
   onLogout,
-  searchQuery = '',
   unreadCount = 0,
-  showSearch = true,
   showNavigation = false,
 }: HeaderProps) {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
+  const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
 
-  const handleSearchChange = (text: string) => {
-    onSearch?.(text);
-  };
 
   return (
-    <LinearGradient
-      colors={['#1e1b4b', '#312e81', '#1e1b4b']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+        <View style={styles.container}>
       <View style={[styles.content, !isTablet && styles.mobileContent]}>
         {/* Left Section - Logo & Navigation */}
         <View style={[styles.leftSection, !isTablet && styles.mobileLeftSection]}>
           <View style={[styles.logoSection, !isTablet && styles.mobileLogoSection]}>
             <View style={[styles.logoContainer, !isTablet && styles.mobileLogoContainer]}>
-              <Icon name="Calendar" size={!isTablet ? 20 : 24} color="#fff" />
+              <Icon name="Calendar" size={!isTablet ? 20 : 24} color="#1F2937" />
             </View>
             {isTablet && (
               <View style={styles.logoText}>
-                <Text style={styles.logoTitle}>EventHub</Text>
+                <Text style={styles.logoTitle}>Potluck</Text>
                 <Text style={styles.logoSubtitle}>Professional Event Platform</Text>
               </View>
             )}
             {!isTablet && (
-              <Text style={styles.mobileLogoTitle}>EventHub</Text>
+              <Text style={styles.mobileLogoTitle}>Potluck</Text>
             )}
           </View>
           
@@ -91,45 +79,22 @@ export default function Header({
           )}
         </View>
 
-        {/* Center Section - Search (Only on tablet) */}
-        {showSearch && isTablet && (
-          <View style={styles.centerSection}>
-            <View style={styles.searchContainer}>
-              <Icon name="Search" size={16} color="rgba(255,255,255,0.5)" style={styles.searchIcon} />
-              <TextInput
-                placeholder="Search events, attendees, or organizers..."
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={searchQuery}
-                onChangeText={handleSearchChange}
-                style={styles.searchInput}
-                returnKeyType="search"
-              />
-            </View>
-          </View>
-        )}
 
         {/* Right Section - Actions & Profile */}
         <View style={[styles.rightSection, !isTablet && styles.mobileRightSection]}>
           {/* Quick Actions - Only on tablet */}
           {isTablet && (
             <View style={styles.quickActions}>
-              {onCreateEvent && (
-                <Pressable onPress={onCreateEvent} style={styles.createButton}>
-                  <Icon name="Plus" size={16} color="#fff" />
-                  <Text style={styles.createButtonText}>Create Event</Text>
-                </Pressable>
-              )}
-              
               <Pressable style={styles.actionButton}>
-                <Icon name="Share2" size={16} color="rgba(255,255,255,0.8)" />
+                <Icon name="Share2" size={16} color="#6B7280" />
               </Pressable>
             </View>
           )}
 
-          {/* Notifications */}
-          {onNotifications && (
-            <Pressable onPress={onNotifications} style={[styles.notificationButton, !isTablet && styles.mobileActionButton]}>
-              <Icon name="Bell" size={!isTablet ? 16 : 18} color="rgba(255,255,255,0.8)" />
+          {/* Notifications - Only show on tablet */}
+          {onNotifications && isTablet && (
+            <Pressable onPress={onNotifications} style={styles.notificationButton}>
+              <Icon name="Bell" size={18} color="#6B7280" />
               {unreadCount > 0 && (
                 <View style={styles.notificationBadge}>
                   <Text style={styles.notificationBadgeText}>
@@ -140,42 +105,133 @@ export default function Header({
             </Pressable>
           )}
 
-          {/* Settings */}
-          {onSettings && (
-            <Pressable onPress={onSettings} style={[styles.actionButton, !isTablet && styles.mobileActionButton]}>
-              <Icon name="Settings" size={!isTablet ? 16 : 18} color="rgba(255,255,255,0.8)" />
+          {/* Settings - Only show on tablet */}
+          {onSettings && isTablet && (
+            <Pressable onPress={onSettings} style={styles.actionButton}>
+              <Icon name="Settings" size={18} color="#6B7280" />
             </Pressable>
           )}
 
-          {/* Plans */}
-          {onPlans && (
-            <Pressable onPress={onPlans} style={[styles.actionButton, !isTablet && styles.mobileActionButton]}>
-              <Icon name="CreditCard" size={!isTablet ? 16 : 18} color="rgba(255,255,255,0.8)" />
+          {/* Plans - Only show on tablet */}
+          {onPlans && isTablet && (
+            <Pressable onPress={onPlans} style={styles.actionButton}>
+              <Icon name="CreditCard" size={18} color="#6B7280" />
             </Pressable>
           )}
 
-          {/* Profile */}
-          <Pressable style={[styles.profileButton, !isTablet && styles.mobileActionButton]}>
-            <View style={[styles.avatarContainer, !isTablet && styles.mobileAvatarContainer]}>
-              <Icon name="User" size={!isTablet ? 14 : 16} color="#fff" />
-            </View>
-          </Pressable>
 
           {/* Mobile Menu */}
           {!isTablet && (
-            <Pressable style={styles.mobileMenuButton}>
-              <Icon name="Menu" size={16} color="rgba(255,255,255,0.8)" />
+            <Pressable 
+              style={styles.mobileMenuButton}
+              onPress={() => {
+                console.log('Hamburger menu clicked, current state:', mobileMenuVisible);
+                setMobileMenuVisible(!mobileMenuVisible);
+              }}
+            >
+              <Icon name="Menu" size={16} color="#6B7280" />
             </Pressable>
           )}
         </View>
       </View>
-    </LinearGradient>
+      
+      {/* Mobile Menu Modal */}
+      <Modal
+        visible={!isTablet && mobileMenuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setMobileMenuVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setMobileMenuVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.mobileMenuModal}>
+                {/* Drag Handle */}
+                <View style={styles.dragHandle} />
+                
+                
+                {/* Menu Items */}
+                <View style={styles.mobileMenuItems}>
+                  {onNotifications && (
+                    <TouchableOpacity 
+                      onPress={() => {
+                        console.log('Notifications menu item clicked');
+                        onNotifications();
+                        setMobileMenuVisible(false);
+                      }} 
+                      style={styles.mobileMenuItem}
+                      activeOpacity={0.7}
+                    >
+                      <Icon name="Bell" size={20} color="#6B7280" />
+                      <Text style={styles.mobileMenuItemText}>Notifications</Text>
+                      {unreadCount > 0 && (
+                        <View style={styles.mobileNotificationBadge}>
+                          <Text style={styles.mobileNotificationBadgeText}>
+                            {unreadCount > 9 ? '9+' : String(unreadCount)}
+                          </Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  
+                  {onSettings && (
+                    <TouchableOpacity 
+                      onPress={() => {
+                        console.log('Settings menu item clicked');
+                        onSettings();
+                        setMobileMenuVisible(false);
+                      }} 
+                      style={styles.mobileMenuItem}
+                      activeOpacity={0.7}
+                    >
+                      <Icon name="Settings" size={20} color="#6B7280" />
+                      <Text style={styles.mobileMenuItemText}>Settings</Text>
+                    </TouchableOpacity>
+                  )}
+                  
+                  {onPlans && (
+                    <TouchableOpacity 
+                      onPress={() => {
+                        console.log('Plans menu item clicked');
+                        onPlans();
+                        setMobileMenuVisible(false);
+                      }} 
+                      style={styles.mobileMenuItem}
+                      activeOpacity={0.7}
+                    >
+                      <Icon name="CreditCard" size={20} color="#6B7280" />
+                      <Text style={styles.mobileMenuItemText}>Plans</Text>
+                    </TouchableOpacity>
+                  )}
+                  
+                  <TouchableOpacity 
+                    onPress={() => {
+                      console.log('Logout menu item clicked');
+                      onLogout?.();
+                      setMobileMenuVisible(false);
+                    }} 
+                    style={styles.mobileMenuItem}
+                    activeOpacity={0.7}
+                  >
+                    <Icon name="LogOut" size={20} color="#6B7280" />
+                    <Text style={styles.mobileMenuItemText}>Logout</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#FBFBFB',
     paddingTop: Platform.OS === 'ios' ? 44 : 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   content: {
     paddingHorizontal: 16,
@@ -209,13 +265,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   logoTitle: {
-    color: '#fff',
+    color: '#1F2937',
     fontSize: 20,
     fontWeight: '800',
     lineHeight: 24,
   },
   logoSubtitle: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#6B7280',
     fontSize: 10,
     fontWeight: '500',
     lineHeight: 12,
@@ -237,37 +293,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.15)',
   },
   navText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: '#6B7280',
     fontSize: 14,
     fontWeight: '500',
     marginLeft: 6,
   },
   navTextActive: {
-    color: '#fff',
+    color: '#1F2937',
     fontWeight: '600',
-  },
-  centerSection: {
-    flex: 1,
-    maxWidth: 400,
-    marginHorizontal: 16,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    paddingVertical: 0,
   },
   rightSection: {
     flexDirection: 'row',
@@ -288,7 +321,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   createButtonText: {
-    color: '#fff',
+    color: '#1F2937',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 6,
@@ -374,7 +407,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   mobileLogoTitle: {
-    color: '#fff',
+    color: '#1F2937',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -392,5 +425,65 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
+  },
+  // Mobile Menu Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  mobileMenuModal: {
+    backgroundColor: '#FBFBFB',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20, // Safe area for iOS
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  dragHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#D1D5DB',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  mobileMenuItems: {
+    paddingVertical: 8,
+  },
+  mobileMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    minHeight: 56, // Better touch target
+  },
+  mobileMenuItemText: {
+    color: '#1F2937',
+    fontSize: 16,
+    fontWeight: '500',
+    marginLeft: 12,
+    flex: 1,
+  },
+  mobileNotificationBadge: {
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  mobileNotificationBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
   },
 });

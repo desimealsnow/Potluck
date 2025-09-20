@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import { supabase } from "../../config/supabaseClient";
 import { paymentService, type BillingPlan, type Subscription } from "../../services/payment.service";
 import { PlanCard as PaymentPlanCard } from "../../components/payment";
@@ -123,10 +124,20 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
   }
 
   return (
-    <LinearGradient colors={gradient} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         {/* Top bar */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={18} color="#1e1e1e" />
           </Pressable>
@@ -219,7 +230,7 @@ export default function PlansScreen({ onBack }: { onBack?: () => void }) {
           />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

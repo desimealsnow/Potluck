@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, Alert, KeyboardAvoidingVi
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import { apiClient } from "@/services/apiClient";
 import { supabase } from "../../config/supabaseClient";
 
@@ -254,10 +255,20 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
   }, []);
 
   return (
-    <LinearGradient colors={["#7b2ff7", "#ff2d91"]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={styles.topBar}>
+          <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
             <Pressable onPress={onBack} style={styles.iconBtn}>
               <Icon name="ChevronLeft" size={20} color="#fff" />
             </Pressable>
@@ -367,7 +378,7 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

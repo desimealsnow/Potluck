@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, Pressable, StyleSheet, Refresh
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import { apiClient } from "@/services/apiClient";
 import EventDetailsPage from "./EventDetailsPage";
 import { supabase } from "@/config/supabaseClient";
@@ -90,9 +91,19 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
   }, []);
 
   return (
-    <LinearGradient colors={["#7b2ff7", "#ff2d91"]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.topBar}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
@@ -112,7 +123,29 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
             keyExtractor={(n) => n.id}
             contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-            ListEmptyComponent={<Text style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>No notifications</Text>}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <View style={styles.emptyIconContainer}>
+                  <Icon name="Bell" size={48} color="#9CA3AF" />
+                </View>
+                <Text style={styles.emptyTitle}>No Notifications Yet</Text>
+                <Text style={styles.emptySubtitle}>
+                  We'll notify you about new events, updates, and important announcements here.
+                </Text>
+                <View style={styles.emptyActions}>
+                  <Pressable 
+                    style={styles.emptyActionButton}
+                    onPress={() => {
+                      // Navigate to events or refresh
+                      onRefresh();
+                    }}
+                  >
+                    <Icon name="RefreshCw" size={16} color="#fff" />
+                    <Text style={styles.emptyActionText}>Refresh</Text>
+                  </Pressable>
+                </View>
+              </View>
+            }
             renderItem={({ item }) => (
               <Pressable style={styles.card} onPress={() => item.event_id && setSelectedEventId(item.event_id)}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
@@ -148,7 +181,7 @@ export default function NotificationsScreen({ onBack }: { onBack?: () => void })
           />
         )}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -165,7 +198,59 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: 'rgba(255,255,255,0.95)', padding: 12, borderRadius: 12, marginTop: 10,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)'
-  }
+  },
+  // Empty State Styles
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 64,
+    minHeight: 400,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 32,
+  },
+  emptyActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  emptyActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  emptyActionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
 });
 
 

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 
 export default function HelpScreen({ onBack }: { onBack?: () => void }) {
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
@@ -51,10 +52,20 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
   };
 
   return (
-    <LinearGradient colors={gradient} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         {/* Top bar */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
@@ -153,7 +164,7 @@ export default function HelpScreen({ onBack }: { onBack?: () => void }) {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

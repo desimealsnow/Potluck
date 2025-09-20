@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import { useTheme } from "@/theme";
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
@@ -165,10 +166,20 @@ export default function SettingsScreen({
   ];
 
   return (
-    <LinearGradient colors={gradient} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         {/* Top bar */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
@@ -237,7 +248,7 @@ export default function SettingsScreen({
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

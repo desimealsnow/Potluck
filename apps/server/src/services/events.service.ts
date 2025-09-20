@@ -323,6 +323,8 @@ interface ListEventsParams {
   q?: string;
   diet?: string;
   is_public?: boolean;
+  // Include related data
+  include?: string;
 }
 
 interface PaginatedEventSummary {
@@ -331,21 +333,29 @@ interface PaginatedEventSummary {
   nextOffset: number | null;
 }
 
-// Row shape returned by the events list query above
-type EventRow = {
-  id: string;
-  title: string;
-  event_date: string;
-  attendee_count: number;
-  meal_type: components['schemas']['EventSummary']['meal_type'];
-  status: string;
-  created_by: string;
-};
+// Row shape returned by the events list query above (unused - keeping for reference)
+// type EventRow = {
+//   id: string;
+//   title: string;
+//   event_date: string;
+//   attendee_count: number;
+//   meal_type: components['schemas']['EventSummary']['meal_type'];
+//   status: string;
+//   created_by: string;
+// };
 
 // Enriched summary we return to the client for list views
 type ViewerEventSummary = EventSummary & {
   ownership: 'mine' | 'invited';
   viewer_role: 'host' | 'guest';
+  location?: {
+    id: string;
+    name: string;
+    formatted_address: string;
+    latitude: number;
+    longitude: number;
+    place_id: string;
+  };
 };
 
 export async function listEvents(
@@ -365,12 +375,13 @@ export async function listEvents(
     near,
     q,
     diet,
-    is_public
+    is_public,
+    include
   }: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
   logger.info('[EventService] listEvents', { 
     userId, limit, offset, status, ownership, meal_type, startsAfter, startsBefore,
-    lat, lon, radius_km, near, q, diet, is_public 
+    lat, lon, radius_km, near, q, diet, is_public, include
   });
 
   // Check if this is a location-based search
@@ -402,7 +413,7 @@ async function performLocationBasedSearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0 } = params;
+  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0, include } = params;
   
   try {
     let events: any[] = [];
@@ -430,13 +441,15 @@ async function performLocationBasedSearch(
       if (!events.length) {
         try {
           // Fetch published, public events with joined locations and compute distance client-side
+        const selectFields = `
+          id, title, description, event_date, is_public, status, capacity_total, attendee_count,
+          location_id,
+          locations!inner ( id, name, latitude, longitude, lat6, lon6, formatted_address, place_id )
+        `;
+            
           const { data: joined, error: joinErr } = await supabase
             .from('events')
-            .select(`
-              id, title, description, event_date, is_public, status, capacity_total, attendee_count,
-              location_id,
-              locations:locations ( id, latitude, longitude, lat6, lon6, formatted_address )
-            `)
+            .select(selectFields)
             .eq('status', 'published')
             // Include all published events; some schemas may not persist is_public yet
             .order('event_date', { ascending: false })
@@ -499,9 +512,12 @@ async function performLocationBasedSearch(
       }
     } else if (near) {
       // Search by city/area name
+      const shouldIncludeLocation = include === 'location';
+      const selectFields = 'id, title, event_date, attendee_count, meal_type, status, created_by, city, location_geog, location_id, locations(id, name, formatted_address, latitude, longitude, place_id)';
+        
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, event_date, attendee_count, meal_type, status, created_by, city, location_geog')
+        .select(selectFields)
         .eq('status', 'published')
         .eq('is_public', true)
         .ilike('city', `%${near}%`)
@@ -546,15 +562,35 @@ async function performLocationBasedSearch(
     }
 
     // Convert to ViewerEventSummary format
-    const items: ViewerEventSummary[] = filteredEvents.map((e: any) => ({
-      id: e.id,
-      title: e.title,
-      event_date: e.event_date,
-      attendee_count: e.attendee_count,
-      meal_type: e.meal_type,
-      ownership: e.created_by === userId ? 'mine' : 'invited',
-      viewer_role: e.created_by === userId ? 'host' : 'guest',
-    }));
+    const shouldIncludeLocation = include === 'location';
+    const items: ViewerEventSummary[] = filteredEvents.map((e: any) => {
+      const baseItem = {
+        id: e.id,
+        title: e.title,
+        event_date: e.event_date,
+        attendee_count: e.attendee_count,
+        meal_type: e.meal_type,
+        ownership: (e.created_by === userId ? 'mine' : 'invited') as 'mine' | 'invited',
+        viewer_role: (e.created_by === userId ? 'host' : 'guest') as 'host' | 'guest',
+      };
+
+      // Include location data if requested and available
+      if (e.locations) {
+        return {
+          ...baseItem,
+          location: {
+            id: e.locations.id,
+            name: e.locations.name,
+            formatted_address: e.locations.formatted_address,
+            latitude: e.locations.latitude,
+            longitude: e.locations.longitude,
+            place_id: e.locations.place_id,
+          }
+        };
+      }
+
+      return baseItem;
+    });
 
     const nextOffset = offset + limit < totalCount ? offset + limit : null;
 
@@ -578,7 +614,7 @@ async function performDiscoverySearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { limit = 20, offset = 0, q, diet, status = 'published' } = params;
+  const { limit = 20, offset = 0, q, diet, status = 'published', include } = params;
   
   try {
     // Get user's participant events
@@ -593,10 +629,12 @@ async function performDiscoverySearch(
     }
     const participantIds = partRows?.map(r => r.event_id) ?? [];
 
-    // Build query for public events + user's events
+    // Always include location data
+    const selectFields = 'id, title, event_date, attendee_count, meal_type, status, created_by, city, description, location_id, locations(id, name, formatted_address, latitude, longitude, place_id)';
+    
     let query = supabase
       .from('events')
-      .select('id, title, event_date, attendee_count, meal_type, status, created_by, city, description', { count: 'exact' })
+      .select(selectFields, { count: 'exact' })
       .eq('status', status)
       .order('event_date', { ascending: false });
 
@@ -629,15 +667,39 @@ async function performDiscoverySearch(
       return { ok: false, error: listErr.message, code: '500' };
     }
 
-    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => ({
-      id: e.id,
-      title: e.title,
-      event_date: e.event_date,
-      attendee_count: e.attendee_count,
-      meal_type: e.meal_type,
-      ownership: e.created_by === userId ? 'mine' : 'invited',
-      viewer_role: e.created_by === userId ? 'host' : 'guest',
-    }));
+    // Debug logging for location include
+    if (shouldIncludeLocation) {
+      logger.info('Location include debug - raw events data:', JSON.stringify(events, null, 2));
+    }
+
+    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => {
+      const baseItem = {
+        id: e.id,
+        title: e.title,
+        event_date: e.event_date,
+        attendee_count: e.attendee_count,
+        meal_type: e.meal_type,
+        ownership: (e.created_by === userId ? 'mine' : 'invited') as 'mine' | 'invited',
+        viewer_role: (e.created_by === userId ? 'host' : 'guest') as 'host' | 'guest',
+      };
+
+      // Include location data if requested and available
+      if (e.locations) {
+        return {
+          ...baseItem,
+          location: {
+            id: e.locations.id,
+            name: e.locations.name,
+            formatted_address: e.locations.formatted_address,
+            latitude: e.locations.latitude,
+            longitude: e.locations.longitude,
+            place_id: e.locations.place_id,
+          }
+        };
+      }
+
+      return baseItem;
+    });
 
     const totalCount = count || 0;
     const nextOffset = offset + limit < totalCount ? offset + limit : null;
@@ -662,7 +724,7 @@ async function performTraditionalSearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { limit = 20, offset = 0, status, ownership, meal_type, startsAfter, startsBefore, q } = params;
+  const { limit = 20, offset = 0, status, ownership, meal_type, startsAfter, startsBefore, q, include } = params;
   
   try {
     // Find all event_ids where the user is a participant (including host)
@@ -677,14 +739,16 @@ async function performTraditionalSearch(
     }
     const participantIds = partRows?.map(r => r.event_id) ?? [];
 
-    // Build the query for events where the user is host or participant
+    // Always include location data
+    const selectFields = 'id, title, event_date, attendee_count, meal_type, status, created_by, location_id, locations(id, name, formatted_address, latitude, longitude, place_id)';
+    
     let query = supabase
       .from('events')
-      .select('id, title, event_date, attendee_count, meal_type, status, created_by', { count: 'exact' })
+      .select(selectFields, { count: 'exact' })
       .order('event_date', { ascending: false });
 
     // Apply all filters using the helper function
-    query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore, q });
+    query = applyEventFilters(query, { userId, participantIds, status, ownership, meal_type, startsAfter, startsBefore, q, include });
 
     const { data: events, error: listErr, count } = await query.range(offset, offset + limit - 1);
 
@@ -693,15 +757,34 @@ async function performTraditionalSearch(
       return { ok: false, error: listErr.message, code: '500' };
     }
 
-    const items: ViewerEventSummary[] = (events ?? []).map((e: EventRow) => ({
-      id: e.id,
-      title: e.title,
-      event_date: e.event_date,
-      attendee_count: e.attendee_count,
-      meal_type: e.meal_type,
-      ownership: e.created_by === userId ? 'mine' : 'invited',
-      viewer_role: e.created_by === userId ? 'host' : 'guest',
-    }));
+    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => {
+      const baseItem = {
+        id: e.id,
+        title: e.title,
+        event_date: e.event_date,
+        attendee_count: e.attendee_count,
+        meal_type: e.meal_type,
+        ownership: (e.created_by === userId ? 'mine' : 'invited') as 'mine' | 'invited',
+        viewer_role: (e.created_by === userId ? 'host' : 'guest') as 'host' | 'guest',
+      };
+
+      // Include location data if requested and available
+      if (e.locations) {
+        return {
+          ...baseItem,
+          location: {
+            id: e.locations.id,
+            name: e.locations.name,
+            formatted_address: e.locations.formatted_address,
+            latitude: e.locations.latitude,
+            longitude: e.locations.longitude,
+            place_id: e.locations.place_id,
+          }
+        };
+      }
+
+      return baseItem;
+    });
 
     const totalCount = count || 0;
     const nextOffset = offset + limit < totalCount ? offset + limit : null;
@@ -731,7 +814,8 @@ function applyEventFilters<B>(
     meal_type,
     startsAfter,
     startsBefore,
-    q
+    q,
+    include
   }: {
     userId: string,
     participantIds: string[],
@@ -740,7 +824,8 @@ function applyEventFilters<B>(
     meal_type?: string,
     startsAfter?: string,
     startsBefore?: string,
-    q?: string
+    q?: string,
+    include?: string
   }
 ): B {
   logger.info('[EventService] applyEventFilters', { 
@@ -751,7 +836,8 @@ function applyEventFilters<B>(
     meal_type, 
     startsAfter, 
     startsBefore,
-    q
+    q,
+    include
   });
 
   // Apply ownership filter

@@ -592,7 +592,7 @@ export default function EventDetailsPage({
   };
 
   return (
-    <LinearGradient colors={gradient} style={styles.container}>
+    <View style={[styles.container, { backgroundColor: '#351657' }]}>
       <SafeAreaView style={styles.safeArea}>
         <TopBar title="" onBack={onBack} onRefresh={refresh} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -648,7 +648,7 @@ export default function EventDetailsPage({
         buttons={modalConfig.buttons}
         onClose={() => setModalVisible(false)}
       />
-    </LinearGradient>
+    </View>
   );
 }
 

@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import { paymentService, type Subscription, type Invoice, type BillingPlan } from "../../services/payment.service";
 import { PlanCard, InvoiceCard } from "../../components/payment";
 import * as WebBrowser from 'expo-web-browser';
@@ -200,23 +201,33 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
   const hasActivePlan = !!currentSubscription;
 
   if (loading) {
-    return (
-      <LinearGradient colors={gradient} style={{ flex: 1 }}>
-        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#7b2ff7" />
-          <Text style={{ color: '#2a2a2a', fontSize: 16, fontWeight: '600', marginTop: 10 }}>
-            Loading subscription...
-          </Text>
-        </SafeAreaView>
-      </LinearGradient>
-    );
+  return (
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#7b2ff7" />
+        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600', marginTop: 10 }}>
+          Loading subscription...
+        </Text>
+      </SafeAreaView>
+    </View>
+  );
   }
 
   return (
-    <LinearGradient colors={gradient} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         {/* Top bar */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={18} color="#2a2a2a" />
           </Pressable>
@@ -350,7 +361,7 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
           )}
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

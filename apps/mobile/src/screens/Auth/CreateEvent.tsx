@@ -6,6 +6,7 @@ import { DatePickerModal, TimePickerModal } from 'react-native-paper-dates';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
+import Header from "@/components/Header";
 import ParticipantsScreen from "./Participants";
 import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
@@ -197,10 +198,20 @@ export default function CreateEventScreen({
   };
 
   return (
-    <LinearGradient colors={headerGradient} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Header Component */}
+            <Header
+              onNotifications={() => {}}
+              onSettings={() => {}}
+              onPlans={() => {}}
+              onLogout={() => {}}
+              unreadCount={0}
+              showNavigation={false}
+            />
+        
         {/* Top bar */}
-        <View style={styles.topBar} testID="create-event-header">
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]} testID="create-event-header">
           <View style={styles.topLeft}>
             {onBack && (
               <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10} testID="back-button">
@@ -638,7 +649,7 @@ export default function CreateEventScreen({
         hours={selectedTime?.getHours() || 12}
         minutes={selectedTime?.getMinutes() || 0}
       />
-    </LinearGradient>
+    </View>
   );
 }
 
