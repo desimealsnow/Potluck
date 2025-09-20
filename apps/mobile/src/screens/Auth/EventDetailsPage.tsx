@@ -7,11 +7,11 @@ import {
   TextInput,
   ActivityIndicator,
   StyleSheet,
-  Image,
   Alert,
   Platform,
   Modal,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, Segmented, ProgressBar } from "@/components";

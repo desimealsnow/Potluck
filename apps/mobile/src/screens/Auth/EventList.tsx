@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   Pressable,
-  Image,
   ActivityIndicator,
   RefreshControl,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";

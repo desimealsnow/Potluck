@@ -39,6 +39,7 @@
     "react-native-paper-dates": "^0.22.50",
     "react-native-safe-area-context": "5.4.0",
     "react-native-web": "^0.20.0",
+    "expo-image": "~2.0.0",
     "react-native-svg": "^15.2.0"
   },
   "devDependencies": {

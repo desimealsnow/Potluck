@@ -9,8 +9,8 @@ import {
   StyleSheet,
   Platform,
   Alert,
-  Image,
 } from "react-native";
+import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 // Note: expo-clipboard not available in this setup
