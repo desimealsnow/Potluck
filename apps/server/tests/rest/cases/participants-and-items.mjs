@@ -45,41 +45,47 @@ async function main() {
   if (create.status !== 201) throw new Error(`create event failed ${create.status}`);
   const event = await create.json();
   const eventId = event.event.id;
-  if (!(await authed('POST', `/events/${eventId}/publish`, host)).ok) throw new Error('publish failed');
 
-  // Host invites guest (fixed participant id used)
-  await authed('POST', `/events/${eventId}/participants`, host, { user_id: '22222222-2222-2222-2222-222222222222' });
+  try {
+    if (!(await authed('POST', `/events/${eventId}/publish`, host)).ok) throw new Error('publish failed');
 
-  // Guest lists items and self-assign
-  let res = await authed('GET', `/events/${eventId}/items`, guest);
-  if (!res.ok) throw new Error(`list items failed ${res.status}`);
-  let items = await res.json();
-  const itemId = items[0].id;
+    // Host invites guest (fixed participant id used)
+    await authed('POST', `/events/${eventId}/participants`, host, { user_id: '22222222-2222-2222-2222-222222222222' });
 
-  res = await authed('POST', `/events/${eventId}/items/${itemId}/assign`, guest, {});
-  if (!res.ok) throw new Error(`assign failed ${res.status}`);
+    // Guest lists items and self-assign
+    let res = await authed('GET', `/events/${eventId}/items`, guest);
+    if (!res.ok) throw new Error(`list items failed ${res.status}`);
+    let items = await res.json();
+    const itemId = items[0].id;
 
-  // Host adds another item, then fetch it back to get exact id, update it, then delete it
-  res = await authed('POST', `/events/${eventId}/items`, host, { name: 'Salad', category: 'side', per_guest_qty: 1 });
-  if (!(res.status === 201 || res.status === 200)) throw new Error(`add item failed ${res.status}`);
+    res = await authed('POST', `/events/${eventId}/items/${itemId}/assign`, guest, {});
+    if (!res.ok) throw new Error(`assign failed ${res.status}`);
 
-  // Fetch items again to find the newly added one by name/category
-  res = await authed('GET', `/events/${eventId}/items`, host);
-  if (!res.ok) throw new Error(`list items (host) failed ${res.status}`);
-  items = await res.json();
-  const newItem = items.find((i) => i.name === 'Salad' || i.name === 'Green Salad') || items[items.length - 1];
+    // Host adds another item, then fetch it back to get exact id, update it, then delete it
+    res = await authed('POST', `/events/${eventId}/items`, host, { name: 'Salad', category: 'side', per_guest_qty: 1 });
+    if (!(res.status === 201 || res.status === 200)) throw new Error(`add item failed ${res.status}`);
 
-  res = await authed('PATCH', `/events/${eventId}/items/${newItem.id}`, host, { name: 'Green Salad', category: 'side', per_guest_qty: 1 });
-  if (!res.ok) throw new Error(`update item failed ${res.status}`);
+    // Fetch items again to find the newly added one by name/category
+    res = await authed('GET', `/events/${eventId}/items`, host);
+    if (!res.ok) throw new Error(`list items (host) failed ${res.status}`);
+    items = await res.json();
+    const newItem = items.find((i) => i.name === 'Salad' || i.name === 'Green Salad') || items[items.length - 1];
 
-  res = await authed('DELETE', `/events/${eventId}/items/${newItem.id}`, host);
-  if (!res.ok) throw new Error(`delete item failed ${res.status}`);
+    res = await authed('PATCH', `/events/${eventId}/items/${newItem.id}`, host, { name: 'Green Salad', category: 'side', per_guest_qty: 1 });
+    if (!res.ok) throw new Error(`update item failed ${res.status}`);
 
-  // Host lists participants
-  res = await authed('GET', `/events/${eventId}/participants`, host);
-  if (!res.ok) throw new Error(`list participants failed ${res.status}`);
+    res = await authed('DELETE', `/events/${eventId}/items/${newItem.id}`, host);
+    if (!res.ok) throw new Error(`delete item failed ${res.status}`);
 
-  console.log('✅ participants-and-items OK');
+    // Host lists participants
+    res = await authed('GET', `/events/${eventId}/participants`, host);
+    if (!res.ok) throw new Error(`list participants failed ${res.status}`);
+
+    console.log('✅ participants-and-items OK');
+  } finally {
+    try { await authed('POST', `/events/${eventId}/cancel`, host, { reason: 'test-cleanup', notifyGuests: false }); } catch {}
+    try { await authed('POST', `/events/${eventId}/purge`, host); } catch {}
+  }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
