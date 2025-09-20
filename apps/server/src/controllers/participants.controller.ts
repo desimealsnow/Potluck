@@ -78,7 +78,16 @@ export const resendInvite = async (
   return handle(res, result);
 };
 
-/** POST /events/:eventId/participants/:partId/transfer */
+/**
+ * Transfers a participant from one user to another in a specified event.
+ *
+ * This function extracts the event ID and participant ID from the request parameters, retrieves the actor's ID from the authenticated user,
+ * and gathers the new user ID and carry items from the request body. It then calls the transferParticipant function to perform the transfer
+ * and handles the response accordingly.
+ *
+ * @param req - The authenticated request object containing parameters and body data.
+ * @param res - The response object used to send the result back to the client.
+ */
 export const transfer = async (
   req: AuthenticatedRequest,
   res: Response
