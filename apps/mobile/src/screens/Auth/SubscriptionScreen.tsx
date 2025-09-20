@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "@/components";
 import { paymentService, type Subscription, type Invoice, type BillingPlan } from "../../services/payment.service";
 import { PlanCard, InvoiceCard } from "../../components/payment";
 import * as WebBrowser from 'expo-web-browser';
@@ -218,11 +218,11 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
         {/* Top bar */}
         <View style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={18} color="#2a2a2a" />
+            <Icon name="ChevronLeft" size={18} color="#2a2a2a" />
           </Pressable>
           <Text style={styles.topTitle}>My Potluck Subscription</Text>
           <View style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center" }}>
-            <Ionicons name="moon" size={16} color="#9B7C4D" />
+            <Icon name="Moon" size={16} color="#9B7C4D" />
           </View>
         </View>
 
@@ -239,14 +239,14 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
           {/* Status banner */}
           {hasActivePlan ? (
             <View style={styles.bannerGreen}>
-              <Ionicons name="checkmark-circle" size={18} color="#0B5E3B" />
+              <Icon name="CheckCircle2" size={18} color="#0B5E3B" />
               <Text style={styles.bannerGreenText}>
                 🎉 Your potluck subscription is <Text style={{ fontWeight: "900" }}>active</Text>!
               </Text>
             </View>
           ) : (
             <View style={styles.bannerNeutral}>
-              <Ionicons name="information-circle" size={18} color="#6B7280" />
+              <Icon name="Info" size={18} color="#6B7280" />
               <Text style={styles.bannerNeutralText}>No active plan. Pick a plan to get started.</Text>
             </View>
           )}
@@ -258,7 +258,7 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
                 <Text style={styles.planTitle}>
                   🍲 {paymentService.getPlanDisplayName(currentSubscription.plan_id)} <Text style={{ fontSize: 12 }}>👑 🍽️</Text>
                 </Text>
-                <Ionicons name="sparkles" size={16} color="#E69A2E" />
+                <Icon name="Sparkles" size={16} color="#E69A2E" />
               </View>
 
               <Text style={styles.price}>
@@ -322,14 +322,14 @@ export default function SubscriptionScreen({ onBack }: { onBack?: () => void }) 
           {hasActivePlan && currentSubscription && (
             <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
               <Pressable style={[styles.secondaryBtn, { flex: 1 }]} onPress={updatePayment}>
-                <Ionicons name="card" size={16} color="#166F4D" />
+                <Icon name="CreditCard" size={16} color="#166F4D" />
                 <Text style={[styles.secondaryBtnText, { color: "#166F4D" }]}>Update Payment</Text>
               </Pressable>
               <Pressable 
                 style={[styles.secondaryBtn, { flex: 1, backgroundColor: "#FFE6DC", borderColor: "#FFD0BD" }]} 
                 onPress={cancelSubscription}
               >
-                <Ionicons name="close" size={16} color="#AA3A2A" />
+                <Icon name="X" size={16} color="#AA3A2A" />
                 <Text style={[styles.secondaryBtnText, { color: "#AA3A2A" }]}>Cancel</Text>
               </Pressable>
             </View>
@@ -362,12 +362,12 @@ function Row({
 }: {
   label: string;
   value: string;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: import("@/components/ui/Icon").IconName;
 }) {
   return (
     <View style={styles.row}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-        {icon ? <Ionicons name={icon} size={14} color="#6B7280" /> : null}
+        {icon ? <Icon name={icon} size={14} color="#6B7280" /> : null}
         <Text style={styles.rowLabel}>{label}</Text>
       </View>
       <Text style={styles.rowValue}>{value}</Text>
