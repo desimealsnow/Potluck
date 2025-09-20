@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { colors, borderRadius, shadows } from '@/theme';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
+import { colors, borderRadius, shadows, useTheme } from '@/theme';
 
 export interface CardProps {
   children: React.ReactNode;
@@ -11,8 +11,20 @@ export interface CardProps {
 }
 
 export function Card({ children, title, right, style, titleStyle }: CardProps) {
+  const { reducedMotion } = useTheme();
+  const opacity = useRef(new Animated.Value(reducedMotion ? 1 : 0)).current;
+  const translateY = useRef(new Animated.Value(reducedMotion ? 0 : 6)).current;
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    Animated.parallel([
+      Animated.timing(opacity, { toValue: 1, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+    ]).start();
+  }, [reducedMotion, opacity, translateY]);
+
   return (
-    <View style={[styles.card, style]}>
+    <Animated.View style={[styles.card, style, { opacity, transform: [{ translateY }] }]}>
       {title && (
         <View style={styles.header}>
           <Text style={[styles.title, titleStyle]}>{title}</Text>
@@ -20,7 +32,7 @@ export function Card({ children, title, right, style, titleStyle }: CardProps) {
         </View>
       )}
       {children}
-    </View>
+    </Animated.View>
   );
 }
 
