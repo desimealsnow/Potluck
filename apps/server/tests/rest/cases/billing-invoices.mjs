@@ -44,7 +44,7 @@ async function main() {
     const { data: seededInvoice, error: seedError } = await adminSupabase
       .from('invoices')
       .insert({
-        user_id: '11111111-1111-1111-1111-111111111111',
+        user_id: hostId,
         provider: 'lemonsqueezy',
         amount_cents: 1000,
         currency: 'usd',
