@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { Badge } from "./components/ui/badge"
 import { Search, Calendar, SlidersHorizontal, Users } from "lucide-react"
 
+/**
+ * Renders the event dashboard application.
+ */
 export default function App() {
   const events = [
     {
