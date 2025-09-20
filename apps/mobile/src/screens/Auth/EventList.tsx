@@ -684,7 +684,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       <SafeAreaView style={{ flex: 1 }}>
         <View style={[styles.content, isTablet && sidebarVisible && styles.contentWithSidebar]}>
         <View style={styles.header} testID="events-header">
-          <Text style={styles.headerTitle} testID="events-title">Events</Text>
+          <Text style={styles.headerTitle} testID="events-title">Event Dashboard</Text>
           <View style={styles.actions} testID="header-actions">
             <Pressable onPress={handleCreateEvent} style={[styles.iconBtn, styles.iconBtnAlt]} testID="create-event-button">
               <Icon name="Plus" size={20} color="#fff" />
@@ -718,7 +718,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           <View style={styles.searchWrap}>
             <Icon name="Search" size={20} color="rgba(255,255,255,0.7)" style={styles.searchIcon} />
             <TextInput
-              placeholder="Search events..."
+              placeholder="Search events, attendees, venues, or categories..."
               placeholderTextColor="rgba(255,255,255,0.6)"
               value={query}
               onChangeText={setQuery}
@@ -916,14 +916,14 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
 
 function DietTag({ diet }: { diet: Diet }) {
   const map = {
-    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
-    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
-    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
+    veg: { bg: "#22C55E", fg: "#062E16", label: "Veg" },
+    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "Non-veg" },
+    mixed: { bg: "#7C3AED", fg: "#120B20", label: "Mixed" },
   } as const;
   const d = map[diet];
   return (
     <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
+      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12 }}>{d.label}</Text>
     </View>
   );
 }
@@ -987,7 +987,7 @@ function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string })
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
       <Icon name={config.icon as any} size={12} color="#fff" />
-      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
+      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role === 'host' ? 'Host' : 'Guest'}</Text>
     </View>
   );
 }

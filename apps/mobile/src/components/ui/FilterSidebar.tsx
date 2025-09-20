@@ -69,7 +69,7 @@ export function FilterSidebar({
     >
       <View style={styles.header}>
         <Icon name="ListFilter" size={20} color="#7B2FF7" />
-        <Text style={styles.title}>Filters</Text>
+        <Text style={styles.title}>Smart Filters</Text>
         {activeFiltersCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{activeFiltersCount}</Text>
@@ -84,7 +84,7 @@ export function FilterSidebar({
             style={styles.sectionHeader}
             onPress={() => toggleSection('show')}
           >
-            <Text style={styles.sectionTitle}>Show</Text>
+            <Text style={styles.sectionTitle}>Event Scope</Text>
             <Icon 
               name={expandedSections.show ? "ChevronUp" : "ChevronDown"} 
               size={20} 
@@ -165,7 +165,7 @@ export function FilterSidebar({
             style={styles.sectionHeader}
             onPress={() => toggleSection('diet')}
           >
-            <Text style={styles.sectionTitle}>Diet</Text>
+            <Text style={styles.sectionTitle}>Dietary Preferences</Text>
             <Icon 
               name={expandedSections.diet ? "ChevronUp" : "ChevronDown"} 
               size={20} 
