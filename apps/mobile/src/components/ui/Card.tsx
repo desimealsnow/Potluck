@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Platform, Animated, Easing } from 'react-native';
-import { colors, borderRadius, shadows, useTheme } from '@/theme';
+import { colors, borderRadius, shadows } from '@/theme';
+import { useTheme } from '@/theme/index';
 
 export interface CardProps {
   children: React.ReactNode;
