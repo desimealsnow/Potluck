@@ -34,7 +34,6 @@ export function Input({
         </View>
       )}
       <TextInput
-        accessibilityRole="textbox"
         accessible
         accessibilityLabel={props.placeholder || 'input'}
         placeholderTextColor={colors.text.muted}
@@ -61,8 +60,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
+    borderColor: colors.border.subtle,
+    backgroundColor: colors.neutral.bgAlt,
     flexDirection: 'row',
     alignItems: 'center',
     paddingRight: 8,
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   containerError: {
-    borderColor: colors.error[500],
+    borderColor: colors.state.error,
   },
   leftIcon: {
     width: 40,
