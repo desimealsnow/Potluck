@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Segmented } from "@/components";
+import { getTheme } from "@/theme";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
@@ -550,10 +551,8 @@ export default function EventDetailsPage({
     }
   };
 
-  const gradient = useMemo(
-    () => ["#ddd6fe", "#e9d5ff", "#fce7f3"] as const,
-    []
-  );
+  const t = getTheme();
+  const gradient = useMemo(() => [t.colors.brand, t.colors.brandAlt] as const, [t]);
 
   // Determine available actions based on event status and ownership
   const getAvailableActions = () => {
@@ -595,7 +594,7 @@ export default function EventDetailsPage({
   };
 
   return (
-    <LinearGradient colors={gradient} style={styles.container}>
+    <LinearGradient colors={gradient} start={{x:0.1,y:0.1}} end={{x:0.9,y:0.9}} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <TopBar title="" onBack={onBack} onRefresh={refresh} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -712,8 +711,8 @@ function EventHeader({
 
   return (
     <View style={styles.eventHeader}>
-      <Text style={styles.eventTitle}>{event.title}</Text>
-      <Text style={styles.eventDate}>
+      <Text style={[styles.eventTitle, { fontFamily: 'Manrope_700Bold', color: '#FFFFFF' }]}>{event.title}</Text>
+      <Text style={[styles.eventDate, { color: 'rgba(255,255,255,0.9)' }]}>
         {formatDateRange(event.start, event.end)}
       </Text>
       <View style={styles.chipContainer}>
@@ -1290,9 +1289,9 @@ const styles = StyleSheet.create({
   },
   eventHeader: {
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderColor: 'rgba(255,255,255,0.2)',
     padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

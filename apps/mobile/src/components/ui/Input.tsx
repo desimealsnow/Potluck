@@ -1,102 +1,55 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, borderRadius } from '@/theme';
+import { TextInput, StyleSheet, View, Text } from 'react-native';
+import { getTheme } from '@/theme';
 
-export interface InputProps extends React.ComponentProps<typeof TextInput> {
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
-  onRightIconPress?: () => void;
-  error?: boolean;
+export interface InputProps {
+  label?: string;
+  error?: string;
+  value: string;
+  onChangeText: (t: string) => void;
+  placeholder?: string;
+  keyboardType?: any;
   multiline?: boolean;
+  numberOfLines?: number;
+  style?: any;
+  leftIcon?: string; // reserved for future
   testID?: string;
 }
 
-export function Input({
-  leftIcon,
-  rightIcon,
-  onRightIconPress,
-  error = false,
-  multiline = false,
-  style,
-  testID,
-  ...props
-}: InputProps) {
+export function Input({ label, error, value, onChangeText, placeholder, keyboardType, multiline, numberOfLines, style, leftIcon, testID }: InputProps) {
+  const t = getTheme();
   return (
-    <View style={[
-      styles.container,
-      multiline && styles.containerMultiline,
-      error && styles.containerError
-    ]} testID={`${testID}-container`}>
-      {leftIcon && (
-        <View style={styles.leftIcon}>
-          <Ionicons name={leftIcon} size={16} color={colors.neutral[400]} />
-        </View>
-      )}
+    <View style={{ gap: 6 }}>
+      {label && <Text style={{ color: t.colors.text, fontWeight: '700' }}>{label}</Text>}
       <TextInput
-        placeholderTextColor={colors.neutral[400]}
         style={[
           styles.input,
-          multiline && styles.inputMultiline,
-          style
+          {
+            backgroundColor: t.colors.card,
+            color: t.colors.text,
+            borderColor: error ? t.colors.error : t.colors.line,
+          },
+          style,
         ]}
+        value={value}
+        onChangeText={onChangeText}
+        keyboardType={keyboardType}
+        placeholder={placeholder}
+        placeholderTextColor={t.colors.textMuted}
         multiline={multiline}
+        numberOfLines={numberOfLines}
         testID={testID}
-        {...props}
       />
-      {rightIcon && (
-        <View style={styles.rightIcon}>
-          <Ionicons 
-            name={rightIcon} 
-            size={16} 
-            color={colors.neutral[400]}
-            onPress={onRightIconPress}
-          />
-        </View>
-      )}
+      {error && <Text style={{ color: t.colors.error, fontSize: 12 }}>{error}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    height: 48,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.light,
-    backgroundColor: colors.background.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 8,
-    paddingLeft: 0,
-    overflow: 'hidden',
-  },
-  containerMultiline: {
-    height: 80,
-    alignItems: 'flex-start',
-    paddingTop: 8,
-  },
-  containerError: {
-    borderColor: colors.error[500],
-  },
-  leftIcon: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rightIcon: {
-    width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   input: {
-    flex: 1,
-    paddingHorizontal: 6,
-    fontSize: 15,
-    color: colors.text.primary,
-  },
-  inputMultiline: {
-    textAlignVertical: 'top',
-    paddingTop: 8,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 14,
   },
 });

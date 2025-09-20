@@ -28,7 +28,7 @@ import HelpScreen from "./HelpScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
-import { gradients } from "@/theme";
+import { getTheme } from '@/theme';
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -215,10 +215,10 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
     }
   }, []);
 
-  const bgGradient = useMemo(
-    () => gradients.header.cool,
-    []
-  );
+  const t = getTheme();
+  const headerGradient = useMemo(() => [t.colors.brand, t.colors.brandAlt] as const, [t]);
+
+  const bgGradient = headerGradient;
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -232,6 +232,7 @@ export default function App({ userLocation: propUserLocation }: EventListProps =
   // Register push token with server (best-effort)
   const registerPush = useCallback(async () => {
     try {
+      const Notifications = await import('expo-notifications');
       const perms = await Notifications.getPermissionsAsync();
       if (!perms.granted) {
         const req = await Notifications.requestPermissionsAsync();
@@ -980,7 +981,8 @@ function EventCard({
   testID?: string;
 }) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
-  const cardColors = gradients.card.pink;
+  const t = getTheme();
+  const cardColors = [t.colors.brand, t.colors.brandAlt] as const;
   const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
   return (
     <Pressable onPress={onPress} testID={testID}>

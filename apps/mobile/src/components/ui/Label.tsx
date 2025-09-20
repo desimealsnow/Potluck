@@ -1,30 +1,12 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
-import { colors, typography } from '@/theme';
+import { Text } from 'react-native';
+import { getTheme } from '@/theme';
 
-export interface LabelProps {
-  children: React.ReactNode;
-  style?: any;
-  required?: boolean;
-}
-
-export function Label({ children, style, required = false }: LabelProps) {
+export function Label({ children }: { children: React.ReactNode }) {
+  const t = getTheme();
   return (
-    <Text style={[styles.label, style]}>
+    <Text style={{ color: t.colors.text, fontWeight: '700', marginBottom: 6 }}>
       {children}
-      {required && <Text style={styles.required}> *</Text>}
     </Text>
   );
 }
-
-const styles = StyleSheet.create({
-  label: {
-    fontWeight: typography.fontWeight.extrabold,
-    color: colors.text.primary,
-    marginBottom: 6,
-    marginTop: 6,
-  },
-  required: {
-    color: colors.error[500],
-  },
-});

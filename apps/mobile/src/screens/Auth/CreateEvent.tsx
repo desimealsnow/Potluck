@@ -10,7 +10,7 @@ import ParticipantsScreen from "./Participants";
 import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
-import { gradients } from "@/theme";
+import { getTheme } from '@/theme';
 import type { 
   MealType, 
   LocationSuggestion, 
@@ -83,10 +83,8 @@ export default function CreateEventScreen({
 
   const canNextFromLocation = !!selectedLoc;
 
-  const headerGradient = useMemo(
-    () => gradients.header.warm,
-    []
-  );
+  const t = getTheme();
+  const gradient = useMemo(() => [t.colors.brand, t.colors.brandAlt] as const, [t]);
 
 
   const publishEvent = async (eventId: string) => {
@@ -114,10 +112,11 @@ export default function CreateEventScreen({
         return;
       }
       
-      const eventDateTime = combineDateTime(selectedDate, selectedTime);
+      const eventDateTimeIso = combineDateTime(selectedDate, selectedTime);
       const now = new Date();
+      const eventDateTime = new Date(eventDateTimeIso);
       
-      if (eventDateTime <= now) {
+      if (eventDateTime.getTime() <= now.getTime()) {
         Alert.alert(
           "Invalid Event Time", 
           "Please select a future date and time for your event. The event cannot be scheduled in the past.",
@@ -136,7 +135,7 @@ export default function CreateEventScreen({
       const payload: EventCreatePayload = {
         title: title.trim(),
         description: description.trim() || undefined,
-        event_date: combineDateTime(selectedDate, selectedTime),
+        event_date: eventDateTimeIso,
         min_guests: parseInt(minGuests, 10),
         max_guests: maxGuests ? parseInt(maxGuests, 10) : undefined,
         meal_type: mealType,
@@ -197,7 +196,7 @@ export default function CreateEventScreen({
   };
 
   return (
-    <LinearGradient colors={headerGradient} style={{ flex: 1 }}>
+    <LinearGradient colors={gradient} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Top bar */}
         <View style={styles.topBar} testID="create-event-header">
@@ -533,8 +532,7 @@ export default function CreateEventScreen({
           )}
         </ScrollView>
 
-        {/* Sticky footer */
-        }
+        {/* Sticky footer */}
         <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer} testID="create-event-footer">
           <View style={styles.footerInner} testID="footer-actions">
             {createdEventId ? (
