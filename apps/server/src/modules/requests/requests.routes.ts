@@ -83,6 +83,7 @@ router.patch(
  */
 router.patch(
   '/:requestId/cancel',
+  authGuard,
   routeLogger('PATCH /events/:eventId/requests/:requestId/cancel'),
   RequestsController.cancelJoinRequest
 );
