@@ -26,6 +26,9 @@ import {
   TrendingUp
 } from "lucide-react"
 
+/**
+ * Renders the header component for the EventHub application.
+ */
 export function Header() {
   return (
     <header className="bg-white/98 backdrop-blur-xl border-b border-gray-200/50 px-6 py-4 relative z-50 shadow-sm">
