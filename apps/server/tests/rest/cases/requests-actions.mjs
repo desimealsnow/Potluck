@@ -54,12 +54,8 @@ async function main() {
   res = await authed('POST', `/events/${eventId}/requests/${reqPending.id}/extend`, host, { extension_minutes: 30 });
   if (!res.ok) throw new Error(`extend failed ${res.status}`);
 
-  // 2) Host declines a separate pending request
-  res = await authed('POST', `/events/${eventId}/requests`, guest, { party_size: 1 });
-  if (res.status !== 201) throw new Error(`create request#decline failed ${res.status}`);
-  const reqToDecline = await res.json();
-
-  res = await authed('PATCH', `/events/${eventId}/requests/${reqToDecline.id}/decline`, host);
+  // 2) Host declines the same pending request
+  res = await authed('PATCH', `/events/${eventId}/requests/${reqPending.id}/decline`, host);
   if (!res.ok) throw new Error(`decline failed ${res.status}`);
 
   // 3) Host waitlists and reorders a new pending request
