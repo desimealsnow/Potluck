@@ -18,6 +18,12 @@ apps/*/dist/
 apps/*/build/
 apps/*/coverage/
 
+# Keep payments package dist for background agents
+!packages/payments/dist/
+
+# Agent-generated files (keep these in git for AI context)
+# .agent/ files are intentionally committed for AI agent context
+
 # Test artifacts
 test-results/
 apps/*/test-results/

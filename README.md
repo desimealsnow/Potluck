@@ -2,6 +2,10 @@
 
 A comprehensive event management platform built with React Native (Expo) and Node.js, featuring real-time notifications, user profiles, location-based discovery, and subscription management.
 
+## 🤖 For AI Agents
+
+> **IMPORTANT**: If you're an AI agent, start by reading **[`docs/agent/README.md`](docs/agent/README.md)** for complete project context and file priorities.
+
 ## 🚀 Features
 
 ### Core Functionality

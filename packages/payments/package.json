@@ -1,20 +1,45 @@
 {
-  "name": "@payments/core",
-  "version": "0.1.0",
+  "name": "payment-core",
+  "version": "0.1.1",
+  "description": "A framework- and provider-agnostic payments module with explicit ports, provider registry, idempotent webhook handling, and server adapters",
+  "keywords": [
+    "payments",
+    "billing",
+    "subscriptions",
+    "webhooks",
+    "lemonsqueezy",
+    "stripe",
+    "paypal",
+    "express",
+    "typescript"
+  ],
+  "author": "Potluck Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/potluck/tree/main/packages/payments#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/potluck.git",
+    "directory": "packages/payments"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/potluck/issues"
+  },
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "GETTING_STARTED.md",
+    "example.js"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "test": "vitest run --config ../../apps/server/vitest.config.ts --root . --passWithNoTests"
   },
-  "dependencies": {},
   "peerDependencies": {
     "express": "^4 || ^5"
   },
@@ -22,8 +47,7 @@
     "typescript": "^5.5.4"
   },
   "publishConfig": {
-    "access": "restricted"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
-
-

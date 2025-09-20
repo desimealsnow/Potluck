@@ -1,0 +1,32 @@
+{
+  "generated_at": "2025-09-20T04:01:59.694Z",
+  "metrics": {
+    "total_sessions": 0,
+    "average_session_duration": 0,
+    "most_accessed_files": [],
+    "common_queries": [],
+    "performance_trends": []
+  },
+  "recommendations": [
+    "Consider caching frequently accessed files for faster response times",
+    "Implement context persistence to reduce redundant file reads",
+    "Add query optimization for common database operations",
+    "Set up automated testing for agent responses",
+    "Monitor file access patterns to optimize catalog structure"
+  ],
+  "alerts": [
+    {
+      "type": "info",
+      "message": "Agent performance is within normal parameters",
+      "severity": "low",
+      "timestamp": "2025-09-20T04:01:59.696Z"
+    },
+    {
+      "type": "warning",
+      "message": "Consider updating code catalog after recent changes",
+      "severity": "medium",
+      "timestamp": "2025-09-20T04:01:59.696Z"
+    }
+  ],
+  "health_score": 80
+}

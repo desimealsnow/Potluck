@@ -1,0 +1,6184 @@
+{
+  "generated_at": "2025-09-20T04:01:54.333Z",
+  "total_files": 281,
+  "summary": {
+    "average_complexity": 111.7864768683274,
+    "average_maintainability": 71.44483985765125,
+    "files_with_technical_debt": 141,
+    "files_with_security_concerns": 66,
+    "files_with_performance_issues": 55
+  },
+  "files": [
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/App.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 13,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "expo-status-bar",
+        "react-native-safe-area-context",
+        "./src/screens/Auth/SupabaseAuthUI"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 9,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "expo",
+        "./App"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/jest.config.js",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 62,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/playwright.config.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 37,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 92,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/jest.config.ts",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 138,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "jest"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/verify-database-setup.js",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 85,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 81,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/vitest.config.ts",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 53,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "vitest/config",
+        "dotenv",
+        "path",
+        "../server/src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/setup.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 129,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 76,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react-native-gesture-handler/jestSetup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/testUtils.ts",
+      "metrics": {
+        "complexity": 17,
+        "lines_of_code": 363,
+        "cyclomatic_complexity": 17,
+        "maintainability_index": 61,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../src/services/apiClient"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/capture_schema.mjs",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 316,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 43,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "dotenv",
+        "path",
+        "fs",
+        "child_process",
+        "util"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/check-host-profile.mjs",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 122,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 62,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "dotenv",
+        "path"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/inspect-events-locations.js",
+      "metrics": {
+        "complexity": 27,
+        "lines_of_code": 171,
+        "cyclomatic_complexity": 27,
+        "maintainability_index": 41,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/inspect-notifications.js",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 73,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 67,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/setup-location-compat.js",
+      "metrics": {
+        "complexity": 19,
+        "lines_of_code": 166,
+        "cyclomatic_complexity": 19,
+        "maintainability_index": 57,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/test-lemonsqueezy.js",
+      "metrics": {
+        "complexity": 35,
+        "lines_of_code": 280,
+        "cyclomatic_complexity": 35,
+        "maintainability_index": 25,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/test-server-logic.mjs",
+      "metrics": {
+        "complexity": 12,
+        "lines_of_code": 91,
+        "cyclomatic_complexity": 12,
+        "maintainability_index": 71,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "dotenv",
+        "path"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/scripts/validate-schema.mjs",
+      "metrics": {
+        "complexity": 85,
+        "lines_of_code": 1074,
+        "cyclomatic_complexity": 85,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "fs",
+        "path",
+        "url",
+        "dotenv"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/app.ts",
+      "metrics": {
+        "complexity": 12,
+        "lines_of_code": 101,
+        "cyclomatic_complexity": 12,
+        "maintainability_index": 66,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "cors",
+        "./routes/auth.routes",
+        "./routes/events.routes",
+        "./routes/locations.routes",
+        "./routes/billing.routes",
+        "./routes/discovery.routes",
+        "./routes/user-location.routes",
+        "./routes/user-profile.routes",
+        "./routes/mock.routes",
+        "./services/payments.container",
+        "./middleware/authGuard",
+        "express",
+        "./middleware/errorHandler",
+        "path",
+        "body-parser"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/index.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 28,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./app",
+        "debug",
+        "dotenv",
+        "path",
+        "url",
+        "./utils/envCheck"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/logger.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 66,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 86,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "winston",
+        "winston-daily-rotate-file",
+        "fs",
+        "path"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/validators.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 1823,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@zodios/core",
+        "zod"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/health.spec.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 14,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "@jest/globals",
+        "../src/app"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/setup.ts",
+      "metrics": {
+        "complexity": 50,
+        "lines_of_code": 399,
+        "cyclomatic_complexity": 50,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "dotenv",
+        "@jest/globals",
+        "path",
+        "fs",
+        "@supabase/supabase-js",
+        "../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/index.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 14,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/index.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 14,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/types.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 56,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/types.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 16,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/types.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 35,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/tests/lemonsqueezy.provider.spec.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 33,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "../src/providers/lemonsqueezy"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/tests/paymentService.spec.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 47,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "../src/app/paymentService",
+        "../src/providers/registry",
+        "../src"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/tests/setup.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 5,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/tests/webhook.express.spec.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 48,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "express",
+        "supertest",
+        "../src/web/express",
+        "../src/providers/registry",
+        "../src",
+        "body-parser"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/components/AvailabilityBadge.test.tsx",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 256,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 92,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "@testing-library/react-native",
+        "../../src/components/joinRequests/AvailabilityBadge",
+        "../../src/hooks/useJoinRequests"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/components/JoinRequestsManager.test.tsx",
+      "metrics": {
+        "complexity": 30,
+        "lines_of_code": 604,
+        "cyclomatic_complexity": 30,
+        "maintainability_index": 35,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/components/joinRequests/JoinRequestsManager",
+        "../../src/hooks/useJoinRequests",
+        "../../src/services/apiClient"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/components/RequestToJoinButton.test.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 430,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/components/joinRequests/RequestToJoinButton",
+        "../../src/hooks/useJoinRequests"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/hooks/useJoinRequests.test.tsx",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 565,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 43,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/hooks/useJoinRequests",
+        "../../src/services/apiClient"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/__tests__/services/apiClient.test.ts",
+      "metrics": {
+        "complexity": 56,
+        "lines_of_code": 527,
+        "cyclomatic_complexity": 56,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../src/services/apiClient",
+        "../../src/services/apiClient"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 3,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/config/supabaseClient.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 15,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/hooks/useJoinRequests.ts",
+      "metrics": {
+        "complexity": 34,
+        "lines_of_code": 305,
+        "cyclomatic_complexity": 34,
+        "maintainability_index": 27,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "../services/apiClient",
+        "react-native"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/hooks/useSubscriptionCheck.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 89,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 76,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "../services/payment.service",
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/services/apiClient.ts",
+      "metrics": {
+        "complexity": 24,
+        "lines_of_code": 279,
+        "cyclomatic_complexity": 24,
+        "maintainability_index": 42,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@/config/supabaseClient",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/services/payment.service.ts",
+      "metrics": {
+        "complexity": 91,
+        "lines_of_code": 603,
+        "cyclomatic_complexity": 91,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "./apiClient",
+        "react-native",
+        "expo-web-browser",
+        "expo-auth-session"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/theme/index.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 273,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/util/button.tsx",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 191,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 89,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/util/utils.tsx",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 50,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react-native"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/utils/authTest.ts",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 91,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/utils/dateUtils.ts",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 271,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 48,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react-native"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/auth.spec.ts",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 153,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/complete-user-journey.spec.ts",
+      "metrics": {
+        "complexity": 37,
+        "lines_of_code": 349,
+        "cyclomatic_complexity": 37,
+        "maintainability_index": 16,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/create-event.spec.ts",
+      "metrics": {
+        "complexity": 27,
+        "lines_of_code": 300,
+        "cyclomatic_complexity": 27,
+        "maintainability_index": 41,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/event-details.spec.ts",
+      "metrics": {
+        "complexity": 83,
+        "lines_of_code": 401,
+        "cyclomatic_complexity": 83,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/event-list.spec.ts",
+      "metrics": {
+        "complexity": 28,
+        "lines_of_code": 216,
+        "cyclomatic_complexity": 28,
+        "maintainability_index": 44,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/plans.spec.ts",
+      "metrics": {
+        "complexity": 38,
+        "lines_of_code": 266,
+        "cyclomatic_complexity": 38,
+        "maintainability_index": 19,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/settings.spec.ts",
+      "metrics": {
+        "complexity": 12,
+        "lines_of_code": 192,
+        "cyclomatic_complexity": 12,
+        "maintainability_index": 76,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/setup-validation.spec.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 47,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/subscription.spec.ts",
+      "metrics": {
+        "complexity": 126,
+        "lines_of_code": 463,
+        "cyclomatic_complexity": 126,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/tests/ui/test-report.spec.ts",
+      "metrics": {
+        "complexity": 19,
+        "lines_of_code": 128,
+        "cyclomatic_complexity": 19,
+        "maintainability_index": 57,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@playwright/test"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/html/assets/index-D_ryMEPs.js",
+      "metrics": {
+        "complexity": 13668,
+        "lines_of_code": 59,
+        "cyclomatic_complexity": 13668,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses innerHTML - potential XSS risk"
+        ],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/config/providers.ts",
+      "metrics": {
+        "complexity": 19,
+        "lines_of_code": 158,
+        "cyclomatic_complexity": 19,
+        "maintainability_index": 62,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/config/supabaseClient.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 46,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 86,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "fs",
+        "path",
+        "dotenv",
+        "dotenv/config"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/auth.controller.ts",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 46,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 90,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../services/auth.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/billing.controller.ts",
+      "metrics": {
+        "complexity": 69,
+        "lines_of_code": 498,
+        "cyclomatic_complexity": 69,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "express",
+        "../config/supabaseClient",
+        "../utils/helper",
+        "../../../../libs/common/src/types.gen",
+        "../services/payments.container"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/events.controller.ts",
+      "metrics": {
+        "complexity": 36,
+        "lines_of_code": 266,
+        "cyclomatic_complexity": 36,
+        "maintainability_index": 18,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../services/events.service",
+        "../services/notifications.service",
+        "../../../../libs/common/src/types.gen",
+        "debug",
+        "../utils/helper",
+        "zod"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/items.controller.ts",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 114,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 85,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../services/items.service",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/location-discovery.controller.ts",
+      "metrics": {
+        "complexity": 42,
+        "lines_of_code": 354,
+        "cyclomatic_complexity": 42,
+        "maintainability_index": 11,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "zod",
+        "../services/location-discovery.service",
+        "../services/notifications.service",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/locations.controller.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 17,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../services/locations.service",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/participants.controller.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 92,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../services/participants.service",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../services/participants.transfer.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/rebalance.controller.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 16,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../services/rebalance.service",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/user-location.controller.ts",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 194,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 54,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "zod",
+        "../services/user-location.service",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/controllers/user-profile.controller.ts",
+      "metrics": {
+        "complexity": 21,
+        "lines_of_code": 183,
+        "cyclomatic_complexity": 21,
+        "maintainability_index": 58,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "zod",
+        "@supabase/supabase-js",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/middleware/authGuard.mock.ts",
+      "metrics": {
+        "complexity": 9,
+        "lines_of_code": 57,
+        "cyclomatic_complexity": 9,
+        "maintainability_index": 77,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../../tests/setup"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/middleware/authGuard.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 37,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/middleware/errorHandler.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 12,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/middleware/logger.middleware.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 11,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/middleware/validateSchema.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 14,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "zod",
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/auth.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 13,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/auth.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/billing.routes.ts",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 50,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/billing.controller",
+        "body-parser",
+        "@payments/core",
+        "../services/payments.container",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/discovery.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 103,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/location-discovery.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/events.routes.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 157,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/validateSchema",
+        "../middleware/logger.middleware",
+        "../validators",
+        "../controllers/events.controller",
+        "../modules/requests",
+        "../modules/requests",
+        "../controllers/rebalance.controller",
+        "./items.routes",
+        "./participants.routes",
+        "../modules/requests"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/items.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 51,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/items.controller",
+        "../middleware/validateSchema",
+        "../validators",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/locations.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 11,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/locations.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/mock.routes.ts",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 360,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses innerHTML - potential XSS risk"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/participants.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 68,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/participants.controller",
+        "../validators",
+        "../middleware/validateSchema",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/user-location.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 53,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-location.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/routes/user-profile.routes.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 29,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-profile.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/auth.service.ts",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 95,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 67,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/events.service.ts",
+      "metrics": {
+        "complexity": 142,
+        "lines_of_code": 1259,
+        "cyclomatic_complexity": 142,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../services/participants.service",
+        "../logger",
+        "./notifications.service",
+        "../utils/helper",
+        "../validators",
+        "../../../../libs/common/src/types.gen",
+        "@supabase/supabase-js"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/items.service.ts",
+      "metrics": {
+        "complexity": 39,
+        "lines_of_code": 256,
+        "cyclomatic_complexity": 39,
+        "maintainability_index": 17,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "../logger",
+        "zod",
+        "../validators",
+        "../utils/helper",
+        "../utils/eventGuards"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/location-discovery.service.ts",
+      "metrics": {
+        "complexity": 29,
+        "lines_of_code": 331,
+        "cyclomatic_complexity": 29,
+        "maintainability_index": 37,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/locations.service.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 17,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../validators",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/notifications.service.ts",
+      "metrics": {
+        "complexity": 35,
+        "lines_of_code": 428,
+        "cyclomatic_complexity": 35,
+        "maintainability_index": 25,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/participants.service.ts",
+      "metrics": {
+        "complexity": 33,
+        "lines_of_code": 375,
+        "cyclomatic_complexity": 33,
+        "maintainability_index": 29,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../utils/mailer"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/participants.transfer.service.ts",
+      "metrics": {
+        "complexity": 9,
+        "lines_of_code": 74,
+        "cyclomatic_complexity": 9,
+        "maintainability_index": 82,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/payments.adapters.ts",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 169,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 62,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@payments/core",
+        "@payments/core",
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/payments.container.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 47,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 86,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@payments/core",
+        "@payments/core",
+        "./payments.adapters"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/push.service.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 46,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../logger",
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/rebalance.service.ts",
+      "metrics": {
+        "complexity": 17,
+        "lines_of_code": 95,
+        "cyclomatic_complexity": 17,
+        "maintainability_index": 66,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/services/user-location.service.ts",
+      "metrics": {
+        "complexity": 33,
+        "lines_of_code": 293,
+        "cyclomatic_complexity": 33,
+        "maintainability_index": 34,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/shared/notifier.ts",
+      "metrics": {
+        "complexity": 45,
+        "lines_of_code": 199,
+        "cyclomatic_complexity": 45,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/types/express.d.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 13,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/types/payments-core.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 30,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/types/zodios-core.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 8,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/utils/envCheck.ts",
+      "metrics": {
+        "complexity": 10,
+        "lines_of_code": 64,
+        "cyclomatic_complexity": 10,
+        "maintainability_index": 75,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/utils/eventGuards.ts",
+      "metrics": {
+        "complexity": 24,
+        "lines_of_code": 130,
+        "cyclomatic_complexity": 24,
+        "maintainability_index": 47,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "./helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/utils/helper.ts",
+      "metrics": {
+        "complexity": 24,
+        "lines_of_code": 143,
+        "cyclomatic_complexity": 24,
+        "maintainability_index": 47,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "express",
+        "../utils/eventGuards"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/utils/mailer.ts",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 43,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 89,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "nodemailer"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/events/create.spec.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 92,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 81,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "supertest",
+        "../helpers/testUtils",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/events/lifecycle.spec.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 124,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "supertest",
+        "../helpers/testUtils",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/events/rls.spec.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 69,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../helpers/testUtils",
+        "supertest",
+        "vitest",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/events/validation.spec.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 24,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../helpers/testUtils",
+        "supertest",
+        "vitest"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/fixtures/factories.ts",
+      "metrics": {
+        "complexity": 13,
+        "lines_of_code": 501,
+        "cyclomatic_complexity": 13,
+        "maintainability_index": 69,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@faker-js/faker",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/fixtures/lemonSqueezyMocks.ts",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 833,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 79,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@faker-js/faker"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/helpers/dbHelpers.ts",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 395,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 43,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../setup",
+        "@faker-js/faker",
+        "../../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/helpers/openApiTestHelper.ts",
+      "metrics": {
+        "complexity": 30,
+        "lines_of_code": 170,
+        "cyclomatic_complexity": 30,
+        "maintainability_index": 35,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "fs",
+        "path",
+        "js-yaml",
+        "openapi-types",
+        "@faker-js/faker",
+        "openapi-sampler"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/helpers/testApp.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 39,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 92,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "cors",
+        "../../src/app"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/helpers/testUtils.ts",
+      "metrics": {
+        "complexity": 10,
+        "lines_of_code": 78,
+        "cyclomatic_complexity": 10,
+        "maintainability_index": 80,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "dotenv",
+        "path",
+        "fs",
+        "vitest",
+        "../../src/app",
+        "@supabase/supabase-js",
+        "../../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/auth-smoke.spec.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 31,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "@jest/globals",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/auth.spec.ts",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 371,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 85,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "@jest/globals"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/billing-comprehensive.spec.ts",
+      "metrics": {
+        "complexity": 16,
+        "lines_of_code": 1122,
+        "cyclomatic_complexity": 16,
+        "maintainability_index": 58,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "../fixtures/lemonSqueezyMocks",
+        "crypto",
+        "@jest/globals"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/billing.spec.ts",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 378,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "@jest/globals"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/events.spec.ts",
+      "metrics": {
+        "complexity": 12,
+        "lines_of_code": 596,
+        "cyclomatic_complexity": 12,
+        "maintainability_index": 71,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@jest/globals",
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "../../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/location-discovery.spec.ts",
+      "metrics": {
+        "complexity": 13,
+        "lines_of_code": 520,
+        "cyclomatic_complexity": 13,
+        "maintainability_index": 64,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@jest/globals",
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/payments.e2e.spec.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 22,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "../../src/app",
+        "../setup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/requests-advanced.spec.ts",
+      "metrics": {
+        "complexity": 12,
+        "lines_of_code": 513,
+        "cyclomatic_complexity": 12,
+        "maintainability_index": 71,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "@jest/globals",
+        "supertest",
+        "../../src/config/supabaseClient",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/requests.spec.ts",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 332,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 81,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@jest/globals",
+        "supertest",
+        "../../src/config/supabaseClient",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/integration/user-event-workflow-demo.spec.ts",
+      "metrics": {
+        "complexity": 13,
+        "lines_of_code": 332,
+        "cyclomatic_complexity": 13,
+        "maintainability_index": 64,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "supertest",
+        "@jest/globals",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/access-control-demo.spec.ts",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 254,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 74,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/app/paymentService.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 13,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../core/container",
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/app/paymentService.js",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 21,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/core/container.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 17,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../ports/provider",
+        "../ports/persistence",
+        "../ports/events",
+        "../ports/logger",
+        "../ports/metrics",
+        "../ports/config"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/core/container.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/config.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 12,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/config.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/events.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 4,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/events.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/logger.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 6,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/logger.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/metrics.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 5,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/metrics.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/persistence.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 17,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/persistence.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/provider.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 18,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./config",
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/ports/provider.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/index.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/index.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 6,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./registry",
+        "./lemonsqueezy"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/registry.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 5,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../ports/provider"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/registry.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 13,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/web/dev.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 12,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../core/container"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/web/dev.js",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 72,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "crypto"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/web/express.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 4,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../core/container"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/web/express.js",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 112,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 48,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "crypto"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/html/assets/index-D_ryMEPs.js",
+      "metrics": {
+        "complexity": 13668,
+        "lines_of_code": 59,
+        "cyclomatic_complexity": 13668,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses innerHTML - potential XSS risk"
+        ],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/app/paymentService.ts",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 26,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../core/container",
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/core/container.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 20,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../ports/provider",
+        "../ports/persistence",
+        "../ports/events",
+        "../ports/logger",
+        "../ports/metrics",
+        "../ports/config"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/config.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 15,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/events.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 6,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/logger.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 8,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/metrics.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 7,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/persistence.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 22,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/ports/provider.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 17,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./config",
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/providers/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 10,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./registry",
+        "./lemonsqueezy"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/providers/registry.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 20,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../ports/provider"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/web/dev.ts",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 86,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "express",
+        "crypto",
+        "../core/container",
+        "../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/web/express.ts",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 121,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 43,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../core/container",
+        "crypto"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/forms/FoodOption.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 70,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/forms/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 3,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/forms/Stepper.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 104,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/theme",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/joinRequests/AvailabilityBadge.tsx",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 135,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 84,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/joinRequests/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 5,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/joinRequests/JoinRequestsManager.tsx",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 475,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests",
+        "../../services/apiClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/joinRequests/RequestToJoinButton.tsx",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 255,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 85,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/payment/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 8,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/payment/InvoiceCard.tsx",
+      "metrics": {
+        "complexity": 11,
+        "lines_of_code": 140,
+        "cyclomatic_complexity": 11,
+        "maintainability_index": 73,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "./PaymentStatusBadge",
+        "../../services/payment.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/payment/PaymentReturnHandler.tsx",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 22,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 89,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "../../services/payment.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/payment/PaymentStatusBadge.tsx",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 116,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 84,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@expo/vector-icons"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/payment/PlanCard.tsx",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 260,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 90,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../ui/Button",
+        "./PaymentStatusBadge",
+        "../../services/payment.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Badge.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 48,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@/theme",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Button.tsx",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 175,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 79,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Card.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 57,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Chip.tsx",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 95,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 8,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Input.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 103,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Label.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 31,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/components/ui/Segmented.tsx",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 73,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 93,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/AboutScreen.tsx",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 213,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/AuthForm.tsx",
+      "metrics": {
+        "complexity": 17,
+        "lines_of_code": 336,
+        "cyclomatic_complexity": 17,
+        "maintainability_index": 66,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/CreateEvent.tsx",
+      "metrics": {
+        "complexity": 54,
+        "lines_of_code": 841,
+        "cyclomatic_complexity": 54,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-paper-dates",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "./Participants",
+        "@/services/apiClient",
+        "@/components",
+        "@/utils/dateUtils",
+        "@/theme",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/EventDetailsPage.tsx",
+      "metrics": {
+        "complexity": 103,
+        "lines_of_code": 1830,
+        "cyclomatic_complexity": 103,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/components",
+        "./Participants",
+        "../../components/joinRequests",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/EventList.tsx",
+      "metrics": {
+        "complexity": 80,
+        "lines_of_code": 1311,
+        "cyclomatic_complexity": 80,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "./EventDetailsPage",
+        "./CreateEvent",
+        "./PlansScreen",
+        "./SettingsScreen",
+        "./NotificationsScreen",
+        "./UserPreferencesScreen",
+        "./SubscriptionScreen",
+        "./AboutScreen",
+        "./PrivacyScreen",
+        "./HelpScreen",
+        "@/services/apiClient",
+        "@/components",
+        "@/utils/dateUtils",
+        "@/theme",
+        "expo-notifications",
+        "@common/types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/HelpScreen.tsx",
+      "metrics": {
+        "complexity": 6,
+        "lines_of_code": 289,
+        "cyclomatic_complexity": 6,
+        "maintainability_index": 83,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/LoginScreen.tsx",
+      "metrics": {
+        "complexity": 15,
+        "lines_of_code": 401,
+        "cyclomatic_complexity": 15,
+        "maintainability_index": 70,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "expo-status-bar",
+        "expo-linear-gradient",
+        "expo-blur",
+        "react-native-safe-area-context",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "@supabase/supabase-js",
+        "./EventList",
+        "./SignupScreen"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/NotificationsScreen.tsx",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 172,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 79,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/services/apiClient",
+        "./EventDetailsPage",
+        "@/config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/Participants.tsx",
+      "metrics": {
+        "complexity": 16,
+        "lines_of_code": 662,
+        "cyclomatic_complexity": 16,
+        "maintainability_index": 58,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/PlansScreen.tsx",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 445,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 69,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/payment.service",
+        "../../components/payment"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/PrivacyScreen.tsx",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 218,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 90,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/ProfileSetupScreen.tsx",
+      "metrics": {
+        "complexity": 45,
+        "lines_of_code": 826,
+        "cyclomatic_complexity": 45,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "expo-location"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/SettingsScreen.tsx",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 403,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 76,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "@supabase/supabase-js"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/SignupScreen.tsx",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 224,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 81,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "expo-blur",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/SubscriptionScreen.tsx",
+      "metrics": {
+        "complexity": 26,
+        "lines_of_code": 563,
+        "cyclomatic_complexity": 26,
+        "maintainability_index": 38,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../services/payment.service",
+        "../../components/payment",
+        "expo-web-browser"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/SupabaseAuthScreen.tsx",
+      "metrics": {
+        "complexity": 21,
+        "lines_of_code": 265,
+        "cyclomatic_complexity": 21,
+        "maintainability_index": 58,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "../../config/supabaseClient",
+        "@supabase/supabase-js",
+        "./EventList"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/SupabaseAuthUI.tsx",
+      "metrics": {
+        "complexity": 84,
+        "lines_of_code": 661,
+        "cyclomatic_complexity": 84,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "@supabase/supabase-js",
+        "./EventList",
+        "./ProfileSetupScreen",
+        "./SubscriptionScreen",
+        "../../hooks/useSubscriptionCheck"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx",
+      "metrics": {
+        "complexity": 46,
+        "lines_of_code": 497,
+        "cyclomatic_complexity": 46,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup",
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/services/apiClient",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Debug/AuthDebugScreen.tsx",
+      "metrics": {
+        "complexity": 9,
+        "lines_of_code": 215,
+        "cyclomatic_complexity": 9,
+        "maintainability_index": 77,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "../../components/ui/Button",
+        "../../utils/authTest",
+        "../../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/mobile/src/screens/Debug/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/index.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 11,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.controller.ts",
+      "metrics": {
+        "complexity": 28,
+        "lines_of_code": 310,
+        "cyclomatic_complexity": 28,
+        "maintainability_index": 44,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../../middleware/authGuard",
+        "./requests.service",
+        "../../utils/helper",
+        "./requests.schema",
+        "../../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.repo.ts",
+      "metrics": {
+        "complexity": 34,
+        "lines_of_code": 337,
+        "cyclomatic_complexity": 34,
+        "maintainability_index": 27,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../../config/supabaseClient",
+        "../../utils/helper",
+        "../../logger",
+        "./requests.types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.routes.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 142,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../../middleware/authGuard",
+        "../../middleware/logger.middleware",
+        "./requests.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.schema.ts",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 88,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "zod"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.service.ts",
+      "metrics": {
+        "complexity": 48,
+        "lines_of_code": 400,
+        "cyclomatic_complexity": 48,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Uses \"any\" type (consider proper typing)",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../utils/helper",
+        "./requests.repo",
+        "../../logger",
+        "../../services/notifications.service",
+        "./requests.types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/src/modules/requests/requests.types.ts",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 54,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/controllers/billing.controller.spec.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 626,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../../../src/controllers/billing.controller",
+        "../../../src/services/provider.factory",
+        "../../../src/config/supabaseClient",
+        "../../fixtures/lemonSqueezyMocks",
+        "../../fixtures/factories"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/db/functions.spec.ts",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 536,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 92,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@jest/globals",
+        "../../../src/config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/services/events-enhanced.spec.ts",
+      "metrics": {
+        "complexity": 32,
+        "lines_of_code": 359,
+        "cyclomatic_complexity": 32,
+        "maintainability_index": 31,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@jest/globals",
+        "../../../src/services/events.service"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/services/events.service.spec.ts",
+      "metrics": {
+        "complexity": 21,
+        "lines_of_code": 610,
+        "cyclomatic_complexity": 21,
+        "maintainability_index": 53,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../../src/services/events.service",
+        "../../fixtures/factories",
+        "../../setup",
+        "../../../src/services/events.service",
+        "../../../src/config/supabaseClient",
+        "@supabase/supabase-js"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/services/payment-providers.service.spec.ts",
+      "metrics": {
+        "complexity": 21,
+        "lines_of_code": 529,
+        "cyclomatic_complexity": 21,
+        "maintainability_index": 53,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../../src/services/payment-providers.service",
+        "../../fixtures/lemonSqueezyMocks",
+        "@jest/globals"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/services/provider.factory.spec.ts",
+      "metrics": {
+        "complexity": 21,
+        "lines_of_code": 348,
+        "cyclomatic_complexity": 21,
+        "maintainability_index": 53,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../../src/services/provider.factory",
+        "../../../src/services/payment-providers.service",
+        "../../fixtures/lemonSqueezyMocks"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/shared/notifier.spec.ts",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 318,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 49,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [
+        "@jest/globals",
+        "../../../src/shared/notifier"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/utils/helper.spec.ts",
+      "metrics": {
+        "complexity": 8,
+        "lines_of_code": 438,
+        "cyclomatic_complexity": 8,
+        "maintainability_index": 79,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../../src/utils/helper",
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": false
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/lemonsqueezy/index.d.ts",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 3,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../ports/provider"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/dist/providers/lemonsqueezy/index.js",
+      "metrics": {
+        "complexity": 28,
+        "lines_of_code": 205,
+        "cyclomatic_complexity": 28,
+        "maintainability_index": 44,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "crypto"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/packages/payments/src/providers/lemonsqueezy/index.ts",
+      "metrics": {
+        "complexity": 28,
+        "lines_of_code": 217,
+        "cyclomatic_complexity": 28,
+        "maintainability_index": 39,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "crypto",
+        "../../ports/provider",
+        "../../ports/config",
+        "../../types"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/app.js",
+      "metrics": {
+        "complexity": 10,
+        "lines_of_code": 78,
+        "cyclomatic_complexity": 10,
+        "maintainability_index": 75,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "cors",
+        "./routes/auth.routes",
+        "./routes/events.routes",
+        "./routes/locations.routes",
+        "./routes/billing.routes",
+        "./routes/discovery.routes",
+        "./routes/user-location.routes",
+        "./routes/mock.routes",
+        "./services/payments.container",
+        "./middleware/authGuard",
+        "@payments/core",
+        "./middleware/errorHandler",
+        "path",
+        "body-parser"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/index.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 22,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./app",
+        "debug",
+        "dotenv",
+        "path",
+        "url",
+        "./utils/envCheck"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/logger.js",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 51,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 86,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "winston",
+        "winston-daily-rotate-file",
+        "fs",
+        "path"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/validators.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 1348,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@zodios/core",
+        "zod",
+        "@payments/core"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/tests/setup.js",
+      "metrics": {
+        "complexity": 50,
+        "lines_of_code": 352,
+        "cyclomatic_complexity": 50,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "dotenv",
+        "@jest/globals",
+        "path",
+        "fs",
+        "@supabase/supabase-js",
+        "../src/logger"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/libs/common/src/types.gen.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 6,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/modules/requests/requests.controller.spec.ts",
+      "metrics": {
+        "complexity": 38,
+        "lines_of_code": 588,
+        "cyclomatic_complexity": 38,
+        "maintainability_index": 19,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "express",
+        "../../../../src/modules/requests/requests.controller",
+        "../../../../src/modules/requests/requests.service",
+        "../../../../src/middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/modules/requests/requests.repo.spec.ts",
+      "metrics": {
+        "complexity": 45,
+        "lines_of_code": 599,
+        "cyclomatic_complexity": 45,
+        "maintainability_index": 5,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "../../../../src/modules/requests/requests.repo",
+        "../../../../src/modules/requests/requests.types"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/modules/requests/requests.schema.spec.ts",
+      "metrics": {
+        "complexity": 20,
+        "lines_of_code": 450,
+        "cyclomatic_complexity": 20,
+        "maintainability_index": 60,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "../../../../src/modules/requests/requests.schema"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/tests/unit/modules/requests/requests.service.spec.ts",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 600,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 49,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "vitest",
+        "../../../../src/modules/requests/requests.service",
+        "../../../../src/modules/requests/requests.repo",
+        "../../../../src/modules/requests/requests.types"
+      ],
+      "dependents": [],
+      "test_coverage": true,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/config/providers.js",
+      "metrics": {
+        "complexity": 19,
+        "lines_of_code": 135,
+        "cyclomatic_complexity": 19,
+        "maintainability_index": 62,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/config/supabaseClient.js",
+      "metrics": {
+        "complexity": 7,
+        "lines_of_code": 34,
+        "cyclomatic_complexity": 7,
+        "maintainability_index": 86,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@supabase/supabase-js",
+        "fs",
+        "path",
+        "dotenv",
+        "dotenv/config"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/auth.controller.js",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 33,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 90,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../services/auth.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/billing.controller.js",
+      "metrics": {
+        "complexity": 69,
+        "lines_of_code": 493,
+        "cyclomatic_complexity": 69,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../utils/helper",
+        "../services/payments.container"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/events.controller.js",
+      "metrics": {
+        "complexity": 34,
+        "lines_of_code": 191,
+        "cyclomatic_complexity": 34,
+        "maintainability_index": 27,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../services/events.service",
+        "../services/notifications.service",
+        "debug",
+        "../utils/helper",
+        "zod"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/items.controller.js",
+      "metrics": {
+        "complexity": 5,
+        "lines_of_code": 72,
+        "cyclomatic_complexity": 5,
+        "maintainability_index": 90,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../services/items.service",
+        "../utils/helper",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/location-discovery.controller.js",
+      "metrics": {
+        "complexity": 42,
+        "lines_of_code": 307,
+        "cyclomatic_complexity": 42,
+        "maintainability_index": 16,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "zod",
+        "../services/location-discovery.service",
+        "../services/notifications.service",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/locations.controller.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 10,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../services/locations.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/participants.controller.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 46,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../services/participants.service",
+        "../utils/helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/controllers/user-location.controller.js",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 150,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 54,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "zod",
+        "../services/user-location.service",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/middleware/authGuard.js",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 20,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 87,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/middleware/authGuard.mock.js",
+      "metrics": {
+        "complexity": 9,
+        "lines_of_code": 39,
+        "cyclomatic_complexity": 9,
+        "maintainability_index": 77,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../../tests/setup"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/middleware/errorHandler.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 5,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/middleware/logger.middleware.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 10,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/middleware/validateSchema.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 9,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/auth.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 10,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/auth.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/billing.routes.js",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 40,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 94,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/billing.controller",
+        "body-parser",
+        "@payments/core",
+        "../services/payments.container",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/discovery.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 34,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/location-discovery.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/events.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 55,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/validateSchema",
+        "../middleware/logger.middleware",
+        "../validators",
+        "../controllers/events.controller",
+        "../modules/requests",
+        "./items.routes",
+        "./participants.routes",
+        "../modules/requests"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/items.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 33,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/items.controller",
+        "../middleware/validateSchema",
+        "../validators",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/locations.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 8,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/locations.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/mock.routes.js",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 351,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [
+          "Uses innerHTML - potential XSS risk"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/participants.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 22,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../controllers/participants.controller",
+        "../validators",
+        "../middleware/validateSchema",
+        "../middleware/authGuard"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/routes/user-location.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 20,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-location.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/auth.service.js",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 65,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 72,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/events.service.js",
+      "metrics": {
+        "complexity": 137,
+        "lines_of_code": 969,
+        "cyclomatic_complexity": 137,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "./notifications.service",
+        "../utils/helper",
+        "../validators",
+        "@supabase/supabase-js"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/items.service.js",
+      "metrics": {
+        "complexity": 34,
+        "lines_of_code": 197,
+        "cyclomatic_complexity": 34,
+        "maintainability_index": 32,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger",
+        "../validators",
+        "../utils/helper",
+        "../utils/eventGuards"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/location-discovery.service.js",
+      "metrics": {
+        "complexity": 29,
+        "lines_of_code": 222,
+        "cyclomatic_complexity": 29,
+        "maintainability_index": 42,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/locations.service.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 14,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 96,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../validators"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/notifications.service.js",
+      "metrics": {
+        "complexity": 33,
+        "lines_of_code": 306,
+        "cyclomatic_complexity": 33,
+        "maintainability_index": 34,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/participants.service.js",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 252,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 49,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../utils/mailer"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/payments.adapters.js",
+      "metrics": {
+        "complexity": 14,
+        "lines_of_code": 159,
+        "cyclomatic_complexity": 14,
+        "maintainability_index": 67,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/payments.container.js",
+      "metrics": {
+        "complexity": 2,
+        "lines_of_code": 40,
+        "cyclomatic_complexity": 2,
+        "maintainability_index": 91,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "@payments/core",
+        "./payments.adapters"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/push.service.js",
+      "metrics": {
+        "complexity": 4,
+        "lines_of_code": 32,
+        "cyclomatic_complexity": 4,
+        "maintainability_index": 92,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../logger",
+        "../config/supabaseClient"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/services/user-location.service.js",
+      "metrics": {
+        "complexity": 33,
+        "lines_of_code": 221,
+        "cyclomatic_complexity": 33,
+        "maintainability_index": 34,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/shared/notifier.js",
+      "metrics": {
+        "complexity": 44,
+        "lines_of_code": 134,
+        "cyclomatic_complexity": 44,
+        "maintainability_index": 2,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [],
+        "performance_issues": [
+          "Uses timers - consider cleanup"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/utils/envCheck.js",
+      "metrics": {
+        "complexity": 10,
+        "lines_of_code": 58,
+        "cyclomatic_complexity": 10,
+        "maintainability_index": 75,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/utils/eventGuards.js",
+      "metrics": {
+        "complexity": 24,
+        "lines_of_code": 109,
+        "cyclomatic_complexity": 24,
+        "maintainability_index": 47,
+        "technical_debt": [
+          "Uses \"any\" type (consider proper typing)"
+        ],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "../config/supabaseClient",
+        "./helper"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/utils/helper.js",
+      "metrics": {
+        "complexity": 23,
+        "lines_of_code": 105,
+        "cyclomatic_complexity": 23,
+        "maintainability_index": 54,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/utils/mailer.js",
+      "metrics": {
+        "complexity": 3,
+        "lines_of_code": 31,
+        "cyclomatic_complexity": 3,
+        "maintainability_index": 89,
+        "technical_debt": [
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "nodemailer"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/index.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 10,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.controller.js",
+      "metrics": {
+        "complexity": 28,
+        "lines_of_code": 237,
+        "cyclomatic_complexity": 28,
+        "maintainability_index": 44,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./requests.service",
+        "../../utils/helper",
+        "./requests.schema"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.repo.js",
+      "metrics": {
+        "complexity": 34,
+        "lines_of_code": 289,
+        "cyclomatic_complexity": 34,
+        "maintainability_index": 32,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": [
+          "Multiple map operations - consider combining"
+        ]
+      },
+      "dependencies": [
+        "../../config/supabaseClient",
+        "../../utils/helper",
+        "../../logger"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 55,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "express",
+        "../../middleware/authGuard",
+        "../../middleware/logger.middleware",
+        "./requests.controller"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.schema.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 63,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "zod"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.service.js",
+      "metrics": {
+        "complexity": 46,
+        "lines_of_code": 280,
+        "cyclomatic_complexity": 46,
+        "maintainability_index": 0,
+        "technical_debt": [
+          "Contains TODO/FIXME comments",
+          "Contains console.log statements (consider proper logging)"
+        ],
+        "security_concerns": [
+          "Uses process.env in client code - potential security leak"
+        ],
+        "performance_issues": []
+      },
+      "dependencies": [
+        "./requests.repo",
+        "../../logger",
+        "../../services/notifications.service"
+      ],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    },
+    {
+      "path": "C:/Projects/Potluck/apps/server/dist/apps/server/src/modules/requests/requests.types.js",
+      "metrics": {
+        "complexity": 1,
+        "lines_of_code": 2,
+        "cyclomatic_complexity": 1,
+        "maintainability_index": 98,
+        "technical_debt": [],
+        "security_concerns": [],
+        "performance_issues": []
+      },
+      "dependencies": [],
+      "dependents": [],
+      "test_coverage": false,
+      "documentation_coverage": true
+    }
+  ]
+}

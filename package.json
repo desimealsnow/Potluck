@@ -6,7 +6,10 @@
     "packages/*"
   ],
   "scripts": {
-    "publish:payments:npm": "npm publish -w packages/payments --access restricted",
+    "prebuild": "npm run build -w packages/payments",
+    "build": "npm run build --workspaces",
+    "publish:payments:npm": "npm publish -w packages/payments --access public",
+    "publish:payments:generic": "cd packages/payments && npm pkg set name=payment-core && npm publish --access public && npm pkg set name=@payments/core",
     "version:payments:patch": "npm version patch -w packages/payments",
     "version:payments:minor": "npm version minor -w packages/payments",
     "version:payments:major": "npm version major -w packages/payments",
@@ -20,7 +23,22 @@
     "test:debug": "npm run test:debug -w apps/server --",
     "test:coverage": "npm run test:coverage -w apps/server",
     "lint": "npm run lint --workspaces",
-    "typecheck": "npm run typecheck --workspaces"
+    "typecheck": "npm run typecheck --workspaces",
+    "docs:consolidate": "node docs/scripts/consolidate-docs.mjs",
+    "docs:index": "node docs/scripts/generate-doc-index.mjs",
+    "docs:update": "npm run docs:consolidate && npm run docs:index",
+    "docs:view": "echo '📚 Documentation Index:' && type docs\\documentation-index.md",
+    "catalog:generate": "ts-node --project tools/tsconfig.json tools/repo-catalog.ts",
+    "catalog:view": "echo '📊 Repo Catalog:' && type .agent\\README.md",
+    "code:analyze": "ts-node --project tools/tsconfig.json tools/code-analysis.ts",
+    "api:docs": "ts-node --project tools/tsconfig.json tools/api-doc-generator.ts",
+    "agent:monitor": "ts-node --project tools/tsconfig.json tools/agent-monitor.ts",
+    "context:validate": "ts-node --project tools/tsconfig.json tools/context-validator.ts",
+    "agent:update": "npm run docs:update && npm run catalog:generate && npm run code:analyze && npm run api:docs",
+    "agent:view": "npm run docs:view && echo. && npm run catalog:view",
+    "agent:full": "npm run agent:update && npm run agent:monitor && npm run context:validate && npm run agent:view",
+    "agent:setup": "node scripts/setup-background-agent.mjs",
+    "agent:ready": "npm run agent:setup && npm run agent:full"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -30,19 +48,21 @@
     "@vitest/ui": "^3.2.4",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "fast-glob": "^3.3.3",
     "jest": "^30.0.4",
     "npm-run-all": "^4.1.5",
     "supertest": "^7.1.1",
     "ts-jest": "^29.4.0",
+    "ts-morph": "^27.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "expo-location": "~18.1.6",
+    "expo-notifications": "~0.31.4",
     "js-yaml": "^4.1.0",
     "openapi-sampler": "^1.6.1",
-    "openapi-types": "^12.1.3",
-    "expo-location": "~18.1.6",
-    "expo-notifications": "~0.31.4"
+    "openapi-types": "^12.1.3"
   }
 }

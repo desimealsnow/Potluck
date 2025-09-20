@@ -1,0 +1,47 @@
+{
+  "project_overview": {
+    "name": "Potluck - Event Management Platform",
+    "type": "Cross-platform mobile app + Node.js API",
+    "tech_stack": [
+      "React Native (Expo)",
+      "Node.js",
+      "PostgreSQL (Supabase)",
+      "TypeScript"
+    ],
+    "main_features": [
+      "Event management with capacity control",
+      "User profiles with location and preferences",
+      "Real-time notifications",
+      "Location-based discovery",
+      "Payment and subscription management"
+    ]
+  },
+  "documentation_stats": {
+    "total_files": 33,
+    "total_size_kb": 277,
+    "categories": 5
+  },
+  "quick_access": {
+    "most_important": [
+      "README.md - Project overview",
+      "docs/architecture.md - System design",
+      "docs/api-spec.yaml - API reference",
+      "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md - Database schema",
+      "apps/server/TESTING_README.md - Testing guide"
+    ],
+    "feature_docs": [
+      "Comprehensive Billing & Payment Testing\r (docs/features/TEST_BILLING_README.md)",
+      "Integrated Location-Based Event Search\r (docs/features/INTEGRATED_LOCATION_SEARCH_README.md)",
+      "LemonSqueezy Configuration\r (docs/features/LEMONSQUEEZY_CONFIG.md)",
+      "Location-Based Event Discovery System\r (docs/features/LOCATION_DISCOVERY_README.md)",
+      "Notifications: Data model, APIs, mobile UX\r (docs/features/NOTIFICATIONS.md)"
+    ]
+  },
+  "ai_agent_tips": [
+    "Start with docs/agent-knowledge-base.md for overview",
+    "Use db/schema.json for database queries (agent-friendly format)",
+    "Check docs/api-spec.yaml for API endpoints",
+    "Look in apps/server/tests/ for usage examples",
+    "Reference individual READMEs for feature-specific details"
+  ]
+}

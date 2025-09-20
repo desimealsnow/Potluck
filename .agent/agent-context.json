@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-09-20T03:49:13.607Z",
+  "project_state": {
+    "total_files": 381,
+    "total_routes": 282,
+    "total_tests": 192,
+    "last_code_change": "2025-09-20T03:49:13.607Z",
+    "catalog_freshness": "current"
+  },
+  "agent_guidelines": {
+    "max_context_files": 10,
+    "priority_files": [
+      "docs/AGENT_ENTRY_POINT.md",
+      "docs/agent-knowledge-base.md",
+      "db/schema.json",
+      "docs/api-spec.yaml",
+      ".agent/repo.catalog.json"
+    ],
+    "task_patterns": {
+      "database_work": ["db/schema.json", "docs/core/rls-policies.md"],
+      "api_development": ["docs/api-spec.yaml", ".agent/routes.index.json"],
+      "code_navigation": [".agent/repo.catalog.json", ".agent/deps.graph.mmd"],
+      "testing": [".agent/tests.index.json", "docs/features/TESTING_README.md"]
+    }
+  },
+  "common_queries": {
+    "find_route_implementation": "Use .agent/routes.index.json to map routes to controllers",
+    "find_database_tables": "Use db/schema.json for table relationships and functions",
+    "find_test_coverage": "Use .agent/tests.index.json to see which tests cover what",
+    "understand_dependencies": "Use .agent/deps.graph.mmd for module relationships"
+  }
+}

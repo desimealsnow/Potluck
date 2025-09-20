@@ -1,0 +1,5999 @@
+{
+  "generated_at": "2025-09-20T04:01:38.830Z",
+  "roots": [
+    "apps/server/src",
+    "apps/mobile/src",
+    "packages/payments/src"
+  ],
+  "files": [
+    {
+      "path": "apps/mobile/__tests__/setup.ts",
+      "kind": "ts",
+      "lines": 129,
+      "exports": [],
+      "imports": [
+        "react-native-gesture-handler/jestSetup"
+      ],
+      "env": [
+        "TEST_VERBOSE"
+      ],
+      "hash": "sha256:3f48c655ab964ffc05929458fbc807eba61eb2b79420bdad7269b77de84ae58d"
+    },
+    {
+      "path": "apps/mobile/__tests__/testUtils.ts",
+      "kind": "ts",
+      "lines": 363,
+      "exports": [
+        "TestDataFactory",
+        "TestHelpers",
+        "JoinRequestAssertions",
+        "MockScenarios"
+      ],
+      "imports": [
+        "../src/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:619273fff04f6ea5aec02abff7e9637f2975d4d745a244d67b2f6d2a16f47dd4"
+    },
+    {
+      "path": "apps/server/src/app.ts",
+      "kind": "ts",
+      "lines": 101,
+      "exports": [
+        "createApp"
+      ],
+      "imports": [
+        "express",
+        "cors",
+        "./routes/auth.routes",
+        "./routes/events.routes",
+        "./routes/locations.routes",
+        "./routes/billing.routes",
+        "./routes/discovery.routes",
+        "./routes/user-location.routes",
+        "./routes/user-profile.routes",
+        "./routes/mock.routes",
+        "./services/payments.container",
+        "./middleware/authGuard",
+        "express",
+        "./middleware/errorHandler",
+        "path",
+        "body-parser"
+      ],
+      "env": [
+        "NODE_ENV"
+      ],
+      "hash": "sha256:765723d25471d93a83f53fc4400d24e776b646e3a0391f7ef9e35889a0440990"
+    },
+    {
+      "path": "apps/server/src/index.ts",
+      "kind": "ts",
+      "lines": 28,
+      "exports": [],
+      "imports": [
+        "./app",
+        "debug",
+        "dotenv",
+        "path",
+        "url",
+        "./utils/envCheck"
+      ],
+      "env": [
+        "NODE_ENV",
+        "PORT"
+      ],
+      "hash": "sha256:131c5518130bd025ac6c8918e95c0652215f8ddb605f5b8a8010bdea25d141df"
+    },
+    {
+      "path": "apps/server/src/logger.ts",
+      "kind": "ts",
+      "lines": 66,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "winston",
+        "winston-daily-rotate-file",
+        "fs",
+        "path"
+      ],
+      "env": [
+        "NODE_ENV",
+        "VITEST",
+        "JEST_WORKER_ID",
+        "QUIET_TESTS",
+        "LOG_LEVEL"
+      ],
+      "hash": "sha256:d18c9a077013440374965024e49f4974590d4cd0cdb27f03e54bd98dfeca8f5e"
+    },
+    {
+      "path": "apps/server/src/validators.ts",
+      "kind": "ts",
+      "lines": 1823,
+      "exports": [
+        "createApiClient",
+        "schemas",
+        "api"
+      ],
+      "imports": [
+        "@zodios/core",
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:0202592d4e0a421085cd5ba6702dbedaff5606c44643dbc8efad451d073f8cbc"
+    },
+    {
+      "path": "apps/server/tests/health.spec.ts",
+      "kind": "ts",
+      "lines": 14,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "@jest/globals",
+        "../src/app"
+      ],
+      "env": [],
+      "hash": "sha256:e11ebb5ff8b0b56ad5d876cd49816a01f8f8c66aba367c3665572766ea734909"
+    },
+    {
+      "path": "apps/server/tests/setup.ts",
+      "kind": "ts",
+      "lines": 399,
+      "exports": [
+        "getAuthToken",
+        "testSupabase",
+        "TEST_USERS",
+        "TestDbHelper",
+        "default"
+      ],
+      "imports": [
+        "dotenv",
+        "@jest/globals",
+        "path",
+        "fs",
+        "@supabase/supabase-js",
+        "../src/logger"
+      ],
+      "env": [
+        "TEST_SUPABASE_URL",
+        "TEST_SUPABASE_SERVICE_ROLE_KEY",
+        "TEST_SUPABASE_ANON_KEY",
+        "NODE_ENV",
+        "MOCK_DATABASE",
+        "FAST_TESTS"
+      ],
+      "hash": "sha256:b6edd5c359119337d79bc1f30b67e82ac6d5c979474f7ad57dff3089207cee18"
+    },
+    {
+      "path": "packages/payments/src/index.ts",
+      "kind": "ts",
+      "lines": 16,
+      "exports": [
+        "Logger",
+        "Metrics",
+        "ProviderConfig",
+        "ProviderConfigStore",
+        "BillingPersistencePort",
+        "IdempotencyStore",
+        "WebhookInbox",
+        "PaymentProvider",
+        "ProviderRegistry",
+        "DomainEventPublisherPort",
+        "PaymentContainer",
+        "registerProvider",
+        "getProviderNames",
+        "providerRegistry",
+        "lemonSqueezyProvider",
+        "createWebhookHandler",
+        "createDevPaymentsRoutes",
+        "DevRoutesOptions",
+        "PaymentService",
+        "SubscriptionStatus",
+        "Plan",
+        "Price",
+        "Subscription",
+        "Invoice",
+        "Refund",
+        "CheckoutData",
+        "BillingEvent"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:9f81bc01a308752f537cce6e7148646b935843b7dd20feb074f68500cd3800b7"
+    },
+    {
+      "path": "packages/payments/src/types.ts",
+      "kind": "ts",
+      "lines": 35,
+      "exports": [
+        "SubscriptionStatus",
+        "Plan",
+        "Price",
+        "Subscription",
+        "Invoice",
+        "Refund",
+        "CheckoutData",
+        "BillingEvent"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:15b8250030816ca7719e1ef58bb4b54bcd41f5b8507e85d53a0c439f4e5e5feb"
+    },
+    {
+      "path": "packages/payments/tests/lemonsqueezy.provider.spec.ts",
+      "kind": "ts",
+      "lines": 33,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../src/providers/lemonsqueezy"
+      ],
+      "env": [],
+      "hash": "sha256:b651439a6f53975d17943b0c07974dd58163d020ebe02585f80d9986eb611d5f"
+    },
+    {
+      "path": "packages/payments/tests/paymentService.spec.ts",
+      "kind": "ts",
+      "lines": 47,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../src/app/paymentService",
+        "../src/providers/registry",
+        "../src"
+      ],
+      "env": [],
+      "hash": "sha256:90c89d69604883d08bcda845c0006a6391a062c4d3b3d82930e0280e1fb62ea8"
+    },
+    {
+      "path": "packages/payments/tests/setup.ts",
+      "kind": "ts",
+      "lines": 5,
+      "exports": [],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:433c3f6930f7d4ae27d60e16df3d36ef58dd887efc9b3f9db76f3d1d2d56d1f1"
+    },
+    {
+      "path": "packages/payments/tests/webhook.express.spec.ts",
+      "kind": "ts",
+      "lines": 48,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "express",
+        "supertest",
+        "../src/web/express",
+        "../src/providers/registry",
+        "../src",
+        "body-parser"
+      ],
+      "env": [],
+      "hash": "sha256:9cbb2049eeea54925b05e5d918abd6657cfd5013f30dbe3f30a69dad04d18ff3"
+    },
+    {
+      "path": "apps/mobile/__tests__/components/AvailabilityBadge.test.tsx",
+      "kind": "tsx",
+      "lines": 256,
+      "exports": [],
+      "imports": [
+        "react",
+        "@testing-library/react-native",
+        "../../src/components/joinRequests/AvailabilityBadge",
+        "../../src/hooks/useJoinRequests"
+      ],
+      "env": [],
+      "hash": "sha256:27c69ef92ce73b6969807a29a193170c7255e97126ed4c5df87608d8e8884ad7"
+    },
+    {
+      "path": "apps/mobile/__tests__/components/JoinRequestsManager.test.tsx",
+      "kind": "tsx",
+      "lines": 604,
+      "exports": [],
+      "imports": [
+        "react",
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/components/joinRequests/JoinRequestsManager",
+        "../../src/hooks/useJoinRequests",
+        "../../src/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:95c7bb521c1a2ddc024b00e62ac6eb4bcee2d416224b15bf983918931a09c963"
+    },
+    {
+      "path": "apps/mobile/__tests__/components/RequestToJoinButton.test.tsx",
+      "kind": "tsx",
+      "lines": 430,
+      "exports": [],
+      "imports": [
+        "react",
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/components/joinRequests/RequestToJoinButton",
+        "../../src/hooks/useJoinRequests"
+      ],
+      "env": [],
+      "hash": "sha256:f9b3e19f12a0be7f37bbb5aaa0d74d0d03a2e7d23b6bdaa0cbd6cd87722c840f"
+    },
+    {
+      "path": "apps/mobile/__tests__/hooks/useJoinRequests.test.tsx",
+      "kind": "tsx",
+      "lines": 565,
+      "exports": [],
+      "imports": [
+        "@testing-library/react-native",
+        "react-native",
+        "../../src/hooks/useJoinRequests",
+        "../../src/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:1a361085f5baf674a402b5c98c9e18a44080787e7b6d5862af1827868bd199cb"
+    },
+    {
+      "path": "apps/mobile/__tests__/services/apiClient.test.ts",
+      "kind": "ts",
+      "lines": 527,
+      "exports": [],
+      "imports": [
+        "../../src/services/apiClient",
+        "../../src/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:1533add8bbfe683ae5fcd2284134c7b6c10959c7194ab6ea952f01c15df501a3"
+    },
+    {
+      "path": "apps/mobile/src/components/index.ts",
+      "kind": "ts",
+      "lines": 3,
+      "exports": [
+        "Card",
+        "Input",
+        "Button",
+        "Chip",
+        "Badge",
+        "Label",
+        "Segmented",
+        "FoodOption",
+        "Stepper"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:ed37a5bed3daa161b6f678d8c1ec3ec7dfbe923d7a08d032f8297bca35607c7e"
+    },
+    {
+      "path": "apps/mobile/src/config/supabaseClient.ts",
+      "kind": "ts",
+      "lines": 15,
+      "exports": [
+        "supabase"
+      ],
+      "imports": [
+        "@supabase/supabase-js"
+      ],
+      "env": [],
+      "hash": "sha256:80b42440b021906ca28800258d9a38a0dbcc8c825583eabb24396e9ffce27ca9"
+    },
+    {
+      "path": "apps/mobile/src/hooks/useJoinRequests.ts",
+      "kind": "ts",
+      "lines": 305,
+      "exports": [
+        "useEventAvailability",
+        "useCreateJoinRequest",
+        "useHostJoinRequests",
+        "useGuestJoinRequest"
+      ],
+      "imports": [
+        "react",
+        "../services/apiClient",
+        "react-native"
+      ],
+      "env": [],
+      "hash": "sha256:02afdaa683c6cce28e6ee11e4e19674f997b58790dbe7a9a1986264a177f7dd5"
+    },
+    {
+      "path": "apps/mobile/src/hooks/useSubscriptionCheck.ts",
+      "kind": "ts",
+      "lines": 89,
+      "exports": [
+        "useSubscriptionCheck",
+        "SubscriptionStatus"
+      ],
+      "imports": [
+        "react",
+        "../services/payment.service",
+        "../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:113de4dc9ca466d5acd1786aa49b649aaa8e3438db1e2a3513593aec2e675be4"
+    },
+    {
+      "path": "apps/mobile/src/services/apiClient.ts",
+      "kind": "ts",
+      "lines": 279,
+      "exports": [
+        "ApiError",
+        "ApiClient",
+        "apiClient",
+        "api",
+        "JoinRequestStatus",
+        "AvailabilityData",
+        "JoinRequestCreateData",
+        "JoinRequestData",
+        "PaginatedJoinRequestsData"
+      ],
+      "imports": [
+        "@/config/supabaseClient",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:3428ef9f37aab7822f348669c5da83b3a95091a4ea635d1ad1030cc05f0cc825"
+    },
+    {
+      "path": "apps/mobile/src/services/payment.service.ts",
+      "kind": "ts",
+      "lines": 603,
+      "exports": [
+        "BillingPlan",
+        "Subscription",
+        "Invoice",
+        "CheckoutSession",
+        "PaymentMethod",
+        "PaymentService",
+        "paymentService",
+        "webPaymentUtils"
+      ],
+      "imports": [
+        "./apiClient",
+        "react-native",
+        "expo-web-browser",
+        "expo-auth-session"
+      ],
+      "env": [],
+      "hash": "sha256:967aab854c47f9a38b9816f2c0c5388e4a592fda8a4ec72426459d267e6c0dfe"
+    },
+    {
+      "path": "apps/mobile/src/theme/index.ts",
+      "kind": "ts",
+      "lines": 273,
+      "exports": [
+        "colors",
+        "gradients",
+        "typography",
+        "spacing",
+        "borderRadius",
+        "shadows",
+        "chipTones",
+        "pillTones",
+        "badgeTones"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:4cb9ca22a408a306a171449e2047ea7f6c2782ccfe2ed3a34fb555d144d57bf7"
+    },
+    {
+      "path": "apps/mobile/src/util/button.tsx",
+      "kind": "tsx",
+      "lines": 191,
+      "exports": [
+        "Button",
+        "buttonVariants"
+      ],
+      "imports": [
+        "react",
+        "react-native"
+      ],
+      "env": [],
+      "hash": "sha256:e8d9af9afb4fb7e987625b17c0247c021282d39fdde109c6e94865a660a4b40d"
+    },
+    {
+      "path": "apps/mobile/src/util/utils.tsx",
+      "kind": "tsx",
+      "lines": 50,
+      "exports": [
+        "clsx",
+        "cn",
+        "ClassValue",
+        "validateEmail",
+        "capitalizeFirstLetter",
+        "isWeb",
+        "isIOS",
+        "isAndroid"
+      ],
+      "imports": [
+        "react-native"
+      ],
+      "env": [],
+      "hash": "sha256:6df4af137adbac6e2afd13c101d3a042e44f7aa435f5d1b5f7cbece2431c668a"
+    },
+    {
+      "path": "apps/mobile/src/utils/authTest.ts",
+      "kind": "ts",
+      "lines": 91,
+      "exports": [
+        "testAuthentication",
+        "testApiCall"
+      ],
+      "imports": [
+        "../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:0de521f3c1525d2fb667a9017dccd21533c146e3e6671bd81f31d07f62b1b49a"
+    },
+    {
+      "path": "apps/mobile/src/utils/dateUtils.ts",
+      "kind": "ts",
+      "lines": 271,
+      "exports": [
+        "formatDate",
+        "formatTime",
+        "formatDateTimeRange",
+        "combineDateTime",
+        "parseISODate",
+        "getRelativeTime",
+        "isToday",
+        "isTomorrow",
+        "isPast",
+        "isFuture",
+        "startOfDay",
+        "endOfDay",
+        "addDays",
+        "addHours",
+        "getDaysBetween",
+        "clamp01",
+        "DateFormat",
+        "TimeFormat",
+        "DateFormatOptions",
+        "DatePicker",
+        "TimePicker"
+      ],
+      "imports": [
+        "react-native"
+      ],
+      "env": [],
+      "hash": "sha256:48546c16be064ab889eca2cbde311a87707a79325b6b45865fcd71d62521fc44"
+    },
+    {
+      "path": "apps/mobile/tests/ui/auth.spec.ts",
+      "kind": "ts",
+      "lines": 153,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:19d9046476647d9a4c88b44d2434aae786bb8d0648f4ca7f166f079300d2c738"
+    },
+    {
+      "path": "apps/mobile/tests/ui/complete-user-journey.spec.ts",
+      "kind": "ts",
+      "lines": 349,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:0fd6fb5c7e15a7e2e1fbe41a2ae32f6fed96ec73efb8342fa1e39dd1d3273ce3"
+    },
+    {
+      "path": "apps/mobile/tests/ui/create-event.spec.ts",
+      "kind": "ts",
+      "lines": 300,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:0336a8a474cd2df18783ce93c6352454119948a9e7155676a88c696cfe0faedf"
+    },
+    {
+      "path": "apps/mobile/tests/ui/event-details.spec.ts",
+      "kind": "ts",
+      "lines": 401,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:fa89f3d2818e1fe5174c7858c591b5f4eebac4e452e7fd19ad73b605becf4e37"
+    },
+    {
+      "path": "apps/mobile/tests/ui/event-list.spec.ts",
+      "kind": "ts",
+      "lines": 216,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:5276fc78990e1e4808a9969ba5d1bb4c1957f798c8b978f647fbc40ceb10b5ec"
+    },
+    {
+      "path": "apps/mobile/tests/ui/plans.spec.ts",
+      "kind": "ts",
+      "lines": 266,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:cda29b6150b6f4d427e02e9b601b1935917da040a0e0ff807ed8ec13ce3b0cce"
+    },
+    {
+      "path": "apps/mobile/tests/ui/settings.spec.ts",
+      "kind": "ts",
+      "lines": 192,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL"
+      ],
+      "hash": "sha256:4813cbf0487d6e17c1950a569079d1a407a59ae44eaf5c2953ac2220f177b5f7"
+    },
+    {
+      "path": "apps/mobile/tests/ui/setup-validation.spec.ts",
+      "kind": "ts",
+      "lines": 47,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [],
+      "hash": "sha256:07b3367c36f1d3faa9b2c29bc3ff2f6d84fe14cc1dbea1f6f1da305f5f0e3051"
+    },
+    {
+      "path": "apps/mobile/tests/ui/subscription.spec.ts",
+      "kind": "ts",
+      "lines": 463,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [
+        "MOBILE_WEB_URL",
+        "MANUAL_MODAL_PAUSE_MS"
+      ],
+      "hash": "sha256:3ad321891d98becc0868639c3ff818961f060bd885ec512d022f54ac731f9786"
+    },
+    {
+      "path": "apps/mobile/tests/ui/test-report.spec.ts",
+      "kind": "ts",
+      "lines": 128,
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "env": [],
+      "hash": "sha256:1c6cfb4c7e5a16174d60a84a7eec53619012cf477a0b6810a39dd4a739ac4bb3"
+    },
+    {
+      "path": "apps/server/src/config/providers.ts",
+      "kind": "ts",
+      "lines": 158,
+      "exports": [
+        "getEnabledProviders",
+        "getProviderConfig",
+        "validateProviderConfig",
+        "getProviderNames",
+        "getEnabledProviderNames",
+        "ProviderConfig",
+        "SUPPORTED_PROVIDERS"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:511cd6daf082e111aaada5bb40bbe620720cbdab999c799c40d7a68824f05689"
+    },
+    {
+      "path": "apps/server/src/config/supabaseClient.ts",
+      "kind": "ts",
+      "lines": 46,
+      "exports": [
+        "supabase"
+      ],
+      "imports": [
+        "@supabase/supabase-js",
+        "fs",
+        "path",
+        "dotenv",
+        "dotenv/config"
+      ],
+      "env": [
+        "NODE_ENV",
+        "TEST_SUPABASE_URL",
+        "TEST_SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:f57e7d7f1169b0a00658a15dd1264598573a74aa0b6e8940cfb5a59da74812f8"
+    },
+    {
+      "path": "apps/server/src/controllers/auth.controller.ts",
+      "kind": "ts",
+      "lines": 46,
+      "exports": [
+        "signup",
+        "login",
+        "logout"
+      ],
+      "imports": [
+        "express",
+        "../services/auth.service"
+      ],
+      "env": [],
+      "hash": "sha256:68d7f4eacf3a3b99705f4179c87a32449c12454b1909a37e4d1ac844b13c7dcc"
+    },
+    {
+      "path": "apps/server/src/controllers/billing.controller.ts",
+      "kind": "ts",
+      "lines": 498,
+      "exports": [
+        "BillingController",
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../config/supabaseClient",
+        "../utils/helper",
+        "../../../../libs/common/src/types.gen",
+        "../services/payments.container"
+      ],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "MOBILE_WEB_URL",
+        "FRONTEND_URL"
+      ],
+      "hash": "sha256:17255287e5f338589301f1d2fb028148e60df7630cc6e3c3aca47b942b5fbe02"
+    },
+    {
+      "path": "apps/server/src/controllers/events.controller.ts",
+      "kind": "ts",
+      "lines": 266,
+      "exports": [
+        "createEvent",
+        "getEvent",
+        "listEvents",
+        "updateEvent",
+        "publishEvent",
+        "cancelEvent",
+        "completeEvent",
+        "deleteEvent",
+        "purgeEvent",
+        "restoreEvent"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../services/events.service",
+        "../services/notifications.service",
+        "../../../../libs/common/src/types.gen",
+        "debug",
+        "../utils/helper",
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:5458bc2677b4e39108c94ec6333d0ff43cd0fbba15d9894cff9100adb1e29645"
+    },
+    {
+      "path": "apps/server/src/controllers/items.controller.ts",
+      "kind": "ts",
+      "lines": 114,
+      "exports": [
+        "updateItem",
+        "assignItem",
+        "unassignItem",
+        "deleteItem",
+        "listItems",
+        "addItem",
+        "getItem"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../services/items.service",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:095fbfc6ede56e563f58d327bc5d32aad8c6bfea48990e4effde768befd363e1"
+    },
+    {
+      "path": "apps/server/src/controllers/location-discovery.controller.ts",
+      "kind": "ts",
+      "lines": 354,
+      "exports": [
+        "searchNearbyEventsController",
+        "searchEventsByCityController",
+        "getPopularEventsController",
+        "getEventWithLocationController",
+        "getUserNotificationsController",
+        "markNotificationAsReadController",
+        "markAllNotificationsAsReadController",
+        "getUnreadNotificationCountController",
+        "registerPushTokenController",
+        "getNotificationPreferencesController",
+        "putNotificationPreferencesController"
+      ],
+      "imports": [
+        "express",
+        "zod",
+        "../services/location-discovery.service",
+        "../services/notifications.service",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:db4dcfaad0ca41bfb6410bc248a47fa5234dc7a75b314f7d8ef22b760655feb9"
+    },
+    {
+      "path": "apps/server/src/controllers/locations.controller.ts",
+      "kind": "ts",
+      "lines": 17,
+      "exports": [
+        "addLocation"
+      ],
+      "imports": [
+        "express",
+        "../services/locations.service",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "env": [],
+      "hash": "sha256:2585425174ac78579ed144181d90110c7cd94351b5783e237e8202e71765cffb"
+    },
+    {
+      "path": "apps/server/src/controllers/participants.controller.ts",
+      "kind": "ts",
+      "lines": 92,
+      "exports": [
+        "add",
+        "list",
+        "get",
+        "update",
+        "remove",
+        "bulkAdd",
+        "resendInvite",
+        "transfer"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../services/participants.service",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../services/participants.transfer.service"
+      ],
+      "env": [],
+      "hash": "sha256:896dc969394f326e54595f8edf6d8deabc75ef088aa5dc5bb5eaf853081e3351"
+    },
+    {
+      "path": "apps/server/src/controllers/rebalance.controller.ts",
+      "kind": "ts",
+      "lines": 16,
+      "exports": [
+        "rebalance"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../services/rebalance.service",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:65a8d2d2a1e64818e8ea748e030974d116d7759efe1708b5e7dafd0803e9a538"
+    },
+    {
+      "path": "apps/server/src/controllers/user-location.controller.ts",
+      "kind": "ts",
+      "lines": 194,
+      "exports": [
+        "getUserLocationController",
+        "updateUserLocationController",
+        "updateDiscoverabilityController",
+        "removeUserLocationController",
+        "searchCitiesController"
+      ],
+      "imports": [
+        "express",
+        "zod",
+        "../services/user-location.service",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:b5fc79d14bfe360b0f0039d78de7b396c1e737e9551da2121102fe12938f67b1"
+    },
+    {
+      "path": "apps/server/src/controllers/user-profile.controller.ts",
+      "kind": "ts",
+      "lines": 183,
+      "exports": [
+        "completeProfileSetupController",
+        "getUserProfileController"
+      ],
+      "imports": [
+        "express",
+        "zod",
+        "@supabase/supabase-js",
+        "../logger"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:74b5145b908cbd3108afe6d35b2d5caf125707285def712666650e8159814399"
+    },
+    {
+      "path": "apps/server/src/middleware/authGuard.mock.ts",
+      "kind": "ts",
+      "lines": 57,
+      "exports": [
+        "AuthenticatedRequest",
+        "mockAuthGuard"
+      ],
+      "imports": [
+        "express",
+        "../../tests/setup"
+      ],
+      "env": [],
+      "hash": "sha256:0a52d769c22dfd596455a4c8cc5e753c983ba502b22579c0ff75d916e8b9c545"
+    },
+    {
+      "path": "apps/server/src/middleware/authGuard.ts",
+      "kind": "ts",
+      "lines": 37,
+      "exports": [
+        "AuthenticatedRequest",
+        "authGuard"
+      ],
+      "imports": [
+        "express",
+        "../config/supabaseClient"
+      ],
+      "env": [
+        "QUIET_TESTS"
+      ],
+      "hash": "sha256:2110bfa74d2fd081ae6264a69c1025eed0b3d80936cd789a274b2ae6b9fbb1d0"
+    },
+    {
+      "path": "apps/server/src/middleware/errorHandler.ts",
+      "kind": "ts",
+      "lines": 12,
+      "exports": [
+        "errorHandler"
+      ],
+      "imports": [
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:fd0f64c4eb9aaf53ad563459d2af9aebe78c3efa078b33e8a393c6fc50c4ef7e"
+    },
+    {
+      "path": "apps/server/src/middleware/logger.middleware.ts",
+      "kind": "ts",
+      "lines": 11,
+      "exports": [
+        "routeLogger",
+        "default"
+      ],
+      "imports": [
+        "express"
+      ],
+      "env": [
+        "QUIET_TESTS"
+      ],
+      "hash": "sha256:6cc9a0955a2eaf8f306246e0a129806b84ccb8e04dfeed51329663758a8ac578"
+    },
+    {
+      "path": "apps/server/src/middleware/validateSchema.ts",
+      "kind": "ts",
+      "lines": 14,
+      "exports": [
+        "validate"
+      ],
+      "imports": [
+        "zod",
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:c4da88856ce13924ab5e355fcedc12eb87615ecae490ca75ac2eda39553ab7f1"
+    },
+    {
+      "path": "apps/server/src/routes/auth.routes.ts",
+      "kind": "ts",
+      "lines": 13,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/auth.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "env": [],
+      "hash": "sha256:d3e29de384d19574b60786b8d0b3e1df312377012be8b0228b89dc9349b49afe"
+    },
+    {
+      "path": "apps/server/src/routes/billing.routes.ts",
+      "kind": "ts",
+      "lines": 50,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/billing.controller",
+        "body-parser",
+        "@payments/core",
+        "../services/payments.container",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:f5a5e799b300579bec109bcf094f0a15588a2059a3f64741d8b770ccdda7b5a2"
+    },
+    {
+      "path": "apps/server/src/routes/discovery.routes.ts",
+      "kind": "ts",
+      "lines": 103,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/location-discovery.controller"
+      ],
+      "env": [],
+      "hash": "sha256:6100a8f30ba862e6d4d66a0e2f6ad96a5e9ae392bc1725402896b53b1b18aed5"
+    },
+    {
+      "path": "apps/server/src/routes/events.routes.ts",
+      "kind": "ts",
+      "lines": 157,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/validateSchema",
+        "../middleware/logger.middleware",
+        "../validators",
+        "../controllers/events.controller",
+        "../modules/requests",
+        "../modules/requests",
+        "../controllers/rebalance.controller",
+        "./items.routes",
+        "./participants.routes",
+        "../modules/requests"
+      ],
+      "env": [],
+      "hash": "sha256:f73d0889c6e3ab1a962398a6e89a91d3aeaaffcf22e24a1fcf1476c1a2eba8a4"
+    },
+    {
+      "path": "apps/server/src/routes/items.routes.ts",
+      "kind": "ts",
+      "lines": 51,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/items.controller",
+        "../middleware/validateSchema",
+        "../validators",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:bc3442e0ea1b7ee6133992d5354c269e912ea495323bd3567a382b2084ab942b"
+    },
+    {
+      "path": "apps/server/src/routes/locations.routes.ts",
+      "kind": "ts",
+      "lines": 11,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/locations.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "env": [],
+      "hash": "sha256:47e8ec0a8e71a9e679be102407449a90312c0e1d49728286d5471351c679ca87"
+    },
+    {
+      "path": "apps/server/src/routes/mock.routes.ts",
+      "kind": "ts",
+      "lines": 360,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:552ef7cd8100d04febda14b45dda31a8893e8393b7cf77203f87f242e427c0dc"
+    },
+    {
+      "path": "apps/server/src/routes/participants.routes.ts",
+      "kind": "ts",
+      "lines": 68,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/participants.controller",
+        "../validators",
+        "../middleware/validateSchema",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:6e6001233cd968ab72c6ceeaeacfc63a2b8ca41cb4493a24fb51bd0ced9068c2"
+    },
+    {
+      "path": "apps/server/src/routes/user-location.routes.ts",
+      "kind": "ts",
+      "lines": 53,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-location.controller"
+      ],
+      "env": [],
+      "hash": "sha256:1726991c108be62ae05a845303c7b5ee102f20f80f83f35a5ce899dfd44ff5a8"
+    },
+    {
+      "path": "apps/server/src/routes/user-profile.routes.ts",
+      "kind": "ts",
+      "lines": 29,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-profile.controller"
+      ],
+      "env": [],
+      "hash": "sha256:306e4eb68c5f91a802be1d392ed9e79792af87b0482e3bb72f564c7a74765a73"
+    },
+    {
+      "path": "apps/server/src/services/auth.service.ts",
+      "kind": "ts",
+      "lines": 95,
+      "exports": [
+        "signup",
+        "login",
+        "logout",
+        "SignUpData"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:7a3365872b01bf9e2c423fae70babee2589105d75daa8d59bdb47bb8be2404d4"
+    },
+    {
+      "path": "apps/server/src/services/events.service.ts",
+      "kind": "ts",
+      "lines": 1259,
+      "exports": [
+        "createEventWithItems",
+        "assignItem",
+        "getEventDetails",
+        "listEvents",
+        "updateEventDetails",
+        "publishEvent",
+        "cancelEvent",
+        "completeEvent",
+        "deleteEvent",
+        "purgeEvent",
+        "restoreEvent"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../services/participants.service",
+        "../logger",
+        "./notifications.service",
+        "../utils/helper",
+        "../validators",
+        "../../../../libs/common/src/types.gen",
+        "@supabase/supabase-js"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:5e9faa609c0f0a26b9b3b6cba4775c985682457c372ec6c874672c9c6cc7b921"
+    },
+    {
+      "path": "apps/server/src/services/items.service.ts",
+      "kind": "ts",
+      "lines": 256,
+      "exports": [
+        "addItem",
+        "updateItem",
+        "assignItem",
+        "deleteItem",
+        "listItems",
+        "getItem"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "../logger",
+        "zod",
+        "../validators",
+        "../utils/helper",
+        "../utils/eventGuards"
+      ],
+      "env": [],
+      "hash": "sha256:207199ad16deb63387f3c38d6396bd48b55d5f784b240563109af97caaa9598f"
+    },
+    {
+      "path": "apps/server/src/services/location-discovery.service.ts",
+      "kind": "ts",
+      "lines": 331,
+      "exports": [
+        "searchNearbyEvents",
+        "getEventWithLocation",
+        "searchEventsByCity",
+        "getPopularEvents",
+        "LocationSearchParams",
+        "NearbyEvent",
+        "EventWithLocation"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:6197eabf5085f0fdd13b8b90c9d9f0d1a5d3cffdd8b10a6ee44f21573aa6aa68"
+    },
+    {
+      "path": "apps/server/src/services/locations.service.ts",
+      "kind": "ts",
+      "lines": 17,
+      "exports": [
+        "createLocation"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../validators",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "env": [],
+      "hash": "sha256:39bfefd2e7c4ea75fab282be2551a188af7ff1f35802ce32efb6685702e8c187"
+    },
+    {
+      "path": "apps/server/src/services/notifications.service.ts",
+      "kind": "ts",
+      "lines": 428,
+      "exports": [
+        "createNotification",
+        "notifyNearbyUsers",
+        "getUserNotifications",
+        "markNotificationAsRead",
+        "markAllNotificationsAsRead",
+        "getUnreadNotificationCount",
+        "registerPushToken",
+        "getNotificationPreferences",
+        "upsertNotificationPreferences",
+        "notifyEventParticipantsCancelled",
+        "NotificationPayload",
+        "NotificationRecord",
+        "NotificationType"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:782048648a0097262f4eba59f2aa33839a2c4a555804f7bb7334c473e0e8b1f3"
+    },
+    {
+      "path": "apps/server/src/services/participants.service.ts",
+      "kind": "ts",
+      "lines": 375,
+      "exports": [
+        "addHost",
+        "addParticipant",
+        "listParticipants",
+        "updateParticipant",
+        "deleteParticipant",
+        "getParticipant",
+        "bulkAddParticipants",
+        "resendInvite"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "../utils/helper",
+        "../utils/mailer"
+      ],
+      "env": [],
+      "hash": "sha256:7517e2f1bd222dba71c6d03e4789c13d7e3d5474390a1b28e911df1f9f2bd99f"
+    },
+    {
+      "path": "apps/server/src/services/participants.transfer.service.ts",
+      "kind": "ts",
+      "lines": 74,
+      "exports": [
+        "transferParticipant"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:298722688a0df3a0b1c3563e44a4da216afc3eeecb8544b28cd6f579397a81a3"
+    },
+    {
+      "path": "apps/server/src/services/payments.adapters.ts",
+      "kind": "ts",
+      "lines": 169,
+      "exports": [
+        "SupabaseConfigStore",
+        "supabasePersistence",
+        "simpleEventBus",
+        "supabaseInbox",
+        "supabaseIdempotency"
+      ],
+      "imports": [
+        "@payments/core",
+        "@payments/core",
+        "../config/supabaseClient"
+      ],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "LEMONSQUEEZY_STORE_ID",
+        "LEMONSQUEEZY_WEBHOOK_SECRET",
+        "LIVE_MODE"
+      ],
+      "hash": "sha256:5a9442ba51425b7da1eb7ddc7fb4f20c1eb246cddbb79db8d785ab4aff37e3c8"
+    },
+    {
+      "path": "apps/server/src/services/payments.container.ts",
+      "kind": "ts",
+      "lines": 47,
+      "exports": [
+        "createPaymentContainer",
+        "createPaymentService"
+      ],
+      "imports": [
+        "@payments/core",
+        "@payments/core",
+        "./payments.adapters"
+      ],
+      "env": [
+        "PAYMENTS_USE_MEMORY_ADAPTERS"
+      ],
+      "hash": "sha256:f317352bbbb0dade53390aac9b443b9c89766fd86e40de550e06c9453811a40c"
+    },
+    {
+      "path": "apps/server/src/services/push.service.ts",
+      "kind": "ts",
+      "lines": 46,
+      "exports": [
+        "enqueueDelivery",
+        "DeliveryChannel",
+        "DeliveryPayload"
+      ],
+      "imports": [
+        "../logger",
+        "../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:1f8f2b473d0f2894ac68671e8b85aaa34ffacce14ccd649f8c5588a9ee94d4e5"
+    },
+    {
+      "path": "apps/server/src/services/rebalance.service.ts",
+      "kind": "ts",
+      "lines": 95,
+      "exports": [
+        "rebalanceUnassigned"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:0b2cb18dc1a0cd7e2b1f48b2f18ad7b56d866b74e726faf8d9e74de275ce987c"
+    },
+    {
+      "path": "apps/server/src/services/user-location.service.ts",
+      "kind": "ts",
+      "lines": 293,
+      "exports": [
+        "updateUserLocation",
+        "updateDiscoverabilitySettings",
+        "getUserLocationProfile",
+        "removeUserLocation",
+        "searchCities",
+        "UserLocationUpdate",
+        "UserLocationSettings",
+        "UserLocationProfile"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:2fb1bb439ed9e77b9cc4b5f1b2d3e2d4513e9cce197883a241072e15723a53a0"
+    },
+    {
+      "path": "apps/server/src/shared/notifier.ts",
+      "kind": "ts",
+      "lines": 199,
+      "exports": [
+        "sendJoinRequestNotification",
+        "sendBatchNotifications",
+        "scheduleNotification",
+        "JoinRequestNotificationType"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:45954e19eaec9345c3ce3a1d4d96a5c081f6ef4862821ca6ab72a2a23f95c83d"
+    },
+    {
+      "path": "apps/server/src/types/express.d.ts",
+      "kind": "ts",
+      "lines": 13,
+      "exports": [],
+      "imports": [
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:64e42a66596a001472b8b7208416be5b996bd9f697b11decacb6db60d1a3d7d0"
+    },
+    {
+      "path": "apps/server/src/types/payments-core.d.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:dec8a37fcfb5f41a178dcb99cca8423a790d2874bfe7d93210cd28bffc02eab2"
+    },
+    {
+      "path": "apps/server/src/types/zodios-core.d.ts",
+      "kind": "ts",
+      "lines": 8,
+      "exports": [],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:855b59983212bad5be089c048bd0e19818434e9fccaee88df6559f6e349428e8"
+    },
+    {
+      "path": "apps/server/src/utils/envCheck.ts",
+      "kind": "ts",
+      "lines": 64,
+      "exports": [
+        "checkEnvironmentVariables"
+      ],
+      "imports": [],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "LEMONSQUEEZY_STORE_ID"
+      ],
+      "hash": "sha256:52d59ac1fe5f73b0321918467180176bb6f37e9835257b62ba1bf96e64f4f9d2"
+    },
+    {
+      "path": "apps/server/src/utils/eventGuards.ts",
+      "kind": "ts",
+      "lines": 130,
+      "exports": [
+        "ensureEventEditable",
+        "ensureActorCanAssign",
+        "ErrorCode",
+        "GuardResult"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../../../../libs/common/src/types.gen",
+        "./helper"
+      ],
+      "env": [],
+      "hash": "sha256:6146d43e207cb2b7d268d56333ac979d5abe0a642496c5cf4c6c28a43bc66c50"
+    },
+    {
+      "path": "apps/server/src/utils/helper.ts",
+      "kind": "ts",
+      "lines": 143,
+      "exports": [
+        "camelToSnake",
+        "httpStatus",
+        "toDbColumns",
+        "mapDbError",
+        "handle",
+        "guardToService",
+        "handleResult",
+        "mustFindOne",
+        "ErrorCode",
+        "ServiceError",
+        "ServiceSuccess",
+        "ServiceResult",
+        "default"
+      ],
+      "imports": [
+        "@supabase/supabase-js",
+        "express",
+        "../utils/eventGuards"
+      ],
+      "env": [],
+      "hash": "sha256:129f2998fa5fa26c6ec8f795ad474dc5f947df1b7ee81d02d5646517563a46d9"
+    },
+    {
+      "path": "apps/server/src/utils/mailer.ts",
+      "kind": "ts",
+      "lines": 43,
+      "exports": [
+        "sendInviteEmail"
+      ],
+      "imports": [
+        "nodemailer"
+      ],
+      "env": [
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_SECURE",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "SMTP_FROM",
+        "APP_URL"
+      ],
+      "hash": "sha256:7dfd414dc96c98f9067d1c50d49762407d5ca18b00d553ed5ac34a41baf71e88"
+    },
+    {
+      "path": "apps/server/tests/events/create.spec.ts",
+      "kind": "ts",
+      "lines": 92,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "supertest",
+        "../helpers/testUtils",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "env": [],
+      "hash": "sha256:9d9c0ad7db45a6c06e373cb52afb7310171e61bead0d2ab70a947737dfbbacee"
+    },
+    {
+      "path": "apps/server/tests/events/lifecycle.spec.ts",
+      "kind": "ts",
+      "lines": 124,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "supertest",
+        "../helpers/testUtils",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "env": [],
+      "hash": "sha256:a903aadb293f40a96faebe4ab39910200c9e0bfbfb5f64006a645e4dab5b0dde"
+    },
+    {
+      "path": "apps/server/tests/events/rls.spec.ts",
+      "kind": "ts",
+      "lines": 69,
+      "exports": [],
+      "imports": [
+        "../helpers/testUtils",
+        "supertest",
+        "vitest",
+        "../../src/logger",
+        "../helpers/openApiTestHelper",
+        "ajv",
+        "ajv-formats"
+      ],
+      "env": [],
+      "hash": "sha256:c36f80a46486c0f7315b8eb2e435ac3b759e1b408e9131ac5b4564748a4358d2"
+    },
+    {
+      "path": "apps/server/tests/events/validation.spec.ts",
+      "kind": "ts",
+      "lines": 24,
+      "exports": [],
+      "imports": [
+        "../helpers/testUtils",
+        "supertest",
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:add76b991716467fea72a495a5fea1eefa103f1552b544c72c2f2ec4c8974570"
+    },
+    {
+      "path": "apps/server/tests/fixtures/factories.ts",
+      "kind": "ts",
+      "lines": 501,
+      "exports": [
+        "seedFaker",
+        "resetFaker",
+        "LocationFactory",
+        "ItemFactory",
+        "EventFactory",
+        "ParticipantFactory",
+        "EventCancelFactory",
+        "BillingPlanFactory",
+        "TestDataSets",
+        "SubscriptionFactory",
+        "PaymentMethodFactory",
+        "InvoiceFactory",
+        "CheckoutSessionFactory",
+        "eventFactory",
+        "itemFactory",
+        "locationFactory",
+        "participantFactory",
+        "eventCancelFactory",
+        "billingPlanFactory",
+        "subscriptionFactory",
+        "paymentMethodFactory",
+        "invoiceFactory",
+        "checkoutSessionFactory"
+      ],
+      "imports": [
+        "@faker-js/faker",
+        "../../../../libs/common/src/types.gen"
+      ],
+      "env": [],
+      "hash": "sha256:9f79f90ba1958f07c2f159d56668817897e5265935d356ddc5e1545c7b31fa0c"
+    },
+    {
+      "path": "apps/server/tests/fixtures/lemonSqueezyMocks.ts",
+      "kind": "ts",
+      "lines": 833,
+      "exports": [
+        "LemonSqueezyStore",
+        "LemonSqueezyProduct",
+        "LemonSqueezyVariant",
+        "LemonSqueezyCheckout",
+        "LemonSqueezySubscription",
+        "LemonSqueezyCustomer",
+        "LemonSqueezyOrder",
+        "LemonSqueezyWebhookEvent",
+        "LemonSqueezyMockFactory",
+        "LemonSqueezyMockData",
+        "LemonSqueezyTestScenarios"
+      ],
+      "imports": [
+        "@faker-js/faker"
+      ],
+      "env": [],
+      "hash": "sha256:0c35db88f4edabb65dbf3d7518ea8c074925ca1ec114fc35e419d388dafd6408"
+    },
+    {
+      "path": "apps/server/tests/helpers/dbHelpers.ts",
+      "kind": "ts",
+      "lines": 395,
+      "exports": [
+        "DbTestHelper",
+        "default"
+      ],
+      "imports": [
+        "../setup",
+        "@faker-js/faker",
+        "../../src/logger"
+      ],
+      "env": [],
+      "hash": "sha256:9ef87b1c0bc602c2429c524f75f30c76aaccef3ee658fb1a80e71cf80734e7e9"
+    },
+    {
+      "path": "apps/server/tests/helpers/openApiTestHelper.ts",
+      "kind": "ts",
+      "lines": 170,
+      "exports": [
+        "OpenApiTestHelper"
+      ],
+      "imports": [
+        "fs",
+        "path",
+        "js-yaml",
+        "openapi-types",
+        "@faker-js/faker",
+        "openapi-sampler"
+      ],
+      "env": [],
+      "hash": "sha256:f871e4a978b9468b88a77ec5ea24f7526d553d203f82d015a2ba168a524c83b1"
+    },
+    {
+      "path": "apps/server/tests/helpers/testApp.ts",
+      "kind": "ts",
+      "lines": 39,
+      "exports": [
+        "createTestApp",
+        "getTestApp",
+        "resetTestApp"
+      ],
+      "imports": [
+        "express",
+        "cors",
+        "../../src/app"
+      ],
+      "env": [],
+      "hash": "sha256:f66040544d3eda0f1b1bf7ce408d02a8546b85299cf25aeded3d53424cb21907"
+    },
+    {
+      "path": "apps/server/tests/helpers/testUtils.ts",
+      "kind": "ts",
+      "lines": 78,
+      "exports": [
+        "getSupabase",
+        "ownerToken",
+        "outsiderToken",
+        "resetEvents",
+        "app"
+      ],
+      "imports": [
+        "dotenv",
+        "path",
+        "fs",
+        "vitest",
+        "../../src/app",
+        "@supabase/supabase-js",
+        "../../src/logger"
+      ],
+      "env": [
+        "TEST_OWNER_EMAIL",
+        "TEST_OWNER_PASSWORD",
+        "TEST_SUPABASE_URL",
+        "TEST_SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:646a6de6d99330df9694cd1428245fd34d983734868f8b53a788024f450f0ac6"
+    },
+    {
+      "path": "apps/server/tests/integration/auth-smoke.spec.ts",
+      "kind": "ts",
+      "lines": 31,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "@jest/globals",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "env": [],
+      "hash": "sha256:07cd93f7ed263983b82d978722bb662d1239dafc9903a827d660cb15f1be67e3"
+    },
+    {
+      "path": "apps/server/tests/integration/auth.spec.ts",
+      "kind": "ts",
+      "lines": 371,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "@jest/globals"
+      ],
+      "env": [],
+      "hash": "sha256:07be8550483396f2630d7ffca68b9f753a0595d50c439f38d5d0e9459e3a4f98"
+    },
+    {
+      "path": "apps/server/tests/integration/billing-comprehensive.spec.ts",
+      "kind": "ts",
+      "lines": 1122,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "../fixtures/lemonSqueezyMocks",
+        "crypto",
+        "@jest/globals"
+      ],
+      "env": [
+        "LEMONSQUEEZY_WEBHOOK_SECRET"
+      ],
+      "hash": "sha256:f0f0873dd89a569f287ddc2eeec28eee9779ebf189fea5ff81a03f9fc0eb770a"
+    },
+    {
+      "path": "apps/server/tests/integration/billing.spec.ts",
+      "kind": "ts",
+      "lines": 378,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "@jest/globals"
+      ],
+      "env": [],
+      "hash": "sha256:f0638ec633d091251274b5c4f06945a278531cce315365eef3c70cdca294cf6f"
+    },
+    {
+      "path": "apps/server/tests/integration/events.spec.ts",
+      "kind": "ts",
+      "lines": 596,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../fixtures/factories",
+        "../../src/logger"
+      ],
+      "env": [],
+      "hash": "sha256:039a50058aa7f184f365017800e3b9452e9deeb74ad0a3ddfe6e3f9eb7024feb"
+    },
+    {
+      "path": "apps/server/tests/integration/location-discovery.spec.ts",
+      "kind": "ts",
+      "lines": 520,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "supertest",
+        "../helpers/testApp",
+        "../setup",
+        "../helpers/dbHelpers",
+        "../../src/logger"
+      ],
+      "env": [],
+      "hash": "sha256:b682fd65d759477d94d8b2bf32d6ada98cc52872d8c72df511a7c995503cfb96"
+    },
+    {
+      "path": "apps/server/tests/integration/payments.e2e.spec.ts",
+      "kind": "ts",
+      "lines": 22,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "../../src/app",
+        "../setup"
+      ],
+      "env": [],
+      "hash": "sha256:f6fab0b320e7c8802da09eacd1ba6ecf4e47ac686ca900c587781fd71bc3adf0"
+    },
+    {
+      "path": "apps/server/tests/integration/requests-advanced.spec.ts",
+      "kind": "ts",
+      "lines": 513,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "supertest",
+        "../../src/config/supabaseClient",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "env": [],
+      "hash": "sha256:6a9a6efdb0f08e26b8174153c4fda48f4105c88a0978fca6ba418ff21ff6550c"
+    },
+    {
+      "path": "apps/server/tests/integration/requests.spec.ts",
+      "kind": "ts",
+      "lines": 332,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "supertest",
+        "../../src/config/supabaseClient",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "env": [],
+      "hash": "sha256:dc6821e813a7847386baad69613222ecb471228f1c31cd59576cdcbc58194292"
+    },
+    {
+      "path": "apps/server/tests/integration/user-event-workflow-demo.spec.ts",
+      "kind": "ts",
+      "lines": 332,
+      "exports": [],
+      "imports": [
+        "supertest",
+        "@jest/globals",
+        "../helpers/testApp",
+        "../setup"
+      ],
+      "env": [
+        "QUIET_TESTS",
+        "MOCK_DATABASE",
+        "NODE_ENV"
+      ],
+      "hash": "sha256:744916403af1d49621b67c2072db29b8c16ec1e7d0cc55701f74f447c781a95c"
+    },
+    {
+      "path": "apps/server/tests/unit/access-control-demo.spec.ts",
+      "kind": "ts",
+      "lines": 254,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:99109dc820724d316fba0755e4da63abc75b4673b574c7cdb2feb81a31ac3464"
+    },
+    {
+      "path": "packages/payments/src/app/paymentService.ts",
+      "kind": "ts",
+      "lines": 26,
+      "exports": [
+        "PaymentService"
+      ],
+      "imports": [
+        "../core/container",
+        "../types"
+      ],
+      "env": [],
+      "hash": "sha256:768586af173847234efd9af53074152e3579ae03ce70556a13aa5961f8a89a8b"
+    },
+    {
+      "path": "packages/payments/src/core/container.ts",
+      "kind": "ts",
+      "lines": 20,
+      "exports": [
+        "PaymentContainer"
+      ],
+      "imports": [
+        "../ports/provider",
+        "../ports/persistence",
+        "../ports/events",
+        "../ports/logger",
+        "../ports/metrics",
+        "../ports/config"
+      ],
+      "env": [],
+      "hash": "sha256:382b65af3a4e2594d80fbc715a701d20ac576bfe92d87854fe7636ce9406783d"
+    },
+    {
+      "path": "packages/payments/src/ports/config.ts",
+      "kind": "ts",
+      "lines": 15,
+      "exports": [
+        "ProviderConfig",
+        "ProviderConfigStore"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:987b847b2cd821f429060fa1a38da459757d02c41e66ddc6480bca5b3d93164c"
+    },
+    {
+      "path": "packages/payments/src/ports/events.ts",
+      "kind": "ts",
+      "lines": 6,
+      "exports": [
+        "DomainEventPublisherPort"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:2896050ae7882d391d6d49ea01bf923f2a10319b67cc0521b027fceb30fa27b4"
+    },
+    {
+      "path": "packages/payments/src/ports/logger.ts",
+      "kind": "ts",
+      "lines": 8,
+      "exports": [
+        "Logger"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:74863f5955cfa4c641e7ad8a70204b929b2b448c70293567bb860d7346ee8116"
+    },
+    {
+      "path": "packages/payments/src/ports/metrics.ts",
+      "kind": "ts",
+      "lines": 7,
+      "exports": [
+        "Metrics"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:c746154c594e75a2b351fdc97e92b66064fcf555482cf42268ca0c32cb61a1b5"
+    },
+    {
+      "path": "packages/payments/src/ports/persistence.ts",
+      "kind": "ts",
+      "lines": 22,
+      "exports": [
+        "BillingPersistencePort",
+        "IdempotencyStore",
+        "WebhookInbox"
+      ],
+      "imports": [
+        "../types"
+      ],
+      "env": [],
+      "hash": "sha256:6a4a89cc8d7d20e67a6f23328e23e17b2b422d4c391eed71cfcdbb8a034c8dde"
+    },
+    {
+      "path": "packages/payments/src/ports/provider.ts",
+      "kind": "ts",
+      "lines": 17,
+      "exports": [
+        "PaymentProvider",
+        "ProviderRegistry"
+      ],
+      "imports": [
+        "./config",
+        "../types"
+      ],
+      "env": [],
+      "hash": "sha256:c7fc5d1c8a1525ce5b7cea0e9e98105d4b2ae066ffdc5a3675a736400eb5ccd3"
+    },
+    {
+      "path": "packages/payments/src/providers/index.ts",
+      "kind": "ts",
+      "lines": 10,
+      "exports": [
+        "lemonSqueezyProvider"
+      ],
+      "imports": [
+        "./registry",
+        "./lemonsqueezy"
+      ],
+      "env": [],
+      "hash": "sha256:388aadc75df3b715c67fa3bf0f1ac4d623d01ab7e0817f212b5dda4ed411b596"
+    },
+    {
+      "path": "packages/payments/src/providers/registry.ts",
+      "kind": "ts",
+      "lines": 20,
+      "exports": [
+        "registerProvider",
+        "getProviderNames",
+        "providerRegistry"
+      ],
+      "imports": [
+        "../ports/provider"
+      ],
+      "env": [],
+      "hash": "sha256:c666f5300b00bb106c600b6e61857bf3d238b40b8b853892d5ca06471dda0f15"
+    },
+    {
+      "path": "packages/payments/src/web/dev.ts",
+      "kind": "ts",
+      "lines": 86,
+      "exports": [
+        "createDevPaymentsRoutes",
+        "DevRoutesOptions"
+      ],
+      "imports": [
+        "express",
+        "express",
+        "crypto",
+        "../core/container",
+        "../types"
+      ],
+      "env": [],
+      "hash": "sha256:431d4b82aeeeb59cf0c62b0164ae328b6b357febb229c274bf727ff3779ce1ab"
+    },
+    {
+      "path": "packages/payments/src/web/express.ts",
+      "kind": "ts",
+      "lines": 121,
+      "exports": [
+        "createWebhookHandler"
+      ],
+      "imports": [
+        "express",
+        "../core/container",
+        "crypto"
+      ],
+      "env": [
+        "LEMONSQUEEZY_VARIANT_MAPPING"
+      ],
+      "hash": "sha256:34951883c658be75f506aa066d4404f6fcefbcb9556671b96f9228709e199ec2"
+    },
+    {
+      "path": "apps/mobile/src/components/forms/FoodOption.tsx",
+      "kind": "tsx",
+      "lines": 70,
+      "exports": [
+        "FoodOption",
+        "FoodOptionProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:b1a6a0f4044e5545f7b61d05fb520c7d8db4b0fd42a169e5780b770d6c248035"
+    },
+    {
+      "path": "apps/mobile/src/components/forms/index.ts",
+      "kind": "ts",
+      "lines": 3,
+      "exports": [
+        "FoodOption",
+        "Stepper"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:99b454ea34993173d02c987c59b34baa3357a6cec2353eee2aa39396631816df"
+    },
+    {
+      "path": "apps/mobile/src/components/forms/Stepper.tsx",
+      "kind": "tsx",
+      "lines": 104,
+      "exports": [
+        "Stepper",
+        "StepperProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/theme",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:4671e1dade7b99a5424d3692b3ddd17410bd1f7767cc8aadb4d321bed5d217fc"
+    },
+    {
+      "path": "apps/mobile/src/components/joinRequests/AvailabilityBadge.tsx",
+      "kind": "tsx",
+      "lines": 135,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests"
+      ],
+      "env": [],
+      "hash": "sha256:8d59a75afa35cb39ecf284c5f04880be3fcbaf9f57cbf1aba646370176c0028a"
+    },
+    {
+      "path": "apps/mobile/src/components/joinRequests/index.ts",
+      "kind": "ts",
+      "lines": 5,
+      "exports": [
+        "AvailabilityBadge",
+        "RequestToJoinButton",
+        "JoinRequestsManager"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:39c004082f8843ded9a2c99a75149c6ee89968bfa08e75a81a7b95f35fe47630"
+    },
+    {
+      "path": "apps/mobile/src/components/joinRequests/JoinRequestsManager.tsx",
+      "kind": "tsx",
+      "lines": 475,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests",
+        "../../services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:57ad089b28ae3160e1be91bc32efcc81624d418aba64257e4d85332f39c8c139"
+    },
+    {
+      "path": "apps/mobile/src/components/joinRequests/RequestToJoinButton.tsx",
+      "kind": "tsx",
+      "lines": 255,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "../../hooks/useJoinRequests"
+      ],
+      "env": [],
+      "hash": "sha256:85e6670eb93fe7a52e2eeb737cabda0af39b99b499530ed86bf389a9030f2013"
+    },
+    {
+      "path": "apps/mobile/src/components/payment/index.ts",
+      "kind": "ts",
+      "lines": 8,
+      "exports": [
+        "PaymentStatusBadge",
+        "PlanCard",
+        "InvoiceCard",
+        "PaymentReturnHandler",
+        "PaymentStatusBadgeProps",
+        "PlanCardProps",
+        "InvoiceCardProps"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:336e08baf4101f80cfecf0fbf110ea879fdafb1d67f484d37675a5b9aaf0bfd8"
+    },
+    {
+      "path": "apps/mobile/src/components/payment/InvoiceCard.tsx",
+      "kind": "tsx",
+      "lines": 140,
+      "exports": [
+        "InvoiceCard",
+        "InvoiceCardProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "./PaymentStatusBadge",
+        "../../services/payment.service"
+      ],
+      "env": [],
+      "hash": "sha256:e50aa0d9b7a27113e84dd7a3678bddab75b8d3ad3840145daafd7ab3a1c8fd38"
+    },
+    {
+      "path": "apps/mobile/src/components/payment/PaymentReturnHandler.tsx",
+      "kind": "tsx",
+      "lines": 22,
+      "exports": [
+        "PaymentReturnHandler",
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "../../services/payment.service"
+      ],
+      "env": [],
+      "hash": "sha256:6bb78653be7a5701270280dc41c2bee83df2835aea33ad68391ceae34f9880b8"
+    },
+    {
+      "path": "apps/mobile/src/components/payment/PaymentStatusBadge.tsx",
+      "kind": "tsx",
+      "lines": 116,
+      "exports": [
+        "PaymentStatusBadge",
+        "PaymentStatusBadgeProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@expo/vector-icons"
+      ],
+      "env": [],
+      "hash": "sha256:faf4edb8e87a22c7e7f1ec73cb3beb6c535f7727ea6f72767fd7aba9b2d0a97e"
+    },
+    {
+      "path": "apps/mobile/src/components/payment/PlanCard.tsx",
+      "kind": "tsx",
+      "lines": 260,
+      "exports": [
+        "PlanCard",
+        "PlanCardProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../ui/Button",
+        "./PaymentStatusBadge",
+        "../../services/payment.service"
+      ],
+      "env": [],
+      "hash": "sha256:a3cff503179cd482cc18ae74f13dfd200d77b4d392db6cffd2e0c0d1c17abee4"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Badge.tsx",
+      "kind": "tsx",
+      "lines": 48,
+      "exports": [
+        "Badge",
+        "BadgeProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:8ac5c1886a76f25fd684010790a19ede4f20da59ea30fcd3a2e7994107807129"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Button.tsx",
+      "kind": "tsx",
+      "lines": 175,
+      "exports": [
+        "Button",
+        "ButtonProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:c83c03f9314c2842f2e6bc1adb577ae00a9cb7ffb9bc7444d49c8b08a8b1847a"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Card.tsx",
+      "kind": "tsx",
+      "lines": 57,
+      "exports": [
+        "Card",
+        "CardProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:0d8812a1177117772d4496ea7ef808af75451c25bf28ec7688a96149599426d2"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Chip.tsx",
+      "kind": "tsx",
+      "lines": 95,
+      "exports": [
+        "Chip",
+        "ChipProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:a42f38685f4584d830b612e95162f6a4685fa200e8ed06373172f3f3fa488953"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/index.ts",
+      "kind": "ts",
+      "lines": 8,
+      "exports": [
+        "Card",
+        "Input",
+        "Button",
+        "Chip",
+        "Badge",
+        "Label",
+        "Segmented"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:a24111e3ac376e0e8df1e5c378a2b8a79b1915b64d6232ef48edda0a68d3f695"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Input.tsx",
+      "kind": "tsx",
+      "lines": 103,
+      "exports": [
+        "Input",
+        "InputProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@expo/vector-icons",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:23fa49e70f78e20e064cbc47d2ca443e9b609e9d7fab1c5c31543f3db3f94216"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Label.tsx",
+      "kind": "tsx",
+      "lines": 31,
+      "exports": [
+        "Label",
+        "LabelProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:cbc7d0dd3a44874eefce990352ff93b7caadf5b18ba29db8d808b4bc1ee5201b"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Segmented.tsx",
+      "kind": "tsx",
+      "lines": 73,
+      "exports": [
+        "Segmented",
+        "SegmentedOption",
+        "SegmentedProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:7f61bc02712b2e089a5d12b91a6fe2ede014219e121cb6b3af88fcb99d151bab"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/AboutScreen.tsx",
+      "kind": "tsx",
+      "lines": 213,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "env": [],
+      "hash": "sha256:a377fd23532769ffb7f8b879d5b2cd1459630b4637d734ebca8bda73143d60cf"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/AuthForm.tsx",
+      "kind": "tsx",
+      "lines": 336,
+      "exports": [
+        "AuthForm"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:039121c58fb98a60a1342ef11171d7a5cd525d803f67f3d0400cf5560471313f"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/CreateEvent.tsx",
+      "kind": "tsx",
+      "lines": 841,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-paper-dates",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "./Participants",
+        "@/services/apiClient",
+        "@/components",
+        "@/utils/dateUtils",
+        "@/theme",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:036a737017e4e30a75d3267257fe1d5a92c423f7712bb2bd1645baec10f0bd4d"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/EventDetailsPage.tsx",
+      "kind": "tsx",
+      "lines": 1830,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/components",
+        "./Participants",
+        "../../components/joinRequests",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:ceb7bade3b1dc5096bde8f448d4714a2af7205292c117c6b35eab4e2f38cfac0"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/EventList.tsx",
+      "kind": "tsx",
+      "lines": 1311,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "./EventDetailsPage",
+        "./CreateEvent",
+        "./PlansScreen",
+        "./SettingsScreen",
+        "./NotificationsScreen",
+        "./UserPreferencesScreen",
+        "./SubscriptionScreen",
+        "./AboutScreen",
+        "./PrivacyScreen",
+        "./HelpScreen",
+        "@/services/apiClient",
+        "@/components",
+        "@/utils/dateUtils",
+        "@/theme",
+        "expo-notifications",
+        "@common/types"
+      ],
+      "env": [],
+      "hash": "sha256:4096346e789bbf3cd17b7a001f773ce9d0553904af4c0702c41176862f75a7c3"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/HelpScreen.tsx",
+      "kind": "tsx",
+      "lines": 289,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "env": [],
+      "hash": "sha256:25ad35f07012f0ac2dd6d72574009c901f92ee186af2e36470152c88db82024d"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/LoginScreen.tsx",
+      "kind": "tsx",
+      "lines": 401,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-status-bar",
+        "expo-linear-gradient",
+        "expo-blur",
+        "react-native-safe-area-context",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "@supabase/supabase-js",
+        "./EventList",
+        "./SignupScreen"
+      ],
+      "env": [],
+      "hash": "sha256:027351740afe440c12cabc0e81d9a04d6d13541e30f0108ca0ef4c6891960adf"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/NotificationsScreen.tsx",
+      "kind": "tsx",
+      "lines": 172,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/services/apiClient",
+        "./EventDetailsPage",
+        "@/config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:611209cbd64c851df389a6d0583cf5be24c6798b2246a4868056f1477b27c8e5"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/Participants.tsx",
+      "kind": "tsx",
+      "lines": 662,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:af6a5640eb66b79ef3d7df7141003d1449008eea03a491a1c09200ff131fe89e"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/PlansScreen.tsx",
+      "kind": "tsx",
+      "lines": 445,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/payment.service",
+        "../../components/payment"
+      ],
+      "env": [],
+      "hash": "sha256:ef254194b7b5ee92b8ae97bee1930bb9bb5081f98653377ab44f18973fe50391"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/PrivacyScreen.tsx",
+      "kind": "tsx",
+      "lines": 218,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons"
+      ],
+      "env": [],
+      "hash": "sha256:10c960d25a1dacf2c40c9d8c0740e71c9e09acab0551034524e6a819c9c4cac8"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/ProfileSetupScreen.tsx",
+      "kind": "tsx",
+      "lines": 826,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "expo-location"
+      ],
+      "env": [],
+      "hash": "sha256:771f85f3f1a934b59c774db1f63ba80feab586d09bccddfe821fb57c2c352424"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/SettingsScreen.tsx",
+      "kind": "tsx",
+      "lines": 403,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "@supabase/supabase-js"
+      ],
+      "env": [],
+      "hash": "sha256:2b1d207f37c4c390e89222376e0f71cdc55bbd81613c409ef7529c88f0d5e0be"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/SignupScreen.tsx",
+      "kind": "tsx",
+      "lines": 224,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "expo-blur",
+        "@expo/vector-icons",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:a02347dc31acaa4c8dd79b4ba556516e4c6621768769161ae1aa8a2697b77852"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/SubscriptionScreen.tsx",
+      "kind": "tsx",
+      "lines": 563,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../services/payment.service",
+        "../../components/payment",
+        "expo-web-browser"
+      ],
+      "env": [],
+      "hash": "sha256:5398842f7c83bab1f475f2a377438da3dda397bcdf48b8f0f9796318a376c2bf"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/SupabaseAuthScreen.tsx",
+      "kind": "tsx",
+      "lines": 265,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "../../config/supabaseClient",
+        "@supabase/supabase-js",
+        "./EventList"
+      ],
+      "env": [],
+      "hash": "sha256:f29c4a5f67991c65f26242a380aa861a1d388469ce7ea3e314dea441e7a21096"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/SupabaseAuthUI.tsx",
+      "kind": "tsx",
+      "lines": 661,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "../../config/supabaseClient",
+        "../../services/apiClient",
+        "@supabase/supabase-js",
+        "./EventList",
+        "./ProfileSetupScreen",
+        "./SubscriptionScreen",
+        "../../hooks/useSubscriptionCheck"
+      ],
+      "env": [],
+      "hash": "sha256:61859d0f076adda165dc34c192d8c64ff97a280294dddd34876ea9daedc1db14"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx",
+      "kind": "tsx",
+      "lines": 497,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@expo/vector-icons",
+        "@/services/apiClient",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:74d57b1fa1534fe81336a5502b4d8dfa0a2b5b1f421159a533a22935746331e1"
+    },
+    {
+      "path": "apps/mobile/src/screens/Debug/AuthDebugScreen.tsx",
+      "kind": "tsx",
+      "lines": 215,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "../../components/ui/Button",
+        "../../utils/authTest",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:da3f5813a2f3ed9f6a099e85e0db8b364c31acf113cd4e9feb43971b3169dd4d"
+    },
+    {
+      "path": "apps/mobile/src/screens/Debug/index.ts",
+      "kind": "ts",
+      "lines": 2,
+      "exports": [
+        "AuthDebugScreen"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:54a5ad37fb4a46f6dc85013e0bffd3b7d415175153165d362da9f7ba7d73bee0"
+    },
+    {
+      "path": "apps/server/src/modules/requests/index.ts",
+      "kind": "ts",
+      "lines": 11,
+      "exports": [
+        "RequestsRepository",
+        "RequestsService",
+        "RequestsController",
+        "requestsRoutes",
+        "JoinRequestStatus",
+        "JoinRequestAdd",
+        "JoinRequest",
+        "PaginatedJoinRequests",
+        "Availability",
+        "EventIdParam",
+        "RequestIdParam",
+        "EventRequestParams",
+        "ListRequestsQuery",
+        "JoinRequestConfig",
+        "JoinRequestStatusType",
+        "JoinRequestAddType",
+        "JoinRequestType",
+        "PaginatedJoinRequestsType",
+        "AvailabilityType",
+        "EventIdParamType",
+        "RequestIdParamType",
+        "EventRequestParamsType",
+        "ListRequestsQueryType",
+        "JoinRequestRow",
+        "AvailabilityRow",
+        "RequestErrorCode",
+        "RequestAction"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:5401a287f487f6b1b7926736ab5b8cc42e14d6ad70206c47809e4241407d179d"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.controller.ts",
+      "kind": "ts",
+      "lines": 310,
+      "exports": [
+        "getEventAvailability",
+        "createJoinRequest",
+        "listJoinRequests",
+        "approveJoinRequest",
+        "declineJoinRequest",
+        "waitlistJoinRequest",
+        "cancelJoinRequest",
+        "extendJoinRequestHold"
+      ],
+      "imports": [
+        "express",
+        "../../middleware/authGuard",
+        "./requests.service",
+        "../../utils/helper",
+        "./requests.schema",
+        "../../logger"
+      ],
+      "env": [],
+      "hash": "sha256:372306213e958e5e1125f81ddf02ec8aa8c29316d1999385f26647a381615819"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.repo.ts",
+      "kind": "ts",
+      "lines": 337,
+      "exports": [
+        "RequestsRepository",
+        "UPDATE_REQUEST_STATUS_PROCEDURE"
+      ],
+      "imports": [
+        "../../config/supabaseClient",
+        "../../utils/helper",
+        "../../logger",
+        "./requests.types"
+      ],
+      "env": [],
+      "hash": "sha256:849ec29b87a8065ae54d41f5ce8e84e2fe4756b8a2829b6ffd15796fb2d6a5f8"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.routes.ts",
+      "kind": "ts",
+      "lines": 142,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../../middleware/authGuard",
+        "../../middleware/logger.middleware",
+        "./requests.controller"
+      ],
+      "env": [],
+      "hash": "sha256:6dbe35347056c2c3a534a4e3054047ae7ef119878c2f5bac24fd54d762e00f5c"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.schema.ts",
+      "kind": "ts",
+      "lines": 88,
+      "exports": [
+        "JoinRequestStatus",
+        "JoinRequestAdd",
+        "JoinRequest",
+        "PaginatedJoinRequests",
+        "Availability",
+        "EventIdParam",
+        "RequestIdParam",
+        "EventRequestParams",
+        "ListRequestsQuery",
+        "JoinRequestConfig",
+        "JoinRequestStatusType",
+        "JoinRequestAddType",
+        "JoinRequestType",
+        "PaginatedJoinRequestsType",
+        "AvailabilityType",
+        "EventIdParamType",
+        "RequestIdParamType",
+        "EventRequestParamsType",
+        "ListRequestsQueryType"
+      ],
+      "imports": [
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:d80900fa04954a503dc1ae66dcb388f95cb61c6a83624754b8d41acee4125837"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.service.ts",
+      "kind": "ts",
+      "lines": 400,
+      "exports": [
+        "RequestsService"
+      ],
+      "imports": [
+        "../../utils/helper",
+        "./requests.repo",
+        "../../logger",
+        "../../services/notifications.service",
+        "./requests.types"
+      ],
+      "env": [
+        "JOIN_HOLD_TTL_MIN"
+      ],
+      "hash": "sha256:2f83e2c1f85762b47270681f7e03f05d14f2fb27bb732b74f02198666aa0672c"
+    },
+    {
+      "path": "apps/server/src/modules/requests/requests.types.ts",
+      "kind": "ts",
+      "lines": 54,
+      "exports": [
+        "JoinRequestStatusType",
+        "JoinRequestAddType",
+        "JoinRequestType",
+        "PaginatedJoinRequestsType",
+        "AvailabilityType",
+        "EventIdParamType",
+        "RequestIdParamType",
+        "EventRequestParamsType",
+        "ListRequestsQueryType",
+        "JoinRequestRow",
+        "AvailabilityRow",
+        "RequestErrorCode",
+        "RequestAction"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:9306b80cb1506175dc48dd4c0aeaa1827a9914f13a2cea001c466f8a8024774f"
+    },
+    {
+      "path": "apps/server/tests/unit/controllers/billing.controller.spec.ts",
+      "kind": "ts",
+      "lines": 626,
+      "exports": [],
+      "imports": [
+        "express",
+        "../../../src/controllers/billing.controller",
+        "../../../src/services/provider.factory",
+        "../../../src/config/supabaseClient",
+        "../../fixtures/lemonSqueezyMocks",
+        "../../fixtures/factories"
+      ],
+      "env": [],
+      "hash": "sha256:9d295c656396e37cf073e954a3c3506130a39c2a1635173a559e54e4fa7b9dc3"
+    },
+    {
+      "path": "apps/server/tests/unit/db/functions.spec.ts",
+      "kind": "ts",
+      "lines": 536,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "../../../src/config/supabaseClient"
+      ],
+      "env": [
+        "NODE_ENV",
+        "SUPABASE_URL"
+      ],
+      "hash": "sha256:d1676479c06bd4ce4ec85bb4b6c2cc595d6841cd8e5a26f2406baeaa2be1c4cc"
+    },
+    {
+      "path": "apps/server/tests/unit/services/events-enhanced.spec.ts",
+      "kind": "ts",
+      "lines": 359,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "../../../src/services/events.service"
+      ],
+      "env": [],
+      "hash": "sha256:646ff7aa42b3e548edbd20cf92e39527924f88f56a99af0ec22cbafc0a80e329"
+    },
+    {
+      "path": "apps/server/tests/unit/services/events.service.spec.ts",
+      "kind": "ts",
+      "lines": 610,
+      "exports": [],
+      "imports": [
+        "../../../src/services/events.service",
+        "../../fixtures/factories",
+        "../../setup",
+        "../../../src/services/events.service",
+        "../../../src/config/supabaseClient",
+        "@supabase/supabase-js"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "SUPABASE_ANON_KEY"
+      ],
+      "hash": "sha256:47b728cfab1072a6db55db033d78efb108139a597bc5cdecb7c4bd45741bcffd"
+    },
+    {
+      "path": "apps/server/tests/unit/services/payment-providers.service.spec.ts",
+      "kind": "ts",
+      "lines": 529,
+      "exports": [],
+      "imports": [
+        "../../../src/services/payment-providers.service",
+        "../../fixtures/lemonSqueezyMocks",
+        "@jest/globals"
+      ],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "LEMONSQUEEZY_STORE_ID",
+        "LEMONSQUEEZY_WEBHOOK_SECRET"
+      ],
+      "hash": "sha256:c41ff76ced3e7c8790f49aa737ac1a2a6beafdf790099cdd3a15c77b12212ce1"
+    },
+    {
+      "path": "apps/server/tests/unit/services/provider.factory.spec.ts",
+      "kind": "ts",
+      "lines": 348,
+      "exports": [],
+      "imports": [
+        "../../../src/services/provider.factory",
+        "../../../src/services/payment-providers.service",
+        "../../fixtures/lemonSqueezyMocks"
+      ],
+      "env": [],
+      "hash": "sha256:50bbec7c8787faaddac262295f8afb451f9e7f32291131a9845d2b6248b1ffd9"
+    },
+    {
+      "path": "apps/server/tests/unit/shared/notifier.spec.ts",
+      "kind": "ts",
+      "lines": 318,
+      "exports": [],
+      "imports": [
+        "@jest/globals",
+        "../../../src/shared/notifier"
+      ],
+      "env": [],
+      "hash": "sha256:ab3097335913f9fd07a0e4f15c6e58a382be3b4face597bd6fd88e525c8720cb"
+    },
+    {
+      "path": "apps/server/tests/unit/utils/helper.spec.ts",
+      "kind": "ts",
+      "lines": 438,
+      "exports": [],
+      "imports": [
+        "../../../src/utils/helper",
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:f29726d8f15664e90ffb3bf5cf0b3de8144618c3fde9925163b319d930832e9b"
+    },
+    {
+      "path": "packages/payments/src/providers/lemonsqueezy/index.ts",
+      "kind": "ts",
+      "lines": 217,
+      "exports": [
+        "lemonSqueezyProvider"
+      ],
+      "imports": [
+        "crypto",
+        "../../ports/provider",
+        "../../ports/config",
+        "../../types"
+      ],
+      "env": [
+        "LEMONSQUEEZY_VARIANT_MAPPING"
+      ],
+      "hash": "sha256:ef60fb68a11a8ee7f41a80f1f99c47a6bfa31fd8911114c8e230f957ae2b8091"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/app.js",
+      "kind": "js",
+      "lines": 78,
+      "exports": [
+        "createApp"
+      ],
+      "imports": [
+        "express",
+        "cors",
+        "./routes/auth.routes",
+        "./routes/events.routes",
+        "./routes/locations.routes",
+        "./routes/billing.routes",
+        "./routes/discovery.routes",
+        "./routes/user-location.routes",
+        "./routes/mock.routes",
+        "./services/payments.container",
+        "./middleware/authGuard",
+        "@payments/core",
+        "./middleware/errorHandler",
+        "path",
+        "body-parser"
+      ],
+      "env": [
+        "NODE_ENV"
+      ],
+      "hash": "sha256:b1a934b73729821b7a9742e86d403ccd71c44d72d853be7a316f2ea4c37382e7"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/index.js",
+      "kind": "js",
+      "lines": 22,
+      "exports": [],
+      "imports": [
+        "./app",
+        "debug",
+        "dotenv",
+        "path",
+        "url",
+        "./utils/envCheck"
+      ],
+      "env": [
+        "NODE_ENV",
+        "PORT"
+      ],
+      "hash": "sha256:a87ffa56544d7f0287318ab83480acec23fea348c99652d4c232fc76db27b26f"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/logger.js",
+      "kind": "js",
+      "lines": 51,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "winston",
+        "winston-daily-rotate-file",
+        "fs",
+        "path"
+      ],
+      "env": [
+        "NODE_ENV",
+        "VITEST",
+        "JEST_WORKER_ID",
+        "QUIET_TESTS",
+        "LOG_LEVEL"
+      ],
+      "hash": "sha256:6d2cf71bcba462c2ae62ede765d882a0c1ef70b2a3a64a307c347893e8dc6f24"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/validators.js",
+      "kind": "js",
+      "lines": 1348,
+      "exports": [
+        "createApiClient",
+        "schemas",
+        "JoinRequestStatus",
+        "JoinRequestAdd",
+        "JoinRequest",
+        "PaginatedJoinRequests",
+        "Availability",
+        "ListRequestsQuery",
+        "api"
+      ],
+      "imports": [
+        "@zodios/core",
+        "zod",
+        "@payments/core"
+      ],
+      "env": [],
+      "hash": "sha256:6018495ddca80347e5194ed3dbe1eb8c7e098e90af858399ecb8f7c92e71449d"
+    },
+    {
+      "path": "apps/server/dist/apps/server/tests/setup.js",
+      "kind": "js",
+      "lines": 352,
+      "exports": [
+        "getAuthToken",
+        "testSupabase",
+        "TEST_USERS",
+        "TestDbHelper",
+        "default"
+      ],
+      "imports": [
+        "dotenv",
+        "@jest/globals",
+        "path",
+        "fs",
+        "@supabase/supabase-js",
+        "../src/logger"
+      ],
+      "env": [
+        "TEST_SUPABASE_URL",
+        "TEST_SUPABASE_SERVICE_ROLE_KEY",
+        "TEST_SUPABASE_ANON_KEY",
+        "NODE_ENV",
+        "MOCK_DATABASE",
+        "FAST_TESTS"
+      ],
+      "hash": "sha256:94d3e3ed19886257c1ddcde02f3c4401f53907b243d71a21e47ed5a8d65c51d5"
+    },
+    {
+      "path": "apps/server/tests/unit/modules/requests/requests.controller.spec.ts",
+      "kind": "ts",
+      "lines": 588,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "express",
+        "../../../../src/modules/requests/requests.controller",
+        "../../../../src/modules/requests/requests.service",
+        "../../../../src/middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:ecff4425557eb0e52dceccf71d76620a772ef2518ea0f86faf159e87811789a6"
+    },
+    {
+      "path": "apps/server/tests/unit/modules/requests/requests.repo.spec.ts",
+      "kind": "ts",
+      "lines": 599,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../../src/modules/requests/requests.repo",
+        "../../../../src/modules/requests/requests.types"
+      ],
+      "env": [],
+      "hash": "sha256:3108eb1a45e6be09c034e9547eb129550e73efbcc15817c5377d73093523ad71"
+    },
+    {
+      "path": "apps/server/tests/unit/modules/requests/requests.schema.spec.ts",
+      "kind": "ts",
+      "lines": 450,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../../src/modules/requests/requests.schema"
+      ],
+      "env": [],
+      "hash": "sha256:a1eaa0df03a73181709aada330f7a6d636b36f3da89f265e53646f5859312f65"
+    },
+    {
+      "path": "apps/server/tests/unit/modules/requests/requests.service.spec.ts",
+      "kind": "ts",
+      "lines": 600,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../../src/modules/requests/requests.service",
+        "../../../../src/modules/requests/requests.repo",
+        "../../../../src/modules/requests/requests.types"
+      ],
+      "env": [
+        "JOIN_HOLD_TTL_MIN",
+        "MOCK_DATABASE"
+      ],
+      "hash": "sha256:bb1a99d7cc116e9d74c7f623a4fa51cf4916184f94cff9afd7dfae25a9d2bcd7"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/config/providers.js",
+      "kind": "js",
+      "lines": 135,
+      "exports": [
+        "getEnabledProviders",
+        "getProviderConfig",
+        "validateProviderConfig",
+        "getProviderNames",
+        "getEnabledProviderNames",
+        "SUPPORTED_PROVIDERS"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:7992429ae857f840279221c163faffffe6977593f2f953160bb14fa9017f2620"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/config/supabaseClient.js",
+      "kind": "js",
+      "lines": 34,
+      "exports": [
+        "supabase"
+      ],
+      "imports": [
+        "@supabase/supabase-js",
+        "fs",
+        "path",
+        "dotenv",
+        "dotenv/config"
+      ],
+      "env": [
+        "NODE_ENV",
+        "TEST_SUPABASE_URL",
+        "TEST_SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:2aaee1ac524691f771af968a414d6fa3a49f1198941a78593db1a2f0d1d7b2ed"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/auth.controller.js",
+      "kind": "js",
+      "lines": 33,
+      "exports": [
+        "signup",
+        "login",
+        "logout"
+      ],
+      "imports": [
+        "../services/auth.service"
+      ],
+      "env": [],
+      "hash": "sha256:913a3676e9b00eb3badb439b1b686bb5e0618b47712cd99d06eb152259abea2c"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/billing.controller.js",
+      "kind": "js",
+      "lines": 493,
+      "exports": [
+        "BillingController",
+        "default"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../utils/helper",
+        "../services/payments.container"
+      ],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "MOBILE_WEB_URL",
+        "FRONTEND_URL"
+      ],
+      "hash": "sha256:ab09bbf0c4e6cde20d444c21062514945855bc8d107870f0e1cde32ff845dee0"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/events.controller.js",
+      "kind": "js",
+      "lines": 191,
+      "exports": [
+        "createEvent",
+        "getEvent",
+        "listEvents",
+        "updateEvent",
+        "publishEvent",
+        "cancelEvent",
+        "completeEvent",
+        "deleteEvent",
+        "purgeEvent",
+        "restoreEvent"
+      ],
+      "imports": [
+        "../services/events.service",
+        "../services/notifications.service",
+        "debug",
+        "../utils/helper",
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:6676c77e22c7b51b67215138d7e148e9eb5d758cc8617eef06da6e9fc55d24c4"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/items.controller.js",
+      "kind": "js",
+      "lines": 72,
+      "exports": [
+        "updateItem",
+        "assignItem",
+        "unassignItem",
+        "deleteItem",
+        "listItems",
+        "addItem",
+        "getItem"
+      ],
+      "imports": [
+        "../services/items.service",
+        "../utils/helper",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:cbe4c2afa88197f715cb581c384ec2fb62ef414144e97e75c66d9ad32b624860"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/location-discovery.controller.js",
+      "kind": "js",
+      "lines": 307,
+      "exports": [
+        "searchNearbyEventsController",
+        "searchEventsByCityController",
+        "getPopularEventsController",
+        "getEventWithLocationController",
+        "getUserNotificationsController",
+        "markNotificationAsReadController",
+        "markAllNotificationsAsReadController",
+        "getUnreadNotificationCountController",
+        "registerPushTokenController",
+        "getNotificationPreferencesController",
+        "putNotificationPreferencesController"
+      ],
+      "imports": [
+        "zod",
+        "../services/location-discovery.service",
+        "../services/notifications.service",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:bae511e4198326c0e83a2c348559d2162fd3d4613fe0f5c8aa9b06005ca258d6"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/locations.controller.js",
+      "kind": "js",
+      "lines": 10,
+      "exports": [
+        "addLocation"
+      ],
+      "imports": [
+        "../services/locations.service"
+      ],
+      "env": [],
+      "hash": "sha256:729e09f0ccd492cd9a0ab8ba70297eaa079d4ca6a508e7509d1a901d29a80a4b"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/participants.controller.js",
+      "kind": "js",
+      "lines": 46,
+      "exports": [
+        "add",
+        "list",
+        "get",
+        "update",
+        "remove",
+        "bulkAdd",
+        "resendInvite"
+      ],
+      "imports": [
+        "../services/participants.service",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:75afc8bceecccefbeba905907ee3db8b699a7cbf8d0843185751e86ed59caf06"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/user-location.controller.js",
+      "kind": "js",
+      "lines": 150,
+      "exports": [
+        "getUserLocationController",
+        "updateUserLocationController",
+        "updateDiscoverabilityController",
+        "removeUserLocationController",
+        "searchCitiesController"
+      ],
+      "imports": [
+        "zod",
+        "../services/user-location.service",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:9dd670179f6fe6f091d9f40b778c2eed697721df92b25cc942572e81165a14c9"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/middleware/authGuard.js",
+      "kind": "js",
+      "lines": 20,
+      "exports": [
+        "authGuard"
+      ],
+      "imports": [
+        "../config/supabaseClient"
+      ],
+      "env": [
+        "QUIET_TESTS"
+      ],
+      "hash": "sha256:ffb8f034d92548298bf22d23cdc540d9903ba7c7dfd7284e3fd9fac40bf516e2"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/middleware/authGuard.mock.js",
+      "kind": "js",
+      "lines": 39,
+      "exports": [
+        "mockAuthGuard"
+      ],
+      "imports": [
+        "../../tests/setup"
+      ],
+      "env": [],
+      "hash": "sha256:70012da06b881a58c67ce5db2febae1a4e19428ba87617183369e358c5bbc4dd"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/middleware/errorHandler.js",
+      "kind": "js",
+      "lines": 5,
+      "exports": [
+        "errorHandler"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:06d4f79adef40d24fc2f2126270410cb02db71b5f059cb3f3fbb7d917eef243e"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/middleware/logger.middleware.js",
+      "kind": "js",
+      "lines": 10,
+      "exports": [
+        "routeLogger",
+        "default"
+      ],
+      "imports": [],
+      "env": [
+        "QUIET_TESTS"
+      ],
+      "hash": "sha256:54827be8def13f4b5e4036740d8f170bee3ac99e837c7a574bdcdeb60bd9c39b"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/middleware/validateSchema.js",
+      "kind": "js",
+      "lines": 9,
+      "exports": [
+        "validate"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:477a880e270d179f4301a974a18c480575cc16db667fb64ba26e99608a77a951"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/auth.routes.js",
+      "kind": "js",
+      "lines": 10,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/auth.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "env": [],
+      "hash": "sha256:db8f282efb7cd8b6f8e24906699b5575da4c574d385770ca4c3ea023a769066e"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/billing.routes.js",
+      "kind": "js",
+      "lines": 40,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/billing.controller",
+        "body-parser",
+        "@payments/core",
+        "../services/payments.container",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:cd94e0c4277a2243b2642076fcbd5f053ce266c565bbdeda5687c97e43e506d2"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/discovery.routes.js",
+      "kind": "js",
+      "lines": 34,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/location-discovery.controller"
+      ],
+      "env": [],
+      "hash": "sha256:1e4db28f405b82ab927e1755b80141e742e321f1b8a41a6ede4ba469b63a0556"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/events.routes.js",
+      "kind": "js",
+      "lines": 55,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/validateSchema",
+        "../middleware/logger.middleware",
+        "../validators",
+        "../controllers/events.controller",
+        "../modules/requests",
+        "./items.routes",
+        "./participants.routes",
+        "../modules/requests"
+      ],
+      "env": [],
+      "hash": "sha256:961c523715749d7f89ddacc09d18117e7c9db566f4729a42a93584fb15a231be"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/items.routes.js",
+      "kind": "js",
+      "lines": 33,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/items.controller",
+        "../middleware/validateSchema",
+        "../validators",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:0654d72c608f45866ab566ec931cb4e200817ef2fab9738c1ce67a0cf05e5b49"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/locations.routes.js",
+      "kind": "js",
+      "lines": 8,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/locations.controller",
+        "../middleware/validateSchema",
+        "../validators"
+      ],
+      "env": [],
+      "hash": "sha256:adeb084f2e8b87841b0a6fafb161b50331ecf0c76543f030ac6faf49a6a439f0"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/mock.routes.js",
+      "kind": "js",
+      "lines": 351,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express"
+      ],
+      "env": [],
+      "hash": "sha256:8a1a8a5e4651eee22d415b131523657c11be84c148378f6d2f9ad134e092253b"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/participants.routes.js",
+      "kind": "js",
+      "lines": 22,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../controllers/participants.controller",
+        "../validators",
+        "../middleware/validateSchema",
+        "../middleware/authGuard"
+      ],
+      "env": [],
+      "hash": "sha256:6e7f2216cac3c3dff5d73d2dcdb413a74f44293d16751f4143c35a724b8ee59c"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/user-location.routes.js",
+      "kind": "js",
+      "lines": 20,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-location.controller"
+      ],
+      "env": [],
+      "hash": "sha256:729bd6b8bbda7cd35f8427cf2fc009ad627d770374fc5a32905e218ff5a8c3b7"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/auth.service.js",
+      "kind": "js",
+      "lines": 65,
+      "exports": [
+        "signup",
+        "login",
+        "logout"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:1afae76fa8e47c14da70d25f4cb7f19e5f0dab6eb0338b6e906397afebab2fa6"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/events.service.js",
+      "kind": "js",
+      "lines": 969,
+      "exports": [
+        "createEventWithItems",
+        "assignItem",
+        "getEventDetails",
+        "listEvents",
+        "updateEventDetails",
+        "publishEvent",
+        "cancelEvent",
+        "completeEvent",
+        "deleteEvent",
+        "purgeEvent",
+        "restoreEvent"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "./notifications.service",
+        "../utils/helper",
+        "../validators",
+        "@supabase/supabase-js"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:133324f04027b9fb031c7c3227526df654e47439546380d9c43883c7ec6b9438"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/items.service.js",
+      "kind": "js",
+      "lines": 197,
+      "exports": [
+        "addItem",
+        "updateItem",
+        "assignItem",
+        "deleteItem",
+        "listItems",
+        "getItem"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger",
+        "../validators",
+        "../utils/helper",
+        "../utils/eventGuards"
+      ],
+      "env": [],
+      "hash": "sha256:ad032c1fcaa346709f17860d7639e68c9da1128448efeb50aae893cace0f83cb"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/location-discovery.service.js",
+      "kind": "js",
+      "lines": 222,
+      "exports": [
+        "searchNearbyEvents",
+        "getEventWithLocation",
+        "searchEventsByCity",
+        "getPopularEvents"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:36361022ca6c922c8b603c33b517bf927c00fdee7abba22197b0dfe93d03cbc7"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/locations.service.js",
+      "kind": "js",
+      "lines": 14,
+      "exports": [
+        "createLocation"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../validators"
+      ],
+      "env": [],
+      "hash": "sha256:07d5dcd79cc57950c8c3b8dbca972a7fb9e0571abdf83c4a2d315c641c3de0b3"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/notifications.service.js",
+      "kind": "js",
+      "lines": 306,
+      "exports": [
+        "createNotification",
+        "notifyNearbyUsers",
+        "getUserNotifications",
+        "markNotificationAsRead",
+        "markAllNotificationsAsRead",
+        "getUnreadNotificationCount",
+        "registerPushToken",
+        "getNotificationPreferences",
+        "upsertNotificationPreferences",
+        "notifyEventParticipantsCancelled"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:0a10622fc9ccdee62d4af478a167200a0e35d9bf3025706c093e2014130368fc"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/participants.service.js",
+      "kind": "js",
+      "lines": 252,
+      "exports": [
+        "addHost",
+        "addParticipant",
+        "listParticipants",
+        "updateParticipant",
+        "deleteParticipant",
+        "getParticipant",
+        "bulkAddParticipants",
+        "resendInvite"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../utils/mailer"
+      ],
+      "env": [],
+      "hash": "sha256:8459df90977198b52ee9e33006f13ebc71bc48e0750f958002986da2b534e634"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/payments.adapters.js",
+      "kind": "js",
+      "lines": 159,
+      "exports": [
+        "SupabaseConfigStore",
+        "supabasePersistence",
+        "simpleEventBus",
+        "supabaseInbox",
+        "supabaseIdempotency"
+      ],
+      "imports": [
+        "../config/supabaseClient"
+      ],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "LEMONSQUEEZY_STORE_ID",
+        "LEMONSQUEEZY_WEBHOOK_SECRET",
+        "LIVE_MODE"
+      ],
+      "hash": "sha256:dc58785449d574adcf19a71c3653d0d6c41b2e5d3ae26a4a94ecf403c60cb516"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/payments.container.js",
+      "kind": "js",
+      "lines": 40,
+      "exports": [
+        "createPaymentContainer",
+        "createPaymentService"
+      ],
+      "imports": [
+        "@payments/core",
+        "./payments.adapters"
+      ],
+      "env": [
+        "PAYMENTS_USE_MEMORY_ADAPTERS"
+      ],
+      "hash": "sha256:d2b06b3252bfb805b9158d590df1afd8f683fb23b752213120848ee20261d7d8"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/push.service.js",
+      "kind": "js",
+      "lines": 32,
+      "exports": [
+        "enqueueDelivery"
+      ],
+      "imports": [
+        "../logger",
+        "../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:65472cfeb70e5b7d5aba29220174f0213bc9341afed6a80c568c254c4c382d8e"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/user-location.service.js",
+      "kind": "js",
+      "lines": 221,
+      "exports": [
+        "updateUserLocation",
+        "updateDiscoverabilitySettings",
+        "getUserLocationProfile",
+        "removeUserLocation",
+        "searchCities"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:d5da1120190421a99444e689564519dfc9f8633577daaf256d3587476dfdb4dc"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/shared/notifier.js",
+      "kind": "js",
+      "lines": 134,
+      "exports": [
+        "sendJoinRequestNotification",
+        "sendBatchNotifications",
+        "scheduleNotification"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:94fae0eef1b1be42657309c7c190460064f4a7482fa2f9426031c3ffc4c46da1"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/utils/envCheck.js",
+      "kind": "js",
+      "lines": 58,
+      "exports": [
+        "checkEnvironmentVariables"
+      ],
+      "imports": [],
+      "env": [
+        "LEMONSQUEEZY_API_KEY",
+        "LEMONSQUEEZY_STORE_ID"
+      ],
+      "hash": "sha256:6257a18352df47a657e066ed893f81a3f1cea442644ac17697f8d4388e2b92ea"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/utils/eventGuards.js",
+      "kind": "js",
+      "lines": 109,
+      "exports": [
+        "ensureEventEditable",
+        "ensureActorCanAssign"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "./helper"
+      ],
+      "env": [],
+      "hash": "sha256:5f6253152b0e8e9e7d5909e6647edf06596fed82b0653c03ac1fbddb393c4f88"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/utils/helper.js",
+      "kind": "js",
+      "lines": 105,
+      "exports": [
+        "camelToSnake",
+        "httpStatus",
+        "toDbColumns",
+        "mapDbError",
+        "handle",
+        "guardToService",
+        "handleResult",
+        "mustFindOne",
+        "default"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:f1a4e5fe4dde6a74c6e78f6e807635977c2abf0497a62ec7a21f7fb5ad11ba0c"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/utils/mailer.js",
+      "kind": "js",
+      "lines": 31,
+      "exports": [
+        "sendInviteEmail"
+      ],
+      "imports": [
+        "nodemailer"
+      ],
+      "env": [
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_SECURE",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "SMTP_FROM",
+        "APP_URL"
+      ],
+      "hash": "sha256:54a5dfb2d6fdb102a3a4414a649af21c3da2e2c6d6db4c29cba7cb26f8c2061b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/all-errors.test.ts",
+      "kind": "ts",
+      "lines": 158,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:d629da33805d24b17d1f6383009acfbf3b769bd4f2d8191a9720d68e4e64ab7d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/anyunknown.test.ts",
+      "kind": "ts",
+      "lines": 29,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:fac8ebb9d3007f7ef1ea320eed85b22b3248fde6bb1fe645a1a513b69442c014"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/array.test.ts",
+      "kind": "ts",
+      "lines": 72,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:e7d3813182c59e511d350bebbd2a25b349868cc73d057b23b1d85a4d927b3711"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/async-parsing.test.ts",
+      "kind": "ts",
+      "lines": 389,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:45f829362cc917d9505e244ea0d9a06d71a1953747dc31e57780388e82ad5afa"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/async-refinements.test.ts",
+      "kind": "ts",
+      "lines": 47,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:cfd6752223678338c949f1716deeff8c18807f31343d6a4544f494d10e5acf60"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/base.test.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:989d8ff33e43dbeb3d08d8f659a3269d22fb573a86d48c72da58ab84e484e532"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/bigint.test.ts",
+      "kind": "ts",
+      "lines": 56,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:799b38ffff2d2a977493846e127d6f76e5cdb346d8886a2d2c76616253170f45"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/branded.test.ts",
+      "kind": "ts",
+      "lines": 54,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:d0d7213caa6b727fe72a4bd99631984c4038ecbe8f67001840b447ca4b2085b0"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/catch.test.ts",
+      "kind": "ts",
+      "lines": 221,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:e4b1727836b5cdca66337af180a756fab2b712f61d49d17326a90c0a54080be5"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/coerce.test.ts",
+      "kind": "ts",
+      "lines": 134,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:30dec33039db38b3c2baecbee09c74afc1d9adc68a6229a35628a1bac4539db9"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/complex.test.ts",
+      "kind": "ts",
+      "lines": 57,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:51d676be11ddb5a0b987471c6e49b819b4f6b2aba77fa23565deb4591439cf40"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/custom.test.ts",
+      "kind": "ts",
+      "lines": 32,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:6837c23478b39dc6304a98bbbba4a1df9b973d40f6243f0939bfbc339d96b01d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/date.test.ts",
+      "kind": "ts",
+      "lines": 33,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:7d352eab070ae8f4fcbc61674f6b238159699ec4b96754ec1aac0cac74091c34"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/deepmasking.test.ts",
+      "kind": "ts",
+      "lines": 187,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:8b6cef1cdb8eb422ebb50b24e4f88742f13eaf0abf83b08a3980f2406a4b6ac6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/default.test.ts",
+      "kind": "ts",
+      "lines": 113,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:92067a119b984ab2750a1eba8e1a5573276aeaed95056e9e283f4a3bb54e5d5e"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/description.test.ts",
+      "kind": "ts",
+      "lines": 34,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:f1b75327fd817bb63c3b2e3be0ff9aff7511e2a391713756d8cb26cbfd3d5aa5"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/discriminated-unions.test.ts",
+      "kind": "ts",
+      "lines": 316,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:5bd00d9f7eeac9dd60faa03af58b5a915040f54b93ff77c4eab0d4a18f8b9e9c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/enum.test.ts",
+      "kind": "ts",
+      "lines": 81,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:3fcf9f740cd53f52431abda4c61a3732dde44c3a9f1033159e9c0c92fcebd09a"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/error.test.ts",
+      "kind": "ts",
+      "lines": 552,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../ZodError.js",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:1c77f7fefb917210ac238159c8116bd159158c260008bb6fd2f8a91ba9e55538"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/firstparty.test.ts",
+      "kind": "ts",
+      "lines": 88,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:9906d7da8e62f7b9b7e5cd9553bea0872ad8a0b259214034108cec8a624cfc1d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/firstpartyschematypes.test.ts",
+      "kind": "ts",
+      "lines": 22,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:9be5a0881151df777293172088b2039ed7e1e6f4a98a7557cdd0211f108c9b96"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/function.test.ts",
+      "kind": "ts",
+      "lines": 258,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:93b2a5008501e4d883c838e567a6d3da18f88f31fb71a7ba5615664572f89783"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/generics.test.ts",
+      "kind": "ts",
+      "lines": 49,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:d1a4c54239acff333f76231084c48133257fefe14f504d0cab055979b5a9e723"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/instanceof.test.ts",
+      "kind": "ts",
+      "lines": 38,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:b11897351fcf312dee317408b7aa27929ba37538c468588429f4f4ae3c5fa4ce"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/intersection.test.ts",
+      "kind": "ts",
+      "lines": 111,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:c560d1fbca45e049f07eb2a382f7ee4c678164825cf5725b014312eac9412c8c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/language-server.source.ts",
+      "kind": "ts",
+      "lines": 77,
+      "exports": [
+        "filePath",
+        "Test",
+        "instanceOfTest",
+        "TestMerge",
+        "instanceOfTestMerge",
+        "TestUnion",
+        "instanceOfTestUnion",
+        "TestPartial",
+        "instanceOfTestPartial",
+        "TestPick",
+        "instanceOfTestPick",
+        "TestOmit",
+        "instanceOfTestOmit"
+      ],
+      "imports": [
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:aeb84d6fb14e6511a3509a0545770d869986f397ee02da640730d4ff97c6be4a"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/language-server.test.ts",
+      "kind": "ts",
+      "lines": 208,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:c75a03c145d1b0f28c62cba881aae1db600912a1df3be99d1996a18da776c498"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/literal.test.ts",
+      "kind": "ts",
+      "lines": 37,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:a22faed6c08e04c75d6bb0180d5e1fafc4645b15445a479f338016ee4855c362"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/map.test.ts",
+      "kind": "ts",
+      "lines": 111,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:bb52432835e9fa70a94f444fc9e7c2d8e6ac5eb905cc3b8ae54846e52fa57360"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/masking.test.ts",
+      "kind": "ts",
+      "lines": 5,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:557f4bc4d8f4ab29afd87f07cf70fa4de60d765fc86fbc5eb4b788f34dd825a2"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/mocker.test.ts",
+      "kind": "ts",
+      "lines": 20,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "./Mocker.js"
+      ],
+      "env": [],
+      "hash": "sha256:46f64d2995e29c5838189ed10cd1b185b44c33dbc21418364a80ac19f285362b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/Mocker.ts",
+      "kind": "ts",
+      "lines": 55,
+      "exports": [
+        "Mocker"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:b7732bb15ed6ab38f61dd4a15f088af109b0a99eccb50cdd9f542a17bb935f5e"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/nan.test.ts",
+      "kind": "ts",
+      "lines": 22,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:2ef6416fc58f94964cb889d28f8b7019a90365d24229d8146c845b8c7b0b8610"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/nativeEnum.test.ts",
+      "kind": "ts",
+      "lines": 88,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:6f64363193a447f71a8aa5440461bdb5451c6c4433fb4fca785ef4798d5b52fb"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/nullable.test.ts",
+      "kind": "ts",
+      "lines": 43,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:c51336535632e1404455bca333ccafc143191600047251a3e3e13f551693c516"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/number.test.ts",
+      "kind": "ts",
+      "lines": 177,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:d56a65ec9bc03482c2b23eecb97c5213b564b5aaafeaf205d2a1f54a2c91e1d8"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/object-augmentation.test.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:69777e89506b2d8157c98e176dde94a7c664db7228485c52a18154ac4b794382"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/object-in-es5-env.test.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:687d2c52ddaaca24ab3d3e301cba042a7560888570af23b50a0597d3012d500c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/object.test.ts",
+      "kind": "ts",
+      "lines": 435,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:489ba37da9b2117c730aaa847099c7899ba0a376cf612495f41c42c29808fb45"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/optional.test.ts",
+      "kind": "ts",
+      "lines": 43,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:0edb7a6478e931bf256f3d71d1367d2b8199b4082101dba97cc306e4dc3c92c9"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/parser.test.ts",
+      "kind": "ts",
+      "lines": 42,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:7c8b720c921618f6c89eb08eae80ba45602fa04dafe9c7b9b861512954d70f9b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/parseUtil.test.ts",
+      "kind": "ts",
+      "lines": 24,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../helpers/parseUtil.js"
+      ],
+      "env": [],
+      "hash": "sha256:822a6d836b05ab38eadf26592420eba6be694dc7c1d654388efbb601af00c288"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/partials.test.ts",
+      "kind": "ts",
+      "lines": 244,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:2fe9fe6cdfa085eed053894acdd3ef32c5425f7da0aa81ea1043c737fcd7cf41"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/pickomit.test.ts",
+      "kind": "ts",
+      "lines": 112,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:cd05293952b5fb0ca26eeb9ba6cd69a26f58fa5c62eb35f9ce1eb1ac9e00ccd6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/pipeline.test.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:b285aac721b744da8c5a0a093c9ed57244643e1e333df576922e67bfaa9e16ab"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/preprocess.test.ts",
+      "kind": "ts",
+      "lines": 187,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:7433e95a0504f7a250b7beaac30a5e8f500c315d99b3badb978a0b28ed7a61dd"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/primitive.test.ts",
+      "kind": "ts",
+      "lines": 441,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js",
+        "./Mocker.js"
+      ],
+      "env": [],
+      "hash": "sha256:d0214e93de931a8e6b89b3cb89df1cbf7299d6be00abcdde71ffdcb811953dea"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/promise.test.ts",
+      "kind": "ts",
+      "lines": 91,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:c03c19525c56cea7808d982bd23ba89b5a48db13934e8d4824e13ee0a249d19b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/readonly.test.ts",
+      "kind": "ts",
+      "lines": 195,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:dc0ffe451674c8938b67bdcb63deff7958dd1f0e5ec69a485bba470c978817c1"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/record.test.ts",
+      "kind": "ts",
+      "lines": 172,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:ebefc7ad59b2246787408efe7aaf2f7beec0b5c90c70e79990dcbf241c2d6c95"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/recursive.test.ts",
+      "kind": "ts",
+      "lines": 198,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:9ccc037ef698ceeb4e6986e02aaee71ff318c4dc0f875b9253bff6ba14db9137"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/refine.test.ts",
+      "kind": "ts",
+      "lines": 314,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../ZodError.js",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:2f3a329952b6f0109028a142225d719b05307a18f7395297711f725b599933f8"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/safeparse.test.ts",
+      "kind": "ts",
+      "lines": 28,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:5aa7597109dea6647d0ab022a4aab694c44acfeae53386ea6366b806fbd3e872"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/set.test.ts",
+      "kind": "ts",
+      "lines": 143,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:eeadd9dabd30b857c5de8526503cb1e5c8b6aa45a99c4708958ca1f822bb3da2"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/standard-schema.test.ts",
+      "kind": "ts",
+      "lines": 84,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js",
+        "../standard-schema.js"
+      ],
+      "env": [],
+      "hash": "sha256:f74076e43f44c887b3bf7d26d5ec686b8070359e63fe373e6c45b6c7708c025c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/string.test.ts",
+      "kind": "ts",
+      "lines": 917,
+      "exports": [],
+      "imports": [
+        "node:buffer",
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:19ac9a6b0a7c610038d93dd9f97d453ad3a54bd5e1b1dab99e25d544872d93cd"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/transformer.test.ts",
+      "kind": "ts",
+      "lines": 234,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:e3da81596e0077326f442153a741c9ba25669b8b5eb025a8ea7fc1eb0106faf7"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/tuple.test.ts",
+      "kind": "ts",
+      "lines": 91,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../ZodError.js",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:e8a48c8791387c94076c7eee8c9b7e18712a45356c7167f7c43bedd54544614f"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/unions.test.ts",
+      "kind": "ts",
+      "lines": 58,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:0c32f20d663b30438bb8ff834b7f066722160720a25a90e6513a66b9baa4604d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/validations.test.ts",
+      "kind": "ts",
+      "lines": 134,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:10ae103a7c7d9e5ce8bdacf9ef30bc44a52cdadf64fe365f492d27dcb432b482"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v3/tests/void.test.ts",
+      "kind": "ts",
+      "lines": 16,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3",
+        "../helpers/util.js"
+      ],
+      "env": [],
+      "hash": "sha256:6bdad3b7ba624eb3bd03c0bfea611de46c10aba62d03df9bd2ba49bafedc15cb"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/index.js",
+      "kind": "js",
+      "lines": 10,
+      "exports": [
+        "RequestsRepository",
+        "RequestsService",
+        "RequestsController",
+        "requestsRoutes",
+        "JoinRequestStatus",
+        "JoinRequestAdd",
+        "JoinRequest",
+        "PaginatedJoinRequests",
+        "Availability",
+        "EventIdParam",
+        "RequestIdParam",
+        "EventRequestParams",
+        "ListRequestsQuery",
+        "JoinRequestConfig"
+      ],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:085c42b7a0beb8b87db3cde6371691fb08a3681f7e2b73a3a8fc14319c5fc5ab"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.controller.js",
+      "kind": "js",
+      "lines": 237,
+      "exports": [
+        "getEventAvailability",
+        "createJoinRequest",
+        "listJoinRequests",
+        "approveJoinRequest",
+        "declineJoinRequest",
+        "waitlistJoinRequest",
+        "cancelJoinRequest",
+        "extendJoinRequestHold"
+      ],
+      "imports": [
+        "./requests.service",
+        "../../utils/helper",
+        "./requests.schema"
+      ],
+      "env": [],
+      "hash": "sha256:85e83a27603f81e3a47f97f37ff6b30e4d01d11f58e43a2ef98bdd952f6e7d2a"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.repo.js",
+      "kind": "js",
+      "lines": 289,
+      "exports": [
+        "RequestsRepository",
+        "UPDATE_REQUEST_STATUS_PROCEDURE"
+      ],
+      "imports": [
+        "../../config/supabaseClient",
+        "../../utils/helper",
+        "../../logger"
+      ],
+      "env": [],
+      "hash": "sha256:9c04eef7b76c60522ef4d8894ba957ab645c1426ac8f52e5724717db0ce19ae9"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
+      "kind": "js",
+      "lines": 55,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../../middleware/authGuard",
+        "../../middleware/logger.middleware",
+        "./requests.controller"
+      ],
+      "env": [],
+      "hash": "sha256:907d316f870513aaa42e3ec95873d9af55c8db739e1c4e16660ccbe1c54f3ca9"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.schema.js",
+      "kind": "js",
+      "lines": 63,
+      "exports": [
+        "JoinRequestStatus",
+        "JoinRequestAdd",
+        "JoinRequest",
+        "PaginatedJoinRequests",
+        "Availability",
+        "EventIdParam",
+        "RequestIdParam",
+        "EventRequestParams",
+        "ListRequestsQuery",
+        "JoinRequestConfig"
+      ],
+      "imports": [
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:620b7aa5e9f7ff9ac50703d3ff20f5dfcad6704ea31889d12e6e55f80ede81b2"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.service.js",
+      "kind": "js",
+      "lines": 280,
+      "exports": [
+        "RequestsService"
+      ],
+      "imports": [
+        "./requests.repo",
+        "../../logger",
+        "../../services/notifications.service"
+      ],
+      "env": [
+        "JOIN_HOLD_TTL_MIN"
+      ],
+      "hash": "sha256:e33c5bf73bf863ee84be9bcb4a9e84231cf502cdbb919540c47c88e3da3ac12c"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/modules/requests/requests.types.js",
+      "kind": "js",
+      "lines": 2,
+      "exports": [],
+      "imports": [],
+      "env": [],
+      "hash": "sha256:c636befbb2380b473b87ba9be3ed37bd412873ee373268747a2f02f1a3a3aeb6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/anyunknown.test.ts",
+      "kind": "ts",
+      "lines": 27,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:c5fbbcc05862414d2bf8d8c33e90b15f07d2542e56408e668bc4ab8dcdae5758"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/array.test.ts",
+      "kind": "ts",
+      "lines": 265,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:a73d624a81a7308e901b2584c491eb40dcb05f04c2acd96fb90f96bff5547058"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/assignability.test.ts",
+      "kind": "ts",
+      "lines": 211,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:40dfb44f27f5ca10cd854d050e203a228ef616424eda3ade56e0a1e70bb34c92"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/async-parsing.test.ts",
+      "kind": "ts",
+      "lines": 382,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:5854e0b2712dea24b27f8d0b5dad384e06eaa785539e1388df941fb4fe6ff80b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/async-refinements.test.ts",
+      "kind": "ts",
+      "lines": 69,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:ac573cf82efdba4cf92c86ac959f63177c4622338609848869f778c0d125cdb2"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/base.test.ts",
+      "kind": "ts",
+      "lines": 8,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:0401d2c75ed792b13bf811fc77801c485b89671460a4d52439cf1908fe94f2b7"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/bigint.test.ts",
+      "kind": "ts",
+      "lines": 55,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:85cbf87b9df6b154ad7d3f5df030b38fb2c2761dcbc2d4a2ddc7ba06de95433d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/brand.test.ts",
+      "kind": "ts",
+      "lines": 64,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:bceffeda14e55a4c6f6d4f2e30fe9a1d8d1199d50bae767c0ac0c4d4aeb41414"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/catch.test.ts",
+      "kind": "ts",
+      "lines": 277,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:de6705d2346629d186396674c7e773b8c8193208337972b2d6cb99be064fbab1"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/coalesce.test.ts",
+      "kind": "ts",
+      "lines": 21,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:e03d0cc88ac34605b99061da2e0ce22a7e7fbca0467819096994bcf63bb5b8f9"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/codec-examples.test.ts",
+      "kind": "ts",
+      "lines": 574,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:3498ad27ece4f8d97a9588728a909d6fee046b7ef8d6d9f442ce702193f0d789"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/codec.test.ts",
+      "kind": "ts",
+      "lines": 563,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:7e21189d8f75aa63d8a164945b9ed7fa06d621a8b5c13c323b32039eb30b46d2"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/coerce.test.ts",
+      "kind": "ts",
+      "lines": 161,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:b1c494141f3120e5f4253c2bbe1131468d32281e8a9513f27fb40fee3142b55a"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/continuability.test.ts",
+      "kind": "ts",
+      "lines": 353,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:634af853f6509497f8d441045039fd1b6f43fcece4be813ec56c3f25134b53d0"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/custom.test.ts",
+      "kind": "ts",
+      "lines": 41,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:130ec42a9e192f5b4f43a890303921cb0ec7f1e878a4f0d6a1aacfe863ff1b91"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/date.test.ts",
+      "kind": "ts",
+      "lines": 32,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:e578d7bea1019b22cbc675788e5cc7123f9c3fc2ed90e8a8cb222ddb0cdb8b76"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/datetime.test.ts",
+      "kind": "ts",
+      "lines": 303,
+      "exports": [],
+      "imports": [
+        "recheck",
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:b511934d118fa8dc605900ab770a4f71fededd603f57a83540993e31b40c4fdc"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/default.test.ts",
+      "kind": "ts",
+      "lines": 366,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:e6cdf299ffff3de4ddc745c018065484ff01575033c130fdc671f6e84879c94e"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/description.test.ts",
+      "kind": "ts",
+      "lines": 33,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:c7f59501ffad7792ae76c178e6098de70c3da062280dc788f3354187335cfd8f"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/discriminated-unions.test.ts",
+      "kind": "ts",
+      "lines": 662,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:8098b485b5f6279a609d21aaf51fb2f56177c84577bd903b028f0e5e5a6c9dea"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/enum.test.ts",
+      "kind": "ts",
+      "lines": 286,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:2a76a8b5c6116fb06a249284afaf3aba4512a790264f86871857a0b5f6af7650"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/error-utils.test.ts",
+      "kind": "ts",
+      "lines": 596,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:61f208ad1009e950137ad8da3ebc8ab78a44d2a23fafea788c0bd4247bf7de86"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/error.test.ts",
+      "kind": "ts",
+      "lines": 712,
+      "exports": [],
+      "imports": [
+        "node:util",
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:f38b436b7cba83cb35993e05fc7feeb7e8e1dc6695dd069936e232412f6fce5a"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/file.test.ts",
+      "kind": "ts",
+      "lines": 97,
+      "exports": [],
+      "imports": [
+        "@web-std/file",
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:3c6d15d9c9230a1047e2036aa7c56ee9bed22d8b91dccab6c7afeec42fe978e9"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/firstparty.test.ts",
+      "kind": "ts",
+      "lines": 180,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4",
+        "zod/v4/core"
+      ],
+      "env": [],
+      "hash": "sha256:60e754acdfeb6bac8dc94fe59f15df0b0a94e9fbead52d230f27ea687aa85cc9"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/function.test.ts",
+      "kind": "ts",
+      "lines": 309,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:d052609b0510d42fc956e427a797fbd42cedfc7f2b9f401a200f5c9dc46428bf"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/generics.test.ts",
+      "kind": "ts",
+      "lines": 73,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:e4dc0d13796ff0d0ef8b5286dd168afec62ddeef66fae429cc9860b2bbd8f80b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/hash.test.ts",
+      "kind": "ts",
+      "lines": 69,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod"
+      ],
+      "env": [],
+      "hash": "sha256:14633fa651f6bbdd23ef23a8ce4c4520c3981f7462980f8b8cef8ee5fdc85ef5"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/index.test.ts",
+      "kind": "ts",
+      "lines": 845,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4",
+        "zod/v4/core"
+      ],
+      "env": [],
+      "hash": "sha256:ba5dfbd8b70a5fd894b239ffe1e9beecb7d5603641ff7b375dce062b3f626229"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/instanceof.test.ts",
+      "kind": "ts",
+      "lines": 35,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:483a97ca348233bcf363859b2354dd6f1974d131091cc6b1953f8ae974b27503"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/intersection.test.ts",
+      "kind": "ts",
+      "lines": 172,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4/core",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:f443b615937d929a381a7a8b1b0ec17f63f1514e8a5d8059d63e4ad4d52c1334"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/json.test.ts",
+      "kind": "ts",
+      "lines": 109,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:ee8aeddf8696bb9dc97d360217b4140ed9434ec6c6e8598ccda18094c6981c2d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/lazy.test.ts",
+      "kind": "ts",
+      "lines": 228,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:4c3c1ac8620955f7f19713771ef48d8401fa0deecd0e1dfda205fecf89f8c8cc"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/literal.test.ts",
+      "kind": "ts",
+      "lines": 118,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:a861896be65d22ddcc0cb10bfcb3bc8bd8ed0397406617d0cb1f76f69768def6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/map.test.ts",
+      "kind": "ts",
+      "lines": 197,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:2847a83a1ab7c56e6bc75f16589ebc732eac91a4b9a4ed95b347669a47b116af"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/nan.test.ts",
+      "kind": "ts",
+      "lines": 22,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:2ff494cc0c8c785f29b0b4c2eff2e93b3f829b518266d78a05ee40fea9ffc11a"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/nested-refine.test.ts",
+      "kind": "ts",
+      "lines": 169,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:8e3f3492563a93adaded8b352e03a087f1c5c2f6a5fbc853ca4e2706ea006799"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/nonoptional.test.ts",
+      "kind": "ts",
+      "lines": 102,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:f14e374f6e33d7ada15398cde5248cb66f3c946c9734382f467c3c7ea4f5fc44"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/nullable.test.ts",
+      "kind": "ts",
+      "lines": 23,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:a749dc3a8ca78ac05c94abd82958c692b492e4ed6d93c6c05ad1b9a769067850"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/number.test.ts",
+      "kind": "ts",
+      "lines": 271,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:08680e3f8f46c1438b6305fa3fdde01ab779c8082b53187e1578bfd717ea3460"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/object.test.ts",
+      "kind": "ts",
+      "lines": 610,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4",
+        "zod/v4/core"
+      ],
+      "env": [],
+      "hash": "sha256:fe0edca4f092f0b478f4e9ea307d3f2ab6c996465d4395627320043c99694fe6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/optional.test.ts",
+      "kind": "ts",
+      "lines": 137,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:61addfd84555a58342a1073ac090ca8f0b8d8fbdfa8a0c7bc9b7f852fc23ddb7"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/partial.test.ts",
+      "kind": "ts",
+      "lines": 341,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:1ddc98d1b019d447895db51ec71c3caa8afbafa1bf252c7982225e2aa2bb6fde"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/pickomit.test.ts",
+      "kind": "ts",
+      "lines": 128,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:fd55dd310c6197a27fdd486dfbb94649079b422a2951188c4b4ea784a693a1db"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/pipe.test.ts",
+      "kind": "ts",
+      "lines": 102,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:9383a52f0f85e97ff34e7bd485bedf2c1a5ef3ffd37ace47001de7b885b7adfd"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/prefault.test.ts",
+      "kind": "ts",
+      "lines": 75,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:1943868cdc707eef785d48dd9d73ff10f764beed2b706ac73a0aed85a428b740"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/preprocess.test.ts",
+      "kind": "ts",
+      "lines": 283,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:04f3f845eda2e0f36a35c5caa871e7e1169b733bbe20ec04a09b2b374a254357"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/primitive.test.ts",
+      "kind": "ts",
+      "lines": 176,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:b5a2f74d03039eff1d20229ab35594d1e9a808dc50b943e802724525338f9f1f"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/promise.test.ts",
+      "kind": "ts",
+      "lines": 82,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:b7d58a54d480429314f23cd52c2a78baefaa5c1e87f4bfd0b13a9e30d586c754"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/prototypes.test.ts",
+      "kind": "ts",
+      "lines": 24,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:c6e493d089995c8aecc728b99bd2dbcb6f56137be4537c3e2fd657838c582ebc"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/readonly.test.ts",
+      "kind": "ts",
+      "lines": 253,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:c2ddd379f4e85caa2856ba0b784c44be87c079cef18ba4108ba698fa9fecb611"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/record.test.ts",
+      "kind": "ts",
+      "lines": 357,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:25b6ce62b9a6736d821ea62e07106aaa73a42de7f8824ffc97463e5095a110be"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/recursive-types.test.ts",
+      "kind": "ts",
+      "lines": 540,
+      "exports": [
+        "RecursiveA"
+      ],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:d2d4570462ad84cf6b3fb17d99ad4d4c242b4e5d078c1775b530b8f721ba9407"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/refine.test.ts",
+      "kind": "ts",
+      "lines": 606,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:df89ea9a88dd60b38001b3a31b643f99d207f39a6d225e6bc107d6c44d4682d0"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/registries.test.ts",
+      "kind": "ts",
+      "lines": 205,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:4325f184075634098ec061b2b6070bc7b27c55301191a444d41662e029ce6e33"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/set.test.ts",
+      "kind": "ts",
+      "lines": 182,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:4e3d1d08df1bcd2e659a2f6de0f12f816e756ac9ec98b253cdb931ffe8ecc951"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/standard-schema.test.ts",
+      "kind": "ts",
+      "lines": 58,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:af5fef06f1d9f695d39842ae98c29555f05c432d2fe5abd361a20c748de39c7c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/string-formats.test.ts",
+      "kind": "ts",
+      "lines": 126,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:d6b61815603bbfc8a7acaeac23d88773195c45991c7b85dffc85e23f24b37640"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/string.test.ts",
+      "kind": "ts",
+      "lines": 1081,
+      "exports": [],
+      "imports": [
+        "node:crypto",
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:bf41f94cf272b01900fd4cc0086aa6bc276c181ab430c45010c74ce0a7c665e8"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/stringbool.test.ts",
+      "kind": "ts",
+      "lines": 107,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:6a5f06aa81c442476c2c656607ec580707afbb08df67eb813ce7dd0f20c42fdd"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/template-literal.test.ts",
+      "kind": "ts",
+      "lines": 764,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:9662e3535763a01abef78e5775aa82559b4286b0cdf1aa71ecc3e3123358def5"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/to-json-schema.test.ts",
+      "kind": "ts",
+      "lines": 2623,
+      "exports": [],
+      "imports": [
+        "@seriousme/openapi-schema-validator",
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:f5c70e5db4f70be9b2fb7a24f54a329b20123fa61d54cdf120e1dc8d0d7af879"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/transform.test.ts",
+      "kind": "ts",
+      "lines": 362,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:250d1faea61566e13c1067b3c2fe900af97219c19cfc4a530d48a3047d40f048"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/tuple.test.ts",
+      "kind": "ts",
+      "lines": 164,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:96d3aa6cfec7dfd9febdee31b1aca837c0a79c378678b9e833fa5479cff9fbfc"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/union.test.ts",
+      "kind": "ts",
+      "lines": 182,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:f286b4b36f5097f2b127e632400b2627b714e4b4a82872adbe0e47198866dc39"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/validations.test.ts",
+      "kind": "ts",
+      "lines": 284,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:b2dd61b3b20b082cee04ef5d988cb4852909f9f0e71bbaf2a91f1a681bc674be"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/classic/tests/void.test.ts",
+      "kind": "ts",
+      "lines": 13,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:a1e5ff5f759a09e192764d4f153443bc5735cf8b6db6d810e21f0dddb414e805"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/extend.test.ts",
+      "kind": "ts",
+      "lines": 19,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4"
+      ],
+      "env": [],
+      "hash": "sha256:e4705c146e848c2d9a3b4051136e6c38a1b176ce2e223e474de29e227f4fc078"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/index.test.ts",
+      "kind": "ts",
+      "lines": 47,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v3"
+      ],
+      "env": [],
+      "hash": "sha256:f9a514f603c4350f532d14c5a3fd4748935c4ffb1ab90fa8e8df8671163a7524"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/assignability.test.ts",
+      "kind": "ts",
+      "lines": 130,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:bf52ca9e89d34717a46dce06d03f2000027009ceaa0798dfa3bf8e47b5d537f6"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/brand.test.ts",
+      "kind": "ts",
+      "lines": 52,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../index.js"
+      ],
+      "env": [],
+      "hash": "sha256:72b40e92c5ad4442024edd3681afbdf986476efff01929efb427b82c5b124710"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/checks.test.ts",
+      "kind": "ts",
+      "lines": 145,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../index.js"
+      ],
+      "env": [],
+      "hash": "sha256:14c8c7c6fba2bc5a06a5f7fbfdf7774bf7a7135c233b47887cb306e5b7f71aa3"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/codec.test.ts",
+      "kind": "ts",
+      "lines": 530,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/locales",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:e9d0836fc48f37a1e476b8a642140d57faecc0a885aefd4828c2ff6324750eec"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/computed.test.ts",
+      "kind": "ts",
+      "lines": 37,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini",
+        "zod/v4/core"
+      ],
+      "env": [],
+      "hash": "sha256:675fc1a036b656b796959fd8f90d6d3d5655c3f6788769e798f56447fba02d58"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/error.test.ts",
+      "kind": "ts",
+      "lines": 23,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:72d8e9e476dc934d09d5311fff1823b7f74f169ce30b696cf6870e6b514b1cf4"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/functions.test.ts",
+      "kind": "ts",
+      "lines": 44,
+      "exports": [],
+      "imports": [
+        "vitest"
+      ],
+      "env": [],
+      "hash": "sha256:438082fe06c6a89aa9f14ca53acd015be69205fb9aa26e8bb12d6494ee14005e"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/index.test.ts",
+      "kind": "ts",
+      "lines": 900,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini",
+        "zod/v4/core"
+      ],
+      "env": [],
+      "hash": "sha256:7ac070d07667b540db4ff4d87cd0c65574afa16df1e46ac459e720ae1cc08928"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/number.test.ts",
+      "kind": "ts",
+      "lines": 96,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:5e546f7b16d97b2a30fea914a900fa48d0de173ee58eb8a3bde04e1783e7c7e5"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/object.test.ts",
+      "kind": "ts",
+      "lines": 201,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:8806c1f526663a5a17d2c719dec7779b8070c9f7e8993d5787a303c862a61b21"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/prototypes.test.ts",
+      "kind": "ts",
+      "lines": 44,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:53d57aa1c4401cbe1958be7521b65c72ff55cf4993b1ae57543f4138f2c1e2e1"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/recursive-types.test.ts",
+      "kind": "ts",
+      "lines": 276,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:3797e364c9c68f42efca56dd1bb70209c70f1d16c3628d23ac302b2667d1e65c"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/mini/tests/string.test.ts",
+      "kind": "ts",
+      "lines": 316,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/mini"
+      ],
+      "env": [],
+      "hash": "sha256:38d0b96715d3d7472b8defb4e4e9ae2171b96a26f287f810eb30b52853c8db2b"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/locales/be.test.ts",
+      "kind": "ts",
+      "lines": 125,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../locales/be.js"
+      ],
+      "env": [],
+      "hash": "sha256:d6c1dbf1710130c39d58aa149c5f33cea1e445f05fda5fff6c6e6393358d699d"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/locales/en.test.ts",
+      "kind": "ts",
+      "lines": 23,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../locales/en.js"
+      ],
+      "env": [],
+      "hash": "sha256:5bb1540b21984c313c14c4b6e91e14c8b4ec40dd42d0f30bdf24c04543971a29"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/locales/es.test.ts",
+      "kind": "ts",
+      "lines": 182,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../../index.js",
+        "../../../locales/es.js"
+      ],
+      "env": [],
+      "hash": "sha256:08d570db1dd2cd1ddd16ecef4c6d9d7e3e293937e255ef6cb960fbabb5ba4a02"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/locales/ru.test.ts",
+      "kind": "ts",
+      "lines": 129,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "../../../locales/ru.js"
+      ],
+      "env": [],
+      "hash": "sha256:1944b0643c6ef9e194e5256515363d9f475eacb7339ff1745a7629ca38109dd8"
+    },
+    {
+      "path": "apps/server/node_modules/zod/src/v4/core/tests/locales/tr.test.ts",
+      "kind": "ts",
+      "lines": 70,
+      "exports": [],
+      "imports": [
+        "vitest",
+        "zod/v4",
+        "../../../locales/tr.js"
+      ],
+      "env": [],
+      "hash": "sha256:ac6abcbff8137f499ab657115612c32ceb9b0c12903e27f988e8a97d208d2652"
+    }
+  ]
+}

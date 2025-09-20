@@ -1,0 +1,108 @@
+# Cursor AI Rules for Potluck Project
+
+## 🤖 AI Agent Instructions
+
+### CRITICAL: Read These Files First
+Before exploring the codebase, AI agents MUST read these files in order:
+
+1. **`docs/agent/README.md`** - Master entry point with complete project context
+2. **`docs/agent/agent-knowledge-base.md`** - Central AI agent hub with detailed information
+3. **`db/schema.json`** - Complete database schema and relationships
+4. **`docs/api-spec.yaml`** - OpenAPI specification for all endpoints
+5. **`.agent/repo.catalog.json`** - Machine-readable codebase index
+
+### Project Context
+- **Type**: Event Management Platform
+- **Tech Stack**: React Native (Expo) + Node.js + PostgreSQL (Supabase)
+- **Architecture**: Cross-platform mobile app with Node.js API
+- **Key Features**: Event management, user profiles, real-time notifications, location services, payments
+
+### File Priority Guide
+- **High Priority**: `docs/AGENT_ENTRY_POINT.md`, `docs/agent-knowledge-base.md`, `db/schema.json`, `docs/api-spec.yaml`
+- **Medium Priority**: `.agent/repo.catalog.json`, `.agent/routes.index.json`, `docs/core/architecture.md`
+- **Low Priority**: Individual feature READMEs, development guides
+
+### Common Tasks
+- **Database queries**: Use `db/schema.json` + `docs/core/rls-policies.md`
+- **API development**: Use `docs/api-spec.yaml` + `.agent/routes.index.json`
+- **Code navigation**: Use `.agent/repo.catalog.json` + `.agent/deps.graph.mmd`
+- **Test understanding**: Use `.agent/tests.index.json`
+
+### Important Notes
+- Source code is the ground truth - catalogs are generated automatically
+- Use `npm run agent:update` to refresh documentation and catalogs
+- Don't manually edit `.agent/` files - they're auto-generated
+- Check timestamps in generated files to ensure they're current
+
+### Maintenance Commands
+```bash
+npm run agent:update    # Update everything (recommended)
+npm run docs:update     # Update documentation only
+npm run catalog:generate # Update code catalog only
+npm run agent:view      # View current status
+```
+
+## Code Style & Patterns
+
+### TypeScript
+- Use strict TypeScript with proper type annotations
+- Prefer interfaces over types for object shapes
+- Use enums for constants
+- Implement proper error handling with try-catch
+
+### React Native
+- Use functional components with hooks
+- Implement proper loading states and error handling
+- Use TypeScript for all components
+- Follow React Native best practices for performance
+
+### Node.js/Express
+- Use async/await for asynchronous operations
+- Implement proper error handling middleware
+- Use TypeScript for all server code
+- Follow RESTful API design principles
+
+### Database
+- Use Supabase client for database operations
+- Implement proper RLS policies
+- Use transactions for multi-table operations
+- Follow PostgreSQL best practices
+
+### Testing
+- Write unit tests for all business logic
+- Write integration tests for API endpoints
+- Use proper test data factories
+- Implement proper cleanup in tests
+
+## Project Structure
+```
+apps/
+├── mobile/          # React Native app (iOS/Android)
+├── server/          # Node.js API server
+└── web/            # Web dashboard (future)
+
+packages/
+├── payments/        # Payment processing
+└── common/         # Shared utilities
+
+docs/
+├── core/           # System architecture and API specs
+├── features/       # Feature-specific documentation
+├── development/    # Development guides and testing
+└── scripts/        # Documentation utilities
+
+.agent/
+├── repo.catalog.json    # Machine-readable codebase index
+├── routes.index.json    # API routes mapping
+├── tests.index.json     # Test coverage mapping
+└── deps.graph.mmd       # Module dependency graph
+```
+
+## Development Workflow
+1. Read `docs/AGENT_ENTRY_POINT.md` for context
+2. Check relevant documentation in `docs/`
+3. Use `.agent/` catalogs for code navigation
+4. Implement changes following project patterns
+5. Write tests for new functionality
+6. Update documentation if needed
+7. Run `npm run agent:update` to refresh catalogs

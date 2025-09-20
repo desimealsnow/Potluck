@@ -9,16 +9,28 @@ A framework- and provider-agnostic payments module with explicit ports, a provid
 - Dev/test router factory to seed data without external webhooks.
 - High-level `PaymentService` (checkout orchestration with idempotency).
 
-## Install (private registry examples)
+## Install
 
+### For External Projects (Recommended)
+```bash
+npm install payment-core
+```
+
+### For Local Development (Monorepo)
+```bash
+# In your monorepo package.json
+{
+  "dependencies": {
+    "@payments/core": "*"
+  }
+}
+```
+
+### Legacy Private Registry (if needed)
 GitHub Packages:
 ```
 @payments:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GH_PACKAGES_TOKEN}
-```
-Then in your app:
-```
-npm i @payments/core
 ```
 
 Private npm scope (npmjs):
@@ -42,6 +54,10 @@ Providers (implemented in the package):
 
 ### Types
 ```ts
+// For external projects
+import type { CheckoutData, Subscription, BillingEvent, Plan, Price, Invoice, Refund } from 'payment-core';
+
+// For local development (monorepo)
 import type { CheckoutData, Subscription, BillingEvent, Plan, Price, Invoice, Refund } from '@payments/core';
 ```
 
@@ -174,7 +190,12 @@ The system automatically queries the database to build variant mappings dynamica
 
 2) Create a container factory wiring ports and registry:
 ```ts
-import { providerRegistry, type PaymentContainer, PaymentService } from '@payments/core';
+// For external projects
+import { providerRegistry, type PaymentContainer, PaymentService } from 'payment-core';
+
+// For local development (monorepo)
+// import { providerRegistry, type PaymentContainer, PaymentService } from '@payments/core';
+
 // import your adapters here
 
 export function createPaymentContainer(): PaymentContainer {
@@ -198,14 +219,20 @@ export function createPaymentService(): PaymentService {
 3) Mount webhook route with raw body:
 ```ts
 import { raw } from 'body-parser';
-import { createWebhookHandler } from '@payments/core';
+// For external projects
+import { createWebhookHandler } from 'payment-core';
+// For local development (monorepo)
+// import { createWebhookHandler } from '@payments/core';
 import { createPaymentContainer } from './payments.container';
 
 const container = createPaymentContainer();
 app.post('/billing/webhook/:provider', raw({ type: '*/*' }), createWebhookHandler(container));
 
 // Optional: mount dev/test routes
-import { createDevPaymentsRoutes } from '@payments/core';
+// For external projects
+import { createDevPaymentsRoutes } from 'payment-core';
+// For local development (monorepo)
+// import { createDevPaymentsRoutes } from '@payments/core';
 if (process.env.NODE_ENV !== 'production') {
   // Protect dev routes and pass identity accessors
   app.use('/payments-dev', authGuard, createDevPaymentsRoutes(container, {
@@ -293,21 +320,104 @@ Implement `ProviderConfigStore` to supply per-tenant credentials from env or DB.
 ## Extending providers
 Register new providers at boot:
 ```ts
-import { registerProvider } from '@payments/core';
+// For external projects
+import { registerProvider } from 'payment-core';
+// For local development (monorepo)
+// import { registerProvider } from '@payments/core';
+
 registerProvider('stripe', stripeProviderImpl);
 ```
 
 ## Publishing
-Monorepo scripts (example):
+
+### For External Use (Generic Package)
+```bash
+# Publish as generic 'payment-core' package
+npm run publish:payments:generic
 ```
-npm version patch -w packages/payments
-npm publish -w packages/payments --access restricted
+
+### For Internal Use (Scoped Package)
+```bash
+# Publish as scoped '@payments/core' package
+npm run publish:payments:npm
 ```
+
+### Manual Publishing
+```bash
+# Version bump
+npm run version:payments:patch  # or minor/major
+
+# Publish
+npm run publish:payments:npm
+```
+
+## Package Names
+
+This package is available under two names:
+
+- **`payment-core`** - Generic package for external projects (published to NPM)
+- **`@payments/core`** - Scoped package for local development (monorepo workspace)
+
+### Why Two Names?
+
+- **External projects** use `payment-core` for a clean, generic package name
+- **Local development** uses `@payments/core` to maintain existing imports
+- **Same codebase** - both names point to the same package with identical functionality
+
+### Migration Guide
+
+If you're migrating from `@payments/core` to `payment-core`:
+
+1. **Update package.json**:
+   ```json
+   {
+     "dependencies": {
+       "payment-core": "^0.1.0"
+     }
+   }
+   ```
+
+2. **Update imports**:
+   ```ts
+   // Old
+   import { PaymentService } from '@payments/core';
+   
+   // New
+   import { PaymentService } from 'payment-core';
+   ```
+
+3. **Install**:
+   ```bash
+   npm install payment-core
+   ```
+
+## Background Agent Compatibility
+
+This package is fully compatible with background agents and AI development tools:
+
+### Setup for Background Agents
+```bash
+# Run before starting background agents
+npm run agent:setup
+```
+
+This ensures:
+- ✅ Package is pre-built and ready
+- ✅ All dependencies are installed
+- ✅ Background agents can access compiled files
+- ✅ No compilation needed during agent startup
+
+### How It Works
+- **Local Development**: Uses workspace package `@payments/core`
+- **Background Agents**: Access pre-built files in `packages/payments/dist/`
+- **External Projects**: Install `payment-core` from NPM
 
 ## FAQ
 - DB required? No. Use in-memory or Redis adapters if you don't want DB tables.
 - Multi-tenant? Yes; pass `tenantId` and implement `ProviderConfigStore`.
 - Frontend SDK? Keep thin: call your server to create checkout, open hosted URL.
+- Which package name to use? Use `payment-core` for new projects, `@payments/core` for existing monorepo development.
+- Background agent compatible? Yes, run `npm run agent:setup` before starting agents.
 
 ## Recent Changes Summary
 

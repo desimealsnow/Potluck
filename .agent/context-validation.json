@@ -1,0 +1,75 @@
+{
+  "generated_at": "2025-09-20T04:02:02.492Z",
+  "overall_health": "critical",
+  "validation_results": [
+    {
+      "file": "docs/AGENT_ENTRY_POINT.md",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T03:53:57.963Z",
+      "size": 5562,
+      "content_valid": true
+    },
+    {
+      "file": "docs/agent-knowledge-base.md",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T03:54:04.462Z",
+      "size": 8952,
+      "content_valid": true
+    },
+    {
+      "file": "db/schema.json",
+      "exists": false,
+      "issues": [
+        "File does not exist"
+      ]
+    },
+    {
+      "file": "docs/api-spec.yaml",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-19T17:32:22.307Z",
+      "size": 54986,
+      "content_valid": true
+    },
+    {
+      "file": ".agent/repo.catalog.json",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T04:01:44.711Z",
+      "size": 159360,
+      "content_valid": true
+    },
+    {
+      "file": ".agent/routes.index.json",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T04:01:46.023Z",
+      "size": 77368,
+      "content_valid": true
+    },
+    {
+      "file": ".agent/tests.index.json",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T04:01:46.261Z",
+      "size": 1182604,
+      "content_valid": true
+    },
+    {
+      "file": ".agent/deps.graph.mmd",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-20T04:01:46.264Z",
+      "size": 9,
+      "content_valid": true
+    }
+  ],
+  "recommendations": [
+    "CRITICAL: Generate missing files: db/schema.json"
+  ],
+  "critical_files_missing": [
+    "db/schema.json"
+  ]
+}
