@@ -44,8 +44,24 @@ export async function hardDeleteEventCascade(eventId) {
   }
 }
 
+async function tryDeleteByCreatedBy(table, userId, column = 'created_by') {
+  try { await admin.from(table).delete().eq(column, userId); } catch {}
+}
+
 export async function hardDeleteByCreator(userId) {
-  // 1) Collect all events created by user
+  // 0) Opportunistically delete by created_by on common tables
+  const createdByTables = [
+    ['events', 'created_by'],
+    ['event_items', 'created_by'],
+    ['event_join_requests', 'created_by'],
+    ['event_participants', 'created_by'],
+    ['locations', 'created_by']
+  ];
+  for (const [table, col] of createdByTables) {
+    await tryDeleteByCreatedBy(table, userId, col);
+  }
+
+  // 1) Collect remaining events created by user (in case some rows lack created_by)
   const { data: events } = await admin
     .from('events')
     .select('id, location_id')

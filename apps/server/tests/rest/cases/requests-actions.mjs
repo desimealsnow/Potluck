@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import 'dotenv/config';
-import { hardDeleteEventCascade } from '../helpers/admin-cleanup.mjs';
+import { hardDeleteEventCascade, hardDeleteByCreator } from '../helpers/admin-cleanup.mjs';
 
 const API = process.env.API_BASE || 'http://localhost:3000/api/v1';
 
@@ -12,6 +12,10 @@ async function login(email, password) {
   if (!res.ok) throw new Error(`login failed ${res.status}`);
   const data = await res.json();
   return data.session.access_token;
+}
+
+function jwtSub(token) {
+  try { return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).sub; } catch { return null; }
 }
 
 async function authed(method, path, token, body) {
@@ -30,6 +34,8 @@ async function main() {
 
   const host = await login(hostEmail, pass);
   const guest = await login(guestEmail, pass);
+  const hostId = jwtSub(host) || '11111111-1111-1111-1111-111111111111';
+  const guestId = jwtSub(guest) || '22222222-2222-2222-2222-222222222222';
 
   // Create and publish an event
   const create = await authed('POST', '/events', host, {
@@ -97,6 +103,8 @@ async function main() {
     try { await authed('POST', `/events/${eventId}/cancel`, host, { reason: 'test-cleanup', notifyGuests: false }); } catch {}
     try { await authed('POST', `/events/${eventId}/purge`, host); } catch {}
     try { await hardDeleteEventCascade(eventId); } catch {}
+    try { await hardDeleteByCreator(hostId); } catch {}
+    try { await hardDeleteByCreator(guestId); } catch {}
   }
 }
 
