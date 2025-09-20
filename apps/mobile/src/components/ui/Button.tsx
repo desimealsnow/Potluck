@@ -1,7 +1,7 @@
-import React from 'react';
-import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import { Pressable, Text, StyleSheet, ActivityIndicator, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, borderRadius, typography, gradients } from '@/theme';
+import { colors, borderRadius, typography, gradients, useTheme } from '@/theme';
 
 export interface ButtonProps {
   title: string;
@@ -28,6 +28,13 @@ export function Button({
   textStyle,
   testID,
 }: ButtonProps) {
+  const { reducedMotion } = useTheme();
+  const scale = useRef(new Animated.Value(1)).current;
+  const animateTo = (to: number) => {
+    if (reducedMotion) { scale.setValue(to); return; }
+    Animated.timing(scale, { toValue: to, duration: 120, easing: Easing.out(Easing.quad), useNativeDriver: true }).start();
+  };
+
   const buttonStyle = [
     styles.button,
     styles[`button_${size}`],
@@ -54,22 +61,40 @@ export function Button({
 
   if (variant === 'primary' && !disabled) {
     return (
-      <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle} testID={testID}>
-        <LinearGradient
-          colors={gradients.button.primary as unknown as string[]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[styles.gradient, styles[`button_${size}`]]}
-        >
-          {content}
-        </LinearGradient>
+      <Pressable
+        onPress={onPress}
+        disabled={disabled || loading}
+        style={buttonStyle}
+        testID={testID}
+        onPressIn={() => animateTo(0.98)}
+        onPressOut={() => animateTo(1)}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <LinearGradient
+            colors={gradients.button.primary as unknown as string[]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.gradient, styles[`button_${size}`]]}
+          >
+            {content}
+          </LinearGradient>
+        </Animated.View>
       </Pressable>
     );
   }
 
   return (
-    <Pressable onPress={onPress} disabled={disabled || loading} style={buttonStyle} testID={testID}>
-      {content}
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || loading}
+      style={buttonStyle}
+      testID={testID}
+      onPressIn={() => animateTo(0.98)}
+      onPressOut={() => animateTo(1)}
+    >
+      <Animated.View style={{ transform: [{ scale }] }}>
+        {content}
+      </Animated.View>
     </Pressable>
   );
 }
