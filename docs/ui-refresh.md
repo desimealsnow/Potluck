@@ -10,6 +10,48 @@ Summary of the visual refresh and primitives introduced for the RN app:
   - Button, Input, Card, Chip, Label, Segmented
   - Banner, ProgressBar, EmptyState
 
+How to use
+
+1) Wrap the app with ThemeProvider (already wired in `apps/mobile/App.tsx`):
+
+```tsx
+import { ThemeProvider } from '@/theme';
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      {/* ... */}
+    </ThemeProvider>
+  );
+}
+```
+
+2) Use primitives with tokens:
+
+```tsx
+import { Card, Button, Input, Segmented, Icon, ProgressBar } from '@/components';
+
+<Card title="Example">
+  <Input placeholder="Your name" />
+  <Button title="Save" onPress={() => {}} />
+  <ProgressBar value={0.6} />
+</Card>
+```
+
+3) Icons
+
+```tsx
+import { Icon } from '@/components';
+<Icon name="Calendar" size={20} color="#fff" />
+```
+
+4) Theme access & reduced motion
+
+```tsx
+import { useTheme } from '@/theme';
+const { colors, reducedMotion, colorScheme, tokens } = useTheme();
+```
+
 Applied updates:
 
 - Explore/Event List: gradient header, token colors, Icon wrapper, improved diet tags
@@ -24,7 +66,12 @@ Category colors:
 
 Notes:
 
-- Animations should respect reduced motion via `ThemeProvider`
+- Animations respect reduced motion via `ThemeProvider`
 - Continue migrating any remaining Ionicons to `Icon`
 - Keep contrast ≥ 4.5 when adjusting colors
+
+Linting & a11y
+
+- ESLint flat config at `apps/mobile/eslint.config.js` includes rules to discourage inline styles/colors and hex literals
+- Basic accessibility roles/labels added for Button, Input, Segmented
 
