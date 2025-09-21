@@ -615,6 +615,8 @@ export default function EventDetailsPage({
             )}
             {active === "items" && (
               <ItemsTab
+                eventId={eventId}
+                isHost={!!isHost}
                 isLoading={loading || refreshing}
                 items={items}
                 onClaim={async () => {}}
@@ -875,6 +877,8 @@ function OverviewTab({
 
 /* ===================== Items tab ===================== */
 function ItemsTab({
+  eventId,
+  isHost,
   isLoading,
   items,
   onClaim,
@@ -885,6 +889,8 @@ function ItemsTab({
   deleteInlineItem,
   adjustInlineClaim,
 }: {
+  eventId: string;
+  isHost: boolean;
   isLoading?: boolean;
   items: ItemDTO[];
   onClaim: (id: string) => Promise<void>;
@@ -924,6 +930,23 @@ function ItemsTab({
     <View style={styles.tabContent}>
       {/* Add item (host only) */}
       <AddItemRow onAdd={(name, category, perGuestQty) => addInlineItem(name, category, perGuestQty)} />
+      {isHost && (
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Pressable
+            onPress={async () => {
+              try {
+                await api(`/events/${eventId}/rebalance`, { method: 'POST', body: JSON.stringify({}) });
+                Alert.alert('Rebalance Complete', 'Unclaimed items were assigned where possible.');
+              } catch (e: any) {
+                Alert.alert('Rebalance Failed', e?.message ?? 'Unknown error');
+              }
+            }}
+            style={[styles.claimButton, styles.claimButtonActive]}
+          >
+            <Text style={styles.claimButtonText}>Rebalance</Text>
+          </Pressable>
+        </View>
+      )}
       <View style={{ marginTop: 6 }}>
         <Pressable onPress={() => (setPickerOpen as any)(true)} style={[styles.claimButton, styles.claimButtonActive, { alignSelf: 'flex-start' }]}> 
           <Text style={styles.claimButtonText}>Browse Catalog / My Items</Text>
