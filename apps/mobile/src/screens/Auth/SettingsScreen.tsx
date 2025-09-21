@@ -111,6 +111,16 @@ export default function SettingsScreen({
       showChevron: true,
     },
     {
+      id: "my-items",
+      title: "My Items",
+      subtitle: "Manage your saved item templates",
+      icon: "List",
+      onPress: () => {
+        Alert.alert("Open My Items", "Navigate to My Items screen from parent.");
+      },
+      showChevron: true,
+    },
+    {
       id: "preferences",
       title: "User Preferences",
       subtitle: "Profile and account settings",
