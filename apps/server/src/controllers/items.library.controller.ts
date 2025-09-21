@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '../middleware/authGuard';
 import * as S from '../services/items.library.service';
 import { handle } from '../utils/helper';
 
@@ -8,19 +9,20 @@ export async function listCatalog(req: Request, res: Response) {
   return handle(res, await S.listCatalog({ q, category }));
 }
 
-export async function listMyItems(req: Request, res: Response) {
+export async function listMyItems(req: AuthenticatedRequest, res: Response) {
   return handle(res, await S.listMyItems(req.user!.id));
 }
 
-export async function createMyItem(req: Request, res: Response) {
-  return handle(res, await S.createMyItem(req.user!.id, req.body));
+export async function createMyItem(req: AuthenticatedRequest, res: Response) {
+  return handle(res, await S.createMyItem(req.user!.id, req.body), 201);
 }
 
-export async function updateMyItem(req: Request, res: Response) {
+export async function updateMyItem(req: AuthenticatedRequest, res: Response) {
   return handle(res, await S.updateMyItem(req.user!.id, req.params.id, req.body));
 }
 
-export async function deleteMyItem(req: Request, res: Response) {
-  return handle(res, await S.deleteMyItem(req.user!.id, req.params.id));
+export async function deleteMyItem(req: AuthenticatedRequest, res: Response) {
+  const result = await S.deleteMyItem(req.user!.id, req.params.id);
+  return handle(res, result, result.ok ? 204 : undefined);
 }
 
