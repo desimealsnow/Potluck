@@ -24,11 +24,6 @@ Quick start
   - `node tests/rest/cases/billing-subscriptions.mjs`
   - `node tests/rest/cases/billing-invoices.mjs`
 
-<<<<<<< Current (Your changes)
-bash:
-- export API_BASE='http://localhost:3000/api/v1'
-- bash tests/rest/cases/location-nearby.sh
-=======
 Fixed test users
 - HOST: host@test.dev / password123
 - PARTICIPANT(GUEST): participant@test.dev / password123
@@ -95,4 +90,3 @@ CI / GitHub Actions
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`
   - `LEMONSQUEEZY_API_KEY`, `LEMONSQUEEZY_STORE_ID`, `LEMONSQUEEZY_WEBHOOK_SECRET`
 - The workflow starts the API from the compiled output `dist/src/index.js` and hits `/health` before tests.
->>>>>>> Incoming (Background Agent changes)
