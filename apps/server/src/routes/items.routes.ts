@@ -40,6 +40,11 @@ router.delete(                                   // UNASSIGN item
 router
   .route('/:itemId')
   .get(authGuard, C.getItem)                    // GET    single
+  .put(                                         // UPDATE via PUT (OpenAPI parity)
+    authGuard,
+    validate(schemas.ItemUpdate),
+    C.updateItem
+  )
   .patch(                                        // UPDATE (partial)
     authGuard,
     validate(schemas.ItemUpdate),

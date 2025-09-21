@@ -18,7 +18,9 @@ Quick start
   - `node tests/rest/cases/auth-and-profile.mjs`
   - `node tests/rest/cases/events-flow.mjs`
   - `node tests/rest/cases/requests-actions.mjs`
-  - `node tests/rest/cases/participants-and-items.mjs`
+- `node tests/rest/cases/participants-and-items.mjs`
+- `node tests/rest/cases/items-library.mjs`
+- `node tests/rest/cases/items-linking.mjs`
   - `node tests/rest/cases/rebalance.mjs`
   - `node tests/rest/cases/billing-payment-methods.mjs`
   - `node tests/rest/cases/billing-subscriptions.mjs`
@@ -44,9 +46,13 @@ Coverage (endpoint parity with UI)
 - Items
   - GET `/events/{id}/items`
   - POST `/events/{id}/items`
+    - Accepts optional `catalog_item_id` or `user_item_id` to link to source
   - PATCH `/events/{id}/items/{itemId}`
   - DELETE `/events/{id}/items/{itemId}`
   - POST `/events/{id}/items/{itemId}/assign`, DELETE `/events/{id}/items/{itemId}/assign`
+- Items Library
+  - GET `/items/catalog` (global; filtered by `is_active`)
+  - GET `/items/me`, POST `/items/me`, PUT `/items/me/{id}`, DELETE `/items/me/{id}`
 - Participants
   - POST `/events/{id}/participants`
   - GET `/events/{id}/participants`
@@ -74,6 +80,8 @@ Implemented cases
 - `billing-subscriptions.mjs`: plans list → checkout start (variant id) → list subscriptions
 - `billing-invoices.mjs`: list invoices → get → download
 - `billing-payment-methods.mjs`: list → add → get → set default → delete (Note: insert currently returns 500 in live DB; see Notes)
+- `items-library.mjs`: catalog list → create user item → list/update/delete my items
+- `items-linking.mjs`: create event → add via `catalog_item_id` → add via `user_item_id` → expect 400 if both IDs supplied
 
 Notes / Known Issues
 - The Payment Methods case uses `provider=stripe` to align with common provider enums. If your schema is different, update provider or extend the enum.

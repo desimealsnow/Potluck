@@ -20,6 +20,9 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const [mealPreferences, setMealPreferences] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [phone, setPhone] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -76,6 +79,7 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
               setLatitude(response.latitude.toString());
               setLongitude(response.longitude.toString());
             }
+            if (response.phone_e164) setPhone(response.phone_e164);
           } catch (apiError) {
             console.error("API error:", apiError);
             // Fallback to user metadata if API call fails
@@ -272,10 +276,37 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
             <Pressable onPress={onBack} style={styles.iconBtn}>
               <Icon name="ChevronLeft" size={20} color="#fff" />
             </Pressable>
-            <Text style={styles.title}>User Preferences</Text>
+            <Text style={styles.title}>Account</Text>
             <View style={{ width: 40 }} />
           </View>
           <ScrollView contentContainerStyle={{ padding: 16 }}>
+            <View style={styles.card}>
+              <Text style={styles.label}>Name</Text>
+              <TextInput style={[styles.input, { backgroundColor: '#f3f4f6' }]} editable={false} value={user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''} />
+              <Text style={styles.label}>Email</Text>
+              <TextInput style={[styles.input, { backgroundColor: '#f3f4f6' }]} editable={false} value={user?.email || ''} />
+              <Text style={styles.label}>Phone (E.164)</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput style={[styles.input, { flex: 1 }]} placeholder="+15551234567" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
+                <Pressable style={styles.smallBtn} onPress={async () => {
+                  try { await apiClient.post(`/user-profile/phone/send` as any, { phone_e164: phone }); setSent(true); Alert.alert('Code Sent', 'We sent an OTP to your phone.'); } 
+                  catch (e: any) { Alert.alert('Failed', e?.message ?? 'Unknown error'); }
+                }}>
+                  <Text style={styles.smallBtnText}>{sent ? 'Resend' : 'Verify'}</Text>
+                </Pressable>
+              </View>
+              {sent && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                  <TextInput style={[styles.input, { flex: 1 }]} placeholder="Enter OTP" keyboardType="number-pad" value={otp} onChangeText={setOtp} />
+                  <Pressable style={[styles.smallBtn, { backgroundColor: '#16a34a' }]} onPress={async () => {
+                    try { await apiClient.post(`/user-profile/phone/verify` as any, { phone_e164: phone, code: otp }); Alert.alert('Verified', 'Your phone has been verified.'); setSent(false); setOtp(''); }
+                    catch (e: any) { Alert.alert('Failed', e?.message ?? 'Unknown error'); }
+                  }}>
+                    <Text style={styles.smallBtnText}>Submit</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
             {/* Loading Overlay */}
             {loading && (
               <View style={styles.loadingOverlay}>

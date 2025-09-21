@@ -12,6 +12,7 @@ import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import type { 
   MealType, 
   LocationSuggestion, 
@@ -66,6 +67,7 @@ export default function CreateEventScreen({
   const [dishes, setDishes] = useState<Dish[]>([
     { id: "d1", name: "", category: "Main Course", per_guest_qty: 1 },
   ]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Step 4 – Participants (after event is created)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
@@ -107,6 +109,15 @@ export default function CreateEventScreen({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
+      // Require verified phone before hosting
+      try {
+        const prof = await apiClient.get<any>('/user-profile/me');
+        if (!prof?.phone_verified) {
+          Alert.alert('Verify Phone', 'Please verify your phone number in Settings > User Preferences before creating an event.');
+          setIsSubmitting(false);
+          return;
+        }
+      } catch {}
       
       // Validate event date is in the future
       if (!selectedDate || !selectedTime) {
@@ -438,7 +449,12 @@ export default function CreateEventScreen({
             <>
               <Card
                 title="✨ What's on the menu?"
-                right={<Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>}
+                right={
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <Pressable onPress={() => setPickerOpen(true)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>Browse Catalog</Text></Pressable>
+                    <Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>
+                  </View>
+                }
               >
                 {dishes.map((d, idx) => (
                   <View key={d.id} style={styles.dishCard}>
@@ -449,12 +465,19 @@ export default function CreateEventScreen({
                       </Pressable>
                     </View>
 
-                    <Label>Item Name</Label>
-                    <Input
-                      placeholder="e.g., Grandma's Famous Mac & Cheese"
-                      value={d.name}
-                      onChangeText={(t) => updateDish(d.id, { name: t }, setDishes)}
-                    />
+                    <Label>Item</Label>
+                    <Pressable onPress={() => setPickerOpen(true)} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]}>
+                      <Text style={[styles.input, { color: d.name ? '#111827' : '#9CA3AF' }]}>
+                        {d.name || 'Pick from Catalog / My Items'}
+                      </Text>
+                    </Pressable>
+                    <View style={{ marginTop: 6 }}>
+                      <Pressable onPress={() => setPickerOpen(true)} style={[styles.chip, { alignSelf: 'flex-start' }]}
+                        hitSlop={8}
+                      >
+                        <Text style={[styles.chipText]}>Pick from Catalog / My Items</Text>
+                      </Pressable>
+                    </View>
 
                     <View style={styles.row}>
                       <View style={{ flex: 1, marginRight: 8 }}>
@@ -648,6 +671,32 @@ export default function CreateEventScreen({
         }}
         hours={selectedTime?.getHours() || 12}
         minutes={selectedTime?.getMinutes() || 0}
+      />
+
+      {/* Item Library Sheet */}
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          // Insert a dish with selected values or fill the first empty row
+          setDishes((prev) => {
+            const emptyIdx = prev.findIndex(p => !p.name?.trim());
+            const patch = { 
+              name: sel.name, 
+              category: sel.category as any, 
+              per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1),
+              catalog_item_id: sel.catalog_item_id,
+              user_item_id: sel.user_item_id,
+            } as Partial<Dish>;
+            if (emptyIdx >= 0) {
+              const copy = prev.slice();
+              copy[emptyIdx] = { ...copy[emptyIdx], ...patch } as Dish;
+              return copy;
+            }
+            return [{ id: `d${Date.now()}`, name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1), catalog_item_id: sel.catalog_item_id, user_item_id: sel.user_item_id } as any, ...prev];
+          });
+        }}
       />
     </View>
   );

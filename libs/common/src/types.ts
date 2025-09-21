@@ -44,7 +44,7 @@ export type EventCreatePayload = EventCreate;
 // Mobile-specific type extensions
 export type MealType = "veg" | "nonveg" | "mixed";
 
-export type EventStatusMobile = "upcoming" | "past" | "drafts" | "deleted";
+export type EventStatusMobile = "upcoming" | "past" | "drafts" | "deleted" | "pending-approval";
 
 export type Ownership = "all" | "mine" | "invited";
 

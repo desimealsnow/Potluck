@@ -1,6 +1,6 @@
 # Potluck Application – System Architecture
 
-> **Status**: Draft · v0.1 · 27 Jun 2025
+> **Status**: Updated · v0.3 · 21 Sep 2025
 
 ---
 
@@ -13,9 +13,9 @@ The system is organised into **bounded contexts** that map directly to the funct
 | Bounded Context  | Responsibility                                       |
 | ---------------- | ---------------------------------------------------- |
 | **Event**        | Create/manage potluck events, scheduling, visibility |
-| **Items**        | CRUD for dishes/items, dietary tagging               |
+| **Items**        | CRUD for event items, user templates, global catalog |
 | **Participants** | Invitations, RSVPs, role management                  |
-| **User**         | Profile, preferences, auth linkage                   |
+| **User**         | Profile, preferences, auth linkage, phone verification |
 | **Payment**      | Contribution tracking, split payments (future)       |
 | **Location**     | Venue search, geofencing, map links                  |
 
@@ -43,6 +43,7 @@ graph LR
   subgraph Node API Cluster
     AGW --> EV[Event Service]
     AGW --> IT[Items Service]
+    AGW --> IL[Items Library]
     AGW --> PR[Participants Service]
     AGW --> US[User Service]
   end
@@ -55,7 +56,7 @@ graph LR
 
 1. **API Gateway** exposes a unified `/v1/*` surface and handles auth middleware, rate limiting, and correlation IDs.
 2. Each service is **modularised** inside the monorepo (`apps/server/src/modules/<context>`). In future they can be split into discrete microservices without breaking contracts.
-3. Supabase Edge Functions handle **webhooks** for email verification, payment processor callbacks, and AI tasks that need lower latency.
+3. Supabase Edge Functions handle **webhooks** for email verification and AI tasks that need lower latency. Payment processor callbacks are handled in‑process at `/api/v1/billing/webhook/:provider` with raw body parsing; `stripe` is normalized to `lemonsqueezy` in dev. Phone verification OTPs are sent via pluggable SMS provider (Twilio or console fallback).
 
 ---
 
@@ -76,6 +77,9 @@ graph LR
 ### 4.3 Supabase
 
 * **Postgres** schema under `public`. RLS enforces tenant isolation by `user_id`.
+* Items library tables: `item_catalog` (global), `user_items` (per user).
+* User profile phone verification fields: `user_profiles.phone_e164`, `user_profiles.phone_verified`.
+* OTP challenges stored in `phone_verifications` with hashed codes and TTL.
 * **Storage** bucket `event‑images/*` with signed URLs.
 
 ### 4.4 AI Agent Layer
@@ -93,7 +97,19 @@ erDiagram
   EVENTS ||--o{ ITEMS : includes
   EVENTS ||--o{ PARTICIPANTS : "invites"
   ITEMS  }o--|| USERS : "brought_by"
+  ITEM_CATALOG ||--o{ EVENTS : "suggests"
+  USERS ||--o{ USER_ITEMS : "templates"
 ```
+
+---
+
+## 5.1 Recent Data Model Additions (2025‑09)
+
+- `item_catalog(id, name, category, unit, default_per_guest_qty, dietary_tags[], description, is_active, …)`
+- `user_items(id, user_id, name, category, unit, default_per_guest_qty, dietary_tags[], notes, …)`
+- `event_items` includes nullable `catalog_item_id` and `user_item_id` to link to catalog or user template.
+- Join Requests: `event_join_requests` supports `waitlist_pos`, with functions `process_join_request`, `update_request_status`, `promote_from_waitlist`, `expire_join_request_holds`.
+ - Phone Verification: `phone_verifications(id, user_id, phone_e164, code_hash, expires_at, attempts, created_at)` plus new columns on `user_profiles`.
 
 ---
 
@@ -109,7 +125,7 @@ sequenceDiagram
 
   U->>RN: Fill event form
   RN->>API: POST /v1/events
-  API->>EV: Validate & forward request
+  API->>EV: Validate (incl. phone_verified unless BYPASS_PHONE_VALIDATION=TEST) & forward
   EV->>DB: INSERT events, items (txn)
   DB-->>EV: IDs + timestamps
   EV-->>API: 201 Created (payload)
@@ -139,7 +155,7 @@ A **GitHub Actions** workflow triggers:
 
 ## 8. Observability & Logging
 
-* **Structured logs** (JSON) with Winston → Loki
+* **Structured logs** (JSON) with Winston → Loki (SMS send results logged as info; OTP codes never logged in production)
 * **Correlation IDs** propagated (`X-Request-ID`)
 * **Metrics** via Prometheus exporter `/metrics`
 * **Tracing** (OpenTelemetry) to Grafana Tempo

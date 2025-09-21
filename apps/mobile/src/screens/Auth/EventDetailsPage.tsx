@@ -10,12 +10,15 @@ import {
   Alert,
   Platform,
   Modal,
+  Linking,
+  Share,
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, Segmented, ProgressBar } from "@/components";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
@@ -95,6 +98,7 @@ type EventDTO = {
   details: { intro: string; bring: string; backup: string };
   status?: string; // Backend status: draft, published, cancelled, etc.
   ownership?: string; // mine, invited, public
+  geo?: { latitude?: number; longitude?: number; address?: string };
 };
 
 type ItemDTO = {
@@ -215,6 +219,11 @@ function useEventData(eventId: string) {
         },
         status: e.event.status,
         ownership: e.event.ownership,
+        geo: {
+          latitude: e.event.location?.latitude,
+          longitude: e.event.location?.longitude,
+          address: e.event.location?.formatted_address || e.event.location?.name,
+        },
       } : null;
       setEvent(mappedEvent);
 
@@ -287,11 +296,12 @@ export default function EventDetailsPage({
   const [active, setActive] = useState<Tab>("overview");
   const { loading, refreshing, event, items, participants, refresh, setItems } = useEventData(eventId);
   const isHost = event?.ownership === 'mine';
+  const [shareOpen, setShareOpen] = useState(false);
 
   // Provide inline handlers to ItemsTab
-  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number) => {
+  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number, opts?: { catalog_item_id?: string; user_item_id?: string }) => {
     if (!isHost) return;
-    addItem({ name, category, per_guest_qty: perGuestQty });
+    addItem({ name, category, per_guest_qty: perGuestQty, ...(opts?.catalog_item_id ? { catalog_item_id: opts.catalog_item_id } : {}), ...(opts?.user_item_id ? { user_item_id: opts.user_item_id } : {}) } as any);
   }, [isHost]);
 
   const updateInlineItem = useCallback((itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => {
@@ -551,6 +561,8 @@ export default function EventDetailsPage({
   };
 
   const gradient = useMemo(() => gradients.header.event, []);
+  // Item library sheet state for Items tab
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Determine available actions based on event status and ownership
   const getAvailableActions = () => {
@@ -594,7 +606,7 @@ export default function EventDetailsPage({
   return (
     <View style={[styles.container, { backgroundColor: '#351657' }]}>
       <SafeAreaView style={styles.safeArea}>
-        <TopBar title="" onBack={onBack} onRefresh={refresh} />
+        <TopBar title="" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <EventHeader 
@@ -608,10 +620,12 @@ export default function EventDetailsPage({
 
           <View style={styles.contentContainer}>
             {active === "overview" && (
-              <OverviewTab isLoading={loading || refreshing} event={event} />
+              <OverviewTab isLoading={loading || refreshing} event={event} eventId={eventId} isHost={!!isHost} />
             )}
             {active === "items" && (
               <ItemsTab
+                eventId={eventId}
+                isHost={!!isHost}
                 isLoading={loading || refreshing}
                 items={items}
                 onClaim={async () => {}}
@@ -648,6 +662,39 @@ export default function EventDetailsPage({
         buttons={modalConfig.buttons}
         onClose={() => setModalVisible(false)}
       />
+      {/* Share / QR Modal */}
+      <Modal visible={shareOpen} transparent animationType="fade" onRequestClose={() => setShareOpen(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Share Event</Text>
+            <Text style={styles.modalMessage}>Scan or share the link below.</Text>
+            <View style={{ alignItems: 'center', marginBottom: 12 }}>
+              <Image
+                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(`${API_BASE_URL}/events/${eventId}`)}` }}
+                style={{ width: 220, height: 220, borderRadius: 8 }}
+              />
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Pressable style={styles.modalButtonCancel} onPress={() => setShareOpen(false)}>
+                <Text style={styles.modalButtonText}>Close</Text>
+              </Pressable>
+              <Pressable style={styles.modalButton} onPress={async () => {
+                try { await Share.share({ message: `${API_BASE_URL}/events/${eventId}` }); } catch {}
+              }}>
+                <Text style={styles.modalButtonText}>Share</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          addInlineItem(sel.name, sel.category as any, Math.max(0.01, sel.per_guest_qty || 1), { catalog_item_id: (sel as any).catalog_item_id, user_item_id: (sel as any).user_item_id });
+        }}
+      />
     </View>
   );
 }
@@ -657,10 +704,12 @@ function TopBar({
   title,
   onBack,
   onRefresh,
+  onShare,
 }: {
   title?: string;
   onBack?: () => void;
   onRefresh?: () => void;
+  onShare?: () => void;
 }) {
   return (
     <View style={styles.topBar}>
@@ -676,7 +725,7 @@ function TopBar({
         <Pressable onPress={onRefresh} style={styles.topBarButton}>
           <Icon name="RefreshCcw" size={20} color="#374151" />
         </Pressable>
-        <Pressable style={styles.topBarButton}>
+        <Pressable onPress={onShare} style={styles.topBarButton}>
           <Icon name="Share2" size={20} color="#374151" />
         </Pressable>
         <Pressable style={styles.topBarButton}>
@@ -798,10 +847,9 @@ function TabsBar({
 function OverviewTab({
   isLoading,
   event,
-}: { isLoading?: boolean; event?: EventDTO | null }) {
-  const [rsvp, setRsvp] =
-    useState<"accepted" | "declined" | "none">("none");
-
+  eventId,
+  isHost,
+}: { isLoading?: boolean; event?: EventDTO | null; eventId: string; isHost: boolean }) {
   if (isLoading || !event) {
     return (
       <View style={styles.tabContent}>
@@ -812,38 +860,35 @@ function OverviewTab({
 
   return (
     <View style={styles.tabContent}>
-      {/* RSVP */}
-      <Card>
-        <Text style={styles.sectionTitle}>RSVP</Text>
-        <View style={styles.rsvpButtons}>
-          <Pressable
-            onPress={() => setRsvp("accepted")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "accepted" ? styles.rsvpButtonAccepted : styles.rsvpButtonAcceptedInactive
-            ]}
-          >
-            <Icon name="Check" size={16} color={rsvp === "accepted" ? "#ffffff" : "#166534"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "accepted" ? styles.rsvpButtonTextAccepted : styles.rsvpButtonTextAcceptedInactive
-            ]}>Accept</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setRsvp("declined")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "declined" ? styles.rsvpButtonDeclined : styles.rsvpButtonDeclinedInactive
-            ]}
-          >
-            <Icon name="X" size={16} color={rsvp === "declined" ? "#ffffff" : "#dc2626"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "declined" ? styles.rsvpButtonTextDeclined : styles.rsvpButtonTextDeclinedInactive
-            ]}>Decline</Text>
-          </Pressable>
-        </View>
-      </Card>
+      {/* Join Request (guest) or Host info */}
+      {!isHost ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Request to Join</Text>
+          <RequestToJoinButton eventId={eventId} eventTitle={event.title} />
+        </Card>
+      ) : null}
+
+      {/* Map Preview & Directions */}
+      {event.geo?.latitude && event.geo?.longitude ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Location & Directions</Text>
+          <Image
+            source={{ uri: `https://staticmap.openstreetmap.de/staticmap.php?center=${event.geo.latitude},${event.geo.longitude}&zoom=14&size=600x300&markers=${event.geo.latitude},${event.geo.longitude},red-pushpin` }}
+            style={{ width: '100%', height: 180, borderRadius: 10 }}
+          />
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 }}>
+            <Pressable
+              style={[styles.claimButton, styles.claimButtonActive]}
+              onPress={() => {
+                const url = `https://www.google.com/maps/search/?api=1&query=${event.geo?.latitude},${event.geo?.longitude}`;
+                Linking.openURL(url).catch(() => {});
+              }}
+            >
+              <Text style={styles.claimButtonText}>Open in Maps</Text>
+            </Pressable>
+          </View>
+        </Card>
+      ) : null}
 
       {/* Notes */}
       <Card>
@@ -890,6 +935,8 @@ function OverviewTab({
 
 /* ===================== Items tab ===================== */
 function ItemsTab({
+  eventId,
+  isHost,
   isLoading,
   items,
   onClaim,
@@ -900,6 +947,8 @@ function ItemsTab({
   deleteInlineItem,
   adjustInlineClaim,
 }: {
+  eventId: string;
+  isHost: boolean;
   isLoading?: boolean;
   items: ItemDTO[];
   onClaim: (id: string) => Promise<void>;
@@ -939,6 +988,28 @@ function ItemsTab({
     <View style={styles.tabContent}>
       {/* Add item (host only) */}
       <AddItemRow onAdd={(name, category, perGuestQty) => addInlineItem(name, category, perGuestQty)} />
+      {isHost && (
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Pressable
+            onPress={async () => {
+              try {
+                await api(`/events/${eventId}/rebalance`, { method: 'POST', body: JSON.stringify({}) });
+                Alert.alert('Rebalance Complete', 'Unclaimed items were assigned where possible.');
+              } catch (e: any) {
+                Alert.alert('Rebalance Failed', e?.message ?? 'Unknown error');
+              }
+            }}
+            style={[styles.claimButton, styles.claimButtonActive]}
+          >
+            <Text style={styles.claimButtonText}>Rebalance</Text>
+          </Pressable>
+        </View>
+      )}
+      <View style={{ marginTop: 6 }}>
+        <Pressable onPress={() => (setPickerOpen as any)(true)} style={[styles.claimButton, styles.claimButtonActive, { alignSelf: 'flex-start' }]}> 
+          <Text style={styles.claimButtonText}>Browse Catalog / My Items</Text>
+        </Pressable>
+      </View>
 
       {safeItems.map((it) => {
         const pct = clamp01(it.claimedQty / it.requiredQty);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -10,6 +10,7 @@ import {
   ActivityIndicator 
 } from 'react-native';
 import { useEventAvailability, useCreateJoinRequest } from '../../hooks/useJoinRequests';
+import { apiClient } from '@/services/apiClient';
 
 interface RequestToJoinButtonProps {
   eventId: string;
@@ -30,6 +31,18 @@ export default function RequestToJoinButton({
   
   const { availability } = useEventAvailability(eventId);
   const { createRequest, creating } = useCreateJoinRequest(eventId);
+  const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const prof = await apiClient.get<any>('/user-profile/me');
+        setPhoneVerified(Boolean(prof?.phone_verified));
+      } catch {
+        setPhoneVerified(null);
+      }
+    })();
+  }, []);
 
   const canRequest = availability && availability.available > 0 && !disabled;
   
@@ -76,7 +89,13 @@ export default function RequestToJoinButton({
     <>
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => setModalVisible(true)}
+        onPress={async () => {
+          if (phoneVerified === false) {
+            Alert.alert('Verify Phone', 'Please verify your phone number in Settings > User Preferences before requesting to join.');
+            return;
+          }
+          setModalVisible(true);
+        }}
         disabled={creating}
       >
         {creating ? (
