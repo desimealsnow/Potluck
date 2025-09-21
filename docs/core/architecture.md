@@ -1,6 +1,6 @@
 # Potluck Application – System Architecture
 
-> **Status**: Draft · v0.1 · 27 Jun 2025
+> **Status**: Updated · v0.2 · 21 Sep 2025
 
 ---
 
@@ -56,7 +56,7 @@ graph LR
 
 1. **API Gateway** exposes a unified `/v1/*` surface and handles auth middleware, rate limiting, and correlation IDs.
 2. Each service is **modularised** inside the monorepo (`apps/server/src/modules/<context>`). In future they can be split into discrete microservices without breaking contracts.
-3. Supabase Edge Functions handle **webhooks** for email verification, payment processor callbacks, and AI tasks that need lower latency.
+3. Supabase Edge Functions handle **webhooks** for email verification and AI tasks that need lower latency. Payment processor callbacks are handled in‑process at `/api/v1/billing/webhook/:provider` with raw body parsing; `stripe` is normalized to `lemonsqueezy` in dev.
 
 ---
 
@@ -98,6 +98,15 @@ erDiagram
   ITEM_CATALOG ||--o{ EVENTS : "suggests"
   USERS ||--o{ USER_ITEMS : "templates"
 ```
+
+---
+
+## 5.1 Recent Data Model Additions (2025‑09)
+
+- `item_catalog(id, name, category, unit, default_per_guest_qty, dietary_tags[], description, is_active, …)`
+- `user_items(id, user_id, name, category, unit, default_per_guest_qty, dietary_tags[], notes, …)`
+- `event_items` includes nullable `catalog_item_id` and `user_item_id` to link to catalog or user template.
+- Join Requests: `event_join_requests` supports `waitlist_pos`, with functions `process_join_request`, `update_request_status`, `promote_from_waitlist`, `expire_join_request_holds`.
 
 ---
 
