@@ -196,6 +196,13 @@ export class ApiClient {
   }
 
   /**
+   * List pending join requests across my hosted events (host dashboard)
+   */
+  async listPendingApprovals(): Promise<PaginatedJoinRequestsData> {
+    return this.get<PaginatedJoinRequestsData>(`/events/requests`);
+  }
+
+  /**
    * Approve a join request (host-only)
    */
   async approveJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {

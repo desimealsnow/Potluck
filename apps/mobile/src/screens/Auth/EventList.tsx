@@ -186,6 +186,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   }, [sidebarVisible, isTablet, sidebarTranslateX]);
   
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
+  const [pendingApprovals, setPendingApprovals] = useState<any[] | null>(null);
+  const [loadingPending, setLoadingPending] = useState(false);
   const [ownership, setOwnership] = useState<Ownership>("all");
   const [dietFilters, setDietFilters] = useState<Diet[]>([]);
   const [query, setQuery] = useState("");
@@ -285,6 +287,21 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setLoading(true);
     setPage(1);
     try {
+      // Special tab: Pending Approval (host requests across events)
+      if (statusTab === 'pending-approval') {
+        setLoading(false);
+        setLoadingPending(true);
+        try {
+          const data = await apiClient.listPendingApprovals();
+          setPendingApprovals(data.data || []);
+        } catch (e) {
+          setPendingApprovals([]);
+        } finally {
+          setLoadingPending(false);
+        }
+        return;
+      }
+
       const res = await fetchEvents({
         page: 1,
         limit: PAGE_SIZE,
@@ -310,6 +327,20 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setLoading(true);
     setPage(1);
     try {
+      if (nextTab === 'pending-approval') {
+        setLoading(false);
+        setLoadingPending(true);
+        try {
+          const data = await apiClient.listPendingApprovals();
+          setPendingApprovals(data.data || []);
+        } catch (e) {
+          setPendingApprovals([]);
+        } finally {
+          setLoadingPending(false);
+        }
+        return;
+      }
+
       const res = await fetchEvents({
         page: 1,
         limit: PAGE_SIZE,
@@ -898,9 +929,14 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   { key: "drafts", label: "Drafts" },
                   { key: "past", label: "Past" },
                   { key: "deleted", label: "Deleted" },
+                  { key: "pending-approval", label: "Pending Approval" },
                 ]}
                 value={statusTab}
-                onChange={(v) => setStatusTab(v as EventStatusMobile)}
+                onChange={(v) => {
+                  const next = v as EventStatusMobile;
+                  setStatusTab(next);
+                  reloadWith(next);
+                }}
                 testID="status-filter"
               />
             </View>
@@ -915,7 +951,55 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             />
 
 
-            {/* List */}
+            {/* Pending Approval tab content */}
+            {statusTab === 'pending-approval' ? (
+              <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+                {loadingPending ? (
+                  <ActivityIndicator color="#fff" />
+                ) : !pendingApprovals || pendingApprovals.length === 0 ? (
+                  <View style={styles.emptyWrap}>
+                    <Icon name="Inbox" size={48} color="rgba(255,255,255,0.4)" />
+                    <Text style={styles.emptyTitle}>No pending join requests</Text>
+                    <Text style={styles.emptyText}>When guests request to join your events, they will appear here.</Text>
+                  </View>
+                ) : (
+                  pendingApprovals.map((req: any) => (
+                    <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
+                      <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
+                      <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
+                      {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>"{req.note}"</Text> : null}
+                      <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+                          onPress={async () => {
+                            try { await apiClient.approveJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Approve</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
+                          onPress={async () => {
+                            try { await apiClient.waitlistJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Waitlist</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#F44336' }]}
+                          onPress={async () => {
+                            try { await apiClient.declineJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Decline</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            ) : (
+            /* List */
             <FlatList
           data={data}
           keyExtractor={(item) => item.id}
@@ -970,6 +1054,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           }}
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
             />
+            )}
           </View>
         </View>
 
