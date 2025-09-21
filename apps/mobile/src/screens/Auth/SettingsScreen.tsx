@@ -36,6 +36,7 @@ export default function SettingsScreen({
   onShowMyItems,
   onShowPaymentMethods,
   onShowInvoices,
+  onShowMyJoinRequests,
   onShowAbout,
   onShowPrivacy,
   onShowHelp
@@ -46,6 +47,7 @@ export default function SettingsScreen({
   onShowMyItems?: () => void;
   onShowPaymentMethods?: () => void;
   onShowInvoices?: () => void;
+  onShowMyJoinRequests?: () => void;
   onShowAbout?: () => void;
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
@@ -130,6 +132,14 @@ export default function SettingsScreen({
       subtitle: "View and download invoices",
       icon: "Receipt",
       onPress: () => onShowInvoices?.(),
+      showChevron: true,
+    },
+    {
+      id: "my-join-requests",
+      title: "My Join Requests",
+      subtitle: "Requests you’ve made to join events",
+      icon: "Send",
+      onPress: () => onShowMyJoinRequests?.(),
       showChevron: true,
     },
     {

@@ -31,6 +31,7 @@ import HelpScreen from "./HelpScreen";
 import MyItemsScreen from "./MyItemsScreen";
 import PaymentMethodsScreen from "./PaymentMethodsScreen";
 import InvoicesScreen from "./InvoicesScreen";
+import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
@@ -231,6 +232,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showMyItems, setShowMyItems] = useState(false);
   const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   const [showInvoices, setShowInvoices] = useState(false);
+  const [showMyJoinRequests, setShowMyJoinRequests] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -654,6 +656,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setShowInvoices(true);
           setNavigationContext('settings');
         }}
+        onShowMyJoinRequests={() => {
+          setShowSettings(false);
+          setShowMyJoinRequests(true);
+          setNavigationContext('settings');
+        }}
         onShowAbout={() => {
           setShowSettings(false);
           setShowAbout(true);
@@ -685,6 +692,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   if (showInvoices) {
     return (
       <InvoicesScreen onBack={() => handleBackNavigation('settings')} />
+    );
+  }
+  if (showMyJoinRequests) {
+    return (
+      <MyJoinRequestsScreen onBack={() => handleBackNavigation('settings')} />
     );
   }
   if (showNotifications) {
