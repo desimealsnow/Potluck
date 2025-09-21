@@ -13,7 +13,7 @@ The system is organised into **bounded contexts** that map directly to the funct
 | Bounded Context  | Responsibility                                       |
 | ---------------- | ---------------------------------------------------- |
 | **Event**        | Create/manage potluck events, scheduling, visibility |
-| **Items**        | CRUD for dishes/items, dietary tagging               |
+| **Items**        | CRUD for event items, user templates, global catalog |
 | **Participants** | Invitations, RSVPs, role management                  |
 | **User**         | Profile, preferences, auth linkage                   |
 | **Payment**      | Contribution tracking, split payments (future)       |
@@ -43,6 +43,7 @@ graph LR
   subgraph Node API Cluster
     AGW --> EV[Event Service]
     AGW --> IT[Items Service]
+    AGW --> IL[Items Library]
     AGW --> PR[Participants Service]
     AGW --> US[User Service]
   end
@@ -76,6 +77,7 @@ graph LR
 ### 4.3 Supabase
 
 * **Postgres** schema under `public`. RLS enforces tenant isolation by `user_id`.
+* Items library tables: `item_catalog` (global), `user_items` (per user).
 * **Storage** bucket `event‑images/*` with signed URLs.
 
 ### 4.4 AI Agent Layer
@@ -93,6 +95,8 @@ erDiagram
   EVENTS ||--o{ ITEMS : includes
   EVENTS ||--o{ PARTICIPANTS : "invites"
   ITEMS  }o--|| USERS : "brought_by"
+  ITEM_CATALOG ||--o{ EVENTS : "suggests"
+  USERS ||--o{ USER_ITEMS : "templates"
 ```
 
 ---

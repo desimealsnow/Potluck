@@ -73,8 +73,12 @@ async function main() {
     if (!res.ok) throw new Error(`list items failed ${res.status}`);
     const items = await res.json();
     const firstItem = items[0];
-    res = await authed('POST', `/events/${eventId}/items/${firstItem.id}/assign`, guest, {});
+  res = await authed('POST', `/events/${eventId}/items/${firstItem.id}/assign`, guest, {});
     if (!res.ok) throw new Error(`assign failed ${res.status}`);
+
+  // Update item via PUT (OpenAPI parity)
+  res = await authed('PUT', `/events/${eventId}/items/${firstItem.id}`, host, { name: 'Main (updated)' });
+  if (!res.ok) throw new Error(`item update failed ${res.status}`);
 
     // Validate availability
     res = await fetch(`${API}/events/${eventId}/availability`);
