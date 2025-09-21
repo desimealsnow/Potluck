@@ -53,7 +53,7 @@ const PAGE_PADDING = 16;
 const PAGE_SIZE = 10;
 
 /* -------------------- API Helpers -------------------- */
-async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean }> {
+async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean; points: Array<{ id: string; lat: number; lon: number; title?: string }> }> {
   const params = new URLSearchParams();
   // backend expects limit/offset, not page
   params.set("limit", String(q.limit));
@@ -138,8 +138,16 @@ async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: numbe
       })),
     };
   });
+  const points: Array<{ id: string; lat: number; lon: number; title?: string }> = [];
+  for (const e of itemsRaw) {
+    const lat = typeof e?.location?.latitude === 'number' ? e.location.latitude : undefined;
+    const lon = typeof e?.location?.longitude === 'number' ? e.location.longitude : undefined;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      points.push({ id: e.id, lat, lon, title: e.title || e.name });
+    }
+  }
 
-  return { items, hasMore };
+  return { items, hasMore, points };
 }
 
 // Cross-platform confirmation (web: window.confirm, native: Alert.alert)
@@ -203,6 +211,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [mapMode, setMapMode] = useState(false);
+  const [mapPoints, setMapPoints] = useState<Array<{ id: string; lat: number; lon: number; title?: string }>>([]);
   const debTimer = useRef<NodeJS.Timeout | null>(null);
   const endReachedOnce = useRef(false);
   
@@ -321,6 +331,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       });
       setData(res.items);
       setHasMore(res.hasMore);
+      setMapPoints(res.points || []);
     } catch (e) {
       console.warn("Failed to fetch:", e);
       setData([]);
@@ -386,6 +397,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       setData((d) => [...d, ...res.items]);
       setPage(next);
       setHasMore(res.hasMore);
+      setMapPoints(res.points || []);
     } catch (e) {
       console.warn("Load more error:", e);
     } finally {
@@ -904,6 +916,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 </Text>
               </View>
               <View style={styles.eventsHeaderActions}>
+                <Pressable 
+                  onPress={() => setMapMode(m => !m)} 
+                  style={[styles.filterToggleButton, { marginRight: 8 }]} 
+                  testID="map-toggle-button"
+                >
+                  <Icon name={mapMode ? "List" : "Map"} size={16} color="rgba(255,255,255,0.8)" />
+                  <Text style={styles.filterToggleText}>
+                    {mapMode ? "List" : "Map"}
+                  </Text>
+                </Pressable>
                 {/* Filter Toggle Button */}
                 <Pressable 
                   onPress={() => {
@@ -999,7 +1021,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             />
 
 
-            {/* Pending Approval tab content */}
+            {/* Pending Approval tab content or Map/List */}
             {statusTab === 'pending-approval' ? (
               <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
                 {loadingPending ? (
@@ -1045,6 +1067,26 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     </View>
                   ))
                 )}
+              </View>
+            ) : mapMode ? (
+              <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+                <Image
+                  source={{ uri: `https://staticmap.openstreetmap.de/staticmap.php?center=${userLocation?.lat ?? 37.7749},${userLocation?.lon ?? -122.4194}&zoom=12&size=720x420&markers=${encodeURIComponent(mapPoints.map(p => `${p.lat},${p.lon},lightblue1`).join('|'))}` }}
+                  style={{ width: '100%', height: 240, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }}
+                />
+                <View style={{ marginTop: 10 }}>
+                  {mapPoints.map(p => (
+                    <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
+                      <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
+                      <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+                        <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
+                          <Text style={styles.actionButtonText}>Open</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
+                </View>
               </View>
             ) : (
             /* List */
