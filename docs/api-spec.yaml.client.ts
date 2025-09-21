@@ -2147,6 +2147,9 @@ Stripe signs the payload; verify in the handler.
 
 export const api = new Zodios(endpoints);
 
+/**
+ * Creates an instance of Zodios API client.
+ */
 export function createApiClient(baseUrl: string, options?: ZodiosOptions) {
   return new Zodios(baseUrl, endpoints, options);
 }
