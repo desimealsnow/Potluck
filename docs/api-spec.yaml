@@ -34,31 +34,7 @@ paths:
       responses:
         "200": { description: Logged out }
 
-  /locations:
-    get:
-      summary: Search / list locations
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - in: query
-          name: search
-          schema: { type: string }
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: "#/components/schemas/Location" }
-    post:
-      summary: Resolve or create a location row
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Location" }
-      responses:
-        "201": { description: Created / existing row returned }
+  
 
   /events:
     post:

@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import authRouter       from './routes/auth.routes';
 import eventRoutes      from './routes/events.routes';
-import locationRoutes   from './routes/locations.routes';
 import billingRoutes    from './routes/billing.routes';
 import discoveryRoutes from './routes/discovery.routes';
 import userLocationRoutes from './routes/user-location.routes';
@@ -54,7 +53,6 @@ export const createApp = () => {
   /* ---------- API namespaces ---------- */
   app.use('/api/v1/auth',      authRouter);
   app.use('/api/v1/events',    eventRoutes);   // items & participants come with it
-  app.use('/api/v1/locations', locationRoutes);
   app.use('/api/v1/billing',   billingRoutes);
   app.use('/api/v1/discovery', discoveryRoutes);
   app.use('/api/v1/user-location', userLocationRoutes);
