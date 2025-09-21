@@ -33,6 +33,7 @@ export default function SettingsScreen({
   onBack, 
   onShowSubscription,
   onShowPreferences,
+  onShowMyItems,
   onShowAbout,
   onShowPrivacy,
   onShowHelp
@@ -40,6 +41,7 @@ export default function SettingsScreen({
   onBack?: () => void;
   onShowSubscription?: () => void;
   onShowPreferences?: () => void;
+  onShowMyItems?: () => void;
   onShowAbout?: () => void;
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
@@ -115,9 +117,7 @@ export default function SettingsScreen({
       title: "My Items",
       subtitle: "Manage your saved item templates",
       icon: "List",
-      onPress: () => {
-        Alert.alert("Open My Items", "Navigate to My Items screen from parent.");
-      },
+      onPress: () => onShowMyItems?.(),
       showChevron: true,
     },
     {

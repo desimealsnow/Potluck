@@ -28,6 +28,7 @@ import SubscriptionScreen from "./SubscriptionScreen";
 import AboutScreen from "./AboutScreen";
 import PrivacyScreen from "./PrivacyScreen";
 import HelpScreen from "./HelpScreen";
+import MyItemsScreen from "./MyItemsScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
@@ -225,6 +226,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMyItems, setShowMyItems] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -633,6 +635,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setShowPreferences(true);
           setNavigationContext('settings');
         }}
+        onShowMyItems={() => {
+          setShowSettings(false);
+          setShowMyItems(true);
+          setNavigationContext('settings');
+        }}
         onShowAbout={() => {
           setShowSettings(false);
           setShowAbout(true);
@@ -649,6 +656,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setNavigationContext('settings');
         }}
       />
+    );
+  }
+  if (showMyItems) {
+    return (
+      <MyItemsScreen onBack={() => handleBackNavigation('settings')} />
     );
   }
   if (showNotifications) {
