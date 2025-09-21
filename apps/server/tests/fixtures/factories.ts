@@ -114,6 +114,9 @@ export class ItemFactory extends Factory<ItemCreate> {
  * Event factory for generating potluck events
  */
 export class EventFactory extends Factory<EventCreate> {
+  /**
+   * Builds an EventCreate object with randomized properties.
+   */
   build(overrides?: Partial<EventCreate>): EventCreate {
     const eventDate = faker.date.future({ years: 1 });
     const minGuests = faker.number.int({ min: 5, max: 15 });
@@ -170,6 +173,9 @@ export class EventFactory extends Factory<EventCreate> {
  * Participant factory for event participation
  */
 export class ParticipantFactory extends Factory<ParticipantAdd> {
+  /**
+   * Creates a ParticipantAdd object with optional overrides.
+   */
   build(overrides?: Partial<ParticipantAdd>): ParticipantAdd {
     return {
       user_id: faker.string.uuid(),
@@ -281,7 +287,7 @@ export class TestDataSets {
   }
 
   /**
-   * Minimal valid event for quick testing
+   * Creates a minimal valid event for testing purposes.
    */
   static minimalEvent(): EventCreate {
     return {
