@@ -17,16 +17,18 @@ export const add = async (req: AuthenticatedRequest, res: Response) => {
   const input   = req.body as AddParticipantInput;
 
   // If self-RSVP (user_id matches caller), require verified phone
-  try {
-    const actorId = req.user?.id;
-    if (actorId && input.user_id === actorId) {
-      const { supabase } = await import('../config/supabaseClient');
-      const { data: profile } = await supabase.from('user_profiles').select('phone_verified').eq('user_id', actorId).single();
-      if (!profile?.phone_verified) {
-        return res.status(403).json({ ok: false, error: 'Phone verification required before RSVP', code: 'PHONE_UNVERIFIED' });
+  if (process.env.BYPASS_PHONE_VALIDATION !== 'TEST') {
+    try {
+      const actorId = req.user?.id;
+      if (actorId && input.user_id === actorId) {
+        const { supabase } = await import('../config/supabaseClient');
+        const { data: profile } = await supabase.from('user_profiles').select('phone_verified').eq('user_id', actorId).single();
+        if (!profile?.phone_verified) {
+          return res.status(403).json({ ok: false, error: 'Phone verification required before RSVP', code: 'PHONE_UNVERIFIED' });
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  }
 
   const result = await svc.addParticipant(eventId, input);
   return handle(res, result, 201);

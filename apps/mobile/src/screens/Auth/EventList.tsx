@@ -251,6 +251,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showHelp, setShowHelp] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [navigationContext, setNavigationContext] = useState<string | null>(null);
+  const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
   const refreshUserLocation = useCallback(async () => {
     try {
       const response = await apiClient.get('/user-profile/me') as any;
@@ -263,6 +264,9 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       } else if (response?.city) {
         // keep previous until SupabaseAuthUI geocodes; don't clear to avoid flicker
         console.log('UserLocation updated city only; waiting for coords');
+      }
+      if (typeof response?.phone_verified === 'boolean') {
+        setPhoneVerified(response.phone_verified);
       }
     } catch (e) {
       console.log('refreshUserLocation failed:', e);
@@ -797,6 +801,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 showNavigation={false}
               />
         
+        {phoneVerified === false && (
+          <View style={{ backgroundColor: '#FEF3C7', padding: 12, marginHorizontal: PAGE_PADDING, marginTop: 8, borderRadius: 10, borderWidth: 1, borderColor: '#FDE68A' }}>
+            <Text style={{ color: '#92400E', fontWeight: '700' }}>Verify your phone</Text>
+            <Text style={{ color: '#92400E', marginTop: 4 }}>Verify your phone number to create events or request to join. Tap to verify now.</Text>
+            <Pressable onPress={() => setShowPreferences(true)} style={{ alignSelf: 'flex-start', marginTop: 8, backgroundColor: '#F59E0B', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Verify Phone</Text>
+            </Pressable>
+          </View>
+        )}
+
 
         {/* Main Content Area - Two Column Layout */}
         <View style={styles.mainContentArea}>
