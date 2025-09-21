@@ -146,7 +146,15 @@ describe('Events API Integration Tests', () => {
             id: testEvent.id,
             title: testEvent.title,
             event_date: expect.any(String),
-            attendee_count: expect.any(Number)
+            attendee_count: expect.any(Number),
+            // Location data should now be included
+            location: expect.objectContaining({
+              id: expect.any(String),
+              name: expect.any(String),
+              formatted_address: expect.any(String),
+              latitude: expect.any(Number),
+              longitude: expect.any(Number)
+            })
           })
         ]),
         totalCount: expect.any(Number),
@@ -188,7 +196,19 @@ describe('Events API Integration Tests', () => {
         .expect(200);
 
       expect(listRes.body.items).toEqual(
-        expect.arrayContaining([expect.objectContaining({ id: eventId })])
+        expect.arrayContaining([
+          expect.objectContaining({ 
+            id: eventId,
+            // Location data should be included
+            location: expect.objectContaining({
+              id: expect.any(String),
+              name: expect.any(String),
+              formatted_address: expect.any(String),
+              latitude: expect.any(Number),
+              longitude: expect.any(Number)
+            })
+          })
+        ])
       );
     });
 

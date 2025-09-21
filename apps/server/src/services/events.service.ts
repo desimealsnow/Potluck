@@ -668,7 +668,7 @@ async function performDiscoverySearch(
     }
 
     // Debug logging for location include
-    if (shouldIncludeLocation) {
+    if (include === 'location') {
       logger.info('Location include debug - raw events data:', JSON.stringify(events, null, 2));
     }
 

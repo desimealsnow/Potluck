@@ -15,6 +15,7 @@
     "version:payments:major": "npm version major -w packages/payments",
     "start:server": "npm start -w apps/server",
     "start:mobile": "npm start -w apps/mobile",
+    "start:mobile:web": "npm run web -w apps/mobile",
     "dev:server": "npm run dev -w apps/server",
     "debug:server": "npm run dev:debug -w apps/server",
     "dev:mobile": "npm run start -w apps/mobile",

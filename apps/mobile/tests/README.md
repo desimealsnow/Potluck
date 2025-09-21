@@ -77,7 +77,7 @@ This document outlines all user flow paths and testing strategies for the Potluc
 ### 2. Main Navigation Flow
 
 #### 2.1 Event List (Dashboard)
-**Entry Point**: EventList.tsx (main screen after authentication)
+**Entry Point**: EventListWithNavigation.tsx (main screen after authentication with React Navigation)
 
 **Features**:
 - Search events

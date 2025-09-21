@@ -136,6 +136,7 @@ export class EventFactory extends Factory<EventCreate> {
       min_guests: minGuests,
       max_guests: maxGuests,
       meal_type: faker.helpers.arrayElement(['veg', 'nonveg', 'mixed']),
+      is_public: true,
       location: new LocationFactory().build(),
       items: new ItemFactory().buildList(faker.number.int({ min: 3, max: 6 })),
       ...overrides
@@ -172,6 +173,7 @@ export class ParticipantFactory extends Factory<ParticipantAdd> {
   build(overrides?: Partial<ParticipantAdd>): ParticipantAdd {
     return {
       user_id: faker.string.uuid(),
+      party_size: faker.number.int({ min: 1, max: 4 }),
       status: faker.helpers.arrayElement(['invited', 'pending', 'accepted', 'declined', 'maybe']),
       ...overrides
     };
@@ -289,6 +291,7 @@ export class TestDataSets {
       min_guests: 2,
       max_guests: 10,
       meal_type: 'mixed',
+      is_public: true,
       location: {
         name: 'Test Location',
         formatted_address: '123 Test St, Test City, TS 12345'

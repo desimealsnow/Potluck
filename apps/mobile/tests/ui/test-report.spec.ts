@@ -39,7 +39,7 @@ test.describe('Playwright Test Framework Status Report', () => {
   test('🏗️ TestId Implementation Status', async () => {
     const testIdComponents = [
       'SupabaseAuthUI.tsx - Auth form components',
-      'EventList.tsx - Dashboard and event cards', 
+      'EventListWithNavigation.tsx - Dashboard and event cards', 
       'CreateEvent.tsx - Multi-step wizard',
       'EventDetailsPage.tsx - Event management',
       'UI Components: Input, Button, Chip, Segmented'
