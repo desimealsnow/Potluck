@@ -1229,6 +1229,14 @@ components:
         name: { type: string }
         category: { type: string }
         per_guest_qty: { type: number, minimum: 0.01 }
+        catalog_item_id:
+          type: string
+          format: uuid
+          description: Optional link to global catalog item
+        user_item_id:
+          type: string
+          format: uuid
+          description: Optional link to user's saved item template
     ItemUpdate:
       allOf:
         - $ref: "#/components/schemas/ItemCreate"

@@ -299,9 +299,9 @@ export default function EventDetailsPage({
   const [shareOpen, setShareOpen] = useState(false);
 
   // Provide inline handlers to ItemsTab
-  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number) => {
+  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number, opts?: { catalog_item_id?: string; user_item_id?: string }) => {
     if (!isHost) return;
-    addItem({ name, category, per_guest_qty: perGuestQty });
+    addItem({ name, category, per_guest_qty: perGuestQty, ...(opts?.catalog_item_id ? { catalog_item_id: opts.catalog_item_id } : {}), ...(opts?.user_item_id ? { user_item_id: opts.user_item_id } : {}) } as any);
   }, [isHost]);
 
   const updateInlineItem = useCallback((itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => {
@@ -692,7 +692,7 @@ export default function EventDetailsPage({
         onClose={() => setPickerOpen(false)}
         onSelect={(sel) => {
           setPickerOpen(false);
-          addInlineItem(sel.name, sel.category as any, Math.max(0.01, sel.per_guest_qty || 1));
+          addInlineItem(sel.name, sel.category as any, Math.max(0.01, sel.per_guest_qty || 1), { catalog_item_id: (sel as any).catalog_item_id, user_item_id: (sel as any).user_item_id });
         }}
       />
     </View>

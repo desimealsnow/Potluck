@@ -9,6 +9,8 @@ export interface ItemLibrarySelection {
   name: string;
   category?: string;
   per_guest_qty?: number;
+  catalog_item_id?: string;
+  user_item_id?: string;
 }
 
 export default function ItemLibrarySheet({
@@ -101,7 +103,7 @@ export default function ItemLibrarySheet({
             <TouchableOpacity
               key={item.id}
               style={styles.row}
-              onPress={() => onSelect({ name: item.name, category: item.category, per_guest_qty: item.default_per_guest_qty })}
+              onPress={() => onSelect({ name: item.name, category: item.category, per_guest_qty: item.default_per_guest_qty, catalog_item_id: item.id })}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowTitle}>{item.name}</Text>
@@ -115,7 +117,7 @@ export default function ItemLibrarySheet({
             <TouchableOpacity
               key={item.id}
               style={styles.row}
-              onPress={() => onSelect({ name: item.name, category: item.category, per_guest_qty: item.default_per_guest_qty })}
+              onPress={() => onSelect({ name: item.name, category: item.category, per_guest_qty: item.default_per_guest_qty, user_item_id: item.id })}
             >
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowTitle}>{item.name}</Text>

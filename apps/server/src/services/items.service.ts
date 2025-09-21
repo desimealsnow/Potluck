@@ -18,9 +18,14 @@ export async function addItem(
   userId: string
 ): Promise<ServiceResult<components['schemas']['Item']>> {
   logger.info(`addItem: start`, { eventId, userId, input });
+  const payload: any = { ...input, event_id: eventId, created_by: userId };
+  // Map optional source IDs to columns (if provided)
+  if ((input as any).catalog_item_id) payload.catalog_item_id = (input as any).catalog_item_id;
+  if ((input as any).user_item_id) payload.user_item_id = (input as any).user_item_id;
+
   const { data, error } = await supabase
     .from('event_items')
-    .insert([{ ...input, event_id: eventId, created_by: userId }])
+    .insert([payload])
     .select()
     .single();
 

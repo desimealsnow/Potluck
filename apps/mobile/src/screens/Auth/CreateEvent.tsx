@@ -465,12 +465,12 @@ export default function CreateEventScreen({
                       </Pressable>
                     </View>
 
-                    <Label>Item Name</Label>
-                    <Input
-                      placeholder="e.g., Grandma's Famous Mac & Cheese"
-                      value={d.name}
-                      onChangeText={(t) => updateDish(d.id, { name: t }, setDishes)}
-                    />
+                    <Label>Item</Label>
+                    <Pressable onPress={() => setPickerOpen(true)} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]}>
+                      <Text style={[styles.input, { color: d.name ? '#111827' : '#9CA3AF' }]}>
+                        {d.name || 'Pick from Catalog / My Items'}
+                      </Text>
+                    </Pressable>
                     <View style={{ marginTop: 6 }}>
                       <Pressable onPress={() => setPickerOpen(true)} style={[styles.chip, { alignSelf: 'flex-start' }]}
                         hitSlop={8}
@@ -682,13 +682,19 @@ export default function CreateEventScreen({
           // Insert a dish with selected values or fill the first empty row
           setDishes((prev) => {
             const emptyIdx = prev.findIndex(p => !p.name?.trim());
-            const patch = { name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1) } as Partial<Dish>;
+            const patch = { 
+              name: sel.name, 
+              category: sel.category as any, 
+              per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1),
+              catalog_item_id: sel.catalog_item_id,
+              user_item_id: sel.user_item_id,
+            } as Partial<Dish>;
             if (emptyIdx >= 0) {
               const copy = prev.slice();
               copy[emptyIdx] = { ...copy[emptyIdx], ...patch } as Dish;
               return copy;
             }
-            return [{ id: `d${Date.now()}`, name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1) }, ...prev];
+            return [{ id: `d${Date.now()}`, name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1), catalog_item_id: sel.catalog_item_id, user_item_id: sel.user_item_id } as any, ...prev];
           });
         }}
       />
