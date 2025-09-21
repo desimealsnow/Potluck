@@ -2369,6 +2369,20 @@
                     "comment": null,
                     "default": "1.0",
                     "nullable": false
+                },
+                {
+                    "name": "catalog_item_id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "user_item_id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
                 }
             ],
             "comment": null,
@@ -2376,6 +2390,14 @@
                 {
                     "def": "CREATE UNIQUE INDEX event_items_pkey ON public.event_items USING btree (id)",
                     "name": "event_items_pkey"
+                },
+                {
+                    "def": "CREATE INDEX idx_event_items_catalog ON public.event_items USING btree (catalog_item_id)",
+                    "name": "idx_event_items_catalog"
+                },
+                {
+                    "def": "CREATE INDEX idx_event_items_user_item ON public.event_items USING btree (user_item_id)",
+                    "name": "idx_event_items_user_item"
                 }
             ],
             "policies": [
@@ -2409,6 +2431,21 @@
                     }
                 },
                 {
+                    "name": "event_items_catalog_item_id_fkey",
+                    "delete": "n",
+                    "update": "a",
+                    "columns": [
+                        "catalog_item_id"
+                    ],
+                    "references": {
+                        "table": "item_catalog",
+                        "schema": "public",
+                        "columns": [
+                            "id"
+                        ]
+                    }
+                },
+                {
                     "name": "event_items_created_by_fkey",
                     "delete": "a",
                     "update": "a",
@@ -2432,6 +2469,21 @@
                     ],
                     "references": {
                         "table": "events",
+                        "schema": "public",
+                        "columns": [
+                            "id"
+                        ]
+                    }
+                },
+                {
+                    "name": "event_items_user_item_id_fkey",
+                    "delete": "n",
+                    "update": "a",
+                    "columns": [
+                        "user_item_id"
+                    ],
+                    "references": {
+                        "table": "user_items",
                         "schema": "public",
                         "columns": [
                             "id"
@@ -3411,6 +3463,104 @@
             ]
         },
         {
+            "table": "item_catalog",
+            "schema": "public",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": "gen_random_uuid()",
+                    "nullable": false
+                },
+                {
+                    "name": "name",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "category",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "unit",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "default_per_guest_qty",
+                    "type": "numeric(6,2)",
+                    "comment": null,
+                    "default": "1.0",
+                    "nullable": false
+                },
+                {
+                    "name": "dietary_tags",
+                    "type": "text[]",
+                    "comment": null,
+                    "default": "'{}'::text[]",
+                    "nullable": false
+                },
+                {
+                    "name": "description",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "is_active",
+                    "type": "boolean",
+                    "comment": null,
+                    "default": "true",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": "now()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": "now()",
+                    "nullable": false
+                }
+            ],
+            "comment": "Global catalog of common potluck items with default attributes",
+            "indexes": [
+                {
+                    "def": "CREATE UNIQUE INDEX item_catalog_pkey ON public.item_catalog USING btree (id)",
+                    "name": "item_catalog_pkey"
+                },
+                {
+                    "def": "CREATE UNIQUE INDEX item_catalog_name_cat_unit_uk ON public.item_catalog USING btree (lower(TRIM(BOTH FROM name)), COALESCE(category, ''::text), COALESCE(unit, ''::text))",
+                    "name": "item_catalog_name_cat_unit_uk"
+                },
+                {
+                    "def": "CREATE INDEX idx_item_catalog_active ON public.item_catalog USING btree (is_active)",
+                    "name": "idx_item_catalog_active"
+                }
+            ],
+            "policies": [
+            ],
+            "primary_key": [
+                "id"
+            ],
+            "foreign_keys": [
+            ]
+        },
+        {
             "table": "item_categories",
             "schema": "public",
             "columns": [
@@ -4228,6 +4378,83 @@
             ]
         },
         {
+            "table": "phone_verifications",
+            "schema": "public",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": "gen_random_uuid()",
+                    "nullable": false
+                },
+                {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "phone_e164",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "code_hash",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "expires_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "attempts",
+                    "type": "integer",
+                    "comment": null,
+                    "default": "0",
+                    "nullable": false
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": "now()",
+                    "nullable": false
+                }
+            ],
+            "comment": null,
+            "indexes": [
+                {
+                    "def": "CREATE UNIQUE INDEX phone_verifications_pkey ON public.phone_verifications USING btree (id)",
+                    "name": "phone_verifications_pkey"
+                },
+                {
+                    "def": "CREATE INDEX idx_phone_verif_user ON public.phone_verifications USING btree (user_id)",
+                    "name": "idx_phone_verif_user"
+                },
+                {
+                    "def": "CREATE INDEX idx_phone_verif_expires ON public.phone_verifications USING btree (expires_at)",
+                    "name": "idx_phone_verif_expires"
+                }
+            ],
+            "policies": [
+            ],
+            "primary_key": [
+                "id"
+            ],
+            "foreign_keys": [
+            ]
+        },
+        {
             "table": "plans",
             "schema": "public",
             "columns": [
@@ -4522,6 +4749,119 @@
             ]
         },
         {
+            "table": "user_items",
+            "schema": "public",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": "gen_random_uuid()",
+                    "nullable": false
+                },
+                {
+                    "name": "user_id",
+                    "type": "uuid",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "name",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": false
+                },
+                {
+                    "name": "category",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "unit",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "default_per_guest_qty",
+                    "type": "numeric(6,2)",
+                    "comment": null,
+                    "default": "1.0",
+                    "nullable": false
+                },
+                {
+                    "name": "dietary_tags",
+                    "type": "text[]",
+                    "comment": null,
+                    "default": "'{}'::text[]",
+                    "nullable": false
+                },
+                {
+                    "name": "notes",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": "now()",
+                    "nullable": false
+                },
+                {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "comment": null,
+                    "default": "now()",
+                    "nullable": false
+                }
+            ],
+            "comment": "Per-user library of frequently used items (templates)",
+            "indexes": [
+                {
+                    "def": "CREATE UNIQUE INDEX user_items_pkey ON public.user_items USING btree (id)",
+                    "name": "user_items_pkey"
+                },
+                {
+                    "def": "CREATE UNIQUE INDEX user_items_user_name_cat_unit_uk ON public.user_items USING btree (user_id, lower(TRIM(BOTH FROM name)), COALESCE(category, ''::text), COALESCE(unit, ''::text))",
+                    "name": "user_items_user_name_cat_unit_uk"
+                },
+                {
+                    "def": "CREATE INDEX idx_user_items_user ON public.user_items USING btree (user_id)",
+                    "name": "idx_user_items_user"
+                }
+            ],
+            "policies": [
+            ],
+            "primary_key": [
+                "id"
+            ],
+            "foreign_keys": [
+                {
+                    "name": "user_items_user_id_fkey",
+                    "delete": "c",
+                    "update": "a",
+                    "columns": [
+                        "user_id"
+                    ],
+                    "references": {
+                        "table": "users",
+                        "schema": "auth",
+                        "columns": [
+                            "id"
+                        ]
+                    }
+                }
+            ]
+        },
+        {
             "table": "user_notification_preferences",
             "schema": "public",
             "columns": [
@@ -4680,6 +5020,20 @@
                     "comment": "Flag indicating if user has completed initial profile setup",
                     "default": "false",
                     "nullable": true
+                },
+                {
+                    "name": "phone_e164",
+                    "type": "text",
+                    "comment": null,
+                    "default": null,
+                    "nullable": true
+                },
+                {
+                    "name": "phone_verified",
+                    "type": "boolean",
+                    "comment": null,
+                    "default": "false",
+                    "nullable": false
                 }
             ],
             "comment": null,
@@ -5628,11 +5982,25 @@
             "definition": "CREATE TRIGGER trg_recalc_on_events AFTER UPDATE OF attendee_count, min_guests ON public.events FOR EACH ROW WHEN (((old.attendee_count <> new.attendee_count) OR (old.min_guests <> new.min_guests))) EXECUTE FUNCTION trg_recalc_required_qty()"
         },
         {
+            "name": "set_timestamp_item_catalog",
+            "table": "item_catalog",
+            "schema": "public",
+            "comment": null,
+            "definition": "CREATE TRIGGER set_timestamp_item_catalog BEFORE UPDATE ON public.item_catalog FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp()"
+        },
+        {
             "name": "set_timestamp_notifications",
             "table": "notifications",
             "schema": "public",
             "comment": null,
             "definition": "CREATE TRIGGER set_timestamp_notifications BEFORE UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp()"
+        },
+        {
+            "name": "set_timestamp_user_items",
+            "table": "user_items",
+            "schema": "public",
+            "comment": null,
+            "definition": "CREATE TRIGGER set_timestamp_user_items BEFORE UPDATE ON public.user_items FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp()"
         }
     ],
     "functions": [
@@ -5747,5 +6115,5 @@
             "volatility": "VOLATILE"
         }
     ],
-    "generated_at": "2025-09-19T18:04:10Z"
+    "generated_at": "2025-09-21T14:02:05Z"
 }

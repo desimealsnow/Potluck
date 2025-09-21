@@ -38,6 +38,7 @@ The schema capture system provides:
    **Note**: Use the Transaction pooler connection string from Supabase Dashboard (Settings → Database) for IPv4 compatibility.
 
 ### Usage
+from apps/server
 
 ```bash
 # Capture schema snapshot

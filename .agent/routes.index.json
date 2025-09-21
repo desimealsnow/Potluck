@@ -14,6 +14,12 @@
         "handler": "(req, res, next) => {\r\n    if (req.params.provider === 'stripe') {\r\n      req.params.provider = 'lemonsqueezy';\r\n    }\r\n    next();\r\n  }"
       },
       {
+        "method": "GET",
+        "path": "/events/:eventId",
+        "file": "apps/server/src/app.ts",
+        "handler": "(req, res) => {\r\n    const { eventId } = req.params as { eventId: string };\r\n    const appDeepLink = `potluck://event/${eventId}`;\r\n    const apiBase = process.env.PUBLIC_BASE_URL || (process.env.API_BASE_URL?.replace(/\\/api\\/(v\\d+)$/, '') || '');\r\n    const canonicalUrl = `${apiBase || ''}/events/${eventId}`;\r\n    const html = `<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"utf-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\r\n    <title>Potluck – Event</title>\r\n    <meta property=\"og:title\" content=\"Potluck Event\" />\r\n    <meta property=\"og:description\" content=\"Open this event in the Potluck app\" />\r\n    <meta property=\"og:url\" content=\"${canonicalUrl}\" />\r\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />\r\n    <style>\r\n      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0; background:#fafafa; }\r\n      .wrap { max-width: 560px; margin: 48px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }\r\n      h1 { margin: 0 0 8px; font-size: 20px; }\r\n      p { margin: 0 0 16px; color: #374151; }\r\n      a.btn { display:inline-block; padding: 12px 16px; background:#7b2ff7; color:#fff; border-radius:10px; text-decoration:none; font-weight:800; }\r\n      .muted { color:#6b7280; font-size: 14px; margin-top: 16px; }\r\n      code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }\r\n    </style>\r\n    <script>\r\n      (function(){\r\n        var link = '${appDeepLink}';\r\n        var now = Date.now();\r\n        // Try to open the app; if it fails, stay on this page\r\n        var t = setTimeout(function(){ /* no-op fallback */ }, 1200);\r\n        window.location.href = link;\r\n      })();\r\n    </script>\r\n  </head>\r\n  <body>\r\n    <div class=\"wrap\">\r\n      <h1>Open in Potluck</h1>\r\n      <p>Tap the button below to open this event in the Potluck app.</p>\r\n      <p><a class=\"btn\" href=\"${appDeepLink}\">Open App</a></p>\r\n      <p class=\"muted\">If the app doesn't open, make sure it's installed and try again. Shareable link: <code>${canonicalUrl}</code></p>\r\n    </div>\r\n  </body>\r\n  </html>`;\r\n    res.set('Content-Type', 'text/html').send(html);\r\n  }"
+      },
+      {
         "method": "POST",
         "path": "/api/v1/dev-log",
         "file": "apps/server/src/app.ts",
@@ -39,6 +45,38 @@
         "method": "POST",
         "path": "/billing/webhook/fake?tenantId=t1",
         "file": "packages/payments/tests/webhook.express.spec.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/events/requests/all",
+        "file": "apps/mobile/src/services/apiClient.ts"
+      },
+      {
+        "method": "GET",
+        "path": "/items/me",
+        "file": "apps/mobile/src/services/apiClient.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/items/me",
+        "file": "apps/mobile/src/services/apiClient.ts",
+        "handler": "body"
+      },
+      {
+        "method": "GET",
+        "path": "/billing/payment-methods",
+        "file": "apps/mobile/src/services/apiClient.ts"
+      },
+      {
+        "method": "POST",
+        "path": "/billing/payment-methods",
+        "file": "apps/mobile/src/services/apiClient.ts",
+        "handler": "payload"
+      },
+      {
+        "method": "GET",
+        "path": "/billing/invoices",
+        "file": "apps/mobile/src/services/apiClient.ts"
       },
       {
         "method": "GET",
@@ -304,9 +342,45 @@
       },
       {
         "method": "GET",
+        "path": "/requests/all",
+        "file": "apps/server/src/routes/events.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
         "path": "/:eventId/availability",
         "file": "apps/server/src/routes/events.routes.ts",
         "handler": "R.RequestsController.getEventAvailability"
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "file": "apps/server/src/routes/items.library.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
+        "path": "/me",
+        "file": "apps/server/src/routes/items.library.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/me",
+        "file": "apps/server/src/routes/items.library.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "PUT",
+        "path": "/me/:id",
+        "file": "apps/server/src/routes/items.library.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "DELETE",
+        "path": "/me/:id",
+        "file": "apps/server/src/routes/items.library.routes.ts",
+        "handler": "authGuard"
       },
       {
         "method": "POST",
@@ -319,12 +393,6 @@
         "path": "/:itemId/assign",
         "file": "apps/server/src/routes/items.routes.ts",
         "handler": "authGuard"
-      },
-      {
-        "method": "POST",
-        "path": "/",
-        "file": "apps/server/src/routes/locations.routes.ts",
-        "handler": "addLocation"
       },
       {
         "method": "GET",
@@ -425,6 +493,18 @@
       {
         "method": "GET",
         "path": "/me",
+        "file": "apps/server/src/routes/user-profile.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/phone/send",
+        "file": "apps/server/src/routes/user-profile.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/phone/verify",
         "file": "apps/server/src/routes/user-profile.routes.ts",
         "handler": "authGuard"
       },
@@ -986,10 +1066,50 @@
         "handler": "async (req: Request, res: Response) => {\r\n    try {\r\n      const fromOpt = opts?.getUserId?.(req);\r\n      const fromBody = (req.body?.user_id as string | undefined);\r\n      const fromHeader = (Array.isArray(req.headers['x-dev-user-id']) ? req.headers['x-dev-user-id'][0] : (req.headers['x-dev-user-id'] as string | undefined));\r\n      const userId = fromOpt || fromBody || fromHeader;\r\n      const userEmail = opts?.getUserEmail?.(req);\r\n      if (!userId) return res.status(401).json({ ok: false, error: 'Unauthorized: user_id missing' });\r\n\r\n      const provider = (req.body?.provider as string) || 'lemonsqueezy';\r\n      let planId = (req.body?.plan_id as string) || 'test-default-plan';\r\n      // Coerce non-UUID plan ids (e.g., provider variant ids like '992415') to a UUID to satisfy DB schemas\r\n      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;\r\n      if (!uuidRegex.test(planId)) {\r\n        const coerced = randomUUID();\r\n        planId = coerced;\r\n        container.logger.info?.('dev.seeding.coercePlanId', { original: req.body?.plan_id, coerced });\r\n      }\r\n      const providerSubId = (req.body?.provider_subscription_id as string) || randomUUID();\r\n      const status = (req.body?.status as Subscription['status']) || 'active';\r\n\r\n      // Ensure plan exists (satisfy potential FK)\r\n      const plan: Plan = {\r\n        id: planId,\r\n        name: (req.body?.plan_name as string) || 'Seeded Plan',\r\n        amountCents: Number(req.body?.amount_cents ?? 0),\r\n        currency: (req.body?.currency as string) || 'usd',\r\n        interval: (req.body?.interval as any) || 'month',\r\n        isActive: true,\r\n      } as any;\r\n      try { await container.persistence.upsertPlan(plan); } catch {}\r\n\r\n      const sub: Subscription = {\r\n        id: randomUUID(),\r\n        provider,\r\n        providerSubId,\r\n        planId,\r\n        userId,\r\n        status,\r\n        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),\r\n      };\r\n\r\n      await container.persistence.upsertSubscription(sub);\r\n      await container.events.publish('dev.subscription.seeded', { sub, userEmail });\r\n\r\n      return res.json({ ok: true, data: sub });\r\n    } catch (e) {\r\n      container.logger.error('dev seed-subscription failed', { error: e });\r\n      return res.status(500).json({ ok: false, error: e instanceof Error ? e.message : 'Unknown error' });\r\n    }\r\n  }"
       },
       {
+        "method": "GET",
+        "path": "/user-profile/me",
+        "file": "apps/mobile/src/components/joinRequests/RequestToJoinButton.tsx"
+      },
+      {
+        "method": "GET",
+        "path": "window",
+        "file": "apps/mobile/src/components/ui/FilterBottomSheet.tsx"
+      },
+      {
+        "method": "GET",
+        "path": "/user-profile/me",
+        "file": "apps/mobile/src/screens/Auth/CreateEvent.tsx"
+      },
+      {
         "method": "POST",
         "path": "/events",
         "file": "apps/mobile/src/screens/Auth/CreateEvent.tsx",
         "handler": "payload"
+      },
+      {
+        "method": "GET",
+        "path": "window",
+        "file": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx"
+      },
+      {
+        "method": "GET",
+        "path": "/user-profile/me",
+        "file": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx"
+      },
+      {
+        "method": "POST",
+        "path": "/user-profile/phone/send",
+        "file": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx"
+      },
+      {
+        "method": "POST",
+        "path": "/user-profile/phone/verify",
+        "file": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx"
+      },
+      {
+        "method": "POST",
+        "path": "/user-profile/phone/send",
+        "file": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx"
       },
       {
         "method": "GET",
@@ -1015,6 +1135,16 @@
         "method": "POST",
         "path": "/discovery/push/register",
         "file": "apps/mobile/src/screens/Auth/EventList.tsx"
+      },
+      {
+        "method": "GET",
+        "path": "window",
+        "file": "apps/mobile/src/screens/Auth/MyItemsScreen.tsx"
+      },
+      {
+        "method": "GET",
+        "path": "/events/requests/all",
+        "file": "apps/mobile/src/screens/Auth/MyJoinRequestsScreen.tsx"
       },
       {
         "method": "PATCH",
@@ -1048,6 +1178,11 @@
       },
       {
         "method": "GET",
+        "path": "window",
+        "file": "apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx"
+      },
+      {
+        "method": "GET",
         "path": "/user-location/me/location",
         "file": "apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx"
       },
@@ -1061,6 +1196,11 @@
         "path": "/user-profile/setup",
         "file": "apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx",
         "handler": "payload"
+      },
+      {
+        "method": "GET",
+        "path": "window",
+        "file": "apps/mobile/src/screens/Auth/UserProfileScreen.tsx"
       },
       {
         "method": "POST",
@@ -1096,13 +1236,40 @@
         "method": "PATCH",
         "path": "/:requestId/cancel",
         "file": "apps/server/src/modules/requests/requests.routes.ts",
-        "handler": "RequestsController.cancelJoinRequest"
+        "handler": "authGuard"
       },
       {
         "method": "POST",
         "path": "/:requestId/extend",
         "file": "apps/server/src/modules/requests/requests.routes.ts",
         "handler": "authGuard"
+      },
+      {
+        "method": "PATCH",
+        "path": "/:requestId/reorder",
+        "file": "apps/server/src/modules/requests/requests.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/promote",
+        "file": "apps/server/src/modules/requests/requests.routes.ts",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/user-profile/me",
+        "file": "apps/server/tests/rest/cases/phone-verification.mjs"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/user-profile/phone/send",
+        "file": "apps/server/tests/rest/cases/phone-verification.mjs"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/events",
+        "file": "apps/server/tests/rest/cases/phone-verification.mjs"
       },
       {
         "method": "POST",
@@ -1149,6 +1316,12 @@
         "path": "/api/v1/billing/webhook/:provider",
         "file": "apps/server/dist/apps/server/src/app.js",
         "handler": "(req, res, next) => {\n        if (req.params.provider === 'stripe') {\n            req.params.provider = 'lemonsqueezy';\n        }\n        next();\n    }"
+      },
+      {
+        "method": "GET",
+        "path": "/events/:eventId",
+        "file": "apps/server/dist/apps/server/src/app.js",
+        "handler": "(req, res) => {\n        const { eventId } = req.params;\n        const appDeepLink = `potluck://event/${eventId}`;\n        const apiBase = process.env.PUBLIC_BASE_URL || (process.env.API_BASE_URL?.replace(/\\/api\\/(v\\d+)$/, '') || '');\n        const canonicalUrl = `${apiBase || ''}/events/${eventId}`;\n        const html = `<!doctype html>\r\n<html lang=\"en\">\r\n  <head>\r\n    <meta charset=\"utf-8\" />\r\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\r\n    <title>Potluck – Event</title>\r\n    <meta property=\"og:title\" content=\"Potluck Event\" />\r\n    <meta property=\"og:description\" content=\"Open this event in the Potluck app\" />\r\n    <meta property=\"og:url\" content=\"${canonicalUrl}\" />\r\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />\r\n    <style>\r\n      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0; background:#fafafa; }\r\n      .wrap { max-width: 560px; margin: 48px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }\r\n      h1 { margin: 0 0 8px; font-size: 20px; }\r\n      p { margin: 0 0 16px; color: #374151; }\r\n      a.btn { display:inline-block; padding: 12px 16px; background:#7b2ff7; color:#fff; border-radius:10px; text-decoration:none; font-weight:800; }\r\n      .muted { color:#6b7280; font-size: 14px; margin-top: 16px; }\r\n      code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }\r\n    </style>\r\n    <script>\r\n      (function(){\r\n        var link = '${appDeepLink}';\r\n        var now = Date.now();\r\n        // Try to open the app; if it fails, stay on this page\r\n        var t = setTimeout(function(){ /* no-op fallback */ }, 1200);\r\n        window.location.href = link;\r\n      })();\r\n    </script>\r\n  </head>\r\n  <body>\r\n    <div class=\"wrap\">\r\n      <h1>Open in Potluck</h1>\r\n      <p>Tap the button below to open this event in the Potluck app.</p>\r\n      <p><a class=\"btn\" href=\"${appDeepLink}\">Open App</a></p>\r\n      <p class=\"muted\">If the app doesn't open, make sure it's installed and try again. Shareable link: <code>${canonicalUrl}</code></p>\r\n    </div>\r\n  </body>\r\n  </html>`;\n        res.set('Content-Type', 'text/html').send(html);\n    }"
       },
       {
         "method": "POST",
@@ -1379,10 +1552,52 @@
         "handler": "authGuard"
       },
       {
+        "method": "POST",
+        "path": "/:eventId/rebalance",
+        "file": "apps/server/dist/apps/server/src/routes/events.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
+        "path": "/requests/all",
+        "file": "apps/server/dist/apps/server/src/routes/events.routes.js",
+        "handler": "authGuard"
+      },
+      {
         "method": "GET",
         "path": "/:eventId/availability",
         "file": "apps/server/dist/apps/server/src/routes/events.routes.js",
         "handler": "R.RequestsController.getEventAvailability"
+      },
+      {
+        "method": "GET",
+        "path": "/catalog",
+        "file": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
+        "path": "/me",
+        "file": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/me",
+        "file": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "PUT",
+        "path": "/me/:id",
+        "file": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "DELETE",
+        "path": "/me/:id",
+        "file": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+        "handler": "authGuard"
       },
       {
         "method": "POST",
@@ -1457,6 +1672,12 @@
         "handler": "authGuard"
       },
       {
+        "method": "POST",
+        "path": "/:partId/transfer",
+        "file": "apps/server/dist/apps/server/src/routes/participants.routes.js",
+        "handler": "authGuard"
+      },
+      {
         "method": "GET",
         "path": "/me/location",
         "file": "apps/server/dist/apps/server/src/routes/user-location.routes.js",
@@ -1487,6 +1708,30 @@
         "handler": "authGuard"
       },
       {
+        "method": "POST",
+        "path": "/setup",
+        "file": "apps/server/dist/apps/server/src/routes/user-profile.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "GET",
+        "path": "/me",
+        "file": "apps/server/dist/apps/server/src/routes/user-profile.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/phone/send",
+        "file": "apps/server/dist/apps/server/src/routes/user-profile.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/phone/verify",
+        "file": "apps/server/dist/apps/server/src/routes/user-profile.routes.js",
+        "handler": "authGuard"
+      },
+      {
         "method": "GET",
         "path": "first",
         "file": "apps/server/node_modules/zod/src/v3/tests/map.test.ts"
@@ -1510,7 +1755,7 @@
         "method": "POST",
         "path": "/",
         "file": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
-        "handler": "RequestsController.createJoinRequest"
+        "handler": "authGuard"
       },
       {
         "method": "GET",
@@ -1540,11 +1785,23 @@
         "method": "PATCH",
         "path": "/:requestId/cancel",
         "file": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
-        "handler": "RequestsController.cancelJoinRequest"
+        "handler": "authGuard"
       },
       {
         "method": "POST",
         "path": "/:requestId/extend",
+        "file": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "PATCH",
+        "path": "/:requestId/reorder",
+        "file": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
+        "handler": "authGuard"
+      },
+      {
+        "method": "POST",
+        "path": "/promote",
         "file": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
         "handler": "authGuard"
       }

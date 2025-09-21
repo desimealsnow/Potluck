@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-09-20T04:01:38.830Z",
+  "generated_at": "2025-09-21T13:59:59.213Z",
   "roots": [
     "apps/server/src",
     "apps/mobile/src",
@@ -9,7 +9,7 @@
     {
       "path": "apps/mobile/__tests__/setup.ts",
       "kind": "ts",
-      "lines": 129,
+      "lines": 127,
       "exports": [],
       "imports": [
         "react-native-gesture-handler/jestSetup"
@@ -17,7 +17,7 @@
       "env": [
         "TEST_VERBOSE"
       ],
-      "hash": "sha256:3f48c655ab964ffc05929458fbc807eba61eb2b79420bdad7269b77de84ae58d"
+      "hash": "sha256:fe0db45d777868c05ea12f52268e72dab51ed7e73158ae100d52492c4c9c05a6"
     },
     {
       "path": "apps/mobile/__tests__/testUtils.ts",
@@ -33,12 +33,12 @@
         "../src/services/apiClient"
       ],
       "env": [],
-      "hash": "sha256:619273fff04f6ea5aec02abff7e9637f2975d4d745a244d67b2f6d2a16f47dd4"
+      "hash": "sha256:84670fa25ffaffcc77600f4c60fb1db21f9d47d624356b00515631588697201b"
     },
     {
       "path": "apps/server/src/app.ts",
       "kind": "ts",
-      "lines": 101,
+      "lines": 148,
       "exports": [
         "createApp"
       ],
@@ -47,11 +47,11 @@
         "cors",
         "./routes/auth.routes",
         "./routes/events.routes",
-        "./routes/locations.routes",
         "./routes/billing.routes",
         "./routes/discovery.routes",
         "./routes/user-location.routes",
         "./routes/user-profile.routes",
+        "./routes/items.library.routes",
         "./routes/mock.routes",
         "./services/payments.container",
         "./middleware/authGuard",
@@ -61,9 +61,11 @@
         "body-parser"
       ],
       "env": [
+        "PUBLIC_BASE_URL",
+        "API_BASE_URL",
         "NODE_ENV"
       ],
-      "hash": "sha256:765723d25471d93a83f53fc4400d24e776b646e3a0391f7ef9e35889a0440990"
+      "hash": "sha256:77893f263007833a522fcaab9394aa5c386cfca82f192b16d4694bf42bfb2da1"
     },
     {
       "path": "apps/server/src/index.ts",
@@ -109,7 +111,7 @@
     {
       "path": "apps/server/src/validators.ts",
       "kind": "ts",
-      "lines": 1823,
+      "lines": 2153,
       "exports": [
         "createApiClient",
         "schemas",
@@ -120,7 +122,7 @@
         "zod"
       ],
       "env": [],
-      "hash": "sha256:0202592d4e0a421085cd5ba6702dbedaff5606c44643dbc8efad451d073f8cbc"
+      "hash": "sha256:f293f1a61539b87e5ddbac421b24acaee2871fcb23e9beb9097d210ccfad8540"
     },
     {
       "path": "apps/server/tests/health.spec.ts",
@@ -319,7 +321,7 @@
     {
       "path": "apps/mobile/__tests__/hooks/useJoinRequests.test.tsx",
       "kind": "tsx",
-      "lines": 565,
+      "lines": 572,
       "exports": [],
       "imports": [
         "@testing-library/react-native",
@@ -328,7 +330,7 @@
         "../../src/services/apiClient"
       ],
       "env": [],
-      "hash": "sha256:1a361085f5baf674a402b5c98c9e18a44080787e7b6d5862af1827868bd199cb"
+      "hash": "sha256:319c47527552c36dfe4321412af1c6d5559b508b02f5fd8bed5edd02ec9647c5"
     },
     {
       "path": "apps/mobile/__tests__/services/apiClient.test.ts",
@@ -343,6 +345,22 @@
       "hash": "sha256:1533add8bbfe683ae5fcd2284134c7b6c10959c7194ab6ea952f01c15df501a3"
     },
     {
+      "path": "apps/mobile/src/components/Header.tsx",
+      "kind": "tsx",
+      "lines": 490,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "@/components/ui/Icon"
+      ],
+      "env": [],
+      "hash": "sha256:98d712a2fb8681a2a65947fa79be2cffcff4a0728160a1a23507466700372792"
+    },
+    {
       "path": "apps/mobile/src/components/index.ts",
       "kind": "ts",
       "lines": 3,
@@ -351,9 +369,18 @@
         "Input",
         "Button",
         "Chip",
+        "FilterChip",
+        "FilterPanel",
+        "FilterBottomSheet",
+        "FilterSidebar",
+        "AppliedFiltersBar",
         "Badge",
         "Label",
         "Segmented",
+        "Icon",
+        "Banner",
+        "ProgressBar",
+        "EmptyState",
         "FoodOption",
         "Stepper"
       ],
@@ -411,7 +438,7 @@
     {
       "path": "apps/mobile/src/services/apiClient.ts",
       "kind": "ts",
-      "lines": 279,
+      "lines": 423,
       "exports": [
         "ApiError",
         "ApiClient",
@@ -421,14 +448,21 @@
         "AvailabilityData",
         "JoinRequestCreateData",
         "JoinRequestData",
-        "PaginatedJoinRequestsData"
+        "PaginatedJoinRequestsData",
+        "ItemCatalog",
+        "UserItemCreate",
+        "UserItem",
+        "UserItemUpdate",
+        "PaymentMethod",
+        "PaymentMethodCreate",
+        "Invoice"
       ],
       "imports": [
         "@/config/supabaseClient",
         "@common/types"
       ],
       "env": [],
-      "hash": "sha256:3428ef9f37aab7822f348669c5da83b3a95091a4ea635d1ad1030cc05f0cc825"
+      "hash": "sha256:3c149666e1a7d64db4d3343a5cadb323339570e112f6a37fa95d582183f593da"
     },
     {
       "path": "apps/mobile/src/services/payment.service.ts",
@@ -454,10 +488,14 @@
       "hash": "sha256:967aab854c47f9a38b9816f2c0c5388e4a592fda8a4ec72426459d267e6c0dfe"
     },
     {
-      "path": "apps/mobile/src/theme/index.ts",
-      "kind": "ts",
-      "lines": 273,
+      "path": "apps/mobile/src/theme/index.tsx",
+      "kind": "tsx",
+      "lines": 256,
       "exports": [
+        "useTheme",
+        "ThemeProvider",
+        "DesignTokens",
+        "tokens",
         "colors",
         "gradients",
         "typography",
@@ -466,11 +504,18 @@
         "shadows",
         "chipTones",
         "pillTones",
-        "badgeTones"
+        "badgeTones",
+        "ThemeMode",
+        "Theme",
+        "categoryColors"
       ],
-      "imports": [],
+      "imports": [
+        "react",
+        "react",
+        "react-native"
+      ],
       "env": [],
-      "hash": "sha256:4cb9ca22a408a306a171449e2047ea7f6c2782ccfe2ed3a34fb555d144d57bf7"
+      "hash": "sha256:fe0f4b66e2b9e52ec0f1426b3cbc723b8aac64e6a8cae715a995bbd439cd599f"
     },
     {
       "path": "apps/mobile/src/util/button.tsx",
@@ -679,7 +724,7 @@
         "@playwright/test"
       ],
       "env": [],
-      "hash": "sha256:1c6cfb4c7e5a16174d60a84a7eec53619012cf477a0b6810a39dd4a739ac4bb3"
+      "hash": "sha256:5e10061a3bb11133e8097c8996eb136af06ea681d1bec9ff161bc81c1da9787d"
     },
     {
       "path": "apps/server/src/config/providers.ts",
@@ -697,6 +742,22 @@
       "imports": [],
       "env": [],
       "hash": "sha256:511cd6daf082e111aaada5bb40bbe620720cbdab999c799c40d7a68824f05689"
+    },
+    {
+      "path": "apps/server/src/config/sms.ts",
+      "kind": "ts",
+      "lines": 34,
+      "exports": [
+        "getSmsProvider",
+        "SmsProvider"
+      ],
+      "imports": [],
+      "env": [
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_FROM_NUMBER"
+      ],
+      "hash": "sha256:4a91aee1597c6c0011ba9e10888b5e625baa37126317aebf885bf829d4484026"
     },
     {
       "path": "apps/server/src/config/supabaseClient.ts",
@@ -760,7 +821,7 @@
     {
       "path": "apps/server/src/controllers/events.controller.ts",
       "kind": "ts",
-      "lines": 266,
+      "lines": 283,
       "exports": [
         "createEvent",
         "getEvent",
@@ -783,8 +844,10 @@
         "../utils/helper",
         "zod"
       ],
-      "env": [],
-      "hash": "sha256:5458bc2677b4e39108c94ec6333d0ff43cd0fbba15d9894cff9100adb1e29645"
+      "env": [
+        "BYPASS_PHONE_VALIDATION"
+      ],
+      "hash": "sha256:1f8b5ae32370b0cddd340b32ef87cabf0c0d71f6dce50c5962f248ce809cc9d3"
     },
     {
       "path": "apps/server/src/controllers/items.controller.ts",
@@ -809,6 +872,26 @@
       ],
       "env": [],
       "hash": "sha256:095fbfc6ede56e563f58d327bc5d32aad8c6bfea48990e4effde768befd363e1"
+    },
+    {
+      "path": "apps/server/src/controllers/items.library.controller.ts",
+      "kind": "ts",
+      "lines": 30,
+      "exports": [
+        "listCatalog",
+        "listMyItems",
+        "createMyItem",
+        "updateMyItem",
+        "deleteMyItem"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../services/items.library.service",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:01714add02ae36a64bd4b21479c9a78e639c3f86081d4fe8f32951a8ee18d93e"
     },
     {
       "path": "apps/server/src/controllers/location-discovery.controller.ts",
@@ -855,7 +938,7 @@
     {
       "path": "apps/server/src/controllers/participants.controller.ts",
       "kind": "ts",
-      "lines": 92,
+      "lines": 106,
       "exports": [
         "add",
         "list",
@@ -874,8 +957,10 @@
         "../utils/helper",
         "../services/participants.transfer.service"
       ],
-      "env": [],
-      "hash": "sha256:896dc969394f326e54595f8edf6d8deabc75ef088aa5dc5bb5eaf853081e3351"
+      "env": [
+        "BYPASS_PHONE_VALIDATION"
+      ],
+      "hash": "sha256:8a25433105db0967cc286aafc0a3a44cbd7eb5e750b2876d5bfe6d7dd86f9805"
     },
     {
       "path": "apps/server/src/controllers/rebalance.controller.ts",
@@ -1061,7 +1146,7 @@
     {
       "path": "apps/server/src/routes/events.routes.ts",
       "kind": "ts",
-      "lines": 157,
+      "lines": 158,
       "exports": [
         "default"
       ],
@@ -1080,12 +1165,27 @@
         "../modules/requests"
       ],
       "env": [],
-      "hash": "sha256:f73d0889c6e3ab1a962398a6e89a91d3aeaaffcf22e24a1fcf1476c1a2eba8a4"
+      "hash": "sha256:1362e6f3ba9cc1827f19a150eb2aae01847eea0808211c7b8bb5b3dffe18639b"
+    },
+    {
+      "path": "apps/server/src/routes/items.library.routes.ts",
+      "kind": "ts",
+      "lines": 19,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../controllers/items.library.controller"
+      ],
+      "env": [],
+      "hash": "sha256:8031cc03a4c20f22428faf98aced07431f2a15b01401266382eb2cdab2c4215e"
     },
     {
       "path": "apps/server/src/routes/items.routes.ts",
       "kind": "ts",
-      "lines": 51,
+      "lines": 56,
       "exports": [
         "default"
       ],
@@ -1097,23 +1197,7 @@
         "../middleware/authGuard"
       ],
       "env": [],
-      "hash": "sha256:bc3442e0ea1b7ee6133992d5354c269e912ea495323bd3567a382b2084ab942b"
-    },
-    {
-      "path": "apps/server/src/routes/locations.routes.ts",
-      "kind": "ts",
-      "lines": 11,
-      "exports": [
-        "default"
-      ],
-      "imports": [
-        "express",
-        "../controllers/locations.controller",
-        "../middleware/validateSchema",
-        "../validators"
-      ],
-      "env": [],
-      "hash": "sha256:47e8ec0a8e71a9e679be102407449a90312c0e1d49728286d5471351c679ca87"
+      "hash": "sha256:648c43ed98b7778ccee68c94f29d8cb9a8ad36670f4652d5c8045798bb532071"
     },
     {
       "path": "apps/server/src/routes/mock.routes.ts",
@@ -1164,7 +1248,7 @@
     {
       "path": "apps/server/src/routes/user-profile.routes.ts",
       "kind": "ts",
-      "lines": 29,
+      "lines": 34,
       "exports": [
         "default"
       ],
@@ -1172,10 +1256,11 @@
         "express",
         "../middleware/authGuard",
         "../middleware/logger.middleware",
-        "../controllers/user-profile.controller"
+        "../controllers/user-profile.controller",
+        "../services/phone.controller"
       ],
       "env": [],
-      "hash": "sha256:306e4eb68c5f91a802be1d392ed9e79792af87b0482e3bb72f564c7a74765a73"
+      "hash": "sha256:2909f52edd4c0853a13f01f8742481c0d40fc409cd249b4bf940c568bc6d051a"
     },
     {
       "path": "apps/server/src/services/auth.service.ts",
@@ -1197,7 +1282,7 @@
     {
       "path": "apps/server/src/services/events.service.ts",
       "kind": "ts",
-      "lines": 1259,
+      "lines": 1345,
       "exports": [
         "createEventWithItems",
         "assignItem",
@@ -1226,12 +1311,30 @@
         "SUPABASE_ANON_KEY",
         "SUPABASE_SERVICE_ROLE_KEY"
       ],
-      "hash": "sha256:5e9faa609c0f0a26b9b3b6cba4775c985682457c372ec6c874672c9c6cc7b921"
+      "hash": "sha256:fbe0f821314cf295d5557d521cc73bd7317c34355410f766e79a0cd51addf70b"
+    },
+    {
+      "path": "apps/server/src/services/items.library.service.ts",
+      "kind": "ts",
+      "lines": 79,
+      "exports": [
+        "listCatalog",
+        "listMyItems",
+        "createMyItem",
+        "updateMyItem",
+        "deleteMyItem"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:1cf86db6ad7fc775630ac01c44c51f5055afda415720d22f74e3256a54fe157c"
     },
     {
       "path": "apps/server/src/services/items.service.ts",
       "kind": "ts",
-      "lines": 256,
+      "lines": 261,
       "exports": [
         "addItem",
         "updateItem",
@@ -1250,7 +1353,7 @@
         "../utils/eventGuards"
       ],
       "env": [],
-      "hash": "sha256:207199ad16deb63387f3c38d6396bd48b55d5f784b240563109af97caaa9598f"
+      "hash": "sha256:8292638c01bf895e9ededaf052762a06e7e76578bc6e7ac122eb16c8cfce33cd"
     },
     {
       "path": "apps/server/src/services/location-discovery.service.ts",
@@ -1393,6 +1496,24 @@
         "PAYMENTS_USE_MEMORY_ADAPTERS"
       ],
       "hash": "sha256:f317352bbbb0dade53390aac9b443b9c89766fd86e40de550e06c9453811a40c"
+    },
+    {
+      "path": "apps/server/src/services/phone.controller.ts",
+      "kind": "ts",
+      "lines": 96,
+      "exports": [
+        "sendCode",
+        "verifyCode"
+      ],
+      "imports": [
+        "express",
+        "zod",
+        "../config/supabaseClient",
+        "crypto",
+        "../config/sms"
+      ],
+      "env": [],
+      "hash": "sha256:c57be7bdfb10ec78da848df8f4feeba25594bd27cf799c2785cab36221fd67bf"
     },
     {
       "path": "apps/server/src/services/push.service.ts",
@@ -1637,7 +1758,7 @@
     {
       "path": "apps/server/tests/fixtures/factories.ts",
       "kind": "ts",
-      "lines": 501,
+      "lines": 504,
       "exports": [
         "seedFaker",
         "resetFaker",
@@ -1668,7 +1789,7 @@
         "../../../../libs/common/src/types.gen"
       ],
       "env": [],
-      "hash": "sha256:9f79f90ba1958f07c2f159d56668817897e5265935d356ddc5e1545c7b31fa0c"
+      "hash": "sha256:31c78c2662f1b93afd0c5da570f13d17460070c690a8366c5938953f2d8be31a"
     },
     {
       "path": "apps/server/tests/fixtures/lemonSqueezyMocks.ts",
@@ -1839,7 +1960,7 @@
     {
       "path": "apps/server/tests/integration/events.spec.ts",
       "kind": "ts",
-      "lines": 596,
+      "lines": 616,
       "exports": [],
       "imports": [
         "@jest/globals",
@@ -1851,7 +1972,7 @@
         "../../src/logger"
       ],
       "env": [],
-      "hash": "sha256:039a50058aa7f184f365017800e3b9452e9deeb74ad0a3ddfe6e3f9eb7024feb"
+      "hash": "sha256:62f424b43b4be42a17e1e79057cac7856594d825112ef95489f722f760aa7849"
     },
     {
       "path": "apps/server/tests/integration/location-discovery.spec.ts",
@@ -2123,11 +2244,11 @@
       "imports": [
         "react",
         "react-native",
-        "@expo/vector-icons",
+        "@/components/ui/Icon",
         "@/theme"
       ],
       "env": [],
-      "hash": "sha256:b1a6a0f4044e5545f7b61d05fb520c7d8db4b0fd42a169e5780b770d6c248035"
+      "hash": "sha256:220bc98d4e0593e38f2ef26b62916c5caed61c1c64d741745d5aa99727911905"
     },
     {
       "path": "apps/mobile/src/components/forms/index.ts",
@@ -2153,12 +2274,29 @@
         "react",
         "react-native",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components/ui/Icon",
         "@/theme",
         "@common/types"
       ],
       "env": [],
-      "hash": "sha256:4671e1dade7b99a5424d3692b3ddd17410bd1f7767cc8aadb4d321bed5d217fc"
+      "hash": "sha256:3787ac3e7b7eecc54ef8148f2e6c36b9fc424af0ec76d80f793037ebfdf68384"
+    },
+    {
+      "path": "apps/mobile/src/components/items/ItemLibrarySheet.tsx",
+      "kind": "tsx",
+      "lines": 196,
+      "exports": [
+        "default",
+        "ItemLibrarySelection"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/services/apiClient",
+        "@/components/ui/Icon"
+      ],
+      "env": [],
+      "hash": "sha256:fed24a320b7dde8390d8b9845c410f996b221950b7a9aa751d0038224df35335"
     },
     {
       "path": "apps/mobile/src/components/joinRequests/AvailabilityBadge.tsx",
@@ -2191,7 +2329,7 @@
     {
       "path": "apps/mobile/src/components/joinRequests/JoinRequestsManager.tsx",
       "kind": "tsx",
-      "lines": 475,
+      "lines": 500,
       "exports": [
         "default"
       ],
@@ -2202,22 +2340,23 @@
         "../../services/apiClient"
       ],
       "env": [],
-      "hash": "sha256:57ad089b28ae3160e1be91bc32efcc81624d418aba64257e4d85332f39c8c139"
+      "hash": "sha256:f9c9d18ec701f3e5711b95a321bca4efaff16edaad0efb36f3e6ebe4b76efeaa"
     },
     {
       "path": "apps/mobile/src/components/joinRequests/RequestToJoinButton.tsx",
       "kind": "tsx",
-      "lines": 255,
+      "lines": 285,
       "exports": [
         "default"
       ],
       "imports": [
         "react",
         "react-native",
-        "../../hooks/useJoinRequests"
+        "../../hooks/useJoinRequests",
+        "@/services/apiClient"
       ],
       "env": [],
-      "hash": "sha256:85e6670eb93fe7a52e2eeb737cabda0af39b99b499530ed86bf389a9030f2013"
+      "hash": "sha256:bedb1b3467d037db9c1247df7d763251de6983a8db207eb2f0886a29042c8a4e"
     },
     {
       "path": "apps/mobile/src/components/payment/index.ts",
@@ -2247,12 +2386,12 @@
       "imports": [
         "react",
         "react-native",
-        "@expo/vector-icons",
+        "@/components/ui/Icon",
         "./PaymentStatusBadge",
         "../../services/payment.service"
       ],
       "env": [],
-      "hash": "sha256:e50aa0d9b7a27113e84dd7a3678bddab75b8d3ad3840145daafd7ab3a1c8fd38"
+      "hash": "sha256:42a97e6360b88a7cf1d47a934303b42c7c04bda1e77db33b746e23f3ec0ceecf"
     },
     {
       "path": "apps/mobile/src/components/payment/PaymentReturnHandler.tsx",
@@ -2281,10 +2420,10 @@
       "imports": [
         "react",
         "react-native",
-        "@expo/vector-icons"
+        "@/components/ui/Icon"
       ],
       "env": [],
-      "hash": "sha256:faf4edb8e87a22c7e7f1ec73cb3beb6c535f7727ea6f72767fd7aba9b2d0a97e"
+      "hash": "sha256:18163026973928003db042cd323e9a69c2317d8028c9798505751fdd0fcda52b"
     },
     {
       "path": "apps/mobile/src/components/payment/PlanCard.tsx",
@@ -2298,13 +2437,29 @@
         "react",
         "react-native",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components/ui/Icon",
         "../ui/Button",
         "./PaymentStatusBadge",
         "../../services/payment.service"
       ],
       "env": [],
-      "hash": "sha256:a3cff503179cd482cc18ae74f13dfd200d77b4d392db6cffd2e0c0d1c17abee4"
+      "hash": "sha256:e69685aa0cc285baf3278126a790a4f4077f9c5ef62cef98e6f0d8125b81bcb0"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/AppliedFiltersBar.tsx",
+      "kind": "tsx",
+      "lines": 105,
+      "exports": [
+        "AppliedFiltersBar",
+        "AppliedFiltersBarProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "./Icon"
+      ],
+      "env": [],
+      "hash": "sha256:a05e448f8fe82ebfa8abe02c1ee0209ec916bac73cedd7c36a4e756b0a2da43e"
     },
     {
       "path": "apps/mobile/src/components/ui/Badge.tsx",
@@ -2324,9 +2479,26 @@
       "hash": "sha256:8ac5c1886a76f25fd684010790a19ede4f20da59ea30fcd3a2e7994107807129"
     },
     {
+      "path": "apps/mobile/src/components/ui/Banner.tsx",
+      "kind": "tsx",
+      "lines": 41,
+      "exports": [
+        "Banner",
+        "BannerTone"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme",
+        "./Icon"
+      ],
+      "env": [],
+      "hash": "sha256:de2b5ae359fb66dd29a1bf6a4fbc5dacf439a847e81317ddbdd7f54b701b96c2"
+    },
+    {
       "path": "apps/mobile/src/components/ui/Button.tsx",
       "kind": "tsx",
-      "lines": 175,
+      "lines": 206,
       "exports": [
         "Button",
         "ButtonProps"
@@ -2338,12 +2510,12 @@
         "@/theme"
       ],
       "env": [],
-      "hash": "sha256:c83c03f9314c2842f2e6bc1adb577ae00a9cb7ffb9bc7444d49c8b08a8b1847a"
+      "hash": "sha256:e72bb6df8300fd5a1679e152c0fc4bd89f4d9e8b64f28f209c23c4e58c059214"
     },
     {
       "path": "apps/mobile/src/components/ui/Card.tsx",
       "kind": "tsx",
-      "lines": 57,
+      "lines": 70,
       "exports": [
         "Card",
         "CardProps"
@@ -2351,10 +2523,11 @@
       "imports": [
         "react",
         "react-native",
-        "@/theme"
+        "@/theme",
+        "@/theme/index"
       ],
       "env": [],
-      "hash": "sha256:0d8812a1177117772d4496ea7ef808af75451c25bf28ec7688a96149599426d2"
+      "hash": "sha256:5276bf1f39ee3ea2ae351b0b9fc7f1c415dd062e98d383462ca39eee66a751b5"
     },
     {
       "path": "apps/mobile/src/components/ui/Chip.tsx",
@@ -2367,34 +2540,147 @@
       "imports": [
         "react",
         "react-native",
-        "@expo/vector-icons",
         "@/theme",
+        "./Icon",
         "@common/types"
       ],
       "env": [],
-      "hash": "sha256:a42f38685f4584d830b612e95162f6a4685fa200e8ed06373172f3f3fa488953"
+      "hash": "sha256:e5afa36a63d83a54bc9bc13e08174ebfb160ba8f57fe98364dcc5150384b315e"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/EmptyState.tsx",
+      "kind": "tsx",
+      "lines": 27,
+      "exports": [
+        "EmptyState"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "./Icon",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:c3be97637eeb103fcb13d201b16cbdba974e29208a5768bf0685398efcc84a42"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/FilterBottomSheet.tsx",
+      "kind": "tsx",
+      "lines": 426,
+      "exports": [
+        "FilterBottomSheet",
+        "FilterBottomSheetProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "./Icon",
+        "./FilterChip",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:71e9e0ace43d9b550ac2591109a60847f144ea8e87c3600b68ca9cf98f7b54ff"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/FilterChip.tsx",
+      "kind": "tsx",
+      "lines": 106,
+      "exports": [
+        "FilterChip",
+        "FilterChipProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "./Icon",
+        "./Icon"
+      ],
+      "env": [],
+      "hash": "sha256:26cb0ba149b37cfb417f390f3ca2b2e3da54befc49d5b0d0789354f03f14c9fd"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/FilterPanel.tsx",
+      "kind": "tsx",
+      "lines": 270,
+      "exports": [
+        "FilterPanel",
+        "FilterPanelProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "./Icon",
+        "./FilterChip"
+      ],
+      "env": [],
+      "hash": "sha256:3c345e7c39f2c7529111a07ac297de03e66156d007944503615033be1437f977"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/FilterSidebar.tsx",
+      "kind": "tsx",
+      "lines": 294,
+      "exports": [
+        "FilterSidebar",
+        "FilterSidebarProps"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-linear-gradient",
+        "./Icon",
+        "./FilterChip",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:1b4d6e752bb0a28f354dc4613b3a537a1ae23fc21c637a8803b3026b29d4f8f3"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/Icon.tsx",
+      "kind": "tsx",
+      "lines": 17,
+      "exports": [
+        "IconName",
+        "IconProps",
+        "Icon"
+      ],
+      "imports": [
+        "react",
+        "lucide-react-native"
+      ],
+      "env": [],
+      "hash": "sha256:dc9e3c7e74fe37abc403b17c0530707d1680999a629b718c42ae8ab44f7e24df"
     },
     {
       "path": "apps/mobile/src/components/ui/index.ts",
       "kind": "ts",
-      "lines": 8,
+      "lines": 17,
       "exports": [
         "Card",
         "Input",
         "Button",
         "Chip",
+        "FilterChip",
+        "FilterPanel",
+        "FilterBottomSheet",
+        "FilterSidebar",
+        "AppliedFiltersBar",
         "Badge",
         "Label",
-        "Segmented"
+        "Segmented",
+        "Icon",
+        "Banner",
+        "ProgressBar",
+        "EmptyState"
       ],
       "imports": [],
       "env": [],
-      "hash": "sha256:a24111e3ac376e0e8df1e5c378a2b8a79b1915b64d6232ef48edda0a68d3f695"
+      "hash": "sha256:d5b091bbb161400c7ab3a1e0a44430c6f6affb129aaafefa190442a46d2e0d48"
     },
     {
       "path": "apps/mobile/src/components/ui/Input.tsx",
       "kind": "tsx",
-      "lines": 103,
+      "lines": 100,
       "exports": [
         "Input",
         "InputProps"
@@ -2402,11 +2688,11 @@
       "imports": [
         "react",
         "react-native",
-        "@expo/vector-icons",
-        "@/theme"
+        "@/theme",
+        "./Icon"
       ],
       "env": [],
-      "hash": "sha256:23fa49e70f78e20e064cbc47d2ca443e9b609e9d7fab1c5c31543f3db3f94216"
+      "hash": "sha256:1a8bfc46813d75e8ba9d2cb27a15af70ccc39e141110023458b629d9ffc7f7c0"
     },
     {
       "path": "apps/mobile/src/components/ui/Label.tsx",
@@ -2422,12 +2708,27 @@
         "@/theme"
       ],
       "env": [],
-      "hash": "sha256:cbc7d0dd3a44874eefce990352ff93b7caadf5b18ba29db8d808b4bc1ee5201b"
+      "hash": "sha256:3c4eb4b039ea641f0b41c221ed80aa7791dbc0c1b4bca616f923d091ae0b06e3"
+    },
+    {
+      "path": "apps/mobile/src/components/ui/ProgressBar.tsx",
+      "kind": "tsx",
+      "lines": 28,
+      "exports": [
+        "ProgressBar"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "@/theme"
+      ],
+      "env": [],
+      "hash": "sha256:5221e96678cebc6dc042026a048e166bea3cfba93251dced24fd1459adc1ef0e"
     },
     {
       "path": "apps/mobile/src/components/ui/Segmented.tsx",
       "kind": "tsx",
-      "lines": 73,
+      "lines": 76,
       "exports": [
         "Segmented",
         "SegmentedOption",
@@ -2439,12 +2740,12 @@
         "@/theme"
       ],
       "env": [],
-      "hash": "sha256:7f61bc02712b2e089a5d12b91a6fe2ede014219e121cb6b3af88fcb99d151bab"
+      "hash": "sha256:aa2f35be554d74cec27087a441fd4cf6b58304bf18d28f386488801d8c591e33"
     },
     {
       "path": "apps/mobile/src/screens/Auth/AboutScreen.tsx",
       "kind": "tsx",
-      "lines": 213,
+      "lines": 224,
       "exports": [
         "default"
       ],
@@ -2453,10 +2754,11 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons"
+        "@/components",
+        "@/components/Header"
       ],
       "env": [],
-      "hash": "sha256:a377fd23532769ffb7f8b879d5b2cd1459630b4637d734ebca8bda73143d60cf"
+      "hash": "sha256:c7c9235b92470ccd8cf40e56ed00f6e4431620b9e3500d2925d12df72a8650e4"
     },
     {
       "path": "apps/mobile/src/screens/Auth/AuthForm.tsx",
@@ -2469,16 +2771,16 @@
         "react",
         "react-native",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
         "../../config/supabaseClient"
       ],
       "env": [],
-      "hash": "sha256:039121c58fb98a60a1342ef11171d7a5cd525d803f67f3d0400cf5560471313f"
+      "hash": "sha256:feaa3a22e012ef56df5a402d725590c44882bb969076f5bb59c777ac1ea123b1"
     },
     {
       "path": "apps/mobile/src/screens/Auth/CreateEvent.tsx",
       "kind": "tsx",
-      "lines": 841,
+      "lines": 915,
       "exports": [
         "default"
       ],
@@ -2488,21 +2790,23 @@
         "react-native-paper-dates",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
         "./Participants",
         "@/services/apiClient",
         "@/components",
         "@/utils/dateUtils",
         "@/theme",
+        "@/components/items/ItemLibrarySheet",
         "@common/types"
       ],
       "env": [],
-      "hash": "sha256:036a737017e4e30a75d3267257fe1d5a92c423f7712bb2bd1645baec10f0bd4d"
+      "hash": "sha256:d9e77683ead143a8db297dab4200b2282d4515ba329316c3106180be7e9dc43c"
     },
     {
-      "path": "apps/mobile/src/screens/Auth/EventDetailsPage.tsx",
+      "path": "apps/mobile/src/screens/Auth/EditProfileScreen.tsx",
       "kind": "tsx",
-      "lines": 1830,
+      "lines": 305,
       "exports": [
         "default"
       ],
@@ -2511,38 +2815,68 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
         "@/components",
+        "@/components/Header",
+        "@/services/apiClient",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:17efff8429f022d0b9c55b819ac1d9d570ac38fe3a6fd50bf1ba195e443acc5d"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/EventDetailsPage.tsx",
+      "kind": "tsx",
+      "lines": 2126,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-image",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "@/theme",
+        "@/components/items/ItemLibrarySheet",
         "./Participants",
         "../../components/joinRequests",
         "../../config/supabaseClient"
       ],
       "env": [],
-      "hash": "sha256:ceb7bade3b1dc5096bde8f448d4714a2af7205292c117c6b35eab4e2f38cfac0"
+      "hash": "sha256:6659846c5e74ff061d75cdbf805dbb9795ed55d23117eb37b8da55dea4fb9648"
     },
     {
       "path": "apps/mobile/src/screens/Auth/EventList.tsx",
       "kind": "tsx",
-      "lines": 1311,
+      "lines": 1869,
       "exports": [
         "default"
       ],
       "imports": [
         "react",
         "react-native",
+        "expo-image",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components/ui/Icon",
+        "../../components/Header",
         "./EventDetailsPage",
         "./CreateEvent",
         "./PlansScreen",
         "./SettingsScreen",
+        "./UserProfileScreen",
+        "./EditProfileScreen",
         "./NotificationsScreen",
         "./UserPreferencesScreen",
         "./SubscriptionScreen",
         "./AboutScreen",
         "./PrivacyScreen",
         "./HelpScreen",
+        "./MyItemsScreen",
+        "./PaymentMethodsScreen",
+        "./InvoicesScreen",
+        "./MyJoinRequestsScreen",
         "@/services/apiClient",
         "@/components",
         "@/utils/dateUtils",
@@ -2551,12 +2885,12 @@
         "@common/types"
       ],
       "env": [],
-      "hash": "sha256:4096346e789bbf3cd17b7a001f773ce9d0553904af4c0702c41176862f75a7c3"
+      "hash": "sha256:537c3287ba1be600a7108644b2c31ed33f6f8cdb702e6ba8187d221d57203698"
     },
     {
       "path": "apps/mobile/src/screens/Auth/HelpScreen.tsx",
       "kind": "tsx",
-      "lines": 289,
+      "lines": 300,
       "exports": [
         "default"
       ],
@@ -2565,10 +2899,30 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons"
+        "@/components",
+        "@/components/Header"
       ],
       "env": [],
-      "hash": "sha256:25ad35f07012f0ac2dd6d72574009c901f92ee186af2e36470152c88db82024d"
+      "hash": "sha256:66325f7dd71104123f1401cb218367033d262593e106488340d386a39ed67d0c"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/InvoicesScreen.tsx",
+      "kind": "tsx",
+      "lines": 179,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "@/components/Header",
+        "@/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:0218aa6c0ec3086882a627cb0ff9d6b01a35f7b209a202919aa97b90f295fd8c"
     },
     {
       "path": "apps/mobile/src/screens/Auth/LoginScreen.tsx",
@@ -2584,19 +2938,20 @@
         "expo-linear-gradient",
         "expo-blur",
         "react-native-safe-area-context",
-        "@expo/vector-icons",
+        "@/components",
         "../../config/supabaseClient",
         "@supabase/supabase-js",
         "./EventList",
-        "./SignupScreen"
+        "./SignupScreen",
+        "@/components/ui/Icon"
       ],
       "env": [],
-      "hash": "sha256:027351740afe440c12cabc0e81d9a04d6d13541e30f0108ca0ef4c6891960adf"
+      "hash": "sha256:0c62ca4497071c61e34d51021d9aadc2ecd17e7cd4cea4341ff629038fb677eb"
     },
     {
-      "path": "apps/mobile/src/screens/Auth/NotificationsScreen.tsx",
+      "path": "apps/mobile/src/screens/Auth/MyItemsScreen.tsx",
       "kind": "tsx",
-      "lines": 172,
+      "lines": 366,
       "exports": [
         "default"
       ],
@@ -2605,18 +2960,76 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
+        "@/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:6836207288c40675eca96c2e4aaccb8296796592ebf942e5b0530c6d8054672b"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/MyJoinRequestsScreen.tsx",
+      "kind": "tsx",
+      "lines": 186,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "@/components/Header",
+        "@/services/apiClient"
+      ],
+      "env": [],
+      "hash": "sha256:3082d55fb5a8c97fbc2ff6e8df76d0cc1e29e716c001ee01e1f113610fa5ecf1"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/NotificationsScreen.tsx",
+      "kind": "tsx",
+      "lines": 257,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "@/components/Header",
         "@/services/apiClient",
         "./EventDetailsPage",
         "@/config/supabaseClient"
       ],
       "env": [],
-      "hash": "sha256:611209cbd64c851df389a6d0583cf5be24c6798b2246a4868056f1477b27c8e5"
+      "hash": "sha256:c29a296a81aae859c80c7c068803c0c98099b36623d9a38c53875bd2de92086c"
     },
     {
       "path": "apps/mobile/src/screens/Auth/Participants.tsx",
       "kind": "tsx",
-      "lines": 662,
+      "lines": 687,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "expo-image",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "../../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:b80b9ec9ad3e48d9238905159d7a068e6949aaa4ad79b3ca9c18f314085233e3"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/PaymentMethodsScreen.tsx",
+      "kind": "tsx",
+      "lines": 253,
       "exports": [
         "default"
       ],
@@ -2625,16 +3038,17 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
-        "../../config/supabaseClient"
+        "@/components",
+        "@/components/Header",
+        "@/services/apiClient"
       ],
       "env": [],
-      "hash": "sha256:af6a5640eb66b79ef3d7df7141003d1449008eea03a491a1c09200ff131fe89e"
+      "hash": "sha256:d7905336ff8917834303ea1beb4778e456947761c78d9b4c6782e422812e8e96"
     },
     {
       "path": "apps/mobile/src/screens/Auth/PlansScreen.tsx",
       "kind": "tsx",
-      "lines": 445,
+      "lines": 456,
       "exports": [
         "default"
       ],
@@ -2643,18 +3057,19 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
         "../../config/supabaseClient",
         "../../services/payment.service",
         "../../components/payment"
       ],
       "env": [],
-      "hash": "sha256:ef254194b7b5ee92b8ae97bee1930bb9bb5081f98653377ab44f18973fe50391"
+      "hash": "sha256:ffac23d22dd58048e85a479bafe7a7cd20ec7454e7499a8a0473cbdbce2c4d25"
     },
     {
       "path": "apps/mobile/src/screens/Auth/PrivacyScreen.tsx",
       "kind": "tsx",
-      "lines": 218,
+      "lines": 229,
       "exports": [
         "default"
       ],
@@ -2663,10 +3078,11 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons"
+        "@/components",
+        "@/components/Header"
       ],
       "env": [],
-      "hash": "sha256:10c960d25a1dacf2c40c9d8c0740e71c9e09acab0551034524e6a819c9c4cac8"
+      "hash": "sha256:f60e86c24f1ab3b71e234dc2e74d34e5be8e7d434fd886603e85e390997bf888"
     },
     {
       "path": "apps/mobile/src/screens/Auth/ProfileSetupScreen.tsx",
@@ -2680,18 +3096,18 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
         "../../config/supabaseClient",
         "../../services/apiClient",
         "expo-location"
       ],
       "env": [],
-      "hash": "sha256:771f85f3f1a934b59c774db1f63ba80feab586d09bccddfe821fb57c2c352424"
+      "hash": "sha256:db50671c93a984f4ef72c59a681a8ea4f51b838abf562eaea75a12a97c9a199e"
     },
     {
       "path": "apps/mobile/src/screens/Auth/SettingsScreen.tsx",
       "kind": "tsx",
-      "lines": 403,
+      "lines": 472,
       "exports": [
         "default"
       ],
@@ -2700,13 +3116,15 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
+        "@/theme",
         "../../config/supabaseClient",
         "../../services/apiClient",
         "@supabase/supabase-js"
       ],
       "env": [],
-      "hash": "sha256:2b1d207f37c4c390e89222376e0f71cdc55bbd81613c409ef7529c88f0d5e0be"
+      "hash": "sha256:b5be6bbaeef7aaffd705cbae7446f430fb1a384c70abce670db2073fb69fde2f"
     },
     {
       "path": "apps/mobile/src/screens/Auth/SignupScreen.tsx",
@@ -2721,16 +3139,16 @@
         "react-native-safe-area-context",
         "expo-linear-gradient",
         "expo-blur",
-        "@expo/vector-icons",
+        "@/components",
         "../../config/supabaseClient"
       ],
       "env": [],
-      "hash": "sha256:a02347dc31acaa4c8dd79b4ba556516e4c6621768769161ae1aa8a2697b77852"
+      "hash": "sha256:029c4db1a13eb55c1a96093afac09fe0180ff427ea4d300fbf8b7551315a3796"
     },
     {
       "path": "apps/mobile/src/screens/Auth/SubscriptionScreen.tsx",
       "kind": "tsx",
-      "lines": 563,
+      "lines": 574,
       "exports": [
         "default"
       ],
@@ -2739,13 +3157,14 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
         "../../services/payment.service",
         "../../components/payment",
         "expo-web-browser"
       ],
       "env": [],
-      "hash": "sha256:5398842f7c83bab1f475f2a377438da3dda397bcdf48b8f0f9796318a376c2bf"
+      "hash": "sha256:64510a24bfaa0a3b18ed286aff4044a44b217d74b7dcc5a6e4aa01309a34ecc3"
     },
     {
       "path": "apps/mobile/src/screens/Auth/SupabaseAuthScreen.tsx",
@@ -2769,7 +3188,7 @@
     {
       "path": "apps/mobile/src/screens/Auth/SupabaseAuthUI.tsx",
       "kind": "tsx",
-      "lines": 661,
+      "lines": 689,
       "exports": [
         "default"
       ],
@@ -2778,22 +3197,24 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
         "../../config/supabaseClient",
         "../../services/apiClient",
         "@supabase/supabase-js",
         "./EventList",
         "./ProfileSetupScreen",
         "./SubscriptionScreen",
-        "../../hooks/useSubscriptionCheck"
+        "../../hooks/useSubscriptionCheck",
+        "expo-linking",
+        "./EventDetailsPage"
       ],
       "env": [],
-      "hash": "sha256:61859d0f076adda165dc34c192d8c64ff97a280294dddd34876ea9daedc1db14"
+      "hash": "sha256:c5f876db34c997e983e119a9b077e08f37c805e2485ab53633cf20abf80ebbd2"
     },
     {
       "path": "apps/mobile/src/screens/Auth/UserPreferencesScreen.tsx",
       "kind": "tsx",
-      "lines": 497,
+      "lines": 547,
       "exports": [
         "default"
       ],
@@ -2802,12 +3223,33 @@
         "react-native",
         "react-native-safe-area-context",
         "expo-linear-gradient",
-        "@expo/vector-icons",
+        "@/components",
+        "@/components/Header",
         "@/services/apiClient",
         "../../config/supabaseClient"
       ],
       "env": [],
-      "hash": "sha256:74d57b1fa1534fe81336a5502b4d8dfa0a2b5b1f421159a533a22935746331e1"
+      "hash": "sha256:bedf06126461a568a411b6c81e5b9fcc4df01bd335ec3b85448745c38949c250"
+    },
+    {
+      "path": "apps/mobile/src/screens/Auth/UserProfileScreen.tsx",
+      "kind": "tsx",
+      "lines": 266,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "react",
+        "react-native",
+        "react-native-safe-area-context",
+        "expo-linear-gradient",
+        "@/components",
+        "@/components/Header",
+        "../../config/supabaseClient",
+        "@supabase/supabase-js"
+      ],
+      "env": [],
+      "hash": "sha256:608c016f1842fdbf39a8e29f085f931c0d18d2345c6a5c48c34ecc8eaef30d06"
     },
     {
       "path": "apps/mobile/src/screens/Debug/AuthDebugScreen.tsx",
@@ -2904,7 +3346,7 @@
     {
       "path": "apps/server/src/modules/requests/requests.repo.ts",
       "kind": "ts",
-      "lines": 337,
+      "lines": 420,
       "exports": [
         "RequestsRepository",
         "UPDATE_REQUEST_STATUS_PROCEDURE"
@@ -2916,12 +3358,12 @@
         "./requests.types"
       ],
       "env": [],
-      "hash": "sha256:849ec29b87a8065ae54d41f5ce8e84e2fe4756b8a2829b6ffd15796fb2d6a5f8"
+      "hash": "sha256:89d90df8e137315d514f15b975fa63195d6d696a514e48bbb7613389a808cb1b"
     },
     {
       "path": "apps/server/src/modules/requests/requests.routes.ts",
       "kind": "ts",
-      "lines": 142,
+      "lines": 140,
       "exports": [
         "default"
       ],
@@ -2932,7 +3374,7 @@
         "./requests.controller"
       ],
       "env": [],
-      "hash": "sha256:6dbe35347056c2c3a534a4e3054047ae7ef119878c2f5bac24fd54d762e00f5c"
+      "hash": "sha256:8adae7742043d158c02c87841a01605c0bbc29b3a934737e70cd79aff1ce496d"
     },
     {
       "path": "apps/server/src/modules/requests/requests.schema.ts",
@@ -3006,6 +3448,280 @@
       "imports": [],
       "env": [],
       "hash": "sha256:9306b80cb1506175dc48dd4c0aeaa1827a9914f13a2cea001c466f8a8024774f"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/auth-and-profile.mjs",
+      "kind": "js",
+      "lines": 59,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:d043317af50f194309532926895b7430c14dd75dc656bb22ee2219b7bf72bbf0"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/billing-invoices.mjs",
+      "kind": "js",
+      "lines": 88,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "uuid",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:99712365c2ab27377afe3de50b60c0277552ba927cf47ca10211e55593aceb7c"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/billing-payment-methods.mjs",
+      "kind": "js",
+      "lines": 93,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "uuid",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:4db6b093d623cf8c64e98b205131c3e93cbcebf8e5ca237e3e66605825846069"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/billing-subscriptions.mjs",
+      "kind": "js",
+      "lines": 100,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "uuid",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:a6a4ae998b3931ac8b81e54a8198cab390c74270e605c309ee97c3e77b0f9086"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/debug-routes.mjs",
+      "kind": "js",
+      "lines": 56,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:abf99c69aa1dbd1c41831205a3a4a9e92349cab9eda4220f761def9759fbdb51"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/events-flow.mjs",
+      "kind": "js",
+      "lines": 100,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "GUEST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:fe1155822c138587d8b4795c67b8667699aff453a54fa7b9bba40144105d8523"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/events-location-verification.mjs",
+      "kind": "js",
+      "lines": 182,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:aa9c663610928431663a2a4be4ce8b8c14f483df0aa607aca1565ebe53fafe38"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/events-requests-endpoint.mjs",
+      "kind": "js",
+      "lines": 67,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:770fc1ec7ffde04f6c261f26664dadf7efd593d9f21f73875ec17e9fca483a2b"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/events-requests-fix.mjs",
+      "kind": "js",
+      "lines": 90,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:73135f4dd9929a9f4bd86475a07c8fc5f82b1af61ebb9758230b832d114c21f4"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/items-library.mjs",
+      "kind": "js",
+      "lines": 68,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:3da4d6671458549b8e615622f102f6efc3676b78ca5d9af9ab36985dcdde9cc1"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/items-linking.mjs",
+      "kind": "js",
+      "lines": 89,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:bb4fada7b586263da67a8d77ec56829242d29b3cc108cf9f652338fc0b9a978b"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/participants-and-items.mjs",
+      "kind": "js",
+      "lines": 102,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "GUEST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:bfb1231347c55c28d2a64f4f8b07fa42e6a9d44a2e6c11877faa1e4c50d11dfc"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/phone-verification.mjs",
+      "kind": "js",
+      "lines": 23,
+      "exports": [],
+      "imports": [
+        "../testHarness.mjs"
+      ],
+      "env": [],
+      "hash": "sha256:ee6d364b1c4a49188459f758c414c1fd0d67c5772cce05d443f0edc2d6d263e1"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/rebalance.mjs",
+      "kind": "js",
+      "lines": 82,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "GUEST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:ddcb9f6413ed342a592d4918032d6a1684bf4ea7d723ba071547b86250155771"
+    },
+    {
+      "path": "apps/server/tests/rest/cases/requests-actions.mjs",
+      "kind": "js",
+      "lines": 112,
+      "exports": [],
+      "imports": [
+        "dotenv/config",
+        "../helpers/admin-cleanup.mjs"
+      ],
+      "env": [
+        "API_BASE",
+        "HOST_EMAIL",
+        "GUEST_EMAIL",
+        "HOST_PASSWORD"
+      ],
+      "hash": "sha256:bfe3568900fd2b46dceb8f54b2330ee4bad7fc5ea5baa6ed34913fa261be7152"
+    },
+    {
+      "path": "apps/server/tests/rest/helpers/admin-cleanup.mjs",
+      "kind": "js",
+      "lines": 122,
+      "exports": [
+        "hardDeleteEventCascade",
+        "hardDeleteByCreator"
+      ],
+      "imports": [
+        "dotenv/config",
+        "@supabase/supabase-js"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:4f61c9078111fccb708aae22d0ac893f8fe1e54b0ba9d8c9fbb13c9d8090d428"
+    },
+    {
+      "path": "apps/server/tests/rest/helpers/token.mjs",
+      "kind": "js",
+      "lines": 33,
+      "exports": [],
+      "imports": [
+        "dotenv/config"
+      ],
+      "env": [
+        "API_BASE",
+        "EMAIL",
+        "PASSWORD"
+      ],
+      "hash": "sha256:0b01042c3d0e0d8d8f17639b98685ee099ca83ea3fbb7dc9c0444f65f61f2e7e"
     },
     {
       "path": "apps/server/tests/unit/controllers/billing.controller.spec.ts",
@@ -3145,7 +3861,7 @@
     {
       "path": "apps/server/dist/apps/server/src/app.js",
       "kind": "js",
-      "lines": 78,
+      "lines": 132,
       "exports": [
         "createApp"
       ],
@@ -3154,22 +3870,24 @@
         "cors",
         "./routes/auth.routes",
         "./routes/events.routes",
-        "./routes/locations.routes",
         "./routes/billing.routes",
         "./routes/discovery.routes",
         "./routes/user-location.routes",
+        "./routes/user-profile.routes",
+        "./routes/items.library.routes",
         "./routes/mock.routes",
         "./services/payments.container",
         "./middleware/authGuard",
-        "@payments/core",
         "./middleware/errorHandler",
         "path",
         "body-parser"
       ],
       "env": [
+        "PUBLIC_BASE_URL",
+        "API_BASE_URL",
         "NODE_ENV"
       ],
-      "hash": "sha256:b1a934b73729821b7a9742e86d403ccd71c44d72d853be7a316f2ea4c37382e7"
+      "hash": "sha256:c5459c20d9d555c32457ed44d3177ae182699b11b7e83d55c1c90073ecb33816"
     },
     {
       "path": "apps/server/dist/apps/server/src/index.js",
@@ -3215,25 +3933,18 @@
     {
       "path": "apps/server/dist/apps/server/src/validators.js",
       "kind": "js",
-      "lines": 1348,
+      "lines": 1812,
       "exports": [
         "createApiClient",
         "schemas",
-        "JoinRequestStatus",
-        "JoinRequestAdd",
-        "JoinRequest",
-        "PaginatedJoinRequests",
-        "Availability",
-        "ListRequestsQuery",
         "api"
       ],
       "imports": [
         "@zodios/core",
-        "zod",
-        "@payments/core"
+        "zod"
       ],
       "env": [],
-      "hash": "sha256:6018495ddca80347e5194ed3dbe1eb8c7e098e90af858399ecb8f7c92e71449d"
+      "hash": "sha256:9bdd34d17e38f03a0703c35df30b57cc19ab877c373c5d1b27ff830b18839bea"
     },
     {
       "path": "apps/server/dist/apps/server/tests/setup.js",
@@ -3338,6 +4049,21 @@
       "hash": "sha256:7992429ae857f840279221c163faffffe6977593f2f953160bb14fa9017f2620"
     },
     {
+      "path": "apps/server/dist/apps/server/src/config/sms.js",
+      "kind": "js",
+      "lines": 24,
+      "exports": [
+        "getSmsProvider"
+      ],
+      "imports": [],
+      "env": [
+        "TWILIO_ACCOUNT_SID",
+        "TWILIO_AUTH_TOKEN",
+        "TWILIO_FROM_NUMBER"
+      ],
+      "hash": "sha256:97ade9fac2f31150b11d2741333c4c02a4c73df089ce80b45126986c68ce4dd7"
+    },
+    {
       "path": "apps/server/dist/apps/server/src/config/supabaseClient.js",
       "kind": "js",
       "lines": 34,
@@ -3396,7 +4122,7 @@
     {
       "path": "apps/server/dist/apps/server/src/controllers/events.controller.js",
       "kind": "js",
-      "lines": 191,
+      "lines": 219,
       "exports": [
         "createEvent",
         "getEvent",
@@ -3416,8 +4142,10 @@
         "../utils/helper",
         "zod"
       ],
-      "env": [],
-      "hash": "sha256:6676c77e22c7b51b67215138d7e148e9eb5d758cc8617eef06da6e9fc55d24c4"
+      "env": [
+        "BYPASS_PHONE_VALIDATION"
+      ],
+      "hash": "sha256:425feded1a1c1b105d8d4cab7c189789fa44534d7d96c7ce1bb56cb7578050c9"
     },
     {
       "path": "apps/server/dist/apps/server/src/controllers/items.controller.js",
@@ -3439,6 +4167,24 @@
       ],
       "env": [],
       "hash": "sha256:cbe4c2afa88197f715cb581c384ec2fb62ef414144e97e75c66d9ad32b624860"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/items.library.controller.js",
+      "kind": "js",
+      "lines": 21,
+      "exports": [
+        "listCatalog",
+        "listMyItems",
+        "createMyItem",
+        "updateMyItem",
+        "deleteMyItem"
+      ],
+      "imports": [
+        "../services/items.library.service",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:b03aea371c47a0a795f575f5764175c729216bf8c8c4a6a3eec0d524f786da93"
     },
     {
       "path": "apps/server/dist/apps/server/src/controllers/location-discovery.controller.js",
@@ -3482,7 +4228,7 @@
     {
       "path": "apps/server/dist/apps/server/src/controllers/participants.controller.js",
       "kind": "js",
-      "lines": 46,
+      "lines": 70,
       "exports": [
         "add",
         "list",
@@ -3490,14 +4236,32 @@
         "update",
         "remove",
         "bulkAdd",
-        "resendInvite"
+        "resendInvite",
+        "transfer"
       ],
       "imports": [
         "../services/participants.service",
+        "../utils/helper",
+        "../services/participants.transfer.service"
+      ],
+      "env": [
+        "BYPASS_PHONE_VALIDATION"
+      ],
+      "hash": "sha256:93561571fd543a89bf0c00d5d9dfe4942d6fc852fe9bc4ae17969e93c6cdedb6"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/rebalance.controller.js",
+      "kind": "js",
+      "lines": 10,
+      "exports": [
+        "rebalance"
+      ],
+      "imports": [
+        "../services/rebalance.service",
         "../utils/helper"
       ],
       "env": [],
-      "hash": "sha256:75afc8bceecccefbeba905907ee3db8b699a7cbf8d0843185751e86ed59caf06"
+      "hash": "sha256:9be9000e978ef14afeff19925750c3cc73a4efc0739b2347747e4328c07ae224"
     },
     {
       "path": "apps/server/dist/apps/server/src/controllers/user-location.controller.js",
@@ -3517,6 +4281,25 @@
       ],
       "env": [],
       "hash": "sha256:9dd670179f6fe6f091d9f40b778c2eed697721df92b25cc942572e81165a14c9"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/controllers/user-profile.controller.js",
+      "kind": "js",
+      "lines": 158,
+      "exports": [
+        "completeProfileSetupController",
+        "getUserProfileController"
+      ],
+      "imports": [
+        "zod",
+        "@supabase/supabase-js",
+        "../logger"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY"
+      ],
+      "hash": "sha256:fbbcb43d2bfb5a3342c3ab9f93df74403237ccb85dd60e7ffd93d8f7bf4e1d3d"
     },
     {
       "path": "apps/server/dist/apps/server/src/middleware/authGuard.js",
@@ -3635,7 +4418,7 @@
     {
       "path": "apps/server/dist/apps/server/src/routes/events.routes.js",
       "kind": "js",
-      "lines": 55,
+      "lines": 85,
       "exports": [
         "default"
       ],
@@ -3647,17 +4430,33 @@
         "../validators",
         "../controllers/events.controller",
         "../modules/requests",
+        "../controllers/rebalance.controller",
         "./items.routes",
         "./participants.routes",
         "../modules/requests"
       ],
       "env": [],
-      "hash": "sha256:961c523715749d7f89ddacc09d18117e7c9db566f4729a42a93584fb15a231be"
+      "hash": "sha256:69a24daf268b80cc4923a93d566ba3341c2284f30702d10d99c7fe77e9589ddd"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/items.library.routes.js",
+      "kind": "js",
+      "lines": 13,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../controllers/items.library.controller"
+      ],
+      "env": [],
+      "hash": "sha256:869467339977ecd8da6c10e0e769407c09100c846bd826a109f95554b9d52df6"
     },
     {
       "path": "apps/server/dist/apps/server/src/routes/items.routes.js",
       "kind": "js",
-      "lines": 33,
+      "lines": 35,
       "exports": [
         "default"
       ],
@@ -3669,7 +4468,7 @@
         "../middleware/authGuard"
       ],
       "env": [],
-      "hash": "sha256:0654d72c608f45866ab566ec931cb4e200817ef2fab9738c1ce67a0cf05e5b49"
+      "hash": "sha256:e62975a71471e1dca4fc99f9c2ab888dc07f2b66be70347cabb45b0d521e2282"
     },
     {
       "path": "apps/server/dist/apps/server/src/routes/locations.routes.js",
@@ -3703,7 +4502,7 @@
     {
       "path": "apps/server/dist/apps/server/src/routes/participants.routes.js",
       "kind": "js",
-      "lines": 22,
+      "lines": 24,
       "exports": [
         "default"
       ],
@@ -3715,7 +4514,7 @@
         "../middleware/authGuard"
       ],
       "env": [],
-      "hash": "sha256:6e7f2216cac3c3dff5d73d2dcdb413a74f44293d16751f4143c35a724b8ee59c"
+      "hash": "sha256:5921299934896300def311ae2039d81cd3dc026504c8c37ba115bbf40482ac35"
     },
     {
       "path": "apps/server/dist/apps/server/src/routes/user-location.routes.js",
@@ -3732,6 +4531,23 @@
       ],
       "env": [],
       "hash": "sha256:729bd6b8bbda7cd35f8427cf2fc009ad627d770374fc5a32905e218ff5a8c3b7"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/routes/user-profile.routes.js",
+      "kind": "js",
+      "lines": 18,
+      "exports": [
+        "default"
+      ],
+      "imports": [
+        "express",
+        "../middleware/authGuard",
+        "../middleware/logger.middleware",
+        "../controllers/user-profile.controller",
+        "../services/phone.controller"
+      ],
+      "env": [],
+      "hash": "sha256:38dc55000402be4792f19d4f1e07ee2eecd727cabc26317a32e31a776618dd7a"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/auth.service.js",
@@ -3752,7 +4568,7 @@
     {
       "path": "apps/server/dist/apps/server/src/services/events.service.js",
       "kind": "js",
-      "lines": 969,
+      "lines": 1052,
       "exports": [
         "createEventWithItems",
         "assignItem",
@@ -3779,12 +4595,30 @@
         "SUPABASE_ANON_KEY",
         "SUPABASE_SERVICE_ROLE_KEY"
       ],
-      "hash": "sha256:133324f04027b9fb031c7c3227526df654e47439546380d9c43883c7ec6b9438"
+      "hash": "sha256:3907e143608fe4904ac11ecbb0a5e1c24444c1f6ffce68fb44084a00e5ec4bca"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/items.library.service.js",
+      "kind": "js",
+      "lines": 78,
+      "exports": [
+        "listCatalog",
+        "listMyItems",
+        "createMyItem",
+        "updateMyItem",
+        "deleteMyItem"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../utils/helper"
+      ],
+      "env": [],
+      "hash": "sha256:b8d16f7b333921d830101ca1921e6e4e5bd4ec91a152fb7cc2d9bc0760b67ac4"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/items.service.js",
       "kind": "js",
-      "lines": 197,
+      "lines": 203,
       "exports": [
         "addItem",
         "updateItem",
@@ -3801,7 +4635,7 @@
         "../utils/eventGuards"
       ],
       "env": [],
-      "hash": "sha256:ad032c1fcaa346709f17860d7639e68c9da1128448efeb50aae893cace0f83cb"
+      "hash": "sha256:0f2daee8192757cab13cfc597065cc6409a7568c2d304629aa06368a396ffb6d"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/location-discovery.service.js",
@@ -3837,7 +4671,7 @@
     {
       "path": "apps/server/dist/apps/server/src/services/notifications.service.js",
       "kind": "js",
-      "lines": 306,
+      "lines": 322,
       "exports": [
         "createNotification",
         "notifyNearbyUsers",
@@ -3855,12 +4689,12 @@
         "../logger"
       ],
       "env": [],
-      "hash": "sha256:0a10622fc9ccdee62d4af478a167200a0e35d9bf3025706c093e2014130368fc"
+      "hash": "sha256:19fb081b02c0c6e299f2dfd936a74229bb619f8cee96bed8a3cf5f49b59e06e5"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/participants.service.js",
       "kind": "js",
-      "lines": 252,
+      "lines": 304,
       "exports": [
         "addHost",
         "addParticipant",
@@ -3876,7 +4710,20 @@
         "../utils/mailer"
       ],
       "env": [],
-      "hash": "sha256:8459df90977198b52ee9e33006f13ebc71bc48e0750f958002986da2b534e634"
+      "hash": "sha256:d98f273f3f66ccb04556f852a1cddb5fadbfcee011b4827cbd1f9f936fd8fc0e"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/participants.transfer.service.js",
+      "kind": "js",
+      "lines": 64,
+      "exports": [
+        "transferParticipant"
+      ],
+      "imports": [
+        "../config/supabaseClient"
+      ],
+      "env": [],
+      "hash": "sha256:0b80f56ed3108bc12754c964e9347aa3454101dafbe83cef48beed67e4db7caf"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/payments.adapters.js",
@@ -3918,6 +4765,23 @@
       "hash": "sha256:d2b06b3252bfb805b9158d590df1afd8f683fb23b752213120848ee20261d7d8"
     },
     {
+      "path": "apps/server/dist/apps/server/src/services/phone.controller.js",
+      "kind": "js",
+      "lines": 87,
+      "exports": [
+        "sendCode",
+        "verifyCode"
+      ],
+      "imports": [
+        "zod",
+        "../config/supabaseClient",
+        "crypto",
+        "../config/sms"
+      ],
+      "env": [],
+      "hash": "sha256:2ffd78cf1d9be74a2e39024c091cacfdf0e5c404ad81b882253bf169c4337641"
+    },
+    {
       "path": "apps/server/dist/apps/server/src/services/push.service.js",
       "kind": "js",
       "lines": 32,
@@ -3930,6 +4794,20 @@
       ],
       "env": [],
       "hash": "sha256:65472cfeb70e5b7d5aba29220174f0213bc9341afed6a80c568c254c4c382d8e"
+    },
+    {
+      "path": "apps/server/dist/apps/server/src/services/rebalance.service.js",
+      "kind": "js",
+      "lines": 92,
+      "exports": [
+        "rebalanceUnassigned"
+      ],
+      "imports": [
+        "../config/supabaseClient",
+        "../logger"
+      ],
+      "env": [],
+      "hash": "sha256:d303a8acc7b8d17c52dd36bb5c99e1e42c255560c32cbfc0f7fb7ae4f6516b1c"
     },
     {
       "path": "apps/server/dist/apps/server/src/services/user-location.service.js",
@@ -4861,7 +5739,7 @@
     {
       "path": "apps/server/dist/apps/server/src/modules/requests/requests.repo.js",
       "kind": "js",
-      "lines": 289,
+      "lines": 371,
       "exports": [
         "RequestsRepository",
         "UPDATE_REQUEST_STATUS_PROCEDURE"
@@ -4872,12 +5750,12 @@
         "../../logger"
       ],
       "env": [],
-      "hash": "sha256:9c04eef7b76c60522ef4d8894ba957ab645c1426ac8f52e5724717db0ce19ae9"
+      "hash": "sha256:6ae0f2a22f96460d4d821457bb5ce80856c28db290975a9c3be42866ca2e3059"
     },
     {
       "path": "apps/server/dist/apps/server/src/modules/requests/requests.routes.js",
       "kind": "js",
-      "lines": 55,
+      "lines": 83,
       "exports": [
         "default"
       ],
@@ -4888,7 +5766,7 @@
         "./requests.controller"
       ],
       "env": [],
-      "hash": "sha256:907d316f870513aaa42e3ec95873d9af55c8db739e1c4e16660ccbe1c54f3ca9"
+      "hash": "sha256:de33097dad1f665771ced19b9d63289b56d45a06c61f7aa3091539ec4e4a5dc7"
     },
     {
       "path": "apps/server/dist/apps/server/src/modules/requests/requests.schema.js",
@@ -4915,7 +5793,7 @@
     {
       "path": "apps/server/dist/apps/server/src/modules/requests/requests.service.js",
       "kind": "js",
-      "lines": 280,
+      "lines": 297,
       "exports": [
         "RequestsService"
       ],
@@ -4927,7 +5805,7 @@
       "env": [
         "JOIN_HOLD_TTL_MIN"
       ],
-      "hash": "sha256:e33c5bf73bf863ee84be9bcb4a9e84231cf502cdbb919540c47c88e3da3ac12c"
+      "hash": "sha256:bf2748b7a15d45a4e5b55a5bf6bf1193a36f5486794e7e975e6e7034e7d6b810"
     },
     {
       "path": "apps/server/dist/apps/server/src/modules/requests/requests.types.js",

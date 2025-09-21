@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict rq6urwkEnn31aed8YMqNahW9VLSXdlMnisngz2z3PonTLVMLP5iqSvhjPW6LtPs
+\restrict aQBEBypdQt6XnMUhAf7Hyarywd4Obfaub7bDF50gEWfF0UPIWaHZ6DabfsAFpYX
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.6
@@ -2076,7 +2076,9 @@ CREATE TABLE public.event_items (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     category text,
     per_guest_qty numeric(6,2) DEFAULT 1.0 NOT NULL,
-    required_qty numeric(8,2) DEFAULT 1.0 NOT NULL
+    required_qty numeric(8,2) DEFAULT 1.0 NOT NULL,
+    catalog_item_id uuid,
+    user_item_id uuid
 );
 
 
@@ -2203,6 +2205,31 @@ CREATE TABLE public.invoices (
 
 
 --
+-- Name: item_catalog; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.item_catalog (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    category text,
+    unit text,
+    default_per_guest_qty numeric(6,2) DEFAULT 1.0 NOT NULL,
+    dietary_tags text[] DEFAULT '{}'::text[] NOT NULL,
+    description text,
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE item_catalog; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.item_catalog IS 'Global catalog of common potluck items with default attributes';
+
+
+--
 -- Name: item_categories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2317,7 +2344,7 @@ CREATE TABLE public.payment_methods (
     last_four text,
     exp_month integer,
     exp_year integer,
-    CONSTRAINT payment_methods_provider_ck CHECK ((provider = ANY (ARRAY['stripe'::text, 'paypal'::text, 'razorpay'::text, 'square'::text])))
+    CONSTRAINT payment_methods_provider_ck CHECK ((provider = ANY (ARRAY['stripe'::text, 'paypal'::text, 'razorpay'::text, 'square'::text, 'lemonsqueezy'::text])))
 );
 
 
@@ -2335,8 +2362,23 @@ CREATE TABLE public.payments (
     paid_at timestamp with time zone DEFAULT now(),
     provider text DEFAULT 'stripe'::text NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT payments_provider_ck CHECK ((provider = ANY (ARRAY['stripe'::text, 'paypal'::text, 'razorpay'::text, 'square'::text]))),
+    CONSTRAINT payments_provider_ck CHECK ((provider = ANY (ARRAY['stripe'::text, 'paypal'::text, 'razorpay'::text, 'square'::text, 'lemonsqueezy'::text]))),
     CONSTRAINT payments_status_ck CHECK ((status = ANY (ARRAY['pending'::text, 'succeeded'::text, 'failed'::text, 'refunded'::text])))
+);
+
+
+--
+-- Name: phone_verifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.phone_verifications (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    phone_e164 text NOT NULL,
+    code_hash text NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    attempts integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2387,6 +2429,31 @@ CREATE TABLE public.user_dietary_preferences (
 
 
 --
+-- Name: user_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_items (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    name text NOT NULL,
+    category text,
+    unit text,
+    default_per_guest_qty numeric(6,2) DEFAULT 1.0 NOT NULL,
+    dietary_tags text[] DEFAULT '{}'::text[] NOT NULL,
+    notes text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE user_items; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.user_items IS 'Per-user library of frequently used items (templates)';
+
+
+--
 -- Name: user_notification_preferences; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2413,7 +2480,9 @@ CREATE TABLE public.user_profiles (
     geo_precision text DEFAULT 'city'::text NOT NULL,
     user_id uuid NOT NULL,
     meal_preferences text[] DEFAULT '{}'::text[],
-    setup_completed boolean DEFAULT false
+    setup_completed boolean DEFAULT false,
+    phone_e164 text,
+    phone_verified boolean DEFAULT false NOT NULL
 );
 
 
@@ -2994,6 +3063,14 @@ ALTER TABLE ONLY public.invoices
 
 
 --
+-- Name: item_catalog item_catalog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.item_catalog
+    ADD CONSTRAINT item_catalog_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: item_categories item_categories_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3082,6 +3159,14 @@ ALTER TABLE ONLY public.payments
 
 
 --
+-- Name: phone_verifications phone_verifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.phone_verifications
+    ADD CONSTRAINT phone_verifications_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: plans plans_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3151,6 +3236,14 @@ ALTER TABLE ONLY public.locations
 
 ALTER TABLE ONLY public.user_dietary_preferences
     ADD CONSTRAINT user_dietary_preferences_pkey PRIMARY KEY (user_id, dietary_option_id);
+
+
+--
+-- Name: user_items user_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_items
+    ADD CONSTRAINT user_items_pkey PRIMARY KEY (id);
 
 
 --
@@ -3573,6 +3666,20 @@ CREATE INDEX idx_billing_plans_provider ON public.billing_plans USING btree (pro
 
 
 --
+-- Name: idx_event_items_catalog; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_event_items_catalog ON public.event_items USING btree (catalog_item_id);
+
+
+--
+-- Name: idx_event_items_user_item; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_event_items_user_item ON public.event_items USING btree (user_item_id);
+
+
+--
 -- Name: idx_invoices_provider; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3591,6 +3698,13 @@ CREATE INDEX idx_invoices_subscription_id ON public.invoices USING btree (subscr
 --
 
 CREATE INDEX idx_invoices_user_id ON public.invoices USING btree (user_id);
+
+
+--
+-- Name: idx_item_catalog_active; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_item_catalog_active ON public.item_catalog USING btree (is_active);
 
 
 --
@@ -3706,6 +3820,27 @@ CREATE INDEX idx_payments_status ON public.payments USING btree (status);
 
 
 --
+-- Name: idx_phone_verif_expires; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_phone_verif_expires ON public.phone_verifications USING btree (expires_at);
+
+
+--
+-- Name: idx_phone_verif_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_phone_verif_user ON public.phone_verifications USING btree (user_id);
+
+
+--
+-- Name: idx_user_items_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_items_user ON public.user_items USING btree (user_id);
+
+
+--
 -- Name: idx_user_profiles_home_geog; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3741,10 +3876,24 @@ CREATE INDEX idx_user_subscriptions_user_id ON public.user_subscriptions USING b
 
 
 --
+-- Name: item_catalog_name_cat_unit_uk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX item_catalog_name_cat_unit_uk ON public.item_catalog USING btree (lower(TRIM(BOTH FROM name)), COALESCE(category, ''::text), COALESCE(unit, ''::text));
+
+
+--
 -- Name: uq_user_profiles_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX uq_user_profiles_user_id ON public.user_profiles USING btree (user_id);
+
+
+--
+-- Name: user_items_user_name_cat_unit_uk; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX user_items_user_name_cat_unit_uk ON public.user_items USING btree (user_id, lower(TRIM(BOTH FROM name)), COALESCE(category, ''::text), COALESCE(unit, ''::text));
 
 
 --
@@ -3811,6 +3960,13 @@ CREATE UNIQUE INDEX objects_bucket_id_level_idx ON storage.objects USING btree (
 
 
 --
+-- Name: item_catalog set_timestamp_item_catalog; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_timestamp_item_catalog BEFORE UPDATE ON public.item_catalog FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
 -- Name: event_join_requests set_timestamp_join_requests; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3822,6 +3978,13 @@ CREATE TRIGGER set_timestamp_join_requests BEFORE UPDATE ON public.event_join_re
 --
 
 CREATE TRIGGER set_timestamp_notifications BEFORE UPDATE ON public.notifications FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+
+--
+-- Name: user_items set_timestamp_user_items; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_timestamp_user_items BEFORE UPDATE ON public.user_items FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
 
 --
@@ -4039,6 +4202,14 @@ ALTER TABLE ONLY public.event_items
 
 
 --
+-- Name: event_items event_items_catalog_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_items
+    ADD CONSTRAINT event_items_catalog_item_id_fkey FOREIGN KEY (catalog_item_id) REFERENCES public.item_catalog(id) ON DELETE SET NULL;
+
+
+--
 -- Name: event_items event_items_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4052,6 +4223,14 @@ ALTER TABLE ONLY public.event_items
 
 ALTER TABLE ONLY public.event_items
     ADD CONSTRAINT event_items_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(id) ON DELETE CASCADE;
+
+
+--
+-- Name: event_items event_items_user_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.event_items
+    ADD CONSTRAINT event_items_user_item_id_fkey FOREIGN KEY (user_item_id) REFERENCES public.user_items(id) ON DELETE SET NULL;
 
 
 --
@@ -4252,6 +4431,14 @@ ALTER TABLE ONLY public.user_dietary_preferences
 
 ALTER TABLE ONLY public.user_dietary_preferences
     ADD CONSTRAINT user_dietary_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_profiles(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_items user_items_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_items
+    ADD CONSTRAINT user_items_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 
 --
@@ -4599,5 +4786,5 @@ ALTER TABLE storage.s3_multipart_uploads_parts ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict rq6urwkEnn31aed8YMqNahW9VLSXdlMnisngz2z3PonTLVMLP5iqSvhjPW6LtPs
+\unrestrict aQBEBypdQt6XnMUhAf7Hyarywd4Obfaub7bDF50gEWfF0UPIWaHZ6DabfsAFpYX
 

@@ -128,66 +128,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/locations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search / list locations */
-        get: {
-            parameters: {
-                query?: {
-                    search?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Location"][];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /** Resolve or create a location row */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["Location"];
-                };
-            };
-            responses: {
-                /** @description Created / existing row returned */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/events": {
         parameters: {
             query?: never;
@@ -195,51 +135,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Search/list public events for discovery or events I host/attend */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Maximum number of records to return */
-                    limit?: components["parameters"]["limit"];
-                    /** @description Offset for pagination */
-                    offset?: components["parameters"]["offset"];
-                    /** @description Text search across event title and description */
-                    q?: string;
-                    /** @description Optional filter by event status */
-                    status?: components["schemas"]["EventStatus"];
-                    /** @description Filter events starting from this date */
-                    dateFrom?: string;
-                    /** @description Filter events ending before this date */
-                    dateTo?: string;
-                    /** @description Filter events whose start time is after the given timestamp */
-                    startsAfter?: string;
-                    /** @description Filter events whose start time is before the given timestamp */
-                    startsBefore?: string;
-                    /** @description Geosearch: lat,lon,radiusKm */
-                    near?: string;
-                    /** @description Comma-separated dietary tags (veg,nonveg,mixed) */
-                    diet?: string;
-                    /** @description Filter by public events (omit for authenticated user's events) */
-                    is_public?: boolean;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PaginatedEventSummary"];
-                    };
-                };
-                401: components["responses"]["UnauthorizedError"];
-            };
-        };
+        get?: never;
         put?: never;
         /** Create an event with initial items */
         post: {
@@ -266,6 +162,149 @@ export interface paths {
                 };
                 401: components["responses"]["UnauthorizedError"];
                 403: components["responses"]["ForbiddenError"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user-profile/phone/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send phone verification OTP */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Phone number in E.164 format (e.g. +15551234567) */
+                        phone_e164: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                400: components["responses"]["BadRequestError"];
+                401: components["responses"]["UnauthorizedError"];
+                /** @description Too many requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user-profile/phone/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Search/list public events for discovery or events I host/attend */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Maximum number of records to return */
+                    limit?: components["parameters"]["limit"];
+                    /** @description Offset for pagination */
+                    offset?: components["parameters"]["offset"];
+                    /** @description Latitude for geosearch */
+                    lat?: number;
+                    /** @description Longitude for geosearch */
+                    lon?: number;
+                    /** @description Radius in kilometers for geosearch */
+                    radius_km?: number;
+                    /** @description Text search across event title and description */
+                    q?: string;
+                    /** @description Optional filter by event status */
+                    status?: components["schemas"]["EventStatus"];
+                    /** @description Filter events starting from this date */
+                    dateFrom?: string;
+                    /** @description Filter events ending before this date */
+                    dateTo?: string;
+                    /** @description Filter events whose start time is after the given timestamp */
+                    startsAfter?: string;
+                    /** @description Filter events whose start time is before the given timestamp */
+                    startsBefore?: string;
+                    /** @description City name (e.g., 'San Francisco') or string 'lat,lon,radiusKm' */
+                    near?: string;
+                    /** @description Comma-separated dietary tags (veg,nonveg,mixed) */
+                    diet?: string;
+                    /** @description Filter by public events (omit for authenticated user's events) */
+                    is_public?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedEventSummary"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+            };
+        };
+        put?: never;
+        /** Verify phone using OTP */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        phone_e164: string;
+                        code: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Verified */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                400: components["responses"]["BadRequestError"];
+                401: components["responses"]["UnauthorizedError"];
             };
         };
         delete?: never;
@@ -649,6 +688,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List pending join requests across my hosted events */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Pending join requests */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginatedJoinRequests"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{eventId}/requests/{requestId}/approve": {
         parameters: {
             query?: never;
@@ -900,6 +976,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/events/{eventId}/requests/{requestId}/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                requestId: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Reorder a waitlisted request (host-only) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    requestId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        waitlist_pos: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Reordered */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
+            };
+        };
+        trace?: never;
+    };
+    "/events/{eventId}/requests/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promote first eligible waitlisted request (host-only) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Promotion result */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            moved?: number;
+                        };
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/events/{eventId}/items": {
         parameters: {
             query?: never;
@@ -929,7 +1102,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Item"];
+                        "application/json": components["schemas"]["Item"][];
                     };
                 };
                 401: components["responses"]["UnauthorizedError"];
@@ -951,17 +1124,17 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["Item"];
+                    "application/json": components["schemas"]["ItemCreate"];
                 };
             };
             responses: {
-                /** @description Completed */
-                200: {
+                /** @description Created */
+                201: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ItemCreate"];
+                        "application/json": components["schemas"]["Item"];
                     };
                 };
                 401: components["responses"]["UnauthorizedError"];
@@ -1060,6 +1233,165 @@ export interface paths {
             responses: {
                 /** @description Deleted */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List global item catalog */
+        get: {
+            parameters: {
+                query?: {
+                    q?: string;
+                    category?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ItemCatalog"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List my saved items */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a saved item template */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UserItemCreate"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/items/me/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a saved item template */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UserItemUpdate"];
+                };
+            };
+            responses: {
+                /** @description Updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        /** Delete a saved item template */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1209,6 +1541,113 @@ export interface paths {
                 403: components["responses"]["ForbiddenError"];
                 404: components["responses"]["NotFoundError"];
                 409: components["responses"]["ConflictError"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{eventId}/rebalance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Auto-assign unclaimed items to accepted participants */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @default 2 */
+                        max_per_user?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Rebalance result */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            assigned: number;
+                        };
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/events/{eventId}/participants/{partId}/transfer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Event ID */
+                eventId: components["parameters"]["eventId"];
+                /** @description Participant ID */
+                partId: components["parameters"]["partId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transfer RSVP to another user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Event ID */
+                    eventId: components["parameters"]["eventId"];
+                    /** @description Participant ID */
+                    partId: components["parameters"]["partId"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TransferParticipantRequest"];
+                };
+            };
+            responses: {
+                /** @description Transfer completed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TransferParticipantResponse"];
+                    };
+                };
+                401: components["responses"]["UnauthorizedError"];
+                403: components["responses"]["ForbiddenError"];
+                404: components["responses"]["NotFoundError"];
             };
         };
         delete?: never;
@@ -2190,6 +2629,16 @@ export interface components {
             name: string;
             category?: string;
             per_guest_qty: number;
+            /**
+             * Format: uuid
+             * @description Optional link to global catalog item
+             */
+            catalog_item_id?: string;
+            /**
+             * Format: uuid
+             * @description Optional link to user's saved item template
+             */
+            user_item_id?: string;
         };
         /** @description All fields optional for patch */
         ItemUpdate: components["schemas"]["ItemCreate"];
@@ -2334,6 +2783,42 @@ export interface components {
             id: string;
             required_qty: number;
             assigned_to?: string | null;
+        };
+        ItemCatalog: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            category?: string;
+            unit?: string;
+            default_per_guest_qty?: number;
+            dietary_tags?: string[];
+            description?: string;
+        };
+        UserItem: components["schemas"]["UserItemCreate"] & {
+            /** Format: uuid */
+            id: string;
+        };
+        UserItemCreate: {
+            name: string;
+            category?: string;
+            unit?: string;
+            /** @default 1 */
+            default_per_guest_qty: number;
+            dietary_tags?: string[];
+            notes?: string;
+        };
+        UserItemUpdate: components["schemas"]["UserItemCreate"];
+        TransferParticipantRequest: {
+            /** Format: uuid */
+            new_user_id: string;
+            /** @default false */
+            carry_items: boolean;
+        };
+        TransferParticipantResponse: {
+            /** Format: uuid */
+            old_participant_id: string;
+            /** Format: uuid */
+            new_participant_id: string;
         };
         BillingPlan: {
             /** Format: uuid */
@@ -2549,6 +3034,10 @@ export interface components {
              * @description Profile last update timestamp
              */
             updated_at?: string;
+            /** @description E.164 formatted phone number */
+            phone_e164?: string | null;
+            /** @description Whether the user's phone is verified */
+            phone_verified?: boolean;
         };
         ValidationError: {
             /** @example Validation failed */
