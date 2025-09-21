@@ -608,7 +608,7 @@ export default function EventDetailsPage({
 
           <View style={styles.contentContainer}>
             {active === "overview" && (
-              <OverviewTab isLoading={loading || refreshing} event={event} />
+              <OverviewTab isLoading={loading || refreshing} event={event} eventId={eventId} isHost={!!isHost} />
             )}
             {active === "items" && (
               <ItemsTab
@@ -798,10 +798,9 @@ function TabsBar({
 function OverviewTab({
   isLoading,
   event,
-}: { isLoading?: boolean; event?: EventDTO | null }) {
-  const [rsvp, setRsvp] =
-    useState<"accepted" | "declined" | "none">("none");
-
+  eventId,
+  isHost,
+}: { isLoading?: boolean; event?: EventDTO | null; eventId: string; isHost: boolean }) {
   if (isLoading || !event) {
     return (
       <View style={styles.tabContent}>
@@ -812,38 +811,13 @@ function OverviewTab({
 
   return (
     <View style={styles.tabContent}>
-      {/* RSVP */}
-      <Card>
-        <Text style={styles.sectionTitle}>RSVP</Text>
-        <View style={styles.rsvpButtons}>
-          <Pressable
-            onPress={() => setRsvp("accepted")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "accepted" ? styles.rsvpButtonAccepted : styles.rsvpButtonAcceptedInactive
-            ]}
-          >
-            <Icon name="Check" size={16} color={rsvp === "accepted" ? "#ffffff" : "#166534"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "accepted" ? styles.rsvpButtonTextAccepted : styles.rsvpButtonTextAcceptedInactive
-            ]}>Accept</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setRsvp("declined")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "declined" ? styles.rsvpButtonDeclined : styles.rsvpButtonDeclinedInactive
-            ]}
-          >
-            <Icon name="X" size={16} color={rsvp === "declined" ? "#ffffff" : "#dc2626"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "declined" ? styles.rsvpButtonTextDeclined : styles.rsvpButtonTextDeclinedInactive
-            ]}>Decline</Text>
-          </Pressable>
-        </View>
-      </Card>
+      {/* Join Request (guest) or Host info */}
+      {!isHost ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Request to Join</Text>
+          <RequestToJoinButton eventId={eventId} eventTitle={event.title} />
+        </Card>
+      ) : null}
 
       {/* Notes */}
       <Card>
