@@ -29,6 +29,8 @@ import AboutScreen from "./AboutScreen";
 import PrivacyScreen from "./PrivacyScreen";
 import HelpScreen from "./HelpScreen";
 import MyItemsScreen from "./MyItemsScreen";
+import PaymentMethodsScreen from "./PaymentMethodsScreen";
+import InvoicesScreen from "./InvoicesScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
@@ -227,6 +229,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showPlans, setShowPlans] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showMyItems, setShowMyItems] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+  const [showInvoices, setShowInvoices] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -640,6 +644,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setShowMyItems(true);
           setNavigationContext('settings');
         }}
+        onShowPaymentMethods={() => {
+          setShowSettings(false);
+          setShowPaymentMethods(true);
+          setNavigationContext('settings');
+        }}
+        onShowInvoices={() => {
+          setShowSettings(false);
+          setShowInvoices(true);
+          setNavigationContext('settings');
+        }}
         onShowAbout={() => {
           setShowSettings(false);
           setShowAbout(true);
@@ -661,6 +675,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   if (showMyItems) {
     return (
       <MyItemsScreen onBack={() => handleBackNavigation('settings')} />
+    );
+  }
+  if (showPaymentMethods) {
+    return (
+      <PaymentMethodsScreen onBack={() => handleBackNavigation('settings')} />
+    );
+  }
+  if (showInvoices) {
+    return (
+      <InvoicesScreen onBack={() => handleBackNavigation('settings')} />
     );
   }
   if (showNotifications) {

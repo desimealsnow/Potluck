@@ -280,6 +280,41 @@ export class ApiClient {
   async deleteMyItem(id: string): Promise<void> {
     return this.delete<void>(`/items/me/${id}`);
   }
+
+  // ===============================================
+  // Billing: Payment Methods & Invoices
+  // ===============================================
+  async listPaymentMethods(): Promise<PaymentMethod[]> {
+    return this.get<PaymentMethod[]>(`/billing/payment-methods`);
+  }
+
+  async addPaymentMethod(payload: PaymentMethodCreate): Promise<PaymentMethod> {
+    return this.post<PaymentMethod>(`/billing/payment-methods`, payload);
+  }
+
+  async setDefaultPaymentMethod(methodId: string): Promise<void> {
+    return this.post<void>(`/billing/payment-methods/${methodId}/set-default`);
+  }
+
+  async removePaymentMethod(methodId: string): Promise<void> {
+    return this.delete<void>(`/billing/payment-methods/${methodId}`);
+  }
+
+  async listInvoices(): Promise<Invoice[]> {
+    return this.get<Invoice[]>(`/billing/invoices`);
+  }
+
+  async getInvoice(invoiceId: string): Promise<Invoice> {
+    return this.get<Invoice>(`/billing/invoices/${invoiceId}`);
+  }
+
+  async downloadInvoice(invoiceId: string): Promise<Blob> {
+    const url = `${this.baseUrl}/billing/invoices/${invoiceId}/download`;
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new ApiError(res.statusText, res.status);
+    return res.blob();
+  }
 }
 
 // Export singleton instance

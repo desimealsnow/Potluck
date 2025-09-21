@@ -34,6 +34,8 @@ export default function SettingsScreen({
   onShowSubscription,
   onShowPreferences,
   onShowMyItems,
+  onShowPaymentMethods,
+  onShowInvoices,
   onShowAbout,
   onShowPrivacy,
   onShowHelp
@@ -42,6 +44,8 @@ export default function SettingsScreen({
   onShowSubscription?: () => void;
   onShowPreferences?: () => void;
   onShowMyItems?: () => void;
+  onShowPaymentMethods?: () => void;
+  onShowInvoices?: () => void;
   onShowAbout?: () => void;
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
@@ -110,6 +114,22 @@ export default function SettingsScreen({
       onPress: () => {
         onShowSubscription?.();
       },
+      showChevron: true,
+    },
+    {
+      id: "payment-methods",
+      title: "Payment Methods",
+      subtitle: "Manage saved cards or methods",
+      icon: "Wallet",
+      onPress: () => onShowPaymentMethods?.(),
+      showChevron: true,
+    },
+    {
+      id: "invoices",
+      title: "Invoices",
+      subtitle: "View and download invoices",
+      icon: "Receipt",
+      onPress: () => onShowInvoices?.(),
       showChevron: true,
     },
     {
