@@ -12,6 +12,7 @@ import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import type { 
   MealType, 
   LocationSuggestion, 
@@ -66,6 +67,7 @@ export default function CreateEventScreen({
   const [dishes, setDishes] = useState<Dish[]>([
     { id: "d1", name: "", category: "Main Course", per_guest_qty: 1 },
   ]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Step 4 – Participants (after event is created)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
@@ -107,6 +109,15 @@ export default function CreateEventScreen({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
+      // Require verified phone before hosting
+      try {
+        const prof = await apiClient.get<any>('/user-profile/me');
+        if (!prof?.phone_verified) {
+          Alert.alert('Verify Phone', 'Please verify your phone number in Settings > User Preferences before creating an event.');
+          setIsSubmitting(false);
+          return;
+        }
+      } catch {}
       
       // Validate event date is in the future
       if (!selectedDate || !selectedTime) {
@@ -215,13 +226,15 @@ export default function CreateEventScreen({
           <View style={styles.topLeft}>
             {onBack && (
               <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10} testID="back-button">
-                <Icon name="ChevronLeft" size={20} color="#CC3B2B" />
+                <Icon name="ChevronLeft" size={20} color="#fff" />
               </Pressable>
             )}
-            <Icon name="Utensils" size={20} color="#CC3B2B" />
+            <Icon name="Utensils" size={20} color="#fff" />
             <Text style={styles.topTitle} testID="create-event-title">Create Potluck</Text>
           </View>
-          <Icon name="Moon" size={18} color="#D38B2E" />
+          <Pressable onPress={onBack} style={styles.cancelButton} testID="cancel-button">
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </Pressable>
         </View>
 
         {/* Stepper */}
@@ -438,7 +451,12 @@ export default function CreateEventScreen({
             <>
               <Card
                 title="✨ What's on the menu?"
-                right={<Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>}
+                right={
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <Pressable onPress={() => setPickerOpen(true)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>Browse Catalog</Text></Pressable>
+                    <Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>
+                  </View>
+                }
               >
                 {dishes.map((d, idx) => (
                   <View key={d.id} style={styles.dishCard}>
@@ -449,12 +467,19 @@ export default function CreateEventScreen({
                       </Pressable>
                     </View>
 
-                    <Label>Item Name</Label>
-                    <Input
-                      placeholder="e.g., Grandma's Famous Mac & Cheese"
-                      value={d.name}
-                      onChangeText={(t) => updateDish(d.id, { name: t }, setDishes)}
-                    />
+                    <Label>Item</Label>
+                    <Pressable onPress={() => setPickerOpen(true)} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]}>
+                      <Text style={[styles.input, { color: d.name ? '#111827' : '#9CA3AF' }]}>
+                        {d.name || 'Pick from Catalog / My Items'}
+                      </Text>
+                    </Pressable>
+                    <View style={{ marginTop: 6 }}>
+                      <Pressable onPress={() => setPickerOpen(true)} style={[styles.chip, { alignSelf: 'flex-start' }]}
+                        hitSlop={8}
+                      >
+                        <Text style={[styles.chipText]}>Pick from Catalog / My Items</Text>
+                      </Pressable>
+                    </View>
 
                     <View style={styles.row}>
                       <View style={{ flex: 1, marginRight: 8 }}>
@@ -649,6 +674,32 @@ export default function CreateEventScreen({
         hours={selectedTime?.getHours() || 12}
         minutes={selectedTime?.getMinutes() || 0}
       />
+
+      {/* Item Library Sheet */}
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          // Insert a dish with selected values or fill the first empty row
+          setDishes((prev) => {
+            const emptyIdx = prev.findIndex(p => !p.name?.trim());
+            const patch = { 
+              name: sel.name, 
+              category: sel.category as any, 
+              per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1),
+              catalog_item_id: sel.catalog_item_id,
+              user_item_id: sel.user_item_id,
+            } as Partial<Dish>;
+            if (emptyIdx >= 0) {
+              const copy = prev.slice();
+              copy[emptyIdx] = { ...copy[emptyIdx], ...patch } as Dish;
+              return copy;
+            }
+            return [{ id: `d${Date.now()}`, name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1), catalog_item_id: sel.catalog_item_id, user_item_id: sel.user_item_id } as any, ...prev];
+          });
+        }}
+      />
     </View>
   );
 }
@@ -748,12 +799,25 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
   },
   topLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
-  topTitle: { fontSize: 20, fontWeight: "800", color: "#D73A2F" },
+  topTitle: { fontSize: 20, fontWeight: "800", color: "#fff" },
+  cancelButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
 
   stepper: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingBottom: 10 },
-  stepIconWrap: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center" },
-  stepLabel: { marginTop: 4, fontWeight: "800", color: "#B26B4B" },
-  stepBar: { width: "100%", height: 6, borderRadius: 3, backgroundColor: "#F5D7C8", marginTop: 8 },
+  stepIconWrap: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.2)" },
+  stepLabel: { marginTop: 4, fontWeight: "800", color: "#fff" },
+  stepBar: { width: "100%", height: 6, borderRadius: 3, backgroundColor: "rgba(255,255,255,0.3)", marginTop: 8 },
 
   card: {
     borderRadius: 18, padding: 14, backgroundColor: "rgba(255,255,255,0.9)",

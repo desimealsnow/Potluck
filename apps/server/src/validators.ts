@@ -40,6 +40,12 @@ const ItemCreate = z
     name: z.string(),
     category: z.string().optional(),
     per_guest_qty: z.number().gte(0.01),
+    catalog_item_id: z.string().uuid().optional(),
+    user_item_id: z.string().uuid().optional(),
+  })
+  .refine((v) => !(v.catalog_item_id && v.user_item_id), {
+    message: 'Provide at most one of catalog_item_id or user_item_id',
+    path: ['catalog_item_id'],
   })
   .passthrough();
 const EventCreate = EventBase.and(

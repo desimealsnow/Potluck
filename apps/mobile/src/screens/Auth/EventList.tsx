@@ -12,6 +12,7 @@ import {
   TextInput,
   useWindowDimensions,
   Animated,
+  Linking,
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,12 +23,18 @@ import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
 import SettingsScreen from "./SettingsScreen";
+import UserProfileScreen from "./UserProfileScreen";
+import EditProfileScreen from "./EditProfileScreen";
 import NotificationsScreen from "./NotificationsScreen";
 import UserPreferencesScreen from "./UserPreferencesScreen";
 import SubscriptionScreen from "./SubscriptionScreen";
 import AboutScreen from "./AboutScreen";
 import PrivacyScreen from "./PrivacyScreen";
 import HelpScreen from "./HelpScreen";
+import MyItemsScreen from "./MyItemsScreen";
+import PaymentMethodsScreen from "./PaymentMethodsScreen";
+import InvoicesScreen from "./InvoicesScreen";
+import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
@@ -49,7 +56,7 @@ const PAGE_PADDING = 16;
 const PAGE_SIZE = 10;
 
 /* -------------------- API Helpers -------------------- */
-async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean }> {
+async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: number; radius_km?: number } | null }): Promise<{ items: EventItem[]; hasMore: boolean; points: Array<{ id: string; lat: number; lon: number; title?: string }> }> {
   const params = new URLSearchParams();
   // backend expects limit/offset, not page
   params.set("limit", String(q.limit));
@@ -134,8 +141,16 @@ async function fetchEvents(q: EventsQuery & { nearby?: { lat: number; lon: numbe
       })),
     };
   });
+  const points: Array<{ id: string; lat: number; lon: number; title?: string }> = [];
+  for (const e of itemsRaw) {
+    const lat = typeof e?.location?.latitude === 'number' ? e.location.latitude : undefined;
+    const lon = typeof e?.location?.longitude === 'number' ? e.location.longitude : undefined;
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      points.push({ id: e.id, lat, lon, title: e.title || e.name });
+    }
+  }
 
-  return { items, hasMore };
+  return { items, hasMore, points };
 }
 
 // Cross-platform confirmation (web: window.confirm, native: Alert.alert)
@@ -186,6 +201,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   }, [sidebarVisible, isTablet, sidebarTranslateX]);
   
   const [statusTab, setStatusTab] = useState<EventStatusMobile>("upcoming");
+  const [pendingApprovals, setPendingApprovals] = useState<any[] | null>(null);
+  const [loadingPending, setLoadingPending] = useState(false);
   const [ownership, setOwnership] = useState<Ownership>("all");
   const [dietFilters, setDietFilters] = useState<Diet[]>([]);
   const [query, setQuery] = useState("");
@@ -197,6 +214,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [mapMode, setMapMode] = useState(false);
+  const [mapPoints, setMapPoints] = useState<Array<{ id: string; lat: number; lon: number; title?: string }>>([]);
   const debTimer = useRef<NodeJS.Timeout | null>(null);
   const endReachedOnce = useRef(false);
   
@@ -223,6 +242,12 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showMyItems, setShowMyItems] = useState(false);
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+  const [showInvoices, setShowInvoices] = useState(false);
+  const [showMyJoinRequests, setShowMyJoinRequests] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const [showSubscription, setShowSubscription] = useState(false);
@@ -231,6 +256,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [showHelp, setShowHelp] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [navigationContext, setNavigationContext] = useState<string | null>(null);
+  const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
   const refreshUserLocation = useCallback(async () => {
     try {
       const response = await apiClient.get('/user-profile/me') as any;
@@ -243,6 +269,9 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       } else if (response?.city) {
         // keep previous until SupabaseAuthUI geocodes; don't clear to avoid flicker
         console.log('UserLocation updated city only; waiting for coords');
+      }
+      if (typeof response?.phone_verified === 'boolean') {
+        setPhoneVerified(response.phone_verified);
       }
     } catch (e) {
       console.log('refreshUserLocation failed:', e);
@@ -285,6 +314,21 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setLoading(true);
     setPage(1);
     try {
+      // Special tab: Pending Approval (host requests across events)
+      if (statusTab === 'pending-approval') {
+        setLoading(false);
+        setLoadingPending(true);
+        try {
+          const data = await apiClient.listPendingApprovals();
+          setPendingApprovals(data.data || []);
+        } catch (e) {
+          setPendingApprovals([]);
+        } finally {
+          setLoadingPending(false);
+        }
+        return;
+      }
+
       const res = await fetchEvents({
         page: 1,
         limit: PAGE_SIZE,
@@ -296,6 +340,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       });
       setData(res.items);
       setHasMore(res.hasMore);
+      setMapPoints(res.points || []);
     } catch (e) {
       console.warn("Failed to fetch:", e);
       setData([]);
@@ -310,6 +355,20 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setLoading(true);
     setPage(1);
     try {
+      if (nextTab === 'pending-approval') {
+        setLoading(false);
+        setLoadingPending(true);
+        try {
+          const data = await apiClient.listPendingApprovals();
+          setPendingApprovals(data.data || []);
+        } catch (e) {
+          setPendingApprovals([]);
+        } finally {
+          setLoadingPending(false);
+        }
+        return;
+      }
+
       const res = await fetchEvents({
         page: 1,
         limit: PAGE_SIZE,
@@ -347,6 +406,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       setData((d) => [...d, ...res.items]);
       setPage(next);
       setHasMore(res.hasMore);
+      setMapPoints(res.points || []);
     } catch (e) {
       console.warn("Load more error:", e);
     } finally {
@@ -552,6 +612,17 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const handleBackNavigation = (pageName: string) => {
     // Close the current page
     switch (pageName) {
+      case 'user-profile':
+        setShowUserProfile(false);
+        break;
+      case 'edit-profile':
+        setShowEditProfile(false);
+        // If we came from user-profile, go back to user-profile
+        if (navigationContext === 'user-profile') {
+          setShowUserProfile(true);
+          setNavigationContext(null);
+        }
+        break;
       case 'preferences':
         setShowPreferences(false);
         // Pull latest profile so Nearby reflects immediately after saving
@@ -559,6 +630,18 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
         break;
       case 'subscription':
         setShowSubscription(false);
+        break;
+      case 'payment-methods':
+        setShowPaymentMethods(false);
+        break;
+      case 'invoices':
+        setShowInvoices(false);
+        break;
+      case 'my-join-requests':
+        setShowMyJoinRequests(false);
+        break;
+      case 'my-items':
+        setShowMyItems(false);
         break;
       case 'about':
         setShowAbout(false);
@@ -597,9 +680,34 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setShowSubscription(true);
           setNavigationContext('settings');
         }}
+        onShowUserProfile={() => {
+          setShowSettings(false);
+          setShowUserProfile(true);
+          setNavigationContext('settings');
+        }}
         onShowPreferences={() => {
           setShowSettings(false);
           setShowPreferences(true);
+          setNavigationContext('settings');
+        }}
+        onShowMyItems={() => {
+          setShowSettings(false);
+          setShowMyItems(true);
+          setNavigationContext('settings');
+        }}
+        onShowPaymentMethods={() => {
+          setShowSettings(false);
+          setShowPaymentMethods(true);
+          setNavigationContext('settings');
+        }}
+        onShowInvoices={() => {
+          setShowSettings(false);
+          setShowInvoices(true);
+          setNavigationContext('settings');
+        }}
+        onShowMyJoinRequests={() => {
+          setShowSettings(false);
+          setShowMyJoinRequests(true);
           setNavigationContext('settings');
         }}
         onShowAbout={() => {
@@ -618,6 +726,45 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           setNavigationContext('settings');
         }}
       />
+    );
+  }
+  if (showUserProfile) {
+    return (
+      <UserProfileScreen 
+        onBack={() => handleBackNavigation('user-profile')} 
+        onEditProfile={() => {
+          setShowUserProfile(false);
+          setShowEditProfile(true);
+          setNavigationContext('user-profile');
+        }}
+      />
+    );
+  }
+  if (showEditProfile) {
+    return (
+      <EditProfileScreen 
+        onBack={() => handleBackNavigation('edit-profile')} 
+      />
+    );
+  }
+  if (showMyItems) {
+    return (
+      <MyItemsScreen onBack={() => handleBackNavigation('my-items')} />
+    );
+  }
+  if (showPaymentMethods) {
+    return (
+      <PaymentMethodsScreen onBack={() => handleBackNavigation('payment-methods')} />
+    );
+  }
+  if (showInvoices) {
+    return (
+      <InvoicesScreen onBack={() => handleBackNavigation('invoices')} />
+    );
+  }
+  if (showMyJoinRequests) {
+    return (
+      <MyJoinRequestsScreen onBack={() => handleBackNavigation('my-join-requests')} />
     );
   }
   if (showNotifications) {
@@ -706,6 +853,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 showNavigation={false}
               />
         
+        {phoneVerified === false && (
+          <View style={{ backgroundColor: '#FEF3C7', padding: 12, marginHorizontal: PAGE_PADDING, marginTop: 8, borderRadius: 10, borderWidth: 1, borderColor: '#FDE68A' }}>
+            <Text style={{ color: '#92400E', fontWeight: '700' }}>Verify your phone</Text>
+            <Text style={{ color: '#92400E', marginTop: 4 }}>Verify your phone number to create events or request to join. Tap to verify now.</Text>
+            <Pressable onPress={() => setShowPreferences(true)} style={{ alignSelf: 'flex-start', marginTop: 8, backgroundColor: '#F59E0B', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
+              <Text style={{ color: '#fff', fontWeight: '800' }}>Verify Phone</Text>
+            </Pressable>
+          </View>
+        )}
+
 
         {/* Main Content Area - Two Column Layout */}
         <View style={styles.mainContentArea}>
@@ -825,6 +982,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 </Text>
               </View>
               <View style={styles.eventsHeaderActions}>
+                <Pressable 
+                  onPress={() => setMapMode(m => !m)} 
+                  style={[styles.filterToggleButton, { marginRight: 8 }]} 
+                  testID="map-toggle-button"
+                >
+                  <Icon name={mapMode ? "List" : "Map"} size={16} color="rgba(255,255,255,0.8)" />
+                  <Text style={styles.filterToggleText}>
+                    {mapMode ? "List" : "Map"}
+                  </Text>
+                </Pressable>
                 {/* Filter Toggle Button */}
                 <Pressable 
                   onPress={() => {
@@ -898,9 +1065,14 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   { key: "drafts", label: "Drafts" },
                   { key: "past", label: "Past" },
                   { key: "deleted", label: "Deleted" },
+                  { key: "pending-approval", label: "Pending Approval" },
                 ]}
                 value={statusTab}
-                onChange={(v) => setStatusTab(v as EventStatusMobile)}
+                onChange={(v) => {
+                  const next = v as EventStatusMobile;
+                  setStatusTab(next);
+                  reloadWith(next);
+                }}
                 testID="status-filter"
               />
             </View>
@@ -915,7 +1087,95 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             />
 
 
-            {/* List */}
+            {/* Pending Approval tab content or Map/List */}
+            {statusTab === 'pending-approval' ? (
+              <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+                {loadingPending ? (
+                  <ActivityIndicator color="#fff" />
+                ) : !pendingApprovals || pendingApprovals.length === 0 ? (
+                  <View style={styles.emptyWrap}>
+                    <Icon name="Inbox" size={48} color="rgba(255,255,255,0.4)" />
+                    <Text style={styles.emptyTitle}>No pending join requests</Text>
+                    <Text style={styles.emptyText}>When guests request to join your events, they will appear here.</Text>
+                  </View>
+                ) : (
+                  pendingApprovals.map((req: any) => (
+                    <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
+                      <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
+                      <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
+                      {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>"{req.note}"</Text> : null}
+                      <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+                          onPress={async () => {
+                            try { await apiClient.approveJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Approve</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
+                          onPress={async () => {
+                            try { await apiClient.waitlistJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Waitlist</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.actionButton, { backgroundColor: '#F44336' }]}
+                          onPress={async () => {
+                            try { await apiClient.declineJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                          }}
+                        >
+                          <Text style={styles.actionButtonText}>Decline</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            ) : mapMode ? (
+              <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+                <View style={styles.mapContainer}>
+                  <View style={styles.mapPlaceholder}>
+                    <Icon name="Map" size={48} color="#9CA3AF" />
+                    <Text style={styles.mapPlaceholderTitle}>Map View</Text>
+                    <Text style={styles.mapPlaceholderText}>
+                      {mapPoints.length} event{mapPoints.length !== 1 ? 's' : ''} in your area
+                    </Text>
+                    <Pressable 
+                      style={styles.mapButton}
+                      onPress={() => {
+                        if (mapPoints.length > 0) {
+                          const firstPoint = mapPoints[0];
+                          const url = `https://www.google.com/maps?q=${firstPoint.lat},${firstPoint.lon}`;
+                          Linking.openURL(url).catch(() => {
+                            Alert.alert('Error', 'Could not open maps');
+                          });
+                        }
+                      }}
+                    >
+                      <Icon name="ExternalLink" size={16} color="#fff" />
+                      <Text style={styles.mapButtonText}>Open in Maps</Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={{ marginTop: 10 }}>
+                  {mapPoints.map(p => (
+                    <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
+                      <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
+                      <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
+                      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+                        <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
+                          <Text style={styles.actionButtonText}>Open</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ) : (
+            /* List */
             <FlatList
           data={data}
           keyExtractor={(item) => item.id}
@@ -970,6 +1230,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           }}
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
             />
+            )}
           </View>
         </View>
 
@@ -1443,7 +1704,7 @@ const styles = StyleSheet.create({
     }),
   },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  cardTitle: { color: "#1F2937", fontSize: 18, fontWeight: "800", flex: 1, paddingRight: 12 },
+  cardTitle: { color: "#374151", fontSize: 18, fontWeight: "800", flex: 1, paddingRight: 12 },
 
   metaRow: { flexDirection: "row", alignItems: "center", marginTop: 10 },
   metaText: { color: "#6B7280", fontSize: 14, fontWeight: "600" },
@@ -1560,5 +1821,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  // Map styles
+  mapContainer: {
+    width: '100%',
+    height: 240,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    overflow: 'hidden',
+  },
+  mapPlaceholder: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  mapPlaceholderTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  mapPlaceholderText: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  mapButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#A22AD0',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  mapButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+    marginLeft: 6,
   },
 });

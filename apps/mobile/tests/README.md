@@ -477,3 +477,16 @@ jobs:
 
 *Last Updated: December 2024*
 *Author: Senior Playwright Developer*
+<<<<<<< Current (Your changes)
+=======
+
+## Deep Link & Universal/App Links
+
+- iOS: Associated Domains configured in `app.json` under `ios.associatedDomains` (e.g., `applinks:potluck.example.com`).
+- Android: Intent filter for `https://potluck.example.com/events/*` configured in `app.json`.
+- App routing: `SupabaseAuthUI` listens for `potluck://event/{eventId}` and opens `EventDetailsPage`.
+- Server landing: Hitting `https://<public-base>/events/{eventId}` returns a minimal HTML page that attempts to open the deep link and shows an Open App button.
+- Test:
+  - iOS: `xcrun simctl openurl booted potluck://event/<id>`
+  - Android: `adb shell am start -a android.intent.action.VIEW -d "https://potluck.example.com/events/<id>"`
+>>>>>>> Incoming (Background Agent changes)

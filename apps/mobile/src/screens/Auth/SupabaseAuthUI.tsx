@@ -21,6 +21,8 @@ import EventList from "./EventList";
 import ProfileSetupScreen from "./ProfileSetupScreen";
 import SubscriptionScreen from "./SubscriptionScreen";
 import { useSubscriptionCheck } from "../../hooks/useSubscriptionCheck";
+import * as Linking from 'expo-linking';
+import EventDetailsPage from './EventDetailsPage';
 
 export default function SupabaseAuthUI() {
   const [user, setUser] = useState<User | null>(null);
@@ -29,6 +31,7 @@ export default function SupabaseAuthUI() {
   const [showSubscription, setShowSubscription] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number; radius_km: number } | null>(null);
+  const [deepEventId, setDeepEventId] = useState<string | null>(null);
   
   const { hasActiveSubscription, isLoading: subscriptionLoading } = useSubscriptionCheck();
 
@@ -247,7 +250,21 @@ export default function SupabaseAuthUI() {
       }
     );
 
-    return () => subscription.unsubscribe();
+    const sub = Linking.addEventListener('url', ({ url }) => {
+      try {
+        const parsed = Linking.parse(url);
+        const path = parsed?.path || '';
+        if (path.startsWith('event/')) {
+          const eid = path.split('/')[1];
+          if (eid) setDeepEventId(eid);
+        }
+      } catch {}
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      try { sub.remove(); } catch {}
+    };
   }, []);
 
   // Ensure we attempt to load location when main app becomes visible
@@ -314,6 +331,17 @@ export default function SupabaseAuthUI() {
   // If user is authenticated and has completed setup, show EventList
   if (user && !showProfileSetup && !showSubscription && !loading) {
     return <EventList userLocation={userLocation} />;
+  }
+
+  // If app is authenticated and deep link is present, open event details
+  if (user && !showProfileSetup && !showSubscription && deepEventId) {
+    return (
+      <EventDetailsPage 
+        eventId={deepEventId} 
+        onBack={() => setDeepEventId(null)} 
+        onActionCompleted={() => setDeepEventId(null)} 
+      />
+    );
   }
 
   // Show loading while checking profile setup

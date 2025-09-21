@@ -1,7 +1,7 @@
 # Potluck AI Agent Knowledge Base
 
 > **Purpose**: Centralized, structured documentation optimized for AI agents
-> **Last Updated**: 2025-09-20
+> **Last Updated**: 2025-09-21
 > **Version**: 1.1
 
 ## 🚨 NEW AI AGENTS: Start Here!
@@ -77,7 +77,7 @@ docs/
 ### **API Endpoints**
 - **Base URL**: `/api/v1`
 - **Authentication**: Supabase JWT tokens
-- **Documentation**: OpenAPI 3.0 spec in `docs/api-spec.yaml`
+- **Documentation**: OpenAPI 3.0 spec in `docs/api-spec.yaml` (includes phone verification endpoints)
 - **Validation**: Zod schemas in `apps/server/src/validators.ts`
 
 ### **Key Functions for AI Agents**
@@ -94,6 +94,7 @@ find_nearby_users_for_latlon(double precision, double precision, integer)
 -- User management
 update_user_location(uuid, double precision, double precision)
 update_request_status(uuid, text)
+-- Phone verification is handled at the API layer; see `/user-profile/phone/send` and `/user-profile/phone/verify`.
 ```
 
 ## 📚 Documentation Management

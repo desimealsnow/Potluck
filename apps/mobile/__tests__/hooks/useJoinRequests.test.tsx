@@ -6,7 +6,7 @@ import {
   useHostJoinRequests,
   useGuestJoinRequest 
 } from '../../src/hooks/useJoinRequests';
-import { apiClient } from '../../src/services/apiClient';
+import { apiClient, JoinRequestData } from '../../src/services/apiClient';
 
 // Mock API client
 jest.mock('../../src/services/apiClient', () => ({
@@ -227,8 +227,8 @@ describe('useJoinRequests hooks', () => {
     });
 
     it('should track creating state', async () => {
-      let resolvePromise: (value: any) => void;
-      const pendingPromise = new Promise(resolve => {
+      let resolvePromise: (value: JoinRequestData) => void;
+      const pendingPromise = new Promise<JoinRequestData>(resolve => {
         resolvePromise = resolve;
       });
 
@@ -444,7 +444,7 @@ describe('useJoinRequests hooks', () => {
       mockedApiClient.listJoinRequests.mockResolvedValue(mockPaginatedResponse);
       
       let resolveApproval: (value: any) => void;
-      const pendingApproval = new Promise(resolve => {
+      const pendingApproval = new Promise<JoinRequestData>(resolve => {
         resolveApproval = resolve;
       });
 
@@ -494,9 +494,16 @@ describe('useJoinRequests hooks', () => {
 
   describe('useGuestJoinRequest', () => {
     it('should cancel request successfully', async () => {
-      const mockCancelledRequest = {
+      const mockCancelledRequest: JoinRequestData = {
         id: mockRequestId,
+        event_id: mockEventId,
+        user_id: mockUserId,
+        party_size: 2,
+        note: null,
         status: 'cancelled' as const,
+        hold_expires_at: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       mockedApiClient.cancelJoinRequest.mockResolvedValue(mockCancelledRequest);
@@ -537,7 +544,7 @@ describe('useJoinRequests hooks', () => {
 
     it('should track cancelling state', async () => {
       let resolveCancellation: (value: any) => void;
-      const pendingCancellation = new Promise(resolve => {
+      const pendingCancellation = new Promise<JoinRequestData>(resolve => {
         resolveCancellation = resolve;
       });
 

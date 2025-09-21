@@ -10,12 +10,15 @@ import {
   Alert,
   Platform,
   Modal,
+  Linking,
+  Share,
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, Segmented, ProgressBar } from "@/components";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
@@ -95,6 +98,7 @@ type EventDTO = {
   details: { intro: string; bring: string; backup: string };
   status?: string; // Backend status: draft, published, cancelled, etc.
   ownership?: string; // mine, invited, public
+  geo?: { latitude?: number; longitude?: number; address?: string };
 };
 
 type ItemDTO = {
@@ -215,6 +219,11 @@ function useEventData(eventId: string) {
         },
         status: e.event.status,
         ownership: e.event.ownership,
+        geo: {
+          latitude: e.event.location?.latitude,
+          longitude: e.event.location?.longitude,
+          address: e.event.location?.formatted_address || e.event.location?.name,
+        },
       } : null;
       setEvent(mappedEvent);
 
@@ -287,11 +296,25 @@ export default function EventDetailsPage({
   const [active, setActive] = useState<Tab>("overview");
   const { loading, refreshing, event, items, participants, refresh, setItems } = useEventData(eventId);
   const isHost = event?.ownership === 'mine';
+  const [shareOpen, setShareOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{ name: string; category: string; per_guest_qty: number } | undefined>();
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const scrollViewRef = React.useRef<ScrollView>(null);
+
+  // Scroll handlers
+  const handleScroll = useCallback((event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setShowScrollButton(offsetY > 300);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
 
   // Provide inline handlers to ItemsTab
-  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number) => {
+  const addInlineItem = useCallback((name: string, category: string | undefined, perGuestQty: number, opts?: { catalog_item_id?: string; user_item_id?: string }) => {
     if (!isHost) return;
-    addItem({ name, category, per_guest_qty: perGuestQty });
+    addItem({ name, category, per_guest_qty: perGuestQty, ...(opts?.catalog_item_id ? { catalog_item_id: opts.catalog_item_id } : {}), ...(opts?.user_item_id ? { user_item_id: opts.user_item_id } : {}) } as any);
   }, [isHost]);
 
   const updateInlineItem = useCallback((itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => {
@@ -551,6 +574,8 @@ export default function EventDetailsPage({
   };
 
   const gradient = useMemo(() => gradients.header.event, []);
+  // Item library sheet state for Items tab
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Determine available actions based on event status and ownership
   const getAvailableActions = () => {
@@ -594,7 +619,7 @@ export default function EventDetailsPage({
   return (
     <View style={[styles.container, { backgroundColor: '#351657' }]}>
       <SafeAreaView style={styles.safeArea}>
-        <TopBar title="" onBack={onBack} onRefresh={refresh} />
+        <TopBar title="" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <EventHeader 
@@ -608,10 +633,12 @@ export default function EventDetailsPage({
 
           <View style={styles.contentContainer}>
             {active === "overview" && (
-              <OverviewTab isLoading={loading || refreshing} event={event} />
+              <OverviewTab isLoading={loading || refreshing} event={event} eventId={eventId} isHost={!!isHost} />
             )}
             {active === "items" && (
               <ItemsTab
+                eventId={eventId}
+                isHost={!!isHost}
                 isLoading={loading || refreshing}
                 items={items}
                 onClaim={async () => {}}
@@ -622,6 +649,9 @@ export default function EventDetailsPage({
                 updateInlineItem={updateInlineItem}
                 deleteInlineItem={deleteInlineItem}
                 adjustInlineClaim={adjustInlineClaim}
+                setPickerOpen={setPickerOpen}
+                selectedItem={selectedItem}
+                setSelectedItem={setSelectedItem}
               />
             )}
             {active === "participants" && (
@@ -640,6 +670,13 @@ export default function EventDetailsPage({
             )}
           </View>
         </ScrollView>
+        
+        {/* Scroll to Top Button */}
+        {showScrollButton && (
+          <Pressable style={styles.scrollToTopButton} onPress={scrollToTop}>
+            <Icon name="ChevronUp" size={20} color="#fff" />
+          </Pressable>
+        )}
       </SafeAreaView>
       <ModalAlert
         visible={modalVisible}
@@ -647,6 +684,43 @@ export default function EventDetailsPage({
         message={modalConfig.message}
         buttons={modalConfig.buttons}
         onClose={() => setModalVisible(false)}
+      />
+      {/* Share / QR Modal */}
+      <Modal visible={shareOpen} transparent animationType="fade" onRequestClose={() => setShareOpen(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Share Event</Text>
+            <Text style={styles.modalMessage}>Scan or share the link below.</Text>
+            <View style={{ alignItems: 'center', marginBottom: 12 }}>
+              <Image
+                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(`${API_BASE_URL}/events/${eventId}`)}` }}
+                style={{ width: 220, height: 220, borderRadius: 8 }}
+              />
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Pressable style={styles.modalButtonCancel} onPress={() => setShareOpen(false)}>
+                <Text style={styles.modalButtonText}>Close</Text>
+              </Pressable>
+              <Pressable style={styles.modalButton} onPress={async () => {
+                try { await Share.share({ message: `${API_BASE_URL}/events/${eventId}` }); } catch {}
+              }}>
+                <Text style={styles.modalButtonText}>Share</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          setSelectedItem({
+            name: sel.name,
+            category: sel.category as any,
+            per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1)
+          });
+        }}
       />
     </View>
   );
@@ -657,10 +731,12 @@ function TopBar({
   title,
   onBack,
   onRefresh,
+  onShare,
 }: {
   title?: string;
   onBack?: () => void;
   onRefresh?: () => void;
+  onShare?: () => void;
 }) {
   return (
     <View style={styles.topBar}>
@@ -676,7 +752,7 @@ function TopBar({
         <Pressable onPress={onRefresh} style={styles.topBarButton}>
           <Icon name="RefreshCcw" size={20} color="#374151" />
         </Pressable>
-        <Pressable style={styles.topBarButton}>
+        <Pressable onPress={onShare} style={styles.topBarButton}>
           <Icon name="Share2" size={20} color="#374151" />
         </Pressable>
         <Pressable style={styles.topBarButton}>
@@ -713,8 +789,36 @@ function EventHeader({
       <Text style={styles.eventDate}>
         {formatDateRange(event.start, event.end)}
       </Text>
+      {/* Location Card */}
+      <Card>
+        <View style={styles.locationHeader}>
+          <Icon name="MapPin" size={20} color="#A22AD0" />
+          <Text style={styles.locationTitle}>📍 Event Location</Text>
+        </View>
+        <View style={styles.locationContent}>
+          <Text style={styles.locationText}>{String((event as any).location ?? 'Location not specified')}</Text>
+          {event.geo?.address && event.geo.address !== (event as any).location && (
+            <Text style={styles.locationAddress}>{event.geo.address}</Text>
+          )}
+          {event.geo?.latitude && event.geo?.longitude && (
+            <Pressable 
+              style={styles.mapButton}
+              onPress={() => {
+                const url = `https://www.google.com/maps?q=${event.geo?.latitude},${event.geo?.longitude}`;
+                Linking.openURL(url).catch(() => {
+                  Alert.alert('Error', 'Could not open maps');
+                });
+              }}
+            >
+              <Icon name="ExternalLink" size={16} color="#A22AD0" />
+              <Text style={styles.mapButtonText}>Open in Maps</Text>
+            </Pressable>
+          )}
+        </View>
+      </Card>
+
+      {/* Event Details Chips */}
       <View style={styles.chipContainer}>
-        <Chip icon="MapPin" tone="sky">{String((event as any).location ?? '')}</Chip>
         {(event.perks ?? []).map((p) => (
           <Chip key={p} icon="Utensils" tone="emerald">{p}</Chip>
         ))}
@@ -798,10 +902,9 @@ function TabsBar({
 function OverviewTab({
   isLoading,
   event,
-}: { isLoading?: boolean; event?: EventDTO | null }) {
-  const [rsvp, setRsvp] =
-    useState<"accepted" | "declined" | "none">("none");
-
+  eventId,
+  isHost,
+}: { isLoading?: boolean; event?: EventDTO | null; eventId: string; isHost: boolean }) {
   if (isLoading || !event) {
     return (
       <View style={styles.tabContent}>
@@ -812,38 +915,14 @@ function OverviewTab({
 
   return (
     <View style={styles.tabContent}>
-      {/* RSVP */}
-      <Card>
-        <Text style={styles.sectionTitle}>RSVP</Text>
-        <View style={styles.rsvpButtons}>
-          <Pressable
-            onPress={() => setRsvp("accepted")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "accepted" ? styles.rsvpButtonAccepted : styles.rsvpButtonAcceptedInactive
-            ]}
-          >
-            <Icon name="Check" size={16} color={rsvp === "accepted" ? "#ffffff" : "#166534"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "accepted" ? styles.rsvpButtonTextAccepted : styles.rsvpButtonTextAcceptedInactive
-            ]}>Accept</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setRsvp("declined")}
-            style={[
-              styles.rsvpButton,
-              rsvp === "declined" ? styles.rsvpButtonDeclined : styles.rsvpButtonDeclinedInactive
-            ]}
-          >
-            <Icon name="X" size={16} color={rsvp === "declined" ? "#ffffff" : "#dc2626"} />
-            <Text style={[
-              styles.rsvpButtonText,
-              rsvp === "declined" ? styles.rsvpButtonTextDeclined : styles.rsvpButtonTextDeclinedInactive
-            ]}>Decline</Text>
-          </Pressable>
-        </View>
-      </Card>
+      {/* Join Request (guest) or Host info */}
+      {!isHost ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Request to Join</Text>
+          <RequestToJoinButton eventId={eventId} eventTitle={event.title} />
+        </Card>
+      ) : null}
+
 
       {/* Notes */}
       <Card>
@@ -890,6 +969,8 @@ function OverviewTab({
 
 /* ===================== Items tab ===================== */
 function ItemsTab({
+  eventId,
+  isHost,
   isLoading,
   items,
   onClaim,
@@ -899,7 +980,12 @@ function ItemsTab({
   updateInlineItem,
   deleteInlineItem,
   adjustInlineClaim,
+  setPickerOpen,
+  selectedItem,
+  setSelectedItem,
 }: {
+  eventId: string;
+  isHost: boolean;
   isLoading?: boolean;
   items: ItemDTO[];
   onClaim: (id: string) => Promise<void>;
@@ -909,6 +995,9 @@ function ItemsTab({
   updateInlineItem: (itemId: string, patch: Partial<{ name: string; category?: string; per_guest_qty: number; }>) => void;
   deleteInlineItem: (itemId: string) => void;
   adjustInlineClaim: (itemId: string, delta: number) => void;
+  setPickerOpen: (open: boolean) => void;
+  selectedItem?: { name: string; category: string; per_guest_qty: number };
+  setSelectedItem: (item: { name: string; category: string; per_guest_qty: number } | undefined) => void;
 }) {
   // Safety check to ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
@@ -938,7 +1027,36 @@ function ItemsTab({
   return (
     <View style={styles.tabContent}>
       {/* Add item (host only) */}
-      <AddItemRow onAdd={(name, category, perGuestQty) => addInlineItem(name, category, perGuestQty)} />
+      <AddItemRow 
+        onAdd={(name, category, perGuestQty) => {
+          addInlineItem(name, category, perGuestQty);
+          setSelectedItem(undefined); // Clear selection after adding
+        }} 
+        onOpenPicker={() => setPickerOpen(true)}
+        selectedItem={selectedItem}
+      />
+      {isHost && (
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Pressable
+            onPress={async () => {
+              try {
+                await api(`/events/${eventId}/rebalance`, { method: 'POST', body: JSON.stringify({}) });
+                Alert.alert('Rebalance Complete', 'Unclaimed items were assigned where possible.');
+              } catch (e: any) {
+                Alert.alert('Rebalance Failed', e?.message ?? 'Unknown error');
+              }
+            }}
+            style={[styles.claimButton, styles.claimButtonActive]}
+          >
+            <Text style={styles.claimButtonText}>Rebalance</Text>
+          </Pressable>
+        </View>
+      )}
+      <View style={{ marginTop: 6 }}>
+        <Pressable onPress={() => setPickerOpen(true)} style={[styles.claimButton, styles.claimButtonActive, { alignSelf: 'flex-start' }]}> 
+          <Text style={styles.claimButtonText}>Browse Catalog / My Items</Text>
+        </Pressable>
+      </View>
 
       {safeItems.map((it) => {
         const pct = clamp01(it.claimedQty / it.requiredQty);
@@ -980,34 +1098,79 @@ function Card({ children }: { children: React.ReactNode }) {
   return <View style={styles.card}>{children}</View>;
 }
 
-function AddItemRow({ onAdd }: { onAdd: (name: string, category: string | undefined, perGuestQty: number) => void }) {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState<string | undefined>("Main Course");
-  const [qty, setQty] = useState<string>("1");
+function AddItemRow({ onAdd, onOpenPicker, selectedItem }: { 
+  onAdd: (name: string, category: string | undefined, perGuestQty: number) => void; 
+  onOpenPicker: () => void;
+  selectedItem?: { name: string; category: string; per_guest_qty: number };
+}) {
+  const [name, setName] = useState(selectedItem?.name || "");
+  const [category, setCategory] = useState<string | undefined>(selectedItem?.category || "Main Course");
+  const [qty, setQty] = useState<string>(selectedItem?.per_guest_qty?.toString() || "1");
+  
+  // Update local state when selectedItem changes
+  React.useEffect(() => {
+    if (selectedItem) {
+      setName(selectedItem.name);
+      setCategory(selectedItem.category);
+      setQty(selectedItem.per_guest_qty.toString());
+    }
+  }, [selectedItem]);
+  
   return (
     <Card>
-      <Text style={styles.sectionTitle}>Add Item</Text>
-      <TextInput placeholder="Item name" value={name} onChangeText={setName} style={styles.textInput} />
-      <View style={[styles.rowBetween, { marginTop: 8 }]}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardTitle}>✨ Add New Item</Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Pressable onPress={onOpenPicker} style={styles.catalogButton}>
+            <Icon name="Search" size={16} color="#fff" />
+            <Text style={styles.catalogButtonText}>Browse Catalog</Text>
+          </Pressable>
+        </View>
+      </View>
+      
+      <Text style={styles.label}>Item Name</Text>
+      <Pressable onPress={onOpenPicker} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]}>
+        <Text style={[styles.inputText, { color: name ? '#111827' : '#9CA3AF' }]}>
+          {name || 'Pick from Catalog / My Items'}
+        </Text>
+        <Icon name="ChevronDown" size={16} color="#9CA3AF" />
+      </Pressable>
+      
+      <View style={{ marginTop: 6 }}>
+        <Pressable onPress={onOpenPicker} style={[styles.chip, { alignSelf: 'flex-start' }]} hitSlop={8}>
+          <Text style={styles.chipText}>Pick from Catalog / My Items</Text>
+        </Pressable>
+      </View>
+      
+      <View style={styles.row}>
         <View style={{ flex: 1, marginRight: 8 }}>
-          <Text style={styles.eventDetailLabel}>Category</Text>
+          <Text style={styles.label}>Category</Text>
           <Segmented
-            options={[{ key: "Main Course", label: "Main" }, { key: "Starter", label: "Starter" }, { key: "Dessert", label: "Dessert" }]}
+            options={[
+              { key: "Main Course", label: "Main Course" },
+              { key: "Starter", label: "Starter" },
+              { key: "Dessert", label: "Dessert" },
+              { key: "Beverage", label: "Beverage" },
+              { key: "Side Dish", label: "Side Dish" }
+            ]}
             value={category || "Main Course"}
             onChange={(v) => setCategory(v)}
           />
         </View>
-        <View style={{ width: 110 }}>
-          <Text style={styles.eventDetailLabel}>Per guest qty</Text>
+        <View style={{ width: 100 }}>
+          <Text style={styles.label}>Per Guest</Text>
           <TextInput
             value={qty}
             onChangeText={(t) => setQty(t.replace(/[^0-9.]/g, ""))}
             keyboardType="decimal-pad"
-            style={styles.textInput}
+            style={styles.inputWrap}
+            placeholder="1"
+            placeholderTextColor="#9CA3AF"
           />
         </View>
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+      
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
         <Pressable
           onPress={() => {
             const q = Math.max(0.01, parseFloat(qty || "0") || 0.01);
@@ -1015,9 +1178,11 @@ function AddItemRow({ onAdd }: { onAdd: (name: string, category: string | undefi
             onAdd(name.trim(), category, q);
             setName(""); setQty("1"); setCategory("Main Course");
           }}
-          style={[styles.claimButton, styles.claimButtonActive]}
+          style={[styles.addButton, { opacity: !name.trim() ? 0.6 : 1 }]}
+          disabled={!name.trim()}
         >
-          <Text style={styles.claimButtonText}>Add</Text>
+          <Icon name="Plus" size={16} color="#fff" />
+          <Text style={styles.addButtonText}>Add Item</Text>
         </Pressable>
       </View>
     </Card>
@@ -1832,5 +1997,129 @@ const styles = StyleSheet.create({
   },
   modalButtonTextCancel: {
     color: '#ffffff',
+  },
+  // AddItemRow styles
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: "#A22AD0",
+  },
+  label: {
+    fontWeight: "800",
+    color: "#3C3C3C",
+    marginBottom: 6,
+    marginTop: 6,
+  },
+  inputWrap: {
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingRight: 8,
+    paddingLeft: 12,
+    overflow: "hidden",
+  },
+  addButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#A22AD0",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minHeight: 48,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  // Location styles
+  locationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  locationTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: "#A22AD0",
+    marginLeft: 8,
+  },
+  locationContent: {
+    gap: 8,
+  },
+  locationText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1f2937",
+    lineHeight: 22,
+  },
+  locationAddress: {
+    fontSize: 14,
+    color: "#6b7280",
+    lineHeight: 20,
+  },
+  mapButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  mapButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#A22AD0",
+    marginLeft: 6,
+  },
+  // Catalog selection styles
+  catalogButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#A22AD0",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  catalogButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  inputText: {
+    flex: 1,
+    fontSize: 16,
+    color: "#111827",
+  },
+  scrollToTopButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(162, 42, 208, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+      android: { elevation: 8 },
+    }),
   },
 });

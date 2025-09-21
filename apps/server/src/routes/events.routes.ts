@@ -106,27 +106,13 @@ router.post(
   RB.rebalance
 );
 /*──────────────────────────────────────────────────────────────
-  Nested resources
-──────────────────────────────────────────────────────────────*/
-router.use('/:eventId/items',        itemsRouter);        // /events/:id/items/…
-router.use('/:eventId/participants', participantsRouter); // /events/:id/participants/…
-router.use('/:eventId/requests',     requestsRoutes);     // /events/:id/requests/…
-
-
-/*──────────────────────────────────────────────────────────────
-  Availability endpoint (capacity management)
+  Host-level aggregate: list pending requests across my events
+  (Use a different path to avoid conflicts with /:eventId/requests)
 ──────────────────────────────────────────────────────────────*/
 router.get(
-  '/:eventId/availability',
-  routeLogger('GET /events/:eventId/availability'),
-  R.RequestsController.getEventAvailability
-);
-
-// Host-level aggregate: list pending requests across my events
-router.get(
-  '/requests',
+  '/requests/all',
   authGuard,
-  routeLogger('GET /events/requests'),
+  routeLogger('GET /events/requests/all'),
   async (req: any, res) => {
     const userId = req.user!.id;
     // find events where user is host
@@ -148,6 +134,23 @@ router.get(
     if (listErr) return res.status(500).json({ ok: false, error: listErr.message });
     return res.json({ data: data || [], totalCount: (data || []).length, nextOffset: null });
   }
+);
+
+/*──────────────────────────────────────────────────────────────
+  Nested resources
+──────────────────────────────────────────────────────────────*/
+router.use('/:eventId/items',        itemsRouter);        // /events/:id/items/…
+router.use('/:eventId/participants', participantsRouter); // /events/:id/participants/…
+router.use('/:eventId/requests',     requestsRoutes);     // /events/:id/requests/…
+
+
+/*──────────────────────────────────────────────────────────────
+  Availability endpoint (capacity management)
+──────────────────────────────────────────────────────────────*/
+router.get(
+  '/:eventId/availability',
+  routeLogger('GET /events/:eventId/availability'),
+  R.RequestsController.getEventAvailability
 );
 
 

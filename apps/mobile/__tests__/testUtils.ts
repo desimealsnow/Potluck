@@ -277,7 +277,7 @@ export const JoinRequestAssertions = {
     expect(() => new Date(request.created_at)).not.toThrow();
     expect(() => new Date(request.updated_at)).not.toThrow();
     
-    if (request.hold_expires_at) {
+    if (request.hold_expires_at && request.hold_expires_at !== null) {
       expect(() => new Date(request.hold_expires_at)).not.toThrow();
     }
   },

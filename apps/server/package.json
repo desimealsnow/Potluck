@@ -42,7 +42,7 @@
     "@repo/common": "^0.1.0",
     "@zodios/core": "^10.9.6",
     "express": "^4.19.2",
-    "nodemailer": "^7.0.4",
+    "nodemailer": "^7.0.6",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
@@ -83,7 +83,7 @@
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.35.1",
     "winston": "^3.17.0",
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   },
   "engines": {
     "node": ">=18.0.0"

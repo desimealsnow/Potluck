@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
 import Header from "@/components/Header";
 import { apiClient } from "@/services/apiClient";
 import { supabase } from "../../config/supabaseClient";
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function UserPreferencesScreen({ onBack }: { onBack?: () => void }) {
   const [latitude, setLatitude] = useState<string>(""); // hidden/internal
@@ -20,6 +22,9 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   const [mealPreferences, setMealPreferences] = useState<string[]>([]);
   const [user, setUser] = useState<any>(null);
+  const [phone, setPhone] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -76,6 +81,7 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
               setLatitude(response.latitude.toString());
               setLongitude(response.longitude.toString());
             }
+            if (response.phone_e164) setPhone(response.phone_e164);
           } catch (apiError) {
             console.error("API error:", apiError);
             // Fallback to user metadata if API call fails
@@ -258,24 +264,26 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
     <View style={{ flex: 1, backgroundColor: '#351657' }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Header Component */}
-            <Header
-              onNotifications={() => {}}
-              onSettings={() => {}}
-              onPlans={() => {}}
-              onLogout={() => {}}
-              unreadCount={0}
-              showNavigation={false}
-            />
+        <Header
+          onNotifications={() => {}}
+          onSettings={() => {}}
+          onPlans={() => {}}
+          onLogout={() => {}}
+          unreadCount={0}
+          showNavigation={false}
+        />
+        
+        {/* Top bar */}
+        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
+          <Pressable onPress={onBack} style={styles.iconBtn}>
+            <Icon name="ChevronLeft" size={20} color="#fff" />
+          </Pressable>
+          <Text style={styles.title}>User Preferences</Text>
+          <View style={{ width: 40 }} />
+        </View>
         
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
-            <Pressable onPress={onBack} style={styles.iconBtn}>
-              <Icon name="ChevronLeft" size={20} color="#fff" />
-            </Pressable>
-            <Text style={styles.title}>User Preferences</Text>
-            <View style={{ width: 40 }} />
-          </View>
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
+          <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingHorizontal: screenWidth < 400 ? 12 : 16 }]}>
             {/* Loading Overlay */}
             {loading && (
               <View style={styles.loadingOverlay}>
@@ -384,38 +392,68 @@ export default function UserPreferencesScreen({ onBack }: { onBack?: () => void 
 
 const styles = StyleSheet.create({
   topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 16,
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    paddingHorizontal: screenWidth < 400 ? 16 : 20, 
+    paddingVertical: 16,
   },
   iconBtn: {
-    width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
+    width: 40, 
+    height: 40, 
+    borderRadius: 20, 
+    alignItems: 'center', 
+    justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.2)'
   },
-  title: { fontSize: 20, fontWeight: '700', color: '#fff' },
-  card: {
-    backgroundColor: 'rgba(255,255,255,0.95)', padding: 16, borderRadius: 12,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)'
+  title: { 
+    fontSize: screenWidth < 400 ? 18 : 20, 
+    fontWeight: '700', 
+    color: '#fff' 
   },
-  label: { color: '#374151', fontWeight: '700', marginTop: 10 },
+  scrollContainer: {
+    paddingVertical: 16,
+    paddingBottom: 32,
+  },
+  card: {
+    backgroundColor: 'rgba(255,255,255,0.95)', 
+    padding: screenWidth < 400 ? 12 : 16, 
+    borderRadius: 12,
+    borderWidth: 1, 
+    borderColor: 'rgba(255,255,255,0.5)',
+    marginBottom: 16,
+  },
+  label: { 
+    color: '#374151', 
+    fontWeight: '700', 
+    marginTop: 10,
+    fontSize: screenWidth < 400 ? 14 : 16,
+  },
   input: {
     marginTop: 6,
     backgroundColor: '#fff',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
+    paddingHorizontal: screenWidth < 400 ? 10 : 12,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
-    color: '#111827'
+    color: '#111827',
+    fontSize: screenWidth < 400 ? 14 : 16,
   },
   button: {
     marginTop: 16,
     backgroundColor: '#7b2ff7',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 10
+    paddingVertical: screenWidth < 400 ? 10 : 12,
+    borderRadius: 10,
+    minHeight: 48,
   },
-  buttonText: { color: '#fff', fontWeight: '800' },
+  buttonText: { 
+    color: '#fff', 
+    fontWeight: '800',
+    fontSize: screenWidth < 400 ? 14 : 16,
+  },
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -434,15 +472,16 @@ const styles = StyleSheet.create({
   },
   smallBtn: {
     backgroundColor: '#7b2ff7',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: screenWidth < 400 ? 10 : 12,
+    paddingVertical: screenWidth < 400 ? 6 : 8,
     borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    minHeight: 36,
   },
   smallBtnText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: screenWidth < 400 ? 11 : 12,
     fontWeight: '600'
   },
   suggestionsBox: {
@@ -454,26 +493,26 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   suggestionItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: screenWidth < 400 ? 10 : 12,
+    paddingVertical: screenWidth < 400 ? 8 : 10,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6'
   },
   suggestionText: {
     color: '#111827',
-    fontSize: 14,
+    fontSize: screenWidth < 400 ? 13 : 14,
     fontWeight: '600'
   },
   subLabel: {
     color: '#6B7280',
-    fontSize: 12,
+    fontSize: screenWidth < 400 ? 11 : 12,
     marginTop: 2,
     marginBottom: 8
   },
   preferencesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: screenWidth < 400 ? 6 : 8,
     marginBottom: 16
   },
   preferenceItem: {
@@ -482,11 +521,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#F3F4F6',
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: screenWidth < 400 ? 10 : 12,
+    paddingVertical: screenWidth < 400 ? 6 : 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    minWidth: 100
+    minWidth: screenWidth < 400 ? 80 : 100
   },
   preferenceItemSelected: {
     backgroundColor: '#7b2ff7',
@@ -494,7 +533,7 @@ const styles = StyleSheet.create({
   },
   preferenceText: {
     color: '#374151',
-    fontSize: 12,
+    fontSize: screenWidth < 400 ? 11 : 12,
     fontWeight: '500',
     marginRight: 4
   },

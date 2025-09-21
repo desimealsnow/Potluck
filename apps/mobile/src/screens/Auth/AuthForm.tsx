@@ -216,7 +216,7 @@ export function AuthForm() {
           onPress={handleGoogleAuth}
           disabled={loading}
         >
-          <Icon name="Chrome" size={20} color="white" style={styles.googleIcon} />
+          <Icon name="Globe" size={20} color="white" style={styles.googleIcon} />
           <Text style={styles.googleButtonText}>Continue with Google</Text>
         </Pressable>
 

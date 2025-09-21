@@ -196,6 +196,13 @@ export class ApiClient {
   }
 
   /**
+   * List pending join requests across my hosted events (host dashboard)
+   */
+  async listPendingApprovals(): Promise<PaginatedJoinRequestsData> {
+    return this.get<PaginatedJoinRequestsData>(`/events/requests/all`);
+  }
+
+  /**
    * Approve a join request (host-only)
    */
   async approveJoinRequest(eventId: string, requestId: string): Promise<JoinRequestData> {
@@ -231,6 +238,83 @@ export class ApiClient {
       extension_minutes: extensionMinutes || 30
     });
   }
+
+  /**
+   * Promote first eligible waitlisted request (host-only)
+   */
+  async promoteWaitlist(eventId: string): Promise<{ moved: number }> {
+    return this.post<{ moved: number }>(`/events/${eventId}/requests/promote`);
+  }
+
+  /**
+   * Reorder a waitlisted request to a specific position (host-only)
+   */
+  async reorderWaitlisted(eventId: string, requestId: string, waitlistPos: number): Promise<void> {
+    return this.patch<void>(`/events/${eventId}/requests/${requestId}/reorder`, { waitlist_pos: waitlistPos });
+  }
+
+  // ===============================================
+  // Items Library API Methods
+  // ===============================================
+
+  async getItemCatalog(params?: { q?: string; category?: string }): Promise<ItemCatalog[]> {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set('q', params.q);
+    if (params?.category) qs.set('category', params.category);
+    const query = qs.toString();
+    return this.get<ItemCatalog[]>(`/items/catalog${query ? `?${query}` : ''}`);
+  }
+
+  async listMyItems(): Promise<UserItem[]> {
+    return this.get<UserItem[]>(`/items/me`);
+  }
+
+  async createMyItem(body: UserItemCreate): Promise<{ id: string }> {
+    return this.post<{ id: string }>(`/items/me`, body);
+  }
+
+  async updateMyItem(id: string, body: UserItemUpdate): Promise<UserItem> {
+    return this.put<UserItem>(`/items/me/${id}`, body);
+  }
+
+  async deleteMyItem(id: string): Promise<void> {
+    return this.delete<void>(`/items/me/${id}`);
+  }
+
+  // ===============================================
+  // Billing: Payment Methods & Invoices
+  // ===============================================
+  async listPaymentMethods(): Promise<PaymentMethod[]> {
+    return this.get<PaymentMethod[]>(`/billing/payment-methods`);
+  }
+
+  async addPaymentMethod(payload: PaymentMethodCreate): Promise<PaymentMethod> {
+    return this.post<PaymentMethod>(`/billing/payment-methods`, payload);
+  }
+
+  async setDefaultPaymentMethod(methodId: string): Promise<void> {
+    return this.post<void>(`/billing/payment-methods/${methodId}/set-default`);
+  }
+
+  async removePaymentMethod(methodId: string): Promise<void> {
+    return this.delete<void>(`/billing/payment-methods/${methodId}`);
+  }
+
+  async listInvoices(): Promise<Invoice[]> {
+    return this.get<Invoice[]>(`/billing/invoices`);
+  }
+
+  async getInvoice(invoiceId: string): Promise<Invoice> {
+    return this.get<Invoice>(`/billing/invoices/${invoiceId}`);
+  }
+
+  async downloadInvoice(invoiceId: string): Promise<Blob> {
+    const url = `${this.baseUrl}/billing/invoices/${invoiceId}/download`;
+    const headers = await this.getAuthHeaders();
+    const res = await fetch(url, { headers });
+    if (!res.ok) throw new ApiError(res.statusText, res.status);
+    return res.blob();
+  }
 }
 
 // Export singleton instance
@@ -264,9 +348,9 @@ export interface JoinRequestData {
   event_id: string;
   user_id: string;
   party_size: number;
-  note?: string;
+  note?: string | null;
   status: JoinRequestStatus;
-  hold_expires_at?: string;
+  hold_expires_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -275,4 +359,64 @@ export interface PaginatedJoinRequestsData {
   data: JoinRequestData[];
   nextOffset: number | null;
   totalCount: number;
+}
+// Items library types (aligned with API spec)
+export interface ItemCatalog {
+  id: string;
+  name: string;
+  category?: string;
+  unit?: string;
+  default_per_guest_qty?: number;
+  dietary_tags?: string[];
+  description?: string;
+}
+
+export interface UserItemCreate {
+  name: string;
+  category?: string;
+  unit?: string;
+  default_per_guest_qty?: number;
+  dietary_tags?: string[];
+  notes?: string;
+}
+
+export interface UserItem extends UserItemCreate {
+  id: string;
+}
+
+export type UserItemUpdate = UserItemCreate;
+
+// ===============================================
+// Billing Types
+// ===============================================
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'bank_account';
+  last_four: string;
+  brand?: string;
+  is_default: boolean;
+  created_at: string;
+  provider?: string;
+}
+
+export interface PaymentMethodCreate {
+  type: 'card' | 'bank_account';
+  token: string;
+  provider?: string;
+  method_id?: string;
+  is_default?: boolean;
+}
+
+export interface Invoice {
+  id: string;
+  amount: number;
+  amount_cents: number;
+  currency: string;
+  status: 'paid' | 'pending' | 'failed';
+  created_at: string;
+  invoice_date: string;
+  due_date?: string;
+  description?: string;
+  provider?: string;
 }

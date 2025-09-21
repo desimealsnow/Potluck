@@ -10,7 +10,7 @@ import {
   RefreshControl 
 } from 'react-native';
 import { useHostJoinRequests } from '../../hooks/useJoinRequests';
-import { JoinRequestData, JoinRequestStatus } from '../../services/apiClient';
+import { JoinRequestData, JoinRequestStatus, apiClient } from '../../services/apiClient';
 
 interface JoinRequestsManagerProps {
   eventId: string;
@@ -174,6 +174,25 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     { key: 'declined', label: 'Declined' },
   ];
 
+  const handlePromote = async () => {
+    try {
+      const res = await apiClient.promoteWaitlist(eventId);
+      Alert.alert('Promotion Complete', res?.moved ? `Moved ${res.moved} request(s).` : 'No eligible waitlisted requests.');
+      refresh();
+    } catch (e: any) {
+      Alert.alert('Promotion Failed', e?.message ?? 'Unknown error');
+    }
+  };
+
+  const moveWaitlistedToTop = async (requestId: string) => {
+    try {
+      await apiClient.reorderWaitlisted(eventId, requestId, 1);
+      refresh();
+    } catch (e: any) {
+      Alert.alert('Reorder Failed', e?.message ?? 'Unknown error');
+    }
+  };
+
   const handleApprove = (requestId: string) => {
     Alert.alert(
       'Approve Request',
@@ -226,6 +245,7 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
       onWaitlist={handleWaitlist}
       onExtendHold={handleExtendHold}
       processing={processing}
+      // Inline move-to-top control for waitlisted entries could be added here later
     />
   );
 
@@ -244,6 +264,11 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Join Requests ({totalCount})</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 6 }}>
+          <TouchableOpacity style={[styles.filterButton, styles.activeFilterButton]} onPress={handlePromote}>
+            <Text style={styles.activeFilterButtonText}>Promote Next</Text>
+          </TouchableOpacity>
+        </View>
         
         <View style={styles.filterContainer}>
           {statusFilters.map(({ key, label }) => (

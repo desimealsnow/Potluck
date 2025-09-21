@@ -32,14 +32,24 @@ type SettingsItem = {
 export default function SettingsScreen({ 
   onBack, 
   onShowSubscription,
+  onShowUserProfile,
   onShowPreferences,
+  onShowMyItems,
+  onShowPaymentMethods,
+  onShowInvoices,
+  onShowMyJoinRequests,
   onShowAbout,
   onShowPrivacy,
   onShowHelp
 }: { 
   onBack?: () => void;
   onShowSubscription?: () => void;
+  onShowUserProfile?: () => void;
   onShowPreferences?: () => void;
+  onShowMyItems?: () => void;
+  onShowPaymentMethods?: () => void;
+  onShowInvoices?: () => void;
+  onShowMyJoinRequests?: () => void;
   onShowAbout?: () => void;
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
@@ -108,6 +118,38 @@ export default function SettingsScreen({
       onPress: () => {
         onShowSubscription?.();
       },
+      showChevron: true,
+    },
+    // {
+    //   id: "payment-methods",
+    //   title: "Payment Methods",
+    //   subtitle: "Manage saved cards or methods",
+    //   icon: "Wallet",
+    //   onPress: () => onShowPaymentMethods?.(),
+    //   showChevron: true,
+    // },
+    {
+      id: "invoices",
+      title: "Invoices",
+      subtitle: "View and download invoices",
+      icon: "Receipt",
+      onPress: () => onShowInvoices?.(),
+      showChevron: true,
+    },
+    {
+      id: "my-join-requests",
+      title: "My Join Requests",
+      subtitle: "Requests you’ve made to join events",
+      icon: "Send",
+      onPress: () => onShowMyJoinRequests?.(),
+      showChevron: true,
+    },
+    {
+      id: "my-items",
+      title: "My Items",
+      subtitle: "Manage your saved item templates",
+      icon: "List",
+      onPress: () => onShowMyItems?.(),
       showChevron: true,
     },
     {
@@ -191,29 +233,29 @@ export default function SettingsScreen({
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Profile Section */}
           <View style={styles.section}>
-            <View style={styles.profileCard}>
-              <View style={styles.avatar}>
-                <Icon name="User" size={28} color="#fff" />
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>
-                  {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
-                </Text>
-                <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
-                {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
-                  <View style={styles.mealPreferencesContainer}>
-                    <Text style={styles.mealPreferencesLabel}>Dietary Preferences:</Text>
-                    <View style={styles.mealPreferencesTags}>
-                      {user.user_metadata.meal_preferences.map((preference: string, index: number) => (
-                        <View key={index} style={styles.mealPreferenceTag}>
-                          <Text style={styles.mealPreferenceText}>{preference}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-              </View>
+          <Pressable onPress={onShowUserProfile} style={styles.profileCard}>
+            <View style={styles.avatar}>
+              <Icon name="User" size={28} color="#fff" />
             </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>
+                {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
+              </Text>
+              <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
+              {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
+                <View style={styles.mealPreferencesContainer}>
+                  <Text style={styles.mealPreferencesLabel}>Dietary Preferences:</Text>
+                  <View style={styles.mealPreferencesTags}>
+                    {user.user_metadata.meal_preferences.map((preference: string, index: number) => (
+                      <View key={index} style={styles.mealPreferenceTag}>
+                        <Text style={styles.mealPreferenceText}>{preference}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          </Pressable>
           </View>
 
           {/* Settings Items */}
@@ -423,7 +465,7 @@ const styles = StyleSheet.create({
   },
   mealPreferenceText: {
     fontSize: 11,
-    color: "white",
+    color: "#1f2937",
     fontWeight: "500",
   },
 });

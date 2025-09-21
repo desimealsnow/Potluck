@@ -173,6 +173,26 @@ export default function ParticipantsScreen({
     }
   }
 
+  async function resendInvite(participantId: string) {
+    try {
+      await api(`/events/${eventId}/participants/${participantId}/resend`, { method: 'POST' });
+      Alert.alert('Invite resent', 'Invitation email has been resent.');
+    } catch (e: any) {
+      Alert.alert('Failed to resend', e?.message ?? 'Unknown error');
+    }
+  }
+
+  async function bulkInvite(emails: string[]) {
+    try {
+      const invites = emails.filter(e => e.includes('@')).map(e => ({ user_id: `user_${e}` }));
+      await api(`/events/${eventId}/participants/bulk`, { method: 'POST', body: JSON.stringify({ invites }) });
+      Alert.alert('Bulk Invites Sent', `${invites.length} invites queued.`);
+      loadParticipants();
+    } catch (e: any) {
+      Alert.alert('Bulk invite failed', e?.message ?? 'Unknown error');
+    }
+  }
+
   async function copyLink() {
     const link = `${API_BASE_URL}/join/${eventId}`;
     // TODO: Add clipboard functionality when available
@@ -294,6 +314,7 @@ export default function ParticipantsScreen({
                 participant={p}
                 showActions
                 onSetStatus={(s) => updateStatus(p.id, s)}
+                onResend={() => resendInvite(p.id)}
               />
             ))}
           </Section>
@@ -357,10 +378,12 @@ function PersonRow({
   participant,
   showActions = false,
   onSetStatus,
+  onResend,
 }: {
   participant: Participant;
   showActions?: boolean;
   onSetStatus?: (s: ParticipantStatus) => void;
+  onResend?: () => void;
 }) {
   const { name, email, avatar, role, status } = participant;
   const displayName = name || "Unknown User";
@@ -404,6 +427,13 @@ function PersonRow({
             icon="X"
             onPress={() => onSetStatus?.("declined")}
           />
+          {status === 'invited' && (
+            <StatusButton
+              label="Resend"
+              icon="Send"
+              onPress={() => onResend?.()}
+            />
+          )}
         </View>
       ) : (
         <Pill
