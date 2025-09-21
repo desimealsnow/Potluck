@@ -238,6 +238,34 @@ export class ApiClient {
       extension_minutes: extensionMinutes || 30
     });
   }
+
+  // ===============================================
+  // Items Library API Methods
+  // ===============================================
+
+  async getItemCatalog(params?: { q?: string; category?: string }): Promise<ItemCatalog[]> {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set('q', params.q);
+    if (params?.category) qs.set('category', params.category);
+    const query = qs.toString();
+    return this.get<ItemCatalog[]>(`/items/catalog${query ? `?${query}` : ''}`);
+  }
+
+  async listMyItems(): Promise<UserItem[]> {
+    return this.get<UserItem[]>(`/items/me`);
+  }
+
+  async createMyItem(body: UserItemCreate): Promise<{ id: string }> {
+    return this.post<{ id: string }>(`/items/me`, body);
+  }
+
+  async updateMyItem(id: string, body: UserItemUpdate): Promise<UserItem> {
+    return this.put<UserItem>(`/items/me/${id}`, body);
+  }
+
+  async deleteMyItem(id: string): Promise<void> {
+    return this.delete<void>(`/items/me/${id}`);
+  }
 }
 
 // Export singleton instance
@@ -283,3 +311,29 @@ export interface PaginatedJoinRequestsData {
   nextOffset: number | null;
   totalCount: number;
 }
+
+// Items library types (aligned with API spec)
+export interface ItemCatalog {
+  id: string;
+  name: string;
+  category?: string;
+  unit?: string;
+  default_per_guest_qty?: number;
+  dietary_tags?: string[];
+  description?: string;
+}
+
+export interface UserItemCreate {
+  name: string;
+  category?: string;
+  unit?: string;
+  default_per_guest_qty?: number;
+  dietary_tags?: string[];
+  notes?: string;
+}
+
+export interface UserItem extends UserItemCreate {
+  id: string;
+}
+
+export type UserItemUpdate = UserItemCreate;

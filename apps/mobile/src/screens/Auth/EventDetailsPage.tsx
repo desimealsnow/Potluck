@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon, Segmented, ProgressBar } from "@/components";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
 import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
@@ -551,6 +552,8 @@ export default function EventDetailsPage({
   };
 
   const gradient = useMemo(() => gradients.header.event, []);
+  // Item library sheet state for Items tab
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Determine available actions based on event status and ownership
   const getAvailableActions = () => {
@@ -647,6 +650,14 @@ export default function EventDetailsPage({
         message={modalConfig.message}
         buttons={modalConfig.buttons}
         onClose={() => setModalVisible(false)}
+      />
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          addInlineItem(sel.name, sel.category as any, Math.max(0.01, sel.per_guest_qty || 1));
+        }}
       />
     </View>
   );
@@ -913,6 +924,11 @@ function ItemsTab({
     <View style={styles.tabContent}>
       {/* Add item (host only) */}
       <AddItemRow onAdd={(name, category, perGuestQty) => addInlineItem(name, category, perGuestQty)} />
+      <View style={{ marginTop: 6 }}>
+        <Pressable onPress={() => (setPickerOpen as any)(true)} style={[styles.claimButton, styles.claimButtonActive, { alignSelf: 'flex-start' }]}> 
+          <Text style={styles.claimButtonText}>Browse Catalog / My Items</Text>
+        </Pressable>
+      </View>
 
       {safeItems.map((it) => {
         const pct = clamp01(it.claimedQty / it.requiredQty);

@@ -12,6 +12,7 @@ import { apiClient } from "@/services/apiClient";
 import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
+import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import type { 
   MealType, 
   LocationSuggestion, 
@@ -66,6 +67,7 @@ export default function CreateEventScreen({
   const [dishes, setDishes] = useState<Dish[]>([
     { id: "d1", name: "", category: "Main Course", per_guest_qty: 1 },
   ]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Step 4 – Participants (after event is created)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
@@ -438,7 +440,12 @@ export default function CreateEventScreen({
             <>
               <Card
                 title="✨ What's on the menu?"
-                right={<Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>}
+                right={
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <Pressable onPress={() => setPickerOpen(true)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>Browse Catalog</Text></Pressable>
+                    <Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>
+                  </View>
+                }
               >
                 {dishes.map((d, idx) => (
                   <View key={d.id} style={styles.dishCard}>
@@ -455,6 +462,13 @@ export default function CreateEventScreen({
                       value={d.name}
                       onChangeText={(t) => updateDish(d.id, { name: t }, setDishes)}
                     />
+                    <View style={{ marginTop: 6 }}>
+                      <Pressable onPress={() => setPickerOpen(true)} style={[styles.chip, { alignSelf: 'flex-start' }]}
+                        hitSlop={8}
+                      >
+                        <Text style={[styles.chipText]}>Pick from Catalog / My Items</Text>
+                      </Pressable>
+                    </View>
 
                     <View style={styles.row}>
                       <View style={{ flex: 1, marginRight: 8 }}>
@@ -648,6 +662,26 @@ export default function CreateEventScreen({
         }}
         hours={selectedTime?.getHours() || 12}
         minutes={selectedTime?.getMinutes() || 0}
+      />
+
+      {/* Item Library Sheet */}
+      <ItemLibrarySheet
+        visible={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(sel) => {
+          setPickerOpen(false);
+          // Insert a dish with selected values or fill the first empty row
+          setDishes((prev) => {
+            const emptyIdx = prev.findIndex(p => !p.name?.trim());
+            const patch = { name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1) } as Partial<Dish>;
+            if (emptyIdx >= 0) {
+              const copy = prev.slice();
+              copy[emptyIdx] = { ...copy[emptyIdx], ...patch } as Dish;
+              return copy;
+            }
+            return [{ id: `d${Date.now()}`, name: sel.name, category: sel.category as any, per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1) }, ...prev];
+          });
+        }}
       />
     </View>
   );
