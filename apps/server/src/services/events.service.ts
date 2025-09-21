@@ -610,6 +610,16 @@ async function performLocationBasedSearch(
 }
 
 // Discovery mode search (public events + user's events)
+/**
+ * Perform a discovery search for events based on user parameters.
+ *
+ * This function retrieves events that a user can participate in, applying various filters such as status, search query, diet preferences, and ownership. It first fetches the user's participant events, then constructs a query to the events table, applying filters based on the provided parameters. The results are formatted and returned in a paginated structure, including location data if requested.
+ *
+ * @param userId - The ID of the user performing the search.
+ * @param params - The parameters for filtering the events, including limit, offset, search query, diet, status, and inclusion of location data.
+ * @returns A promise that resolves to a ServiceResult containing a paginated list of event summaries.
+ * @throws Error If an error occurs during the database queries or processing.
+ */
 async function performDiscoverySearch(
   userId: string,
   params: ListEventsParams
