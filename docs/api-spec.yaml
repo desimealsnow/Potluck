@@ -60,6 +60,22 @@ paths:
       parameters:
         - $ref: "#/components/parameters/limit"
         - $ref: "#/components/parameters/offset"
+        - name: lat
+          in: query
+          description: Latitude for geosearch
+          schema:
+            type: number
+        - name: lon
+          in: query
+          description: Longitude for geosearch
+          schema:
+            type: number
+        - name: radius_km
+          in: query
+          description: Radius in kilometers for geosearch
+          schema:
+            type: integer
+            minimum: 1
         - name: q
           in: query
           description: Text search across event title and description
@@ -96,10 +112,10 @@ paths:
             format: date-time
         - name: near
           in: query
-          description: "Geosearch: lat,lon,radiusKm"
+          description: "City name (e.g., 'San Francisco') or string 'lat,lon,radiusKm'"
           schema:
             type: string
-            example: "40.7128,-74.0060,10"
+            example: "San Francisco"
         - name: diet
           in: query
           description: Comma-separated dietary tags (veg,nonveg,mixed)
