@@ -6,6 +6,7 @@ import billingRoutes    from './routes/billing.routes';
 import discoveryRoutes from './routes/discovery.routes';
 import userLocationRoutes from './routes/user-location.routes';
 import userProfileRoutes from './routes/user-profile.routes';
+import itemsLibraryRoutes from './routes/items.library.routes';
 import mockRoutes       from './routes/mock.routes';
 import { createPaymentContainer } from './services/payments.container';
 import { authGuard } from './middleware/authGuard';
@@ -57,6 +58,7 @@ export const createApp = () => {
   app.use('/api/v1/discovery', discoveryRoutes);
   app.use('/api/v1/user-location', userLocationRoutes);
   app.use('/api/v1/user-profile', userProfileRoutes);
+  app.use('/api/v1/items', itemsLibraryRoutes);
   
   /* ---------- Mock routes for testing ---------- */
   app.use('/', mockRoutes);
