@@ -55,6 +55,46 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
         "403":
           $ref: "#/components/responses/ForbiddenError"
+
+  /user-profile/phone/send:
+    post:
+      summary: Send phone verification OTP
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_e164:
+                  type: string
+                  description: Phone number in E.164 format (e.g. +15551234567)
+              required: [phone_e164]
+      responses:
+        "200": { description: OK }
+        "400": { $ref: "#/components/responses/BadRequestError" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
+        "429": { description: Too many requests }
+
+  /user-profile/phone/verify:
+    post:
+      summary: Verify phone using OTP
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone_e164: { type: string }
+                code: { type: string }
+              required: [phone_e164, code]
+      responses:
+        "200": { description: Verified }
+        "400": { $ref: "#/components/responses/BadRequestError" }
+        "401": { $ref: "#/components/responses/UnauthorizedError" }
     get:
       description: "Search/list public events for discovery or events I host/attend"
       parameters:
@@ -1690,6 +1730,13 @@ components:
           type: string
           format: date-time
           description: Profile last update timestamp
+        phone_e164:
+          type: string
+          nullable: true
+          description: E.164 formatted phone number
+        phone_verified:
+          type: boolean
+          description: Whether the user's phone is verified
 
     ValidationError:
       type: object

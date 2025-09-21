@@ -109,6 +109,15 @@ export default function CreateEventScreen({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
+      // Require verified phone before hosting
+      try {
+        const prof = await apiClient.get<any>('/user-profile/me');
+        if (!prof?.phone_verified) {
+          Alert.alert('Verify Phone', 'Please verify your phone number in Settings > User Preferences before creating an event.');
+          setIsSubmitting(false);
+          return;
+        }
+      } catch {}
       
       // Validate event date is in the future
       if (!selectedDate || !selectedTime) {
