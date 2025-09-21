@@ -19,6 +19,15 @@ type EventCancelInput = components['schemas']['EventCancel'];
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
   if (!req.user?.id) return res.status(401).json({ ok: false, error: 'Unauthorized', code: '401' });
 
+  // Enforce verified phone before hosting
+  try {
+    const { data: profile } = await (await import('../config/supabaseClient')).supabase
+      .from('user_profiles').select('phone_verified').eq('user_id', req.user.id).single();
+    if (!profile?.phone_verified) {
+      return res.status(403).json({ ok: false, error: 'Phone verification required before hosting', code: 'PHONE_UNVERIFIED' });
+    }
+  } catch {}
+
   const payload = req.body as CreateEventInput;
 
   // Validate event date is in the future

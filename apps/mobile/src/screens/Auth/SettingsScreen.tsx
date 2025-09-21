@@ -231,29 +231,29 @@ export default function SettingsScreen({
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Profile Section */}
           <View style={styles.section}>
-            <View style={styles.profileCard}>
-              <View style={styles.avatar}>
-                <Icon name="User" size={28} color="#fff" />
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>
-                  {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
-                </Text>
-                <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
-                {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
-                  <View style={styles.mealPreferencesContainer}>
-                    <Text style={styles.mealPreferencesLabel}>Dietary Preferences:</Text>
-                    <View style={styles.mealPreferencesTags}>
-                      {user.user_metadata.meal_preferences.map((preference: string, index: number) => (
-                        <View key={index} style={styles.mealPreferenceTag}>
-                          <Text style={styles.mealPreferenceText}>{preference}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                )}
-              </View>
+          <Pressable onPress={onShowPreferences} style={styles.profileCard}>
+            <View style={styles.avatar}>
+              <Icon name="User" size={28} color="#fff" />
             </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>
+                {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
+              </Text>
+              <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
+              {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
+                <View style={styles.mealPreferencesContainer}>
+                  <Text style={styles.mealPreferencesLabel}>Dietary Preferences:</Text>
+                  <View style={styles.mealPreferencesTags}>
+                    {user.user_metadata.meal_preferences.map((preference: string, index: number) => (
+                      <View key={index} style={styles.mealPreferenceTag}>
+                        <Text style={styles.mealPreferenceText}>{preference}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          </Pressable>
           </View>
 
           {/* Settings Items */}
