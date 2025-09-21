@@ -19,6 +19,20 @@ interface RequestToJoinButtonProps {
   disabled?: boolean;
 }
 
+/**
+ * Renders a button to request to join an event, managing user input and state.
+ *
+ * This component handles the visibility of a modal for requesting to join an event, validates user input for party size,
+ * and checks if the user’s phone number is verified before allowing the request. It utilizes hooks to manage state and
+ * effects, and integrates with event availability and request creation functionalities.
+ *
+ * @param {Object} props - The properties for the component.
+ * @param {string} props.eventId - The ID of the event to join.
+ * @param {string} [props.eventTitle='this event'] - The title of the event.
+ * @param {function} props.onRequestCreated - Callback function to be called when a request is successfully created.
+ * @param {boolean} [props.disabled=false] - Flag to disable the button.
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function RequestToJoinButton({ 
   eventId, 
   eventTitle = 'this event',
@@ -56,6 +70,22 @@ export default function RequestToJoinButton({
     creating
   });
   
+  /**
+   * Handles the submission of a request for a party size.
+   *
+   * This function validates the party size input, ensuring it is a positive integer and does not exceed available capacity.
+   * If the input is valid, it creates a request with the specified party size and note, and resets the input fields.
+   * It also triggers a callback if the request is successfully created.
+   *
+   * @param partySize - The size of the party as a string input.
+   * @param availability - An object containing available capacity information.
+   * @param note - An optional note associated with the request.
+   * @param setModalVisible - A function to control the visibility of the modal.
+   * @param setPartySize - A function to update the party size state.
+   * @param setNote - A function to update the note state.
+   * @param onRequestCreated - An optional callback function to be called when the request is created.
+   * @returns A promise that resolves when the request handling is complete.
+   */
   const handleSubmitRequest = async () => {
     const parsedPartySize = parseInt(partySize, 10);
     

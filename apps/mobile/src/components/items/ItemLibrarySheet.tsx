@@ -13,6 +13,16 @@ export interface ItemLibrarySelection {
   user_item_id?: string;
 }
 
+/**
+ * Renders an item selection sheet for catalog and user items.
+ *
+ * This component manages the visibility of the item selection interface, handles tab switching between the catalog and user items, and performs data fetching for both categories. It also allows users to create new items based on search input and select items from the catalog or their own list. The component utilizes hooks for state management and side effects, ensuring a responsive user experience.
+ *
+ * @param visible - A boolean indicating whether the item library sheet is visible.
+ * @param onClose - A function to be called when the sheet is closed.
+ * @param onSelect - A function that receives the selected item details.
+ * @param initialTab - An optional initial tab key, defaults to 'catalog'.
+ */
 export default function ItemLibrarySheet({
   visible,
   onClose,

@@ -150,6 +150,14 @@ function JoinRequestItem({
   );
 }
 
+/**
+ * Manages the display and actions for join requests in an event.
+ *
+ * This component fetches join requests using the useHostJoinRequests hook and allows users to approve, decline, waitlist, or extend holds on requests. It also provides a filter for viewing requests by status and handles the promotion of waitlisted requests. The component manages loading and error states, displaying appropriate messages to the user.
+ *
+ * @param {JoinRequestsManagerProps} props - The properties for the JoinRequestsManager component, including eventId.
+ * @returns {JSX.Element} The rendered component displaying join requests and associated actions.
+ */
 export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProps) {
   const [statusFilter, setStatusFilter] = useState<JoinRequestStatus | undefined>();
   
@@ -174,6 +182,13 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     { key: 'declined', label: 'Declined' },
   ];
 
+  /**
+   * Handles the promotion of waitlisted requests.
+   *
+   * This function attempts to promote waitlisted requests by calling the `promoteWaitlist` method of the `apiClient` with the provided `eventId`.
+   * Upon success, it alerts the user with the number of requests moved or indicates if there were no eligible requests.
+   * If an error occurs during the process, it alerts the user with the error message or a default message if none is available.
+   */
   const handlePromote = async () => {
     try {
       const res = await apiClient.promoteWaitlist(eventId);
@@ -184,6 +199,16 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     }
   };
 
+  /**
+   * Moves a waitlisted request to the top of the queue.
+   *
+   * This function calls the apiClient's reorderWaitlisted method to reorder the waitlisted item
+   * identified by requestId, placing it at the top of the list. If the operation is successful,
+   * it triggers a refresh of the current state. In case of an error, it displays an alert with
+   * the error message or a default message if none is provided.
+   *
+   * @param requestId - The ID of the request to be moved to the top of the waitlist.
+   */
   const moveWaitlistedToTop = async (requestId: string) => {
     try {
       await apiClient.reorderWaitlisted(eventId, requestId, 1);
@@ -193,6 +218,9 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     }
   };
 
+  /**
+   * Prompts the user to approve a request with a confirmation alert.
+   */
   const handleApprove = (requestId: string) => {
     Alert.alert(
       'Approve Request',
@@ -237,6 +265,9 @@ export default function JoinRequestsManager({ eventId }: JoinRequestsManagerProp
     );
   };
 
+  /**
+   * Renders a JoinRequestItem component with the provided item data.
+   */
   const renderRequestItem = ({ item }: { item: JoinRequestData }) => (
     <JoinRequestItem
       request={item}
