@@ -30,6 +30,7 @@ export default function ItemLibrarySheet({
   const [loading, setLoading] = useState(false);
   const [catalog, setCatalog] = useState<ItemCatalog[]>([]);
   const [mine, setMine] = useState<UserItem[]>([]);
+  const [creating, setCreating] = useState(false);
 
   const loadCatalog = useCallback(async () => {
     try {
@@ -90,6 +91,32 @@ export default function ItemLibrarySheet({
           />
           <TouchableOpacity onPress={loadCatalog} style={styles.searchBtn}>
             <Text style={styles.searchBtnText}>Go</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Quick create (when searching and no exact need to browse) */}
+      {q.trim().length >= 2 && (
+        <View style={{ paddingHorizontal: 12, paddingTop: 6 }}>
+          <TouchableOpacity
+            disabled={creating}
+            style={[styles.row, { borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0,0,0,0.08)', backgroundColor: '#F9FAFB' }]}
+            onPress={async () => {
+              try {
+                setCreating(true);
+                const name = q.trim();
+                const created = await apiClient.createMyItem({ name, default_per_guest_qty: 1 });
+                onSelect({ name, per_guest_qty: 1, user_item_id: created.id });
+              } finally {
+                setCreating(false);
+              }
+            }}
+          >
+            {creating ? (
+              <ActivityIndicator color="#6B7280" />
+            ) : (
+              <Text style={{ fontWeight: '800', color: '#111' }}>Create “{q.trim()}” as My Item</Text>
+            )}
           </TouchableOpacity>
         </View>
       )}
