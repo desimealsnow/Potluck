@@ -239,6 +239,20 @@ export class ApiClient {
     });
   }
 
+  /**
+   * Promote first eligible waitlisted request (host-only)
+   */
+  async promoteWaitlist(eventId: string): Promise<{ moved: number }> {
+    return this.post<{ moved: number }>(`/events/${eventId}/requests/promote`);
+  }
+
+  /**
+   * Reorder a waitlisted request to a specific position (host-only)
+   */
+  async reorderWaitlisted(eventId: string, requestId: string, waitlistPos: number): Promise<void> {
+    return this.patch<void>(`/events/${eventId}/requests/${requestId}/reorder`, { waitlist_pos: waitlistPos });
+  }
+
   // ===============================================
   // Items Library API Methods
   // ===============================================
