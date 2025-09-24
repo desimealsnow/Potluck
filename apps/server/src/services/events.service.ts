@@ -570,7 +570,6 @@ async function performLocationBasedSearch(
     }
 
     // Convert to ViewerEventSummary format
-    const shouldIncludeLocation = include === 'location';
     type JoinedLoc = { id: string; name: string; formatted_address: string; latitude: number; longitude: number; place_id: string };
     type Filtered = {
       id: string; title: string; event_date: string; attendee_count: number; meal_type: string; created_by: string;

@@ -361,7 +361,8 @@ export async function registerPushToken(
   }
 }
 
-export async function getNotificationPreferences(userId: string): Promise<ServiceResult<any>> {
+type NotificationPrefs = { user_id: string; in_app_enabled?: boolean; push_enabled?: boolean };
+export async function getNotificationPreferences(userId: string): Promise<ServiceResult<NotificationPrefs>> {
   try {
     const { data, error } = await supabase
       .from('notification_preferences')
@@ -369,13 +370,13 @@ export async function getNotificationPreferences(userId: string): Promise<Servic
       .eq('user_id', userId)
       .maybeSingle();
     if (error) return { ok: false, error: error.message };
-    return { ok: true, data: data || { user_id: userId, in_app_enabled: true } };
+    return { ok: true, data: (data as NotificationPrefs) || { user_id: userId, in_app_enabled: true } };
   } catch (err) {
     return { ok: false, error: 'Failed to get notification preferences' };
   }
 }
 
-export async function upsertNotificationPreferences(userId: string, prefs: any): Promise<ServiceResult<any>> {
+export async function upsertNotificationPreferences(userId: string, prefs: Partial<NotificationPrefs>): Promise<ServiceResult<NotificationPrefs>> {
   try {
     const payload = { ...prefs, user_id: userId, updated_at: new Date().toISOString() };
     const { data, error } = await supabase
@@ -384,7 +385,7 @@ export async function upsertNotificationPreferences(userId: string, prefs: any):
       .select('*')
       .single();
     if (error) return { ok: false, error: error.message };
-    return { ok: true, data };
+    return { ok: true, data: data as NotificationPrefs };
   } catch (err) {
     return { ok: false, error: 'Failed to update notification preferences' };
   }
@@ -427,7 +428,7 @@ export async function notifyEventParticipantsCancelled(
 
     if (!rows.length) return { ok: true, data: { notified_count: 0 } };
 
-    const { error: insErr } = await supabase.from('notifications').insert(rows as any);
+    const { error: insErr } = await supabase.from('notifications').insert(rows as unknown as Record<string, unknown>[]);
     if (insErr) return { ok: false, error: insErr.message };
     return { ok: true, data: { notified_count: rows.length } };
   } catch (err) {

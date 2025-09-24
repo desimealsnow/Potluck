@@ -122,7 +122,7 @@ export const BillingController = {
       planId: plan_id,
       userId,
       userEmail,
-      userName: (req.user as any)?.name,
+      userName: (req.user as { name?: string } | undefined)?.name,
       provider,
       successUrl,
       cancelUrl,
