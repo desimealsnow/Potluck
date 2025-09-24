@@ -14,6 +14,11 @@ type CreateEventInput  = components['schemas']['EventCreate'];
 type EventUpdateInput = components['schemas']['EventUpdate'];
 type EventCancelInput = components['schemas']['EventCancel'];
 
+/**
+ * @ai-context Events Controller
+ * Thin HTTP handlers delegating to services. Start here from routes.
+ * @related-files ../routes/events.routes.ts, ../services/events.service.ts
+ */
 
 /** POST /events  – create draft event + initial items */
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {

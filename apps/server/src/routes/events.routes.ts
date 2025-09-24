@@ -15,6 +15,17 @@ import itemsRouter        from './items.routes';
 import participantsRouter  from './participants.routes';
 import { requestsRoutes } from '../modules/requests';
 
+/**
+ * @ai-context Events API Router
+ * @navigation Start here for the Events feature (API layer)
+ * @user-journey Host creates event → publish/cancel/complete → manage items/participants/requests
+ * @related-files ../controllers/events.controller.ts, ../services/events.service.ts
+ */
+
+// NAVIGATION: Start here for Events API
+// → Next (controller): ../controllers/events.controller.ts
+// → Next (service):    ../services/events.service.ts
+
 // use mergeParams so :eventId propagates to children
 const router = Router({ mergeParams: true });
 

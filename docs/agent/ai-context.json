@@ -1,0 +1,24 @@
+{
+  "project_vibe": "social-event-planning-mobile-first",
+  "tech_stack": ["expo", "react-native", "nodejs", "express", "postgresql", "supabase"],
+  "key_user_flows": [
+    "event_creation",
+    "item_signup",
+    "guest_management",
+    "join_requests_with_capacity_holds",
+    "location_discovery"
+  ],
+  "architecture_patterns": ["feature-modules", "rest-api", "rls-on-postgres", "agent-friendly-docs"],
+  "entry_points": {
+    "mobile": "apps/mobile/src/screens/Auth/EventList.tsx",
+    "api_routes": "apps/server/src/routes/events.routes.ts",
+    "controllers": "apps/server/src/controllers/events.controller.ts",
+    "services": "apps/server/src/services/events.service.ts"
+  },
+  "generated_catalogs": [
+    ".agent/repo.catalog.json",
+    ".agent/routes.index.json",
+    ".agent/tests.index.json",
+    ".agent/deps.graph.mmd"
+  ]
+}

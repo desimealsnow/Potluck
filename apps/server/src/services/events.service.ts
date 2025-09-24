@@ -17,6 +17,13 @@ type EventCancelInput = components['schemas']['EventCancel'];
 logger.info('Debug namespace is Event Service');
 
 /**
+ * @ai-context Events Service
+ * Business logic for Events feature. Controllers call these functions.
+ * @boundaries FRONTEND_BACKEND_COMMS: UI → API routes → Controllers → Services → DB
+ * @related-files ../routes/events.routes.ts, ../controllers/events.controller.ts
+ */
+
+/**
  * Atomically create an Event (status = draft), auto‑RSVP the host, and insert
  * the initial item slots in one Postgres transaction. All input validation is
  * performed via the generated Zod schema before touching the DB.

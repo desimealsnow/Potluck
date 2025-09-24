@@ -65,5 +65,22 @@
     "js-yaml": "^4.1.0",
     "openapi-sampler": "^1.6.1",
     "openapi-types": "^12.1.3"
+  },
+  "ai": {
+    "docs": [
+      "docs/agent/README.md",
+      "docs/agent/AGENT_ENTRY_POINT.md",
+      "docs/agent/agent-knowledge-base.md",
+      "docs/api-spec.yaml",
+      "apps/server/db/schema.json"
+    ],
+    "catalogs": [
+      ".agent/repo.catalog.json",
+      ".agent/routes.index.json"
+    ],
+    "entry_points": {
+      "mobile": "apps/mobile/src/screens/Auth/EventList.tsx",
+      "server": "apps/server/src/routes/events.routes.ts"
+    }
   }
 }
