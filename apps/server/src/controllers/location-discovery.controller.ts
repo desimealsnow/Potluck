@@ -186,7 +186,7 @@ export const getUserNotificationsController = async (req: Request, res: Response
     
     logger.info(`Notifications request for user ${userId}: limit=${limit}, offset=${offset}`);
     
-    const result = await getUserNotifications(userId, limit, offset, status as any);
+    const result = await getUserNotifications(userId, limit, offset, status);
     
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
