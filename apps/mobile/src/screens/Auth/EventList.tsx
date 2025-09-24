@@ -45,6 +45,7 @@ import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
 import { gradients, breakpoints, useDeviceKind } from "@/theme";
+import { EventsFilters } from "@/features/events/components/EventsFilters";
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -1209,11 +1210,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   }}
                   style={{ width: '100%' }}
                 >
-                  <MobileTabs.Screen name="Upcoming" children={() => <TabContent tabKey="upcoming" />} />
-                  <MobileTabs.Screen name="Drafts" children={() => <TabContent tabKey="drafts" />} />
-                  <MobileTabs.Screen name="Past" children={() => <TabContent tabKey="past" />} />
-                  <MobileTabs.Screen name="Deleted" children={() => <TabContent tabKey="deleted" />} />
-                  <MobileTabs.Screen name="Pending" children={() => <TabContent tabKey="pending-approval" />} />
+                  <MobileTabs.Screen name="Upcoming" children={() => <TabContent tabKey="upcoming" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
+                  <MobileTabs.Screen name="Drafts" children={() => <TabContent tabKey="drafts" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
+                  <MobileTabs.Screen name="Past" children={() => <TabContent tabKey="past" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
+                  <MobileTabs.Screen name="Deleted" children={() => <TabContent tabKey="deleted" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
+                  <MobileTabs.Screen name="Pending" children={() => <TabContent tabKey="pending-approval" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
                 </MobileTabs.Navigator>
               </View>
             ) : (
