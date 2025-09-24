@@ -7,6 +7,9 @@ import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@exp
 import { Manrope_700Bold } from '@expo-google-fonts/manrope';
 import { View } from 'react-native';
 
+/**
+ * Renders the main application component with font loading and navigation.
+ */
 export default function App() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
