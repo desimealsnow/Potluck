@@ -223,10 +223,12 @@ async function main() {
     },
     ai_agent_guidance: {
       start_here: 'docs/agent-knowledge-base.md',
+      bootstrap_prompt: 'docs/agent/AGENT_BOOTSTRAP_PROMPT.md',
       database_schema: 'db/schema.json',
       api_spec: 'docs/api-spec.yaml',
       search_strategy: [
         '1. Check docs/agent-knowledge-base.md for overview',
+        '1a. For pinned system message, see docs/agent/AGENT_BOOTSTRAP_PROMPT.md',
         '2. Use search_index for specific topics',
         '3. Reference individual files for detailed information',
         '4. Check test files for usage examples'
@@ -269,6 +271,7 @@ ${files.map(filePath => `- [${filePath}](${filePath})`).join('\n')}`
 ## 🤖 AI Agent Quick Start
 
 1. **Start with**: [docs/agent-knowledge-base.md](docs/agent-knowledge-base.md)
+   - Pinned message: [docs/agent/AGENT_BOOTSTRAP_PROMPT.md](docs/agent/AGENT_BOOTSTRAP_PROMPT.md)
 2. **Database**: Use \`db/schema.json\` for queries
 3. **API**: Check [docs/api-spec.yaml](docs/api-spec.yaml)
 4. **Search**: Use this index to find specific topics

@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2025-09-24T10:05:22.336Z",
-    "total_files": 54,
-    "total_size": 370773,
+    "generated_at": "2025-09-24T10:21:24.361Z",
+    "total_files": 55,
+    "total_size": 373311,
     "version": "1.0"
   },
   "categories": {
@@ -22,6 +22,19 @@
             "testing"
           ],
           "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "Recommended Pinned System Message for New Agent Chats",
+          "description": "Use this as the first system message (Project Rules) for every new chat:",
+          "path": "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
+          "fullPath": "/workspace/docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
+          "size": 803,
+          "lines": 18,
+          "tags": [
+            "api",
+            "database"
+          ],
+          "lastModified": "2025-09-24T10:19:21.576Z"
         },
         {
           "title": "Agent Catalog Implementation",
@@ -78,8 +91,8 @@
           "description": "**Purpose**: Centralized documentation for AI agents working with the Potluck project",
           "path": "docs/agent/README.md",
           "fullPath": "/workspace/docs/agent/README.md",
-          "size": 7380,
-          "lines": 187,
+          "size": 8109,
+          "lines": 199,
           "tags": [
             "api",
             "testing",
@@ -89,7 +102,7 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-24T09:59:41.864Z"
+          "lastModified": "2025-09-24T10:20:25.668Z"
         },
         {
           "title": "Potluck AI Agent Knowledge Base",
@@ -617,30 +630,30 @@
         },
         {
           "title": "Agent Context Validation Report",
-          "description": "Generated: 2025-09-20T04:02:02.492Z",
+          "description": "Generated: 2025-09-24T10:13:25.166Z",
           "path": ".agent/CONTEXT_VALIDATION_REPORT.md",
           "fullPath": "/workspace/.agent/CONTEXT_VALIDATION_REPORT.md",
-          "size": 799,
-          "lines": 28,
+          "size": 793,
+          "lines": 24,
           "tags": [
             "api",
             "testing",
             "database"
           ],
-          "lastModified": "2025-09-24T08:58:53.406Z"
+          "lastModified": "2025-09-24T10:13:25.183Z"
         },
         {
           "title": "Repo Catalog (for agents)",
           "description": "This directory contains machine-readable catalogs of the codebase structure, generated automatically from the source code.",
           "path": ".agent/README.md",
           "fullPath": "/workspace/.agent/README.md",
-          "size": 1189,
-          "lines": 34,
+          "size": 1371,
+          "lines": 46,
           "tags": [
             "api",
             "testing"
           ],
-          "lastModified": "2025-09-24T08:58:53.406Z"
+          "lastModified": "2025-09-24T10:20:31.132Z"
         },
         {
           "title": "Changelog",
@@ -816,11 +829,11 @@
         },
         {
           "title": "Documentation Index",
-          "description": "Generated: 2025-09-20T04:27:32.490Z",
+          "description": "Generated: 2025-09-24T10:05:22.337Z",
           "path": "docs/documentation-index.md",
           "fullPath": "/workspace/docs/documentation-index.md",
-          "size": 27482,
-          "lines": 379,
+          "size": 28312,
+          "lines": 387,
           "tags": [
             "api",
             "testing",
@@ -831,7 +844,7 @@
             "notifications",
             "deployment"
           ],
-          "lastModified": "2025-09-24T08:58:53.418Z"
+          "lastModified": "2025-09-24T10:05:22.337Z"
         },
         {
           "title": "Documentation Consolidation Summary",
@@ -933,6 +946,7 @@
         "apps/server/tests/rest/README.md",
         "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
         "docs/README.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
         "docs/agent/AGENT_ENTRY_POINT.md",
         "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
@@ -975,6 +989,7 @@
         "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
         "docs/README.md",
         "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
         "docs/agent/AGENT_ENTRY_POINT.md",
         "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
@@ -1226,6 +1241,7 @@
         "docs/BACKGROUND_AGENT_SETUP.md",
         "docs/README.md",
         "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
         "docs/agent/AGENT_ENTRY_POINT.md",
         "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
@@ -1270,6 +1286,7 @@
       ],
       "docs/agent": [
         "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
         "docs/agent/AGENT_ENTRY_POINT.md",
         "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
@@ -1278,6 +1295,9 @@
       ],
       "docs/agent/AGENT_ARCHITECTURE.md": [
         "docs/agent/AGENT_ARCHITECTURE.md"
+      ],
+      "docs/agent/AGENT_BOOTSTRAP_PROMPT.md": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
       ],
       "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md": [
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md"
@@ -1440,6 +1460,7 @@
         ".agent/CONTEXT_VALIDATION_REPORT.md",
         "docs/BACKGROUND_AGENT_SETUP.md",
         "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
         "docs/agent/AGENT_ENTRY_POINT.md",
         "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
@@ -1584,6 +1605,7 @@
       ],
       "system": [
         "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
         "docs/core/architecture.md",
         "docs/features/LOCATION_DISCOVERY_README.md",
         "docs/features/USER_LOCATION_SIGNUP_README.md"
@@ -1621,6 +1643,25 @@
       "architecture": [
         "docs/agent/AGENT_ARCHITECTURE.md",
         "docs/core/architecture.md"
+      ],
+      "recommended": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
+      ],
+      "pinned": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
+      ],
+      "message": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
+      ],
+      "for": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
+        "docs/development/SUPABASE_SETUP.md"
+      ],
+      "new": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
+      ],
+      "chats": [
+        "docs/agent/AGENT_BOOTSTRAP_PROMPT.md"
       ],
       "implementation": [
         "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
@@ -1734,9 +1775,6 @@
       "integration": [
         "docs/development/SUPABASE_AUTH_GUIDE.md",
         "docs/features/PAYMENT_PROVIDERS_SETUP.md"
-      ],
-      "for": [
-        "docs/development/SUPABASE_SETUP.md"
       ],
       "suite": [
         "docs/development/TEST_COMPLETION_SUMMARY.md"
@@ -1878,10 +1916,12 @@
   },
   "ai_agent_guidance": {
     "start_here": "docs/agent-knowledge-base.md",
+    "bootstrap_prompt": "docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
     "database_schema": "db/schema.json",
     "api_spec": "docs/api-spec.yaml",
     "search_strategy": [
       "1. Check docs/agent-knowledge-base.md for overview",
+      "1a. For pinned system message, see docs/agent/AGENT_BOOTSTRAP_PROMPT.md",
       "2. Use search_index for specific topics",
       "3. Reference individual files for detailed information",
       "4. Check test files for usage examples"

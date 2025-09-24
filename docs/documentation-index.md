@@ -1,10 +1,10 @@
 # Documentation Index
 
-Generated: 2025-09-24T10:05:22.337Z
+Generated: 2025-09-24T10:21:24.362Z
 
 ## 📊 Overview
-- **Total Files**: 54
-- **Total Size**: 362 KB
+- **Total Files**: 55
+- **Total Size**: 365 KB
 - **Categories**: 7
 
 ## 📂 Categories
@@ -13,10 +13,11 @@ Generated: 2025-09-24T10:05:22.337Z
 Documentation specifically for AI agents
 
 - [AI Agent Architecture Documentation](docs/agent/AGENT_ARCHITECTURE.md) (9 KB) - **Purpose**: Comprehensive guide to the AI agent system architecture and design patterns
+- [Recommended Pinned System Message for New Agent Chats](docs/agent/AGENT_BOOTSTRAP_PROMPT.md) (1 KB) - Use this as the first system message (Project Rules) for every new chat:
 - [Agent Catalog Implementation](docs/agent/AGENT_CATALOG_IMPLEMENTATION.md) (6 KB) - **Status**: Complete ✅  
 - [🤖 AI Agent Entry Point - Potluck Project](docs/agent/AGENT_ENTRY_POINT.md) (5 KB) - **CRITICAL**: Read this file FIRST before exploring the codebase
 - [🤖 AI Agent Quick Reference Card](docs/agent/AI_AGENT_QUICK_REFERENCE.md) (3 KB) - **For new AI agents starting work on this project**
-- [🤖 AI Agent Documentation Hub](docs/agent/README.md) (7 KB) - **Purpose**: Centralized documentation for AI agents working with the Potluck project
+- [🤖 AI Agent Documentation Hub](docs/agent/README.md) (8 KB) - **Purpose**: Centralized documentation for AI agents working with the Potluck project
 - [Potluck AI Agent Knowledge Base](docs/agent/agent-knowledge-base.md) (9 KB) - **Purpose**: Centralized, structured documentation optimized for AI agents
 
 ### Core Documentation
@@ -71,7 +72,7 @@ Documentation for utility scripts and tools
 API specifications and integration guides
 
 - [API Documentation](.agent/API_GUIDE.md) (16 KB) - Generated: 2025-09-20T04:01:56.817Z
-- [Agent Context Validation Report](.agent/CONTEXT_VALIDATION_REPORT.md) (1 KB) - Generated: 2025-09-20T04:02:02.492Z
+- [Agent Context Validation Report](.agent/CONTEXT_VALIDATION_REPORT.md) (1 KB) - Generated: 2025-09-24T10:13:25.166Z
 - [Repo Catalog (for agents)](.agent/README.md) (1 KB) - This directory contains machine-readable catalogs of the codebase structure, generated automatically from the source code.
 - [Changelog](CHANGELOG.md) (10 KB) - No description available
 - [Potluck Project Summary](PROJECT_SUMMARY.md) (4 KB) - **For AI agents starting new chats about this project**
@@ -83,7 +84,7 @@ API specifications and integration guides
 - [Potluck Documentation](docs/README.md) (6 KB) - **Centralized documentation hub for the Potluck event management platform**
 - [api-spec.md](docs/core/api-spec.md) (6 KB) - - Base URL: `/api/v1`
 - [Potluck Application – System Architecture](docs/core/architecture.md) (14 KB) - **Status**: Updated · v0.3 · 21 Sep 2025
-- [Documentation Index](docs/documentation-index.md) (27 KB) - Generated: 2025-09-20T04:27:32.490Z
+- [Documentation Index](docs/documentation-index.md) (28 KB) - Generated: 2025-09-24T10:05:22.337Z
 - [Documentation Consolidation Summary](docs/documentation-summary.md) (4 KB) - Generated: 2025-09-24T10:05:22.129Z
 - [@payments/core](packages/payments/README.md) (16 KB) - A framework- and provider-agnostic payments module with explicit ports, a provider registry, idempotent webhook handling, and tiny server adapters. Built to be plugged into multiple repos.
 
@@ -152,6 +153,7 @@ Deployment, configuration, and operational guides
 - [apps/server/tests/rest/README.md](apps/server/tests/rest/README.md)
 - [apps/server/tests/unit/modules/requests/TEST_PLAN.md](apps/server/tests/unit/modules/requests/TEST_PLAN.md)
 - [docs/README.md](docs/README.md)
+- [docs/agent/AGENT_BOOTSTRAP_PROMPT.md](docs/agent/AGENT_BOOTSTRAP_PROMPT.md)
 - [docs/agent/AGENT_CATALOG_IMPLEMENTATION.md](docs/agent/AGENT_CATALOG_IMPLEMENTATION.md)
 - [docs/agent/AGENT_ENTRY_POINT.md](docs/agent/AGENT_ENTRY_POINT.md)
 - [docs/agent/AI_AGENT_QUICK_REFERENCE.md](docs/agent/AI_AGENT_QUICK_REFERENCE.md)
@@ -194,6 +196,7 @@ Deployment, configuration, and operational guides
 - [apps/server/tests/unit/modules/requests/TEST_PLAN.md](apps/server/tests/unit/modules/requests/TEST_PLAN.md)
 - [docs/README.md](docs/README.md)
 - [docs/agent/AGENT_ARCHITECTURE.md](docs/agent/AGENT_ARCHITECTURE.md)
+- [docs/agent/AGENT_BOOTSTRAP_PROMPT.md](docs/agent/AGENT_BOOTSTRAP_PROMPT.md)
 - [docs/agent/AGENT_CATALOG_IMPLEMENTATION.md](docs/agent/AGENT_CATALOG_IMPLEMENTATION.md)
 - [docs/agent/AGENT_ENTRY_POINT.md](docs/agent/AGENT_ENTRY_POINT.md)
 - [docs/agent/AI_AGENT_QUICK_REFERENCE.md](docs/agent/AI_AGENT_QUICK_REFERENCE.md)
@@ -347,6 +350,7 @@ Deployment, configuration, and operational guides
 ## 🤖 AI Agent Quick Start
 
 1. **Start with**: [docs/agent-knowledge-base.md](docs/agent-knowledge-base.md)
+   - Pinned message: [docs/agent/AGENT_BOOTSTRAP_PROMPT.md](docs/agent/AGENT_BOOTSTRAP_PROMPT.md)
 2. **Database**: Use `db/schema.json` for queries
 3. **API**: Check [docs/api-spec.yaml](docs/api-spec.yaml)
 4. **Search**: Use this index to find specific topics
