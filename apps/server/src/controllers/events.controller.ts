@@ -115,7 +115,9 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
     try {
       const fs = await import('fs');
       fs.appendFileSync('debug.log', `🔍 Events controller - parsed params: ${JSON.stringify(params, null, 2)}\n`);
-    } catch {}
+  } catch {
+    // no-op
+  }
 
     /*── Service call ──────────────────────────────────────────────────────────*/
     const result = await EventService.listEvents(req.user.id, params);
