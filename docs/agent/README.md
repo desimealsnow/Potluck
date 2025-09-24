@@ -124,6 +124,41 @@ If background agents can't find the payments package:
 - [ ] Explore `.agent/repo.catalog.json` for code structure
 - [ ] Use `.agent/routes.index.json` for endpoint mapping
 
+## 🤖 AI Co‑Pilot Guide (Onboarding)
+
+### Repo Structure (high‑level)
+```
+apps/
+  mobile/   # Expo React Native app (screens, components, services)
+  server/   # Express API (routes, controllers, services)
+packages/
+  payments/ # Payment providers core lib
+  common/   # Shared types/utils
+```
+
+### Key Concepts
+- Potluck events have hosts, guests, items, and join requests with capacity holds
+- Discovery supports nearby/city queries (PostGIS/RPC fallbacks)
+- Push notifications via Expo; phone verification gating for hosting
+
+### Entry Points
+- Mobile UI: `apps/mobile/src/screens/Auth/EventList.tsx` → `EventDetailsPage.tsx`
+- API flow: `apps/server/src/routes/events.routes.ts` → `events.controller.ts` → `events.service.ts`
+
+### AI Navigation Hints
+- Start with `.agent/repo.catalog.json` to find files and exports
+- Map endpoints with `.agent/routes.index.json` then open the controller/service
+- Database relations/functions are in `apps/server/db/schema.json`
+
+### Error Handling Pattern
+- Services return `ServiceResult<T>` with `{ ok, data?|error?, code? }`
+- Controllers call `handle(res, result)` to map codes to HTTP responses
+
+### Related Files
+- Join Requests: `apps/server/src/modules/requests/*`
+- Items: `apps/server/src/routes/items.routes.ts`
+- Participants: `apps/server/src/routes/participants.routes.ts`
+
 ---
 
 **Remember**: This project has comprehensive documentation and machine-readable catalogs. Use them efficiently to understand the codebase and provide accurate assistance!
