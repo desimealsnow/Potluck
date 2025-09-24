@@ -10,6 +10,8 @@ export interface InputProps extends React.ComponentProps<typeof TextInput> {
   error?: boolean;
   multiline?: boolean;
   testID?: string;
+  variant?: 'default' | 'surface';
+  containerStyle?: any;
 }
 
 export function Input({
@@ -20,13 +22,17 @@ export function Input({
   multiline = false,
   style,
   testID,
+  variant = 'default',
+  containerStyle,
   ...props
 }: InputProps) {
   return (
     <View style={[
       styles.container,
       multiline && styles.containerMultiline,
-      error && styles.containerError
+      variant === 'surface' && styles.containerSurface,
+      error && styles.containerError,
+      containerStyle,
     ]} testID={`${testID}-container`}>
       {leftIcon && (
         <View style={styles.leftIcon}>
@@ -36,10 +42,11 @@ export function Input({
       <TextInput
         accessible
         accessibilityLabel={props.placeholder || 'input'}
-        placeholderTextColor={colors.text.muted}
+        placeholderTextColor={props.placeholderTextColor || colors.text.muted}
         style={[
           styles.input,
           multiline && styles.inputMultiline,
+          variant === 'surface' && styles.inputSurface,
           style
         ]}
         multiline={multiline}
@@ -67,6 +74,13 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     paddingLeft: 0,
     overflow: 'hidden',
+  },
+  containerSurface: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
+  },
+  inputSurface: {
+    color: '#111111',
   },
   containerMultiline: {
     height: 80,

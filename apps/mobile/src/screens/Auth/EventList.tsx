@@ -13,12 +13,16 @@ import {
   useWindowDimensions,
   Animated,
   Linking,
+  ScrollView,
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
 import Header from "../../components/Header";
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useFocusEffect } from '@react-navigation/native';
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -186,6 +190,19 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
   const isMobile = width < 768;
+  // Resolve bypass flag from Expo config extras first (dev web/native), then process.env (prod web)
+  const cfgExtra = ((Constants.expoConfig?.extra)
+    || (Constants as any)?.manifest2?.extra
+    || (Constants as any)?.manifest?.extra
+    || {}) as Record<string, any>;
+  const envExpo = (process.env.EXPO_PUBLIC_BYPASS_PHONE_VALIDATION as unknown as string | undefined);
+  const envGeneric = (process.env.BYPASS_PHONE_VALIDATION as unknown as string | undefined);
+  const bypassSource = (cfgExtra.EXPO_PUBLIC_BYPASS_PHONE_VALIDATION
+    ?? cfgExtra.BYPASS_PHONE_VALIDATION
+    ?? envExpo
+    ?? envGeneric);
+  const bypassPhoneValidation = (String(bypassSource || '').toUpperCase() === 'TEST');
+  try { console.log('[EventList] BYPASS env', { cfgExtra, envExpo, envGeneric, chosen: bypassSource, bypassPhoneValidation }); } catch {}
   const [sidebarVisible, setSidebarVisible] = useState(false); // For web/tablet sidebar
   const sidebarTranslateX = useRef(new Animated.Value(0)).current; // 0 = visible, -280 = hidden
   
@@ -218,6 +235,9 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [mapPoints, setMapPoints] = useState<Array<{ id: string; lat: number; lon: number; title?: string }>>([]);
   const debTimer = useRef<NodeJS.Timeout | null>(null);
   const endReachedOnce = useRef(false);
+
+  // Mobile Top Tabs
+  const MobileTabs = useMemo(() => createMaterialTopTabNavigator(), []);
   
   // Navigation state
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -257,6 +277,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [navigationContext, setNavigationContext] = useState<string | null>(null);
   const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
+  const effectivePhoneVerified = bypassPhoneValidation ? true : phoneVerified === true;
   const refreshUserLocation = useCallback(async () => {
     try {
       const response = await apiClient.get('/user-profile/me') as any;
@@ -291,6 +312,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
       // ignore
     }
   }, []);
+
+  // Fetch phone verification / location status on mount so UI can decide whether to enable Create Event
+  useEffect(() => {
+    refreshUserLocation();
+  }, [refreshUserLocation]);
 
   // Register push token with server (best-effort)
   const registerPush = useCallback(async () => {
@@ -605,6 +631,171 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     return actions;
   };
 
+  // TabContent component for mobile tabs: sets statusTab and renders the existing desktop content sections
+  function TabContent({ tabKey }: { tabKey: EventStatusMobile | 'pending-approval' }) {
+    useFocusEffect(
+      useCallback(() => {
+        // Sync the status on focus only (prevents flicker from repeated reloads)
+        if (statusTab !== tabKey) {
+          setStatusTab(tabKey as EventStatusMobile);
+          reloadWith(tabKey as EventStatusMobile);
+        }
+        return () => {};
+      }, [tabKey, statusTab, reloadWith])
+    );
+
+    if (tabKey === 'pending-approval') {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+          {loadingPending ? (
+            <ActivityIndicator color="#fff" />
+          ) : !pendingApprovals || pendingApprovals.length === 0 ? (
+            <View style={styles.emptyWrap}>
+              <Icon name="Inbox" size={48} color="rgba(255,255,255,0.4)" />
+              <Text style={styles.emptyTitle}>No pending join requests</Text>
+              <Text style={styles.emptyText}>When guests request to join your events, they will appear here.</Text>
+            </View>
+          ) : (
+            pendingApprovals.map((req: any) => (
+              <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
+                <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
+                <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
+                {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>&quot;{req.note}&quot;</Text> : null}
+                <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
+                  <Pressable
+                    style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+                    onPress={async () => {
+                      try { await apiClient.approveJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                    }}
+                  >
+                    <Text style={styles.actionButtonText}>Approve</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
+                    onPress={async () => {
+                      try { await apiClient.waitlistJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                    }}
+                  >
+                    <Text style={styles.actionButtonText}>Waitlist</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.actionButton, { backgroundColor: '#F44336' }]}
+                    onPress={async () => {
+                      try { await apiClient.declineJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
+                    }}
+                  >
+                    <Text style={styles.actionButtonText}>Decline</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
+      );
+    }
+
+    return (
+      mapMode ? (
+        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
+          <View style={styles.mapContainer}>
+            <View style={styles.mapPlaceholder}>
+              <Icon name="Map" size={48} color="#9CA3AF" />
+              <Text style={styles.mapPlaceholderTitle}>Map View</Text>
+              <Text style={styles.mapPlaceholderText}>
+                {mapPoints.length} event{mapPoints.length !== 1 ? 's' : ''} in your area
+              </Text>
+              <Pressable 
+                style={styles.mapButton}
+                onPress={() => {
+                  if (mapPoints.length > 0) {
+                    const firstPoint = mapPoints[0];
+                    const url = `https://www.google.com/maps?q=${firstPoint.lat},${firstPoint.lon}`;
+                    Linking.openURL(url).catch(() => {
+                      Alert.alert('Error', 'Could not open maps');
+                    });
+                  }
+                }}
+              >
+                <Icon name="ExternalLink" size={16} color="#fff" />
+                <Text style={styles.mapButtonText}>Open in Maps</Text>
+              </Pressable>
+            </View>
+          </View>
+          <View style={{ marginTop: 10 }}>
+            {mapPoints.map(p => (
+              <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
+                <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
+                <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
+                    <Text style={styles.actionButtonText}>Open</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : (
+        <View style={{ flex: 1, backgroundColor: '#351657' }}>
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          style={{ marginTop: 10 }}
+          refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
+          testID="events-list"
+          ListEmptyComponent={
+            loading ? (
+              <View style={styles.emptyWrap} testID="loading-container">
+                <ActivityIndicator color="#fff" testID="loading-indicator" />
+                <Text style={styles.loadingText}>Loading events...</Text>
+              </View>
+            ) : query.length > 0 ? (
+              <View style={styles.emptyWrap} testID="no-search-results">
+                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
+                <Text style={styles.noResultsTitle}>No events found</Text>
+                <Text style={styles.noResultsText}>
+                  No events match your search for "{query}". Try adjusting your search terms or filters.
+                </Text>
+                <Pressable 
+                  onPress={() => setQuery('')} 
+                  style={styles.clearSearchButton}
+                  testID="clear-search-results-button"
+                >
+                  <Text style={styles.clearSearchButtonText}>Clear Search</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={styles.emptyWrap} testID="empty-state">
+                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
+                <Text style={styles.emptyTitle}>No events yet</Text>
+                <Text style={styles.emptyText}>Create your first event to get started!</Text>
+              </View>
+            )
+          }
+          renderItem={({ item }) => (
+            <EventCard 
+              item={item} 
+              onPress={() => handleEventPress(item.id)} 
+              actions={getEventActions(item)}
+              testID={`event-card-${item.id}`}
+            />
+          )}
+          onEndReachedThreshold={0.01}
+          onEndReached={() => {
+            if (!endReachedOnce.current) {
+              endReachedOnce.current = true;
+              return;
+            }
+            loadMore();
+          }}
+          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
+        />
+        </View>
+      )
+    );
+  }
+
   const handleBackFromCreate = () => {
     setShowCreateEvent(false);
   };
@@ -853,11 +1044,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 showNavigation={false}
               />
         
-        {phoneVerified === false && (
+        {!effectivePhoneVerified && (
           <View style={{ backgroundColor: '#FEF3C7', padding: 12, marginHorizontal: PAGE_PADDING, marginTop: 8, borderRadius: 10, borderWidth: 1, borderColor: '#FDE68A' }}>
             <Text style={{ color: '#92400E', fontWeight: '700' }}>Verify your phone</Text>
             <Text style={{ color: '#92400E', marginTop: 4 }}>Verify your phone number to create events or request to join. Tap to verify now.</Text>
-            <Pressable onPress={() => setShowPreferences(true)} style={{ alignSelf: 'flex-start', marginTop: 8, backgroundColor: '#F59E0B', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
+            <Pressable onPress={() => setShowUserProfile(true)} style={{ alignSelf: 'flex-start', marginTop: 8, backgroundColor: '#F59E0B', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 }}>
               <Text style={{ color: '#fff', fontWeight: '800' }}>Verify Phone</Text>
             </Pressable>
           </View>
@@ -905,7 +1096,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     }}
                     testID="ownership-all"
                   >
-                    All Events
+                    <Text>All Events</Text>
                   </FilterChip>
                   <FilterChip
                     selected={ownership === "mine"}
@@ -915,7 +1106,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     }}
                     testID="ownership-mine"
                   >
-                    My Events
+                    <Text>My Events</Text>
                   </FilterChip>
                   <FilterChip
                     selected={ownership === "invited"}
@@ -925,7 +1116,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     }}
                     testID="ownership-invited"
                   >
-                    Invited Events
+                    <Text>Invited Events</Text>
                   </FilterChip>
                 </View>
               </View>
@@ -974,14 +1165,16 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           {/* Right Section - Events */}
           <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
             {/* Events Section Header */}
-            <View style={styles.eventsHeader}>
-              <View style={styles.eventsHeaderLeft}>
-                <Text style={styles.eventsTitle}>Events</Text>
-                <Text style={styles.eventsSubtitle}>
+            <View style={[styles.eventsHeader, isMobile && { flexDirection: 'column', alignItems: 'flex-start', gap: 8 }]}>
+              <View style={[styles.eventsHeaderLeft, isMobile && { flexDirection: 'column', alignItems: 'flex-start' }]}>
+                <Text style={[styles.eventsTitle, isMobile && { fontSize: 20 }]}>
+                  Events
+                </Text>
+                <Text style={[styles.eventsSubtitle, isMobile && { marginTop: 2 }]}>
                   {loading ? "Loading..." : `${data.length} event${data.length !== 1 ? 's' : ''} found`}
                 </Text>
               </View>
-              <View style={styles.eventsHeaderActions}>
+              <View style={[styles.eventsHeaderActions, isMobile && { alignSelf: 'stretch', justifyContent: 'space-between', flexWrap: 'wrap' }]}>
                 <Pressable 
                   onPress={() => setMapMode(m => !m)} 
                   style={[styles.filterToggleButton, { marginRight: 8 }]} 
@@ -1015,7 +1208,12 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   )}
                 </Pressable>
                 
-                <Pressable onPress={handleCreateEvent} style={styles.createEventButton} testID="create-event-button">
+                <Pressable
+                  onPress={handleCreateEvent}
+                  style={[styles.createEventButton, !effectivePhoneVerified && { opacity: 0.6 }]}
+                  disabled={!effectivePhoneVerified}
+                  testID="create-event-button"
+                >
                   <Icon name="Plus" size={16} color="#fff" />
                   <Text style={styles.createEventButtonText}>Create Event</Text>
                 </Pressable>
@@ -1052,43 +1250,57 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             {query.length > 0 && (
               <View style={styles.searchResultsIndicator}>
                 <Text style={styles.searchResultsText}>
-                  {loading ? "Searching..." : `Found ${data.length} event${data.length !== 1 ? 's' : ''} for "${query}"`}
+                  {loading ? "Searching..." : `Found ${data.length} event${data.length !== 1 ? 's' : ''} for \"${query}\"`}
                 </Text>
               </View>
             )}
 
-            {/* Segmented control */}
-            <View style={styles.segmentWrap} testID="status-filter-container">
-              <Segmented
-                options={[
-                  { key: "upcoming", label: "Upcoming" },
-                  { key: "drafts", label: "Drafts" },
-                  { key: "past", label: "Past" },
-                  { key: "deleted", label: "Deleted" },
-                  { key: "pending-approval", label: "Pending Approval" },
-                ]}
-                value={statusTab}
-                onChange={(v) => {
-                  const next = v as EventStatusMobile;
-                  setStatusTab(next);
-                  reloadWith(next);
-                }}
-                testID="status-filter"
-              />
-            </View>
+            {/* Status selector: Top Tabs on mobile, segmented on larger screens */}
+            {isMobile ? (
+              <View style={{ flex: 1, backgroundColor: '#351657' }} testID="status-filter-container">
+                <MobileTabs.Navigator
+                  initialLayout={{ width }}
+                  screenOptions={{
+                    lazy: true,
+                    swipeEnabled: true,
+                    tabBarScrollEnabled: true,
+                    tabBarItemStyle: { width: 'auto' },
+                    tabBarStyle: { backgroundColor: '#351657' },
+                    tabBarIndicatorStyle: { backgroundColor: '#fff' },
+                    tabBarLabelStyle: { color: '#fff', fontWeight: '700', textTransform: 'none' },
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  <MobileTabs.Screen name="Upcoming" children={() => <TabContent tabKey="upcoming" />} />
+                  <MobileTabs.Screen name="Drafts" children={() => <TabContent tabKey="drafts" />} />
+                  <MobileTabs.Screen name="Past" children={() => <TabContent tabKey="past" />} />
+                  <MobileTabs.Screen name="Deleted" children={() => <TabContent tabKey="deleted" />} />
+                  <MobileTabs.Screen name="Pending" children={() => <TabContent tabKey="pending-approval" />} />
+                </MobileTabs.Navigator>
+              </View>
+            ) : (
+              <View style={[styles.segmentWrap]} testID="status-filter-container">
+                <Segmented
+                  options={[
+                    { key: "upcoming", label: "Upcoming" },
+                    { key: "drafts", label: "Drafts" },
+                    { key: "past", label: "Past" },
+                    { key: "deleted", label: "Deleted" },
+                    { key: "pending-approval", label: "Pending Approval" },
+                  ]}
+                  value={statusTab}
+                  onChange={(v) => {
+                    const next = v as EventStatusMobile;
+                    setStatusTab(next);
+                    reloadWith(next);
+                  }}
+                  testID="status-filter"
+                />
+              </View>
+            )}
 
-            {/* Applied Filters Bar */}
-            <AppliedFiltersBar
-              ownership={ownership}
-              dietFilters={dietFilters}
-              useNearby={useNearby}
-              userLocation={userLocation}
-              onRemoveFilter={handleRemoveFilter}
-            />
-
-
-            {/* Pending Approval tab content or Map/List */}
-            {statusTab === 'pending-approval' ? (
+            {/* Pending Approval tab content or Map/List (desktop/tablet) */}
+            {!isMobile && (statusTab === 'pending-approval' ? (
               <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
                 {loadingPending ? (
                   <ActivityIndicator color="#fff" />
@@ -1103,7 +1315,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
                       <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
                       <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
-                      {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>"{req.note}"</Text> : null}
+                      {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>&quot;{req.note}&quot;</Text> : null}
                       <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
                         <Pressable
                           style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
@@ -1230,7 +1442,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           }}
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
             />
-            )}
+            ))}
           </View>
         </View>
 
@@ -1725,6 +1937,7 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     paddingVertical: 40,
     paddingHorizontal: 32,
+    backgroundColor: "#351657",
   },
   loadingText: {
     color: "rgba(255,255,255,0.8)",

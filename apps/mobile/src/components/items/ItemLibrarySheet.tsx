@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform, Modal, ActivityIndicator } from 'react-native';
 import { apiClient, ItemCatalog, UserItem } from '@/services/apiClient';
 import { Icon } from '@/components/ui/Icon';
@@ -13,20 +13,25 @@ export interface ItemLibrarySelection {
   user_item_id?: string;
 }
 
+type ItemSelectHandler = (_: ItemLibrarySelection) => void;
+
 export default function ItemLibrarySheet({
   visible,
   onClose,
   onSelect,
   initialTab = 'catalog',
+  excludeCatalogIds = [],
+  excludeUserItemIds = [],
 }: {
   visible: boolean;
   onClose: () => void;
-  onSelect: (selection: ItemLibrarySelection) => void;
+  onSelect: ItemSelectHandler;
   initialTab?: TabKey;
+  excludeCatalogIds?: string[];
+  excludeUserItemIds?: string[];
 }) {
   const [tab, setTab] = useState<TabKey>(initialTab);
   const [q, setQ] = useState('');
-  const [category, setCategory] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [catalog, setCatalog] = useState<ItemCatalog[]>([]);
   const [mine, setMine] = useState<UserItem[]>([]);
@@ -35,12 +40,12 @@ export default function ItemLibrarySheet({
   const loadCatalog = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiClient.getItemCatalog({ q: q || undefined, category });
+      const data = await apiClient.getItemCatalog({ q: q || undefined });
       setCatalog(Array.isArray(data) ? data : []);
     } finally {
       setLoading(false);
     }
-  }, [q, category]);
+  }, [q]);
 
   const loadMine = useCallback(async () => {
     try {
@@ -126,7 +131,9 @@ export default function ItemLibrarySheet({
         {loading ? (
           <ActivityIndicator color="#666" />
         ) : tab === 'catalog' ? (
-          (catalog || []).map(item => (
+          (catalog || []).
+            filter(item => !excludeCatalogIds.includes(item.id)).
+            map(item => (
             <TouchableOpacity
               key={item.id}
               style={styles.row}
@@ -140,7 +147,9 @@ export default function ItemLibrarySheet({
             </TouchableOpacity>
           ))
         ) : (
-          (mine || []).map(item => (
+          (mine || []).
+            filter(item => !excludeUserItemIds.includes(item.id)).
+            map(item => (
             <TouchableOpacity
               key={item.id}
               style={styles.row}

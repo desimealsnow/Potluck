@@ -40,6 +40,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "EXPO_PUBLIC_BYPASS_PHONE_VALIDATION": "TEST"
     }
   }
 }

@@ -62,7 +62,7 @@ export const BillingController = {
               price_id: variant.id, // Same as ID for LemonSqueezy
               provider: 'lemonsqueezy',
               name: `${product.attributes.name} - ${variant.attributes.name}`,
-              amount_cents: Math.round(variant.attributes.price * 100), // Convert to cents
+              amount_cents: Math.round(variant.attributes.price),
               currency: variant.attributes.currency || 'USD',
               interval: variant.attributes.interval || 'year',
               is_active: true,

@@ -13,6 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
 import Header from "@/components/Header";
 import { supabase } from "../../config/supabaseClient";
+import { apiClient } from "@/services/apiClient";
 import type { User } from "@supabase/supabase-js";
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -25,6 +26,7 @@ export default function UserProfileScreen({
   onEditProfile?: () => void;
 }) {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<{ phone_e164?: string | null; phone_verified?: boolean } | null>(null);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -38,6 +40,18 @@ export default function UserProfileScreen({
       }
     };
     getCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const data = await apiClient.get<any>('/user-profile/me');
+        setProfile({ phone_e164: data?.phone_e164 ?? null, phone_verified: data?.phone_verified ?? false });
+      } catch (e) {
+        // ignore
+      }
+    };
+    fetchProfile();
   }, []);
 
   const gradient = ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const;
@@ -81,6 +95,18 @@ export default function UserProfileScreen({
                 {user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'User'}
               </Text>
               <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
+
+            {/* Phone status */}
+            <View style={{ marginBottom: 8 }}>
+              <Text style={{ fontSize: 14, color: '#6b7280', fontWeight: '600' }}>Phone Number</Text>
+              {profile?.phone_e164 ? (
+                <Text style={{ fontSize: 16, color: '#111827', marginTop: 2 }}>
+                  {profile.phone_e164} {profile.phone_verified ? '' : <Text style={{ color: '#B45309' }}>• Unverified</Text>}
+                </Text>
+              ) : (
+                <Text style={{ fontSize: 16, color: '#B45309', marginTop: 2 }}>Unverified</Text>
+              )}
+            </View>
               
               {user?.user_metadata?.meal_preferences && user.user_metadata.meal_preferences.length > 0 && (
                 <View style={styles.preferencesContainer}>

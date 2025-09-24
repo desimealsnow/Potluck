@@ -140,3 +140,25 @@ The system automatically:
 ---
 
 *This documentation system provides both human-readable individual docs and AI-agent-optimized consolidated knowledge base for the Potluck platform.*
+
+## 🍽️ Rebalance (Items Auto-Assignment)
+
+The Rebalance feature helps hosts automatically assign currently unclaimed event items across accepted participants to balance responsibilities.
+
+- Purpose: Evenly distribute unclaimed items to accepted participants up to an optional per-user cap.
+- Endpoint: `POST /events/{eventId}/rebalance`
+- AuthZ: Host-only
+- Request body (optional):
+  - `max_per_user` (integer, default 2) – maximum number of auto-assigned items per participant.
+- Response:
+  - `{ assigned: number }` – count of items newly assigned by the operation.
+
+Client usage in mobile app:
+- Location: `apps/mobile/src/screens/Auth/EventDetailsPage.tsx` → Items tab
+- Action: Press the “Rebalance” button; the app calls `POST /events/{eventId}/rebalance` and reports success/failure.
+- Behavior: Only visible to hosts. After completion, UI reflects updated assignments.
+
+Notes:
+- Only unclaimed items are considered.
+- Participants with status accepted are eligible.
+- Manual claims remain unchanged; this is a best-effort balancing pass.

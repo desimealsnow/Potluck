@@ -15,12 +15,12 @@ import {
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { Icon, Segmented, ProgressBar } from "@/components";
+import Header from "@/components/Header";
 import { gradients } from "@/theme";
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
-import { AvailabilityBadge, RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
+import {  RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
 
 /* ===================== Config ===================== */
@@ -107,6 +107,8 @@ type ItemDTO = {
   requiredQty: number;
   claimedQty: number;
   perGuest?: boolean;
+  catalog_item_id?: string | null;
+  user_item_id?: string | null;
 };
 
 type ParticipantDTO = {
@@ -255,6 +257,8 @@ function useEventData(eventId: string) {
         requiredQty: typeof x.per_guest_qty === 'number' ? x.per_guest_qty : (typeof x.required_qty === 'number' ? x.required_qty : 1),
         claimedQty: typeof x.claimed_qty === 'number' ? x.claimed_qty : (x.assigned_to ? 1 : 0),
         perGuest: typeof x.per_guest_qty === 'number' ? x.per_guest_qty > 0 : true,
+        catalog_item_id: x.catalog_item_id ?? null,
+        user_item_id: x.user_item_id ?? null,
       }));
       setItems(mappedItems);
       setParticipants(Array.isArray(p) ? p : []);
@@ -619,7 +623,15 @@ export default function EventDetailsPage({
   return (
     <View style={[styles.container, { backgroundColor: '#351657' }]}>
       <SafeAreaView style={styles.safeArea}>
-        <TopBar title="" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
+        <Header
+          onNotifications={() => {}}
+          onSettings={() => {}}
+          onPlans={() => {}}
+          onLogout={() => {}}
+          unreadCount={0}
+          showNavigation={false}
+        />
+        <TopBar title="Event Details" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>
             <EventHeader 
@@ -721,6 +733,8 @@ export default function EventDetailsPage({
             per_guest_qty: Math.max(0.01, sel.per_guest_qty || 1)
           });
         }}
+        excludeCatalogIds={[...(Array.isArray(items) ? items : []).map(i => i.catalog_item_id!).filter(Boolean)]}
+        excludeUserItemIds={[...(Array.isArray(items) ? items : []).map(i => i.user_item_id!).filter(Boolean)]}
       />
     </View>
   );
@@ -739,24 +753,20 @@ function TopBar({
   onShare?: () => void;
 }) {
   return (
-    <View style={styles.topBar}>
-      <Pressable onPress={onBack} style={styles.topBarButton}>
-        <Icon name="ChevronLeft" size={20} color="#374151" />
-      </Pressable>
-      {title ? (
-        <Text style={styles.topBarTitle}>{title}</Text>
-      ) : (
-        <View style={styles.topBarSpacer} />
-      )}
-      <View style={styles.topBarActions}>
+    <View style={[styles.topBar, { backgroundColor: '#351657' }]}> 
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Pressable onPress={onBack} style={styles.topBarButton}>
+          <Icon name="ChevronLeft" size={20} color="#ffffff" />
+        </Pressable>
+        <Icon name="Utensils" size={20} color="#ffffff" />
+        <Text style={[styles.topBarTitle, { color: '#ffffff', marginLeft: 8 }]}>{title || 'Event Details'}</Text>
+      </View>
+      <View style={[styles.topBarActions] }>
         <Pressable onPress={onRefresh} style={styles.topBarButton}>
-          <Icon name="RefreshCcw" size={20} color="#374151" />
+          <Icon name="RefreshCcw" size={20} color="#ffffff" />
         </Pressable>
         <Pressable onPress={onShare} style={styles.topBarButton}>
-          <Icon name="Share2" size={20} color="#374151" />
-        </Pressable>
-        <Pressable style={styles.topBarButton}>
-          <Icon name="Ellipsis" size={20} color="#374151" />
+          <Icon name="Share2" size={20} color="#ffffff" />
         </Pressable>
       </View>
     </View>
@@ -1052,11 +1062,6 @@ function ItemsTab({
           </Pressable>
         </View>
       )}
-      <View style={{ marginTop: 6 }}>
-        <Pressable onPress={() => setPickerOpen(true)} style={[styles.claimButton, styles.claimButtonActive, { alignSelf: 'flex-start' }]}> 
-          <Text style={styles.claimButtonText}>Browse Catalog / My Items</Text>
-        </Pressable>
-      </View>
 
       {safeItems.map((it) => {
         const pct = clamp01(it.claimedQty / it.requiredQty);

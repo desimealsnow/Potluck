@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
 import SupabaseAuthUI from './src/screens/Auth/SupabaseAuthUI';
 import { ThemeProvider } from './src/theme';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -21,7 +22,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <SafeAreaProvider>
-        <SupabaseAuthUI />
+        <NavigationContainer>
+          <SupabaseAuthUI />
+        </NavigationContainer>
         <StatusBar style="auto" />
       </SafeAreaProvider>
     </ThemeProvider>

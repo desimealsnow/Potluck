@@ -99,8 +99,57 @@ export default function ParticipantsScreen({
   const loadParticipants = async () => {
     try {
       setLoading(true);
-      const data = await api<Participant[]>(`/events/${eventId}/participants`);
-      setParticipants(data);
+      const [data, eventResp, me] = await Promise.all([
+        api<Participant[]>(`/events/${eventId}/participants`),
+        api<any>(`/events/${eventId}`),
+        api<{ user_id: string }>(`/user-profile/me`).catch(() => undefined),
+      ]);
+      const createdBy: string | undefined = (eventResp as any)?.event?.created_by;
+      const meId: string | undefined = (me as any)?.user_id;
+
+      let withRoles = (Array.isArray(data) ? data : []).map((p) => {
+        const isHost = createdBy ? (p.user_id === createdBy) : (meId ? (p.user_id === meId) : false);
+        return {
+          ...p,
+          role: p.role || (isHost ? "host" : "guest"),
+        } as Participant;
+      });
+
+      // Enrich host details from user_profiles if missing
+      if (createdBy) {
+        // Try event payload host fields first
+        const hostNameFromEvent = (eventResp as any)?.host?.name
+          || (eventResp as any)?.event?.host?.name
+          || (eventResp as any)?.event?.host?.display_name;
+        const hostAvatarFromEvent = (eventResp as any)?.host?.avatar_url
+          || (eventResp as any)?.event?.host?.avatar_url
+          || (eventResp as any)?.event?.host?.avatar;
+        if (hostNameFromEvent || hostAvatarFromEvent) {
+          withRoles = withRoles.map(p => p.user_id === createdBy ? {
+            ...p,
+            name: p.name || hostNameFromEvent || p.name,
+            avatar: p.avatar || hostAvatarFromEvent || p.avatar,
+          } : p);
+        }
+
+        try {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('display_name, avatar_url, email')
+            .eq('user_id', createdBy)
+            .maybeSingle();
+          if (profile) {
+            withRoles = withRoles.map(p => p.user_id === createdBy ? {
+              ...p,
+              name: p.name || (profile.display_name as string | undefined) || p.name,
+              email: p.email || (profile.email as string | undefined) || p.email,
+              avatar: p.avatar || (profile.avatar_url as string | undefined) || p.avatar,
+            } : p);
+          }
+        } catch {}
+      }
+
+      setParticipants(withRoles);
     } catch (error) {
       console.error("Failed to load participants:", error);
       Alert.alert("Error", "Failed to load participants");
@@ -127,8 +176,8 @@ export default function ParticipantsScreen({
   // Derived data
   const hosts = participants.filter((p) => p.role === "host");
   const invitees = participants.filter((p) => p.role === "guest" || !p.role);
-  const acceptedCount = participants.filter((p) => p.status === "accepted").length;
-  const pendingCount = participants.filter((p) => p.status === "pending").length;
+  const acceptedCount = invitees.filter((p) => p.status === "accepted").length;
+  const pendingCount = invitees.filter((p) => p.status === "pending" || p.status === "invited").length;
 
   const filteredInvitees =
     filter === "pending"

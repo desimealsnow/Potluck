@@ -49,7 +49,7 @@ export function Segmented({ options, value, onChange, style, testID }: Segmented
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: '#F1ECF8',
     borderRadius: 14,
     padding: 4,
   },
@@ -61,15 +61,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   optionSelected: {
-    backgroundColor: colors.neutral.card,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   text: {
-    color: colors.text.secondary,
+    color: '#5B5B66',
     fontWeight: typography.fontWeight.bold,
     fontSize: typography.fontSize.sm,
   },
   textSelected: {
-    color: colors.text.primary,
+    color: '#1F1F23',
     fontWeight: typography.fontWeight.extrabold,
   },
 });

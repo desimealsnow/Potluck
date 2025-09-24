@@ -143,6 +143,26 @@ npm install
 npx expo start
 ```
 
+#### Mobile environment flags (Expo)
+- Public runtime flags must be exposed via Expo config `extra`.
+- This repo maps `.env` → `extra` in `apps/mobile/app.config.ts`.
+
+Bypass phone verification for testing:
+
+1) Set in `.env` (repo root or `apps/mobile/.env` depending on your setup):
+```
+BYPASS_PHONE_VALIDATION=TEST
+```
+2) The config exposes this as `extra.EXPO_PUBLIC_BYPASS_PHONE_VALIDATION` at runtime.
+3) Start Expo with cache clear (required after env/config changes):
+```bash
+cd apps/mobile
+npx expo start -c
+# or
+npm run start -- --clear
+```
+4) The mobile app reads the flag via `expo-constants` in `EventList.tsx` and enables Create Event when set to `TEST`.
+
 ### Database Setup
 ```bash
 # Run migrations
@@ -183,6 +203,11 @@ npx playwright test
 - `SUPABASE_URL` - Supabase project URL
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
 - `JOIN_HOLD_TTL_MIN` - Join request hold duration (default: 30 minutes)
+- `EXPO_PUBLIC_BYPASS_PHONE_VALIDATION` (mobile) - Public runtime flag; set to `TEST` (via `app.config.ts` mapping from `.env`) to enable Create Event without phone verification and hide the nudge on Event List.
+
+Notes:
+- For mobile (Expo), only variables exposed through `expo.extra` are available at runtime. This repo uses `apps/mobile/app.config.ts` to map `.env` → `extra` (e.g., `BYPASS_PHONE_VALIDATION` → `EXPO_PUBLIC_BYPASS_PHONE_VALIDATION`).
+- After changing `.env` or `app.config.ts`, restart Metro with cache clear: `npx expo start -c`.
 
 ### Database Migrations
 All database changes are managed through migration files in `apps/server/db/migrations/`.

@@ -25,7 +25,7 @@ export function Stepper({ step, style }: StepperProps) {
         return (
           <View key={s.key} style={styles.stepContainer}>
             <LinearGradient
-              colors={active ? ["#FF7A00", "#FF3D71"] : ["#FFE6D2", "#FFE6E9"]}
+              colors={active ? ["#7C3AED", "#9333EA"] : ["#E5E7EB", "#F3F4F6"]}
               style={[
                 styles.iconContainer,
                 active && styles.iconContainerActive,
@@ -34,7 +34,7 @@ export function Stepper({ step, style }: StepperProps) {
               <Icon
                 name={s.icon as any}
                 size={20}
-                color={active ? colors.text.inverse : "#FF7A00"}
+                color={active ? colors.text.inverse : "#6B7280"}
               />
             </LinearGradient>
             <Text style={[
@@ -62,6 +62,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 10,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 980,
   },
   stepContainer: {
     alignItems: 'center',
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconContainerActive: {
-    shadowColor: '#FF6A3D',
+    shadowColor: '#7C3AED',
     shadowOpacity: 0.25,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 0 },
@@ -83,21 +86,21 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 4,
-    fontWeight: '800',
-    color: '#B26B4B',
+    fontWeight: '700',
+    color: '#6B7280',
   },
   labelActive: {
-    color: '#D64545',
+    color: '#7C3AED',
     fontWeight: '800',
   },
   bar: {
     width: '100%',
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#F5D7C8',
+    backgroundColor: '#E5E7EB',
     marginTop: 8,
   },
   barActive: {
-    backgroundColor: '#FF9F68',
+    backgroundColor: '#7C3AED',
   },
 });

@@ -9,7 +9,8 @@ import { Icon } from "@/components";
 import Header from "@/components/Header";
 import ParticipantsScreen from "./Participants";
 import { apiClient } from "@/services/apiClient";
-import { Card, Input, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
+import { Card, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
+import { Input } from "@/components/ui/Input";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
 import { gradients } from "@/theme";
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
@@ -39,6 +40,9 @@ export default function CreateEventScreen({
 }) {
   const [step, setStep] = useState<StepperStep>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // (Phone verification is handled on Event List entry point; no checks here)
+
+  // Do not early-return; keep hooks order stable and UI rendered.
 
   // Step 1 – Details
   const [title, setTitle] = useState("");
@@ -109,46 +113,50 @@ export default function CreateEventScreen({
     if (isSubmitting) return;
     try {
       setIsSubmitting(true);
-      // Require verified phone before hosting
-      try {
-        const prof = await apiClient.get<any>('/user-profile/me');
-        if (!prof?.phone_verified) {
-          Alert.alert('Verify Phone', 'Please verify your phone number in Settings > User Preferences before creating an event.');
-          setIsSubmitting(false);
-          return;
-        }
-      } catch {}
+      try { console.log('[CreateEvent] submit() start'); } catch {}
+
+      // (Phone verification gating removed from submit; handled before entering this flow)
       
       // Validate event date is in the future
       if (!selectedDate || !selectedTime) {
+        try { console.warn('[CreateEvent] missing date/time', { selectedDate, selectedTime }); } catch {}
         Alert.alert("Missing Date/Time", "Please select both date and time for your event.");
         setIsSubmitting(false);
         return;
       }
       
-      const eventDateTime = combineDateTime(selectedDate, selectedTime);
+      let eventDateISO = combineDateTime(selectedDate, selectedTime);
       const now = new Date();
-      
-      if (new Date(eventDateTime) <= now) {
-        Alert.alert(
-          "Invalid Event Time", 
-          "Please select a future date and time for your event. The event cannot be scheduled in the past.",
-          [{ text: "OK" }]
-        );
-        setIsSubmitting(false);
-        return;
+      // Auto-adjust if the selected time is in the past: bump to 15 minutes from now
+      if (new Date(eventDateISO) <= now) {
+        try { console.warn('[CreateEvent] invalid event time, auto-adjusting', { eventDateISO, now: now.toISOString() }); } catch {}
+        const adjusted = new Date(now.getTime() + 15 * 60 * 1000);
+        try {
+          setSelectedDate(adjusted);
+          setSelectedTime(adjusted);
+        } catch {}
+        eventDateISO = adjusted.toISOString();
       }
       
       if (!selectedLoc) {
+        try { console.warn('[CreateEvent] missing location'); } catch {}
         Alert.alert("Missing location", "Please select a location for your event.");
         setIsSubmitting(false);
         return;
       }
 
+      const validItems = dishes
+        .filter(d => d.name && d.name.trim().length > 0)
+        .map(d => ({
+          name: d.name.trim(),
+          category: d.category || undefined,
+          per_guest_qty: Math.max(0.01, d.per_guest_qty)
+        }));
+
       const payload: EventCreatePayload = {
         title: title.trim(),
         description: description.trim() || undefined,
-        event_date: combineDateTime(selectedDate, selectedTime),
+        event_date: eventDateISO,
         min_guests: parseInt(minGuests, 10),
         max_guests: maxGuests ? parseInt(maxGuests, 10) : undefined,
         meal_type: mealType,
@@ -158,24 +166,36 @@ export default function CreateEventScreen({
           latitude: selectedLoc.latitude,
           longitude: selectedLoc.longitude,
         },
-        items: dishes
-          .filter(d => d.name.trim())
-          .map(d => ({
-            name: d.name.trim(),
-            category: d.category || undefined,
-            per_guest_qty: Math.max(0.01, d.per_guest_qty)
-          }))
+        items: validItems
       } as any; // Temporary type assertion until types are regenerated
 
       // Add the required fields that aren't in the generated types yet
       (payload as any).capacity_total = parseInt(maxGuests, 10) || parseInt(minGuests, 10);
       (payload as any).is_public = true;
 
-      console.log("Creating event with payload:", JSON.stringify(payload, null, 2));
+      try { console.log('[CreateEvent] posting /events with payload', payload); } catch {}
 
-      const response = await apiClient.post<any>("/events", payload);
+      const response = await apiClient.post<any>("/events", payload).catch((e: any) => {
+        const msg = e?.message || 'Unknown error';
+        // Handle phone verification gracefully
+        if (String(e?.code || '').toUpperCase() === 'PHONE_UNVERIFIED') {
+          Alert.alert(
+            'Verify Phone',
+            'Please verify your phone number in Settings > User Preferences before creating an event.',
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => {} },
+              { text: 'Open Preferences', onPress: () => { try { setStep(0 as StepperStep); } catch {} } },
+            ]
+          );
+        } else {
+          Alert.alert('Failed to create', msg);
+        }
+        try { console.error('[CreateEvent] POST /events failed', e); } catch {}
+        throw e;
+      });
 
-      console.log("Create event response:", JSON.stringify(response, null, 2));
+      try { console.log('[CreateEvent] POST /events response', response); } catch {}
+      try { console.log('[CreateEvent] submit() success'); } catch {}
 
       // Handle different possible response structures
       let eventId: string | null = null;
@@ -241,30 +261,40 @@ export default function CreateEventScreen({
         <Stepper step={step} />
 
         {/* Body */}
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120, alignItems: 'center' }}>
+          <View style={styles.pageContainer}>
           {step === 0 && (
-            <Card title="🎉 Potluck Details">
+            <Card title="🎉 Potluck Details" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt}>
               {/* Title */}
-              <Label>Event Title</Label>
-              <Input placeholder="Enter title" value={title} onChangeText={setTitle} testID="event-title-input" />
+              <Label style={{ color: '#000' }}>Event Title</Label>
+              <Input
+                placeholder="Enter title"
+                placeholderTextColor="#B4B4BD"
+                value={title}
+                onChangeText={setTitle}
+                testID="event-title-input"
+                variant="surface"
+              />
 
               {/* Description */}
-              <Label>Description (Optional)</Label>
+              <Label style={{ color: '#000' }}>Description (Optional)</Label>
               <Input 
                 placeholder="Tell guests about your event..." 
+                placeholderTextColor="#B4B4BD"
                 value={description} 
                 onChangeText={setDescription}
                 multiline
                 numberOfLines={3}
-                style={{ height: 80, textAlignVertical: 'top', borderWidth: 0 }}
+                variant="surface"
+                style={{ height: 96, textAlignVertical: 'top' }}
                 testID="event-description-input"
               />
 
               {/* Date + Time */}
               <View style={styles.row} testID="date-time-container">
                 <View style={{ flex: 1, marginRight: 8 }}>
-                  <Label>Date</Label>
-                  <Pressable onPress={() => setShowDatePicker(true)} style={styles.inputWrap} testID="date-picker-button">
+                  <Label style={{ color: '#000' }}>Date</Label>
+                  <Pressable onPress={() => setShowDatePicker(true)} style={[styles.inputWrap, { backgroundColor: '#fff' }]} testID="date-picker-button">
                     <View style={styles.inputIcon}>
                       <Icon name="Calendar" size={16} color="#9DA4AE" />
                     </View>
@@ -274,8 +304,8 @@ export default function CreateEventScreen({
                   </Pressable>
                 </View>
                 <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Label>Time</Label>
-                  <Pressable onPress={() => setShowTimePicker(true)} style={styles.inputWrap} testID="time-picker-button">
+                  <Label style={{ color: '#000' }}>Time</Label>
+                  <Pressable onPress={() => setShowTimePicker(true)} style={[styles.inputWrap, { backgroundColor: '#fff' }]} testID="time-picker-button">
                     <View style={styles.inputIcon}>
                       <Icon name="Clock" size={16} color="#9DA4AE" />
                     </View>
@@ -289,19 +319,21 @@ export default function CreateEventScreen({
               {/* Guests */}
               <View style={styles.row}>
                 <View style={{ flex: 1, marginRight: 8 }}>
-                  <Label>Min Guests</Label>
+                  <Label style={{ color: '#000' }}>Min Guests</Label>
                   <Input
                     keyboardType="number-pad"
                     value={minGuests}
-                    onChangeText={(v) => setMinGuests(v.replace(/[^0-9]/g, ""))}
+                    onChangeText={(v: string) => setMinGuests(v.replace(/[^0-9]/g, ""))}
+                    variant="surface"
                   />
                 </View>
                 <View style={{ flex: 1, marginLeft: 8 }}>
-                  <Label>Max Guests</Label>
+                  <Label style={{ color: '#000' }}>Max Guests</Label>
                   <Input
                     keyboardType="number-pad"
                     value={maxGuests}
-                    onChangeText={(v) => setMaxGuests(v.replace(/[^0-9]/g, ""))}
+                    onChangeText={(v: string) => setMaxGuests(v.replace(/[^0-9]/g, ""))}
+                    variant="surface"
                   />
                 </View>
               </View>
@@ -328,16 +360,38 @@ export default function CreateEventScreen({
                   onPress={() => setMealType("mixed")}
                 />
               </View>
+              {/* Inline step actions */}
+              <View style={styles.inlineActions}>
+                <Pressable
+                  onPress={() => setStep((s) => Math.max(0, s - 1) as StepperStep)}
+                  disabled={step === 0}
+                  style={[styles.ghostBtn, styles.inlineBtn, step === 0 && { opacity: 0.5 }]}
+                  testID="back-step-inline"
+                >
+                  <Text style={styles.ghostText}>Back</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    if (!canNextFromDetails) return Alert.alert("Missing info", "Please fill title, date, time and valid guest counts.");
+                    setStep(1 as StepperStep);
+                  }}
+                  style={[styles.cta, styles.inlineBtn]}
+                  testID="next-step-inline"
+                >
+                  <Text style={styles.ctaText}>Next</Text>
+                </Pressable>
+              </View>
             </Card>
           )}
 
           {step === 1 && (
-            <Card title="📍 Where's the feast?">
-              <Label>Search Location</Label>
+            <Card title="📍 Where's the feast?" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt}>
+              <Label style={{ color: '#000' }}>Search Location</Label>
               <Input
                 placeholder="Search for the perfect spot..."
+                placeholderTextColor="#B4B4BD"
                 value={locQuery}
-                onChangeText={(val) => {
+                onChangeText={(val: string) => {
                   setLocQuery(val);
                   if (locDebRef.current) clearTimeout(locDebRef.current);
                   locDebRef.current = setTimeout(async () => {
@@ -360,6 +414,7 @@ export default function CreateEventScreen({
                   }, 300);
                 }}
                 leftIcon="House"
+                variant="surface"
               />
               {locSuggestions.length > 0 && (
                 <View style={{ marginTop: 8, backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
@@ -444,6 +499,24 @@ export default function CreateEventScreen({
                   </View>
                 </View>
               )}
+              {/* Inline step actions */}
+              <View style={styles.inlineActions}>
+                <Pressable
+                  onPress={() => setStep(0 as StepperStep)}
+                  style={[styles.ghostBtn, styles.inlineBtn]}
+                >
+                  <Text style={styles.ghostText}>Back</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    if (!canNextFromLocation) return Alert.alert("Pick a location", "Please select a location to continue.");
+                    setStep(2 as StepperStep);
+                  }}
+                  style={[styles.cta, styles.inlineBtn]}
+                >
+                  <Text style={styles.ctaText}>Next</Text>
+                </Pressable>
+              </View>
             </Card>
           )}
 
@@ -457,6 +530,8 @@ export default function CreateEventScreen({
                     <Pressable onPress={() => addDish(setDishes)} style={styles.addBtn}><Text style={{ color: "#fff", fontWeight: "800" }}>+ Add Dish</Text></Pressable>
                   </View>
                 }
+                style={[styles.cardConstrained, styles.cardSurface]}
+                titleStyle={styles.cardTitleAlt}
               >
                 {dishes.map((d, idx) => (
                   <View key={d.id} style={styles.dishCard}>
@@ -483,7 +558,7 @@ export default function CreateEventScreen({
 
                     <View style={styles.row}>
                       <View style={{ flex: 1, marginRight: 8 }}>
-                        <Label>Category</Label>
+                      <Label style={{ color: '#000' }}>Category</Label>
                         <Segmented
                           options={[
                             { key: "Main Course", label: "Main Course" },
@@ -495,11 +570,13 @@ export default function CreateEventScreen({
                         />
                       </View>
                       <View style={{ width: 100 }}>
-                        <Label>Per Guest</Label>
+                        <Label style={{ color: '#000' }}>Per Guest</Label>
                         <Input
                           keyboardType="number-pad"
+                          placeholderTextColor="#B4B4BD"
                           value={String(d.per_guest_qty)}
-                          onChangeText={(v) => updateDish(d.id, { per_guest_qty: Math.max(0, parseInt(v || "0", 10)) || 0 }, setDishes)}
+                          onChangeText={(v: string) => updateDish(d.id, { per_guest_qty: Math.max(0, parseInt(v || "0", 10)) || 0 }, setDishes)}
+                          variant="surface"
                         />
                       </View>
                     </View>
@@ -512,15 +589,31 @@ export default function CreateEventScreen({
                 ))}
               </Card>
 
-              <Card title="📊 Menu Summary">
+              <Card title="📊 Menu Summary" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt}>
                 <Row label="Total Dishes:" value={String(totalDishes)} />
                 <Row label={`For ${guests} guests:`} value={`${servings} servings`} />
               </Card>
+
+              {/* Inline step actions AFTER summary */}
+              <View style={styles.inlineActions}>
+                <Pressable
+                  onPress={() => setStep(1 as StepperStep)}
+                  style={[styles.ghostBtn, styles.inlineBtn]}
+                >
+                  <Text style={styles.ghostText}>Back</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setStep(3 as StepperStep)}
+                  style={[styles.cta, styles.inlineBtn]}
+                >
+                  <Text style={styles.ctaText}>Next</Text>
+                </Pressable>
+              </View>
             </>
           )}
 
           {step === 3 && (
-            <Card title="👥 Plan Your Guest List">
+            <Card title="👥 Plan Your Guest List" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt}>
               <Text style={styles.label}>
                 {createdEventId 
                   ? "Your event has been created! Now you can invite participants." 
@@ -565,69 +658,50 @@ export default function CreateEventScreen({
                   </Text>
                 </View>
               )}
+              {/* Inline actions for final step */}
+              <View style={[styles.inlineActions, { marginTop: 16 }]}>
+                {createdEventId ? (
+                  <>
+                    <Pressable
+                      onPress={() => {
+                        if (onEventCreated && createdEventId) onEventCreated(createdEventId);
+                      }}
+                      style={[styles.cta, styles.inlineBtn]}
+                    >
+                      <Text style={styles.ctaText}>OK</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => publishEvent(createdEventId)}
+                      style={[styles.ghostBtn, styles.inlineBtn]}
+                    >
+                      <Text style={styles.ghostText}>Publish</Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Pressable
+                      onPress={() => setStep(2 as StepperStep)}
+                      style={[styles.ghostBtn, styles.inlineBtn]}
+                    >
+                      <Text style={styles.ghostText}>Back</Text>
+                    </Pressable>
+                    <Pressable 
+                      onPress={submit}
+                      disabled={isSubmitting}
+                      style={[styles.cta, styles.inlineBtn, isSubmitting && { opacity: 0.6 }]}
+                      testID="create-event-final-button"
+                    >
+                      <Text style={styles.ctaText} testID="create-event-final-text">{isSubmitting ? 'Creating…' : '🎉 Create Potluck!'}</Text>
+                    </Pressable>
+                  </>
+                )}
+              </View>
             </Card>
           )}
+          </View>
         </ScrollView>
 
-        {/* Sticky footer */}
-        <LinearGradient colors={["#FFE2CF", "#FFD6D4"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.footer} testID="create-event-footer">
-          <View style={styles.footerInner} testID="footer-actions">
-            {createdEventId ? (
-              <>
-                <Pressable
-                  onPress={() => publishEvent(createdEventId)}
-                  style={styles.ghostBtn}
-                  testID="publish-button"
-                >
-                  <Text style={styles.ghostText} testID="publish-text">Publish</Text>
-                </Pressable>
-                <Pressable 
-                  onPress={() => {
-                    if (onEventCreated && createdEventId) onEventCreated(createdEventId);
-                  }}
-                  style={styles.cta}
-                  testID="ok-button"
-                >
-                  <Text style={styles.ctaText} testID="ok-text">OK</Text>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Pressable
-                  onPress={() => setStep((s) => Math.max(0, s - 1) as StepperStep)}
-                  disabled={step === 0}
-                  style={[styles.ghostBtn, step === 0 && { opacity: 0.5 }]}
-                  testID="back-step-button"
-                >
-                  <Text style={styles.ghostText} testID="back-step-text">Back</Text>
-                </Pressable>
-
-                {step < 3 ? (
-                  <Pressable
-                    onPress={() => {
-                      if (step === 0 && !canNextFromDetails) return Alert.alert("Missing info", "Please fill title, date, time and valid guest counts.");
-                      if (step === 1 && !canNextFromLocation) return Alert.alert("Pick a location", "Please select a location to continue.");
-                      setStep((s) => Math.min(3, s + 1) as StepperStep);
-                    }}
-                    style={styles.cta}
-                    testID="next-step-button"
-                  >
-                    <Text style={styles.ctaText} testID="next-step-text">Next</Text>
-                  </Pressable>
-                ) : (
-                  <Pressable 
-                    onPress={submit}
-                    disabled={isSubmitting}
-                    style={[styles.cta, isSubmitting && { opacity: 0.6 }]}
-                    testID="create-event-final-button"
-                  >
-                    <Text style={styles.ctaText} testID="create-event-final-text">{isSubmitting ? 'Creating…' : '🎉 Create Potluck!'}</Text>
-                  </Pressable>
-                )}
-              </>
-            )}
-          </View>
-        </LinearGradient>
+        {/* Footer removed per request to avoid duplicate CTAs; inline buttons handle final action */}
       </SafeAreaView>
 
       {/* React Native Paper Date Picker */}
@@ -707,6 +781,30 @@ export default function CreateEventScreen({
 /* ------------------------------------------------------------------ */
 /* Small components                                                    */
 /* ------------------------------------------------------------------ */
+
+function EventInput({ style, ...props }: any) {
+  return (
+    <View style={{
+      height: 48,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+      backgroundColor: '#FFFFFF',
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingRight: 8,
+      paddingLeft: 0,
+      overflow: 'hidden'
+    }}>
+      <View style={{ width: 0 }} />
+      <TextInput
+        style={[{ flex: 1, paddingHorizontal: 6, fontSize: 15, color: '#111' }, style]}
+        placeholderTextColor={'#B4B4BD'}
+        {...props}
+      />
+    </View>
+  );
+}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -884,12 +982,18 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(0,0,0,0.08)"
   },
 
-  footer: { position: "absolute", left: 0, right: 0, bottom: 0, paddingVertical: 12, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.06)" },
-  footerInner: { paddingHorizontal: 16, flexDirection: "row", gap: 12 },
-  ghostBtn: { flex: 1, height: 50, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(0,0,0,0.12)" },
+  ghostBtn: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(0,0,0,0.12)" },
   ghostText: { fontWeight: "800", color: "#6B6B6B" },
-  cta: { flex: 2, height: 50, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#FF5630" },
+  cta: { flex: 1, height: 44, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#FF5630" },
   ctaText: { color: "#fff", fontWeight: "900", fontSize: 16 },
+  
+  // Responsive container to center content on wide layouts (web/tablet)
+  pageContainer: { width: "100%", maxWidth: 980 },
+  cardConstrained: { width: "100%" },
+  cardSurface: { backgroundColor: "#F8F5FF", borderColor: "#E9E1FF" },
+  inlineActions: { flexDirection: "row", gap: 12, marginTop: 12 },
+  inlineBtn: { flex: 1 },
+  cardTitleAlt: { color: "#5A2A8C" },
 });
 
 /* ------------------------------------------------------------------ */
