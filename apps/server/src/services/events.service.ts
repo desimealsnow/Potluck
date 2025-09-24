@@ -482,14 +482,14 @@ async function performLocationBasedSearch(
           };
 
           const computed = (joined || [])
-            .filter((e: any) => (
+            .filter((e: { locations?: { latitude?: number | null; lat6?: number | null; longitude?: number | null; lon6?: number | null } }) => (
               e.locations && (
                 e.locations.latitude != null || e.locations.lat6 != null
               ) && (
                 e.locations.longitude != null || e.locations.lon6 != null
               )
             ))
-            .map((e: any) => {
+            .map((e: { id: string; title: string; description?: string | null; event_date: string; is_public: boolean; status: string; capacity_total?: number | null; attendee_count: number; locations: { formatted_address?: string | null; latitude?: number | null; lat6?: number | null; longitude?: number | null; lon6?: number | null } }) => {
               const locLat = e.locations.latitude ?? (typeof e.locations.lat6 === 'number' ? e.locations.lat6 / 1_000_000 : null);
               const locLon = e.locations.longitude ?? (typeof e.locations.lon6 === 'number' ? e.locations.lon6 / 1_000_000 : null);
               const dKm = haversineKm(lat, lon, locLat, locLon);
