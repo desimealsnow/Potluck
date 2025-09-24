@@ -206,7 +206,11 @@ export async function getUserNotifications(
     // Get total count
     let countQuery = supabase
       .from('notifications')
-      .select('*', { count: 'exact', head: true }) as any;
+      .select('*', { count: 'exact', head: true }) as unknown as {
+        eq: (col: string, v: unknown) => typeof countQuery;
+        is: (col: string, v: unknown) => typeof countQuery;
+        then?: unknown;
+      };
     countQuery = countQuery.eq('user_id', userId);
     if (status === 'unread') countQuery = countQuery.is('read_at', null);
     const { count, error: countError } = await countQuery;
@@ -219,10 +223,15 @@ export async function getUserNotifications(
     // Get notifications with pagination
     let listQuery = supabase
       .from('notifications')
-      .select('*') as any;
+      .select('*') as unknown as {
+        eq: (col: string, v: unknown) => typeof listQuery;
+        is: (col: string, v: unknown) => typeof listQuery;
+        order: (col: string, opts: { ascending: boolean }) => typeof listQuery;
+        range: (from: number, to: number) => Promise<{ data: NotificationRecord[]; error: { message: string } | null }>;
+      };
     listQuery = listQuery.eq('user_id', userId);
     if (status === 'unread') listQuery = listQuery.is('read_at', null);
-    const { data: notifications, error: notificationsError } = await listQuery
+    const { data: notifications, error: notificationsError } = await (listQuery as unknown as any)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

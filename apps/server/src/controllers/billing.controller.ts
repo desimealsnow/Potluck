@@ -141,7 +141,21 @@ export const BillingController = {
       .select('*')
       .eq('user_id', userId);
     if (error) return handle(res, err(error.message, '500', error));
-    const subs: Subscription[] = (data ?? []).map((s: any) => ({
+    const subs: Subscription[] = (data ?? []).map((s: {
+      id: string;
+      plan_id: string;
+      provider_subscription_id: string;
+      provider: string;
+      status: string;
+      start_date?: string | null;
+      current_period_start?: string | null;
+      current_period_end?: string | null;
+      trial_start?: string | null;
+      trial_end?: string | null;
+      cancel_at_period_end?: boolean | null;
+      created_at: string;
+      updated_at: string;
+    }) => ({
       id: s.id,
       plan_id: s.plan_id,
       provider_subscription_id: s.provider_subscription_id,
@@ -274,7 +288,10 @@ export const BillingController = {
       .select('*')
       .eq('user_id', userId);
     if (error) return handle(res, err(error.message, '500', error));
-    const rows: PaymentMethod[] = (data ?? []).map((m: any) => ({
+    const rows: PaymentMethod[] = (data ?? []).map((m: {
+      id: string; user_id: string; provider: string; method_id: string; is_default: boolean;
+      brand?: string | null; last_four?: string | null; exp_month?: number | null; exp_year?: number | null; created_at: string;
+    }) => ({
       id: m.id,
       user_id: m.user_id,
       provider: m.provider,
@@ -434,7 +451,10 @@ export const BillingController = {
       .eq('user_id', userId)
       .order('invoice_date', { ascending: false });
     if (error) return handle(res, err(error.message, '500', error));
-    const rows: Invoice[] = (data ?? []).map((i: any) => ({
+    const rows: Invoice[] = (data ?? []).map((i: {
+      id: string; subscription_id?: string | null; user_id: string; invoice_id?: string | null; provider: string;
+      amount_cents: number; currency: string; status: string; invoice_date: string; paid_date?: string | null; created_at: string;
+    }) => ({
       id: i.id,
       subscription_id: i.subscription_id ?? undefined,
       user_id: i.user_id,
