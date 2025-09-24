@@ -718,13 +718,17 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
         </View>
       ) : (
         <View style={{ flex: 1, backgroundColor: '#351657' }}>
-        <FlatList
+          <FlatList
           data={data}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           style={{ marginTop: 10 }}
           refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
           testID="events-list"
+            initialNumToRender={8}
+            maxToRenderPerBatch={8}
+            windowSize={11}
+            removeClippedSubviews
           ListEmptyComponent={
             loading ? (
               <View style={styles.emptyWrap} testID="loading-container">
@@ -1327,13 +1331,17 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
               </View>
             ) : (
             /* List */
-            <FlatList
+          <FlatList
           data={data}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           style={{ marginTop: 10 }}
           refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
           testID="events-list"
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={11}
+          removeClippedSubviews
           ListEmptyComponent={
             loading ? (
               <View style={styles.emptyWrap} testID="loading-container">

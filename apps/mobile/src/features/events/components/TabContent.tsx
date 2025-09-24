@@ -9,9 +9,12 @@ export type TabContentProps = {
   mapMode: boolean;
   mapPoints: Array<{ id: string; lat: number; lon: number; title?: string }>;
   onOpenEvent: (id: string) => void;
+  onApproveRequest?: (eventId: string, requestId: string) => Promise<void> | void;
+  onWaitlistRequest?: (eventId: string, requestId: string) => Promise<void> | void;
+  onDeclineRequest?: (eventId: string, requestId: string) => Promise<void> | void;
 };
 
-export function TabContent({ tabKey, loadingPending, pendingApprovals, mapMode, mapPoints, onOpenEvent }: TabContentProps) {
+export function TabContent({ tabKey, loadingPending, pendingApprovals, mapMode, mapPoints, onOpenEvent, onApproveRequest, onWaitlistRequest, onDeclineRequest }: TabContentProps) {
   if (tabKey === 'pending-approval') {
     return (
       <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: 16, paddingTop: 12 }}>
@@ -29,6 +32,23 @@ export function TabContent({ tabKey, loadingPending, pendingApprovals, mapMode, 
               <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
               <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
               {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>&quot;{req.note}&quot;</Text> : null}
+              <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
+                {!!onApproveRequest && (
+                  <Pressable onPress={() => onApproveRequest(req.event_id, req.id)} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: '#4CAF50' }} accessibilityRole="button" accessibilityLabel="Approve join request">
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>Approve</Text>
+                  </Pressable>
+                )}
+                {!!onWaitlistRequest && (
+                  <Pressable onPress={() => onWaitlistRequest(req.event_id, req.id)} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: '#FF9800' }} accessibilityRole="button" accessibilityLabel="Move request to waitlist">
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>Waitlist</Text>
+                  </Pressable>
+                )}
+                {!!onDeclineRequest && (
+                  <Pressable onPress={() => onDeclineRequest(req.event_id, req.id)} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: '#F44336' }} accessibilityRole="button" accessibilityLabel="Decline join request">
+                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>Decline</Text>
+                  </Pressable>
+                )}
+              </View>
             </View>
           ))
         )}
