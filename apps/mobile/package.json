@@ -68,5 +68,13 @@
     "tailwindcss": "^4.1.13",
     "typescript": "^5.4.0"
   },
-  "private": true
+  "private": true,
+  "ai": {
+    "entry_points": {
+      "screen_list": "src/screens/Auth/EventList.tsx",
+      "screen_details": "src/screens/Auth/EventDetailsPage.tsx"
+    },
+    "docs": ["../../docs/agent/README.md"],
+    "catalogs": ["../../.agent/repo.catalog.json"]
+  }
 }

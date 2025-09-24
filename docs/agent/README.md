@@ -154,6 +154,28 @@ packages/
 - Services return `ServiceResult<T>` with `{ ok, data?|error?, code? }`
 - Controllers call `handle(res, result)` to map codes to HTTP responses
 
+### Event Lifecycle Mapping (mobile ↔ backend)
+- Mobile tabs: `upcoming | past | drafts | deleted`
+- API status: `published | completed | draft | purged | cancelled`
+- Mapping: `upcoming → published`, `past → completed`, `drafts → draft`, `deleted → purged`
+- Note: `cancelled` appears only as a server status; mobile surfaces it via badges/actions
+
+### Events List Query Cheatsheet
+- Pagination: `limit`, `offset`
+- Search: `q`
+- Filters: `status`, `ownership` (all|mine|invited), `diet` (veg,nonveg,mixed)
+- Discovery: `lat`, `lon`, `radius_km`, `is_public=true` (includes public + my events)
+- Includes: `include=location` to ensure location info is joined
+
+### Feature → Route Map
+- List events: `GET /events`
+- Event details: `GET /events/{eventId}`
+- Publish / Cancel / Complete: `POST /events/{id}/publish|cancel|complete`
+- Purge / Restore: `POST /events/{id}/purge|restore`
+- Items: `GET/POST /events/{id}/items`, `GET/PUT/DELETE /events/{id}/items/{itemId}`
+- Participants: `GET/POST /events/{id}/participants`, `GET/PUT/DELETE /events/{id}/participants/{partId}`
+- Join Requests: `POST/GET /events/{id}/requests`, plus approve/decline/waitlist endpoints
+
 ### Related Files
 - Join Requests: `apps/server/src/modules/requests/*`
 - Items: `apps/server/src/routes/items.routes.ts`

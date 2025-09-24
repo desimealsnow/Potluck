@@ -53,6 +53,13 @@ import type {
   EventsQuery 
 } from "@common/types";
 
+/**
+ * @ai-context Event List Screen (mobile)
+ * Lists events with filters, toggles list/map, navigates to details and actions.
+ * @user-journey View events → filter/search → open details → act (publish/cancel/etc.)
+ * @related-files apps/server/src/routes/events.routes.ts, apps/server/src/controllers/events.controller.ts
+ */
+
 // Constants
 const PAGE_PADDING = 16;
 
