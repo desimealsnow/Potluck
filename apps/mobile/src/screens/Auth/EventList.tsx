@@ -47,6 +47,7 @@ import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFilte
 import { formatDateTimeRange } from "@/utils/dateUtils";
 import { gradients, breakpoints, useDeviceKind } from "@/theme";
 import { EventsFilters } from "@/features/events/components/EventsFilters";
+import { TabContent as FeatureTabContent } from "@/features/events/components/TabContent";
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -607,188 +608,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     });
   };
 
-  // TabContent component for mobile tabs: sets statusTab and renders the existing desktop content sections
-  function TabContent({
-    tabKey,
-    loadingPending,
-    pendingApprovals,
-    mapMode,
-    mapPoints,
-    onOpenEvent,
-  }: {
-    tabKey: EventStatusMobile | 'pending-approval';
-    loadingPending: boolean;
-    pendingApprovals: any[] | null;
-    mapMode: boolean;
-    mapPoints: Array<{ id: string; lat: number; lon: number; title?: string }>;
-    onOpenEvent: (eventId: string) => void;
-  }) {
-    useFocusEffect(
-      useCallback(() => {
-        // Sync the status on focus only (prevents flicker from repeated reloads)
-        if (statusTab !== tabKey) {
-          setStatusTab(tabKey as EventStatusMobile);
-          reloadWith(tabKey as EventStatusMobile);
-        }
-        return () => {};
-      }, [tabKey, statusTab, reloadWith])
-    );
-
-    if (tabKey === 'pending-approval') {
-      return (
-        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
-          {loadingPending ? (
-            <ActivityIndicator color="#fff" />
-          ) : !pendingApprovals || pendingApprovals.length === 0 ? (
-            <View style={styles.emptyWrap}>
-              <Icon name="Inbox" size={48} color="rgba(255,255,255,0.4)" />
-              <Text style={styles.emptyTitle}>No pending join requests</Text>
-              <Text style={styles.emptyText}>When guests request to join your events, they will appear here.</Text>
-            </View>
-          ) : (
-            pendingApprovals.map((req: any) => (
-              <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
-                <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
-                <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
-                {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>&quot;{req.note}&quot;</Text> : null}
-                <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
-                    onPress={async () => {
-                      try { await apiClient.approveJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Approve</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
-                    onPress={async () => {
-                      try { await apiClient.waitlistJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Waitlist</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#F44336' }]}
-                    onPress={async () => {
-                      try { await apiClient.declineJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Decline</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-      );
-    }
-
-    return (
-      mapMode ? (
-        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
-          <View style={styles.mapContainer}>
-            <View style={styles.mapPlaceholder}>
-              <Icon name="Map" size={48} color="#9CA3AF" />
-              <Text style={styles.mapPlaceholderTitle}>Map View</Text>
-              <Text style={styles.mapPlaceholderText}>
-                {mapPoints.length} event{mapPoints.length !== 1 ? 's' : ''} in your area
-              </Text>
-              <Pressable 
-                style={styles.mapButton}
-                onPress={() => {
-                  if (mapPoints.length > 0) {
-                    const firstPoint = mapPoints[0];
-                    const url = `https://www.google.com/maps?q=${firstPoint.lat},${firstPoint.lon}`;
-                    Linking.openURL(url).catch(() => {
-                      Alert.alert('Error', 'Could not open maps');
-                    });
-                  }
-                }}
-              >
-                <Icon name="ExternalLink" size={16} color="#fff" />
-                <Text style={styles.mapButtonText}>Open in Maps</Text>
-              </Pressable>
-            </View>
-          </View>
-          <View style={{ marginTop: 10 }}>
-            {mapPoints.map(p => (
-              <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
-                <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
-                <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                  <Pressable onPress={() => onOpenEvent(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
-                    <Text style={styles.actionButtonText}>Open</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-      ) : (
-        <View style={{ flex: 1, backgroundColor: '#351657' }}>
-          <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          style={{ marginTop: 10 }}
-          refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
-          testID="events-list"
-            initialNumToRender={8}
-            maxToRenderPerBatch={8}
-            windowSize={11}
-            removeClippedSubviews
-          ListEmptyComponent={
-            loading ? (
-              <View style={styles.emptyWrap} testID="loading-container">
-                <ActivityIndicator color="#fff" testID="loading-indicator" />
-                <Text style={styles.loadingText}>Loading events...</Text>
-              </View>
-            ) : query.length > 0 ? (
-              <View style={styles.emptyWrap} testID="no-search-results">
-                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.noResultsTitle}>No events found</Text>
-                <Text style={styles.noResultsText}>
-                  No events match your search for "{query}". Try adjusting your search terms or filters.
-                </Text>
-                <Pressable 
-                  onPress={() => setQuery('')} 
-                  style={styles.clearSearchButton}
-                  testID="clear-search-results-button"
-                >
-                  <Text style={styles.clearSearchButtonText}>Clear Search</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <View style={styles.emptyWrap} testID="empty-state">
-                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.emptyTitle}>No events yet</Text>
-                <Text style={styles.emptyText}>Create your first event to get started!</Text>
-              </View>
-            )
-          }
-          renderItem={({ item }) => (
-            <EventCard
-              item={item}
-              onPress={() => handleEventPress(item.id)}
-              actions={getEventActions(item)}
-              testID={`event-card-${item.id}`}
-            />
-          )}
-          onEndReachedThreshold={0.01}
-          onEndReached={() => {
-            if (!endReachedOnce.current) {
-              endReachedOnce.current = true;
-              return;
-            }
-            loadMore();
-          }}
-          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
-        />
-        </View>
-      )
-    );
-  }
+  // Inline TabContent removed; using extracted TabContent
 
   const handleBackFromCreate = () => {
     setShowCreateEvent(false);
@@ -1054,106 +874,22 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           {/* Left Sidebar - Smart Filter (Tablet/Desktop only) */}
           {isTablet && (
             <View style={[styles.sidebar, !sidebarVisible && styles.sidebarHidden]}>
-            <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>Smart Filter</Text>
+              <View style={styles.sidebarHeader}>
+                <Text style={styles.sidebarTitle}>Smart Filter</Text>
+              </View>
+              <EventsFilters
+                ownership={ownership}
+                setOwnership={setOwnership}
+                dietFilters={dietFilters}
+                toggleDiet={(d) => setDietFilters(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])}
+                statusTab={statusTab}
+                onStatusChange={(s) => { setStatusTab(s); reloadWith(s); }}
+                useNearby={useNearby}
+                setUseNearby={setUseNearby}
+                isTablet={true}
+                reload={reload}
+              />
             </View>
-            
-            {/* Filter Content */}
-            <View style={styles.filterContent}>
-              {/* Status Tabs */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Status</Text>
-                <Segmented
-                  value={statusTab}
-                  onChange={(value: string) => {
-                    setStatusTab(value as EventStatusMobile);
-                    reloadWith(value as EventStatusMobile);
-                  }}
-                  options={[
-                    { key: "upcoming", label: "Upcoming" },
-                    { key: "past", label: "Past" },
-                    { key: "drafts", label: "Drafts" },
-                  ]}
-                  testID="status-segmented"
-                />
-              </View>
-
-              {/* Ownership Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Ownership</Text>
-                <View style={styles.chipContainer}>
-                  <FilterChip
-                    selected={ownership === "all"}
-                    onPress={() => {
-                      setOwnership("all");
-                      reload();
-                    }}
-                    testID="ownership-all"
-                  >
-                    <Text>All Events</Text>
-                  </FilterChip>
-                  <FilterChip
-                    selected={ownership === "mine"}
-                    onPress={() => {
-                      setOwnership("mine");
-                      reload();
-                    }}
-                    testID="ownership-mine"
-                  >
-                    <Text>My Events</Text>
-                  </FilterChip>
-                  <FilterChip
-                    selected={ownership === "invited"}
-                    onPress={() => {
-                      setOwnership("invited");
-                      reload();
-                    }}
-                    testID="ownership-invited"
-                  >
-                    <Text>Invited Events</Text>
-                  </FilterChip>
-                </View>
-              </View>
-
-              {/* Diet Filters */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Dietary Preferences</Text>
-                <View style={styles.chipContainer}>
-                  {(["veg", "nonveg", "mixed"] as Diet[]).map((diet) => (
-                    <FilterChip
-                      key={diet}
-                      selected={dietFilters.includes(diet)}
-                      onPress={() => {
-                        const newFilters = dietFilters.includes(diet)
-                          ? dietFilters.filter((f) => f !== diet)
-                          : [...dietFilters, diet];
-                        setDietFilters(newFilters);
-                        reload();
-                      }}
-                      testID={`diet-${diet.toLowerCase()}`}
-                    >
-                      {diet === "veg" ? "Veg" : diet === "nonveg" ? "Non-veg" : "Mixed"}
-                    </FilterChip>
-                  ))}
-                </View>
-              </View>
-
-              {/* Location Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Location</Text>
-                <FilterChip
-                  selected={useNearby}
-                  onPress={() => {
-                    setUseNearby(!useNearby);
-                    reload();
-                  }}
-                  testID="location-nearby"
-                >
-                  {useNearby ? "Nearby Events" : "All Locations"}
-                </FilterChip>
-              </View>
-            </View>
-          </View>
           )}
 
           {/* Right Section - Events */}
@@ -1223,11 +959,111 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   }}
                   style={{ width: '100%' }}
                 >
-                  <MobileTabs.Screen name="Upcoming" children={() => <TabContent tabKey="upcoming" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
-                  <MobileTabs.Screen name="Drafts" children={() => <TabContent tabKey="drafts" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
-                  <MobileTabs.Screen name="Past" children={() => <TabContent tabKey="past" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
-                  <MobileTabs.Screen name="Deleted" children={() => <TabContent tabKey="deleted" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
-                  <MobileTabs.Screen name="Pending" children={() => <TabContent tabKey="pending-approval" loadingPending={loadingPending} pendingApprovals={pendingApprovals} mapMode={mapMode} mapPoints={mapPoints} onOpenEvent={handleEventPress} />} />
+                  <MobileTabs.Screen name="Upcoming" children={() => (
+                    <FeatureTabContent
+                      tabKey="upcoming"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Drafts" children={() => (
+                    <FeatureTabContent
+                      tabKey="drafts"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Past" children={() => (
+                    <FeatureTabContent
+                      tabKey="past"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Deleted" children={() => (
+                    <FeatureTabContent
+                      tabKey="deleted"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Pending" children={() => (
+                    <FeatureTabContent
+                      tabKey="pending-approval"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
                 </MobileTabs.Navigator>
               </View>
             ) : (
