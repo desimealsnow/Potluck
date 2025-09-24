@@ -17,5 +17,7 @@
       "@/theme/*": ["src/theme/*"],
       "@common/*": ["../../libs/common/src/*"]
     }
-  }
+  },
+  "include": ["src", "index.ts", "App.tsx"],
+  "references": []
 }

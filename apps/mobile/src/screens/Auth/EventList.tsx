@@ -608,7 +608,21 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   };
 
   // TabContent component for mobile tabs: sets statusTab and renders the existing desktop content sections
-  function TabContent({ tabKey }: { tabKey: EventStatusMobile | 'pending-approval' }) {
+  function TabContent({
+    tabKey,
+    loadingPending,
+    pendingApprovals,
+    mapMode,
+    mapPoints,
+    onOpenEvent,
+  }: {
+    tabKey: EventStatusMobile | 'pending-approval';
+    loadingPending: boolean;
+    pendingApprovals: any[] | null;
+    mapMode: boolean;
+    mapPoints: Array<{ id: string; lat: number; lon: number; title?: string }>;
+    onOpenEvent: (eventId: string) => void;
+  }) {
     useFocusEffect(
       useCallback(() => {
         // Sync the status on focus only (prevents flicker from repeated reloads)
@@ -703,7 +717,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
                 <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                  <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
+                  <Pressable onPress={() => onOpenEvent(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
                     <Text style={styles.actionButtonText}>Open</Text>
                   </Pressable>
                 </View>
@@ -1413,198 +1427,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
 
 /* ------------------ Components ------------------ */
 
-function DietTag({ diet }: { diet: Diet }) {
-  const map = {
-    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
-    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
-    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
-  } as const;
-  const d = map[diet];
-  return (
-    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
-    </View>
-  );
-}
-
-function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draft" | "deleted" | "past"; testID?: string }) {
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "active":
-        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
-      case "cancelled":
-        return { color: "rgba(239,68,68,0.95)", icon: "close-circle", textColor: "#7f1d1d" };
-      case "draft":
-        return { color: "rgba(251,191,36,0.95)", icon: "create-outline", textColor: "#78350f" };
-      case "deleted":
-        return { color: "rgba(107,114,128,0.95)", icon: "trash-outline", textColor: "#111827" };
-      case "past":
-        return { color: "rgba(59,130,246,0.95)", icon: "time-outline", textColor: "#1e3a8a" };
-      default:
-        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
-    }
-  };
-
-  const config = getStatusConfig(status);
-  
-  return (
-    <View
-      style={
-        {
-          flexDirection: "row",
-          alignItems: "center",
-          paddingHorizontal: 10,
-          paddingVertical: 5,
-          borderRadius: 16,
-          backgroundColor: config.color,
-        }
-      }
-      testID={testID}
-    >
-      <Icon
-        name={
-          (status === "active" && "CircleCheck") ||
-          (status === "cancelled" && "CircleX") ||
-          (status === "draft" && "Pencil") ||
-          (status === "deleted" && "Trash2") ||
-          (status === "past" && "Clock") ||
-          "Circle"
-        }
-        size={14}
-        color="#fff"
-        style={{ marginRight: 4 }}
-      />
-      <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }} testID={`${testID}-text`}>{status}</Text>
-    </View>
-  );
-}
-
-function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
-  const config = role === 'host'
-    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'User' }
-    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'Users' };
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
-      <Icon name={config.icon as any} size={12} color="#fff" />
-      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
-    </View>
-  );
-}
-
-function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {people.slice(0, 3).map((p, idx) => (
-        <View key={p.id} style={[styles.avatarWrap, { marginLeft: idx === 0 ? 0 : -10 }]}>
-          {p.avatarUrl ? (
-            <Image source={{ uri: p.avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}> 
-              <Icon name="User" size={14} color="#fff" />
-            </View>
-          )}
-        </View>
-      ))}
-      {extra && extra > 0 ? (
-        <View style={[styles.avatarWrap, { marginLeft: -10, backgroundColor: "rgba(255,255,255,0.25)" }]}>
-          <Text style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}>+{extra}</Text>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-function EventCard({ 
-  item, 
-  onPress, 
-  actions = [],
-  testID
-}: { 
-  item: EventItem; 
-  onPress: () => void; 
-  actions?: Array<{
-    key: string;
-    label: string;
-    icon: string;
-    color: string;
-    handler: () => void;
-  }>;
-  testID?: string;
-}) {
-  const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
-  const cardColors = gradients.button.primary;
-  const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
-  return (
-    <Pressable onPress={onPress} testID={testID}>
-      <View style={[styles.card, { backgroundColor: '#FFFFFF' }]}>
-      <View style={styles.cardHeader} testID={`${testID}-header`}>
-        <Text style={styles.cardTitle} testID={`${testID}-title`}>{item.title}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ marginRight: 6 }}>
-            <RolePill role={roleLabel} testID={`${testID}-role`} />
-          </View>
-          {item.statusBadge ? <StatusPill status={item.statusBadge} testID={`${testID}-status`} /> : null}
-        </View>
-      </View>
-
-        <View style={styles.metaRow}>
-          <Icon name="Calendar" size={16} color="#6B7280" style={{ marginRight: 8 }} />
-          <Text style={styles.metaText}>{dateLabel}</Text>
-        </View>
-
-        <View style={[styles.metaRow, { marginTop: 4 }]}>
-          <Icon name="MapPin" size={16} color="#6B7280" style={{ marginRight: 8 }} />
-          <Text style={styles.metaText}>{item.venue}</Text>
-        </View>
-
-        <View style={styles.footerRow}>
-          <View style={styles.footerLeft}>
-            <Icon name="Users" size={16} color="#6B7280" />
-          <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
-        </View>
-
-        <View style={styles.footerCenter}>
-          <DietTag diet={item.diet} />
-        </View>
-
-        <View style={styles.footerRight}>
-          <Avatars
-            people={item.attendeesPreview || []}
-            extra={Math.max(0, (item.attendeeCount || 0) - (item.attendeesPreview?.length || 0))}
-          />
-        </View>
-      </View>
-
-      {/* Action buttons based on event status and ownership */}
-      {actions.length > 0 && (
-        <View style={styles.actionsContainer} testID={`${testID}-actions`}>
-          {actions.map((action) => (
-            <Pressable 
-              key={action.key}
-              onPress={(e) => {
-                e.stopPropagation(); // Prevent triggering the card press
-                console.log("EventList - Action button pressed:", action.key, action.label, "for event:", item.id);
-                action.handler();
-              }}
-              style={[styles.actionButton, { backgroundColor: action.color }]}
-              testID={`${testID}-action-${action.key}`}
-            >
-              <Icon name={
-                action.icon === 'rocket-outline' ? 'Rocket' :
-                action.icon === 'trash-outline' ? 'Trash2' :
-                action.icon === 'close-circle-outline' ? 'CircleX' :
-                action.icon === 'checkmark-circle-outline' ? 'CircleCheck' :
-                action.icon === 'refresh-outline' ? 'RefreshCw' : 'Circle'
-              } size={14} color="#fff" style={{ marginRight: 4 }} />
-              <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-        )}
-      </View>
-    </Pressable>
-  );
-}
+/* Local EventCard component removed; using imported EventCard from features */
 
 /* ------------------- Utilities ------------------- */
 
