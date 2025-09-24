@@ -114,6 +114,9 @@ If background agents can't find the payments package:
 - **Always regenerate** catalogs after significant code changes
 - **Don't manually edit** `.agent/` files - they're auto-generated
 - **Check timestamps** in generated files to ensure they're current
+- **Pinned rule**: For new agent chats, load these in order:
+  1) `docs/agent/README.md`  2) `docs/agent/agent-knowledge-base.md`
+  3) `apps/server/db/schema.json`  4) `docs/api-spec.yaml`  5) `.agent/repo.catalog.json`
 
 ## 🚀 **Quick Start Checklist**
 
@@ -123,6 +126,13 @@ If background agents can't find the payments package:
 - [ ] Review `docs/api-spec.yaml` for API surface
 - [ ] Explore `.agent/repo.catalog.json` for code structure
 - [ ] Use `.agent/routes.index.json` for endpoint mapping
+
+### Agent Bootstrap (fail-fast)
+- Confirm these files exist and are current:
+  - `.agent/repo.catalog.json`, `.agent/routes.index.json`, `docs/documentation-index.json`
+  - `docs/agent/README.md`, `docs/agent/agent-knowledge-base.md`, `docs/agent/ai-context.json`
+- If missing/stale, run: `npm run agent:update`
+- To verify, run: `npm run context:validate` (fails if critical files are missing)
 
 ## 🤖 AI Co‑Pilot Guide (Onboarding)
 
