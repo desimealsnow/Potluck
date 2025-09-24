@@ -22,6 +22,7 @@ import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
 import { EventCard } from "@/features/events/components/EventCard";
 import Header from "../../components/Header";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { EventsHeaderBar } from '@/features/events/components/EventsHeaderBar';
 import { useFocusEffect } from '@react-navigation/native';
@@ -242,7 +243,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [hasMore, setHasMore] = useState(true);
   const [mapMode, setMapMode] = useState(false);
   const [mapPoints, setMapPoints] = useState<Array<{ id: string; lat: number; lon: number; title?: string }>>([]);
-  const debTimer = useRef<NodeJS.Timeout | null>(null);
+  const debouncedQuery = useDebouncedValue(query, 300);
   const endReachedOnce = useRef(false);
 
   // Mobile Top Tabs
@@ -449,17 +450,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     }
   }, [page, query, statusTab, ownership, dietFilters, hasMore, loading, useNearby, userLocation]);
 
-  // Debounce search input
+  // Debounced search input
   useEffect(() => {
-    if (debTimer.current) clearTimeout(debTimer.current);
-    debTimer.current = setTimeout(() => {
-      console.log("Search triggered with query:", query);
-      reload();
-    }, 300);
-    return () => {
-      if (debTimer.current) clearTimeout(debTimer.current);
-    };
-  }, [query, statusTab, ownership, dietFilters, useNearby, reload]);
+    console.log("Search triggered with query:", debouncedQuery);
+    reload();
+  }, [debouncedQuery, statusTab, ownership, dietFilters, useNearby, reload]);
 
   // Update userLocation when prop changes
   useEffect(() => {
