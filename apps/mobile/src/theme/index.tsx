@@ -92,6 +92,21 @@ export const gradients = {
   },
 } as const;
 
+export const breakpoints = {
+  mobile: 0,
+  tablet: 768,
+  desktop: 1024,
+} as const;
+
+export function useDeviceKind() {
+  const { useWindowDimensions } = require('react-native');
+  const { width } = useWindowDimensions();
+  const isTablet = width >= breakpoints.tablet;
+  const isMobile = width < breakpoints.tablet;
+  const isDesktop = width >= breakpoints.desktop;
+  return { width, isMobile, isTablet, isDesktop } as const;
+}
+
 export const typography = {
   // Font sizes
   fontSize: {

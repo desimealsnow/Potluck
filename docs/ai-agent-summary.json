@@ -18,7 +18,7 @@
   },
   "documentation_stats": {
     "total_files": 33,
-    "total_size_kb": 277,
+    "total_size_kb": 278,
     "categories": 5
   },
   "quick_access": {
@@ -30,11 +30,11 @@
       "apps/server/TESTING_README.md - Testing guide"
     ],
     "feature_docs": [
-      "Comprehensive Billing & Payment Testing\r (docs/features/TEST_BILLING_README.md)",
-      "Integrated Location-Based Event Search\r (docs/features/INTEGRATED_LOCATION_SEARCH_README.md)",
-      "LemonSqueezy Configuration\r (docs/features/LEMONSQUEEZY_CONFIG.md)",
-      "Location-Based Event Discovery System\r (docs/features/LOCATION_DISCOVERY_README.md)",
-      "Notifications: Data model, APIs, mobile UX\r (docs/features/NOTIFICATIONS.md)"
+      "Comprehensive Billing & Payment Testing (docs/features/TEST_BILLING_README.md)",
+      "Integrated Location-Based Event Search (docs/features/INTEGRATED_LOCATION_SEARCH_README.md)",
+      "LemonSqueezy Configuration (docs/features/LEMONSQUEEZY_CONFIG.md)",
+      "Location-Based Event Discovery System (docs/features/LOCATION_DISCOVERY_README.md)",
+      "Notifications: Data model, APIs, mobile UX (docs/features/NOTIFICATIONS.md)"
     ]
   },
   "ai_agent_tips": [

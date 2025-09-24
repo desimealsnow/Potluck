@@ -20,8 +20,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
+import { EventCard } from "@/features/events/components/EventCard";
 import Header from "../../components/Header";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { EventsHeaderBar } from '@/features/events/components/EventsHeaderBar';
 import { useFocusEffect } from '@react-navigation/native';
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
@@ -42,7 +45,9 @@ import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
-import { gradients } from "@/theme";
+import { gradients, breakpoints, useDeviceKind } from "@/theme";
+import { EventsFilters } from "@/features/events/components/EventsFilters";
+import { TabContent as FeatureTabContent } from "@/features/events/components/TabContent";
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -52,6 +57,13 @@ import type {
   Attendee, 
   EventsQuery 
 } from "@common/types";
+
+/**
+ * @ai-context Event List Screen (mobile)
+ * Lists events with filters, toggles list/map, navigates to details and actions.
+ * @user-journey View events → filter/search → open details → act (publish/cancel/etc.)
+ * @related-files apps/server/src/routes/events.routes.ts, apps/server/src/controllers/events.controller.ts
+ */
 
 // Constants
 const PAGE_PADDING = 16;
@@ -188,8 +200,7 @@ interface EventListProps {
 
 export default function EventList({ userLocation: propUserLocation }: EventListProps = {}) {
   const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
-  const isMobile = width < 768;
+  const { isTablet, isMobile } = { isTablet: width >= 768, isMobile: width < 768 };
   // Resolve bypass flag from Expo config extras first (dev web/native), then process.env (prod web)
   const cfgExtra = ((Constants.expoConfig?.extra)
     || (Constants as any)?.manifest2?.extra
@@ -233,7 +244,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   const [hasMore, setHasMore] = useState(true);
   const [mapMode, setMapMode] = useState(false);
   const [mapPoints, setMapPoints] = useState<Array<{ id: string; lat: number; lon: number; title?: string }>>([]);
-  const debTimer = useRef<NodeJS.Timeout | null>(null);
+  const debouncedQuery = useDebouncedValue(query, 300);
   const endReachedOnce = useRef(false);
 
   // Mobile Top Tabs
@@ -440,17 +451,11 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     }
   }, [page, query, statusTab, ownership, dietFilters, hasMore, loading, useNearby, userLocation]);
 
-  // Debounce search input
+  // Debounced search input
   useEffect(() => {
-    if (debTimer.current) clearTimeout(debTimer.current);
-    debTimer.current = setTimeout(() => {
-      console.log("Search triggered with query:", query);
-      reload();
-    }, 300);
-    return () => {
-      if (debTimer.current) clearTimeout(debTimer.current);
-    };
-  }, [query, statusTab, ownership, dietFilters, useNearby, reload]);
+    console.log("Search triggered with query:", debouncedQuery);
+    reload();
+  }, [debouncedQuery, statusTab, ownership, dietFilters, useNearby, reload]);
 
   // Update userLocation when prop changes
   useEffect(() => {
@@ -588,213 +593,22 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setShowEventDetails(true);
   };
 
-  // Get available actions for an event based on status and ownership
+  // Get available actions for an event based on status and ownership (moved to lib)
   const getEventActions = (item: EventItem) => {
-    if (!item.actualStatus) {
-      console.log("EventList - No status:", { actualStatus: item.actualStatus, ownership: item.ownership });
-      return [];
-    }
-    
-    const status = item.actualStatus;
-    // Show owner-only actions when we can confidently infer ownership
-    // - If backend marks item as mine
-    // - If user has selected ownership filter = mine
-    // - Drafts and Deleted are always mine by construction
-    const isOwner = (item.ownership === 'mine') || (ownership === 'mine') || (status === 'draft') || (status === 'purged');
-    const actions = [];
-
-    console.log("EventList - Event status and ownership:", { status, ownership: item.ownership ?? ownership, isOwner, itemId: item.id });
-
-    if (isOwner) {
-      switch (status) {
-        case 'draft':
-          actions.push({ key: 'publish', label: pendingActionKey === `publish:${item.id}` ? 'Tap again to confirm' : 'Publish', icon: 'rocket-outline', color: '#4CAF50', handler: () => requestConfirmThenRun(`publish:${item.id}`, () => handlePublishEvent(item.id)) });
-          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
-          break;
-        case 'published':
-          actions.push({ key: 'cancel', label: pendingActionKey === `cancel:${item.id}` ? 'Tap again to confirm' : 'Cancel', icon: 'close-circle-outline', color: '#FF9800', handler: () => requestConfirmThenRun(`cancel:${item.id}`, () => handleCancelEvent(item.id)) });
-          actions.push({ key: 'complete', label: pendingActionKey === `complete:${item.id}` ? 'Tap again to confirm' : 'Complete', icon: 'checkmark-circle-outline', color: '#2196F3', handler: () => requestConfirmThenRun(`complete:${item.id}`, () => handleCompleteEvent(item.id)) });
-          break;
-        case 'completed':
-          // Backend does not allow purging completed events; no actions
-          break;
-        case 'cancelled':
-          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
-          break;
-        case 'purged':
-          actions.push({ key: 'restore', label: pendingActionKey === `restore:${item.id}` ? 'Tap again to confirm' : 'Restore', icon: 'refresh-outline', color: '#9C27B0', handler: () => requestConfirmThenRun(`restore:${item.id}`, () => handleRestoreEvent(item.id)) });
-          break;
-      }
-    }
-
-    console.log("EventList - Available actions for", item.id, ":", actions);
-    return actions;
+    const { getEventActions: compute } = require('@/features/events/lib/getEventActions');
+    return compute(item, {
+      ownershipFilter: ownership,
+      pendingActionKey,
+      requestConfirmThenRun,
+      onPublish: handlePublishEvent,
+      onCancel: handleCancelEvent,
+      onComplete: handleCompleteEvent,
+      onPurge: handlePurgeEvent,
+      onRestore: handleRestoreEvent,
+    });
   };
 
-  // TabContent component for mobile tabs: sets statusTab and renders the existing desktop content sections
-  function TabContent({ tabKey }: { tabKey: EventStatusMobile | 'pending-approval' }) {
-    useFocusEffect(
-      useCallback(() => {
-        // Sync the status on focus only (prevents flicker from repeated reloads)
-        if (statusTab !== tabKey) {
-          setStatusTab(tabKey as EventStatusMobile);
-          reloadWith(tabKey as EventStatusMobile);
-        }
-        return () => {};
-      }, [tabKey, statusTab, reloadWith])
-    );
-
-    if (tabKey === 'pending-approval') {
-      return (
-        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
-          {loadingPending ? (
-            <ActivityIndicator color="#fff" />
-          ) : !pendingApprovals || pendingApprovals.length === 0 ? (
-            <View style={styles.emptyWrap}>
-              <Icon name="Inbox" size={48} color="rgba(255,255,255,0.4)" />
-              <Text style={styles.emptyTitle}>No pending join requests</Text>
-              <Text style={styles.emptyText}>When guests request to join your events, they will appear here.</Text>
-            </View>
-          ) : (
-            pendingApprovals.map((req: any) => (
-              <View key={req.id} style={[styles.card, { backgroundColor: '#fff' }]}> 
-                <Text style={{ fontWeight: '800', color: '#111827' }}>Event: {req.event_id}</Text>
-                <Text style={{ marginTop: 4, color: '#374151' }}>Party size: {req.party_size}</Text>
-                {req.note ? <Text style={{ marginTop: 4, color: '#6B7280' }} numberOfLines={2}>&quot;{req.note}&quot;</Text> : null}
-                <View style={{ flexDirection: 'row', marginTop: 10, gap: 8 }}>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
-                    onPress={async () => {
-                      try { await apiClient.approveJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Approve</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
-                    onPress={async () => {
-                      try { await apiClient.waitlistJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Waitlist</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.actionButton, { backgroundColor: '#F44336' }]}
-                    onPress={async () => {
-                      try { await apiClient.declineJoinRequest(req.event_id, req.id); await reloadWith('pending-approval'); } catch {}
-                    }}
-                  >
-                    <Text style={styles.actionButtonText}>Decline</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-      );
-    }
-
-    return (
-      mapMode ? (
-        <View style={{ flex: 1, backgroundColor: '#351657', paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
-          <View style={styles.mapContainer}>
-            <View style={styles.mapPlaceholder}>
-              <Icon name="Map" size={48} color="#9CA3AF" />
-              <Text style={styles.mapPlaceholderTitle}>Map View</Text>
-              <Text style={styles.mapPlaceholderText}>
-                {mapPoints.length} event{mapPoints.length !== 1 ? 's' : ''} in your area
-              </Text>
-              <Pressable 
-                style={styles.mapButton}
-                onPress={() => {
-                  if (mapPoints.length > 0) {
-                    const firstPoint = mapPoints[0];
-                    const url = `https://www.google.com/maps?q=${firstPoint.lat},${firstPoint.lon}`;
-                    Linking.openURL(url).catch(() => {
-                      Alert.alert('Error', 'Could not open maps');
-                    });
-                  }
-                }}
-              >
-                <Icon name="ExternalLink" size={16} color="#fff" />
-                <Text style={styles.mapButtonText}>Open in Maps</Text>
-              </Pressable>
-            </View>
-          </View>
-          <View style={{ marginTop: 10 }}>
-            {mapPoints.map(p => (
-              <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
-                <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
-                <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                  <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
-                    <Text style={styles.actionButtonText}>Open</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-      ) : (
-        <View style={{ flex: 1, backgroundColor: '#351657' }}>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          style={{ marginTop: 10 }}
-          refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
-          testID="events-list"
-          ListEmptyComponent={
-            loading ? (
-              <View style={styles.emptyWrap} testID="loading-container">
-                <ActivityIndicator color="#fff" testID="loading-indicator" />
-                <Text style={styles.loadingText}>Loading events...</Text>
-              </View>
-            ) : query.length > 0 ? (
-              <View style={styles.emptyWrap} testID="no-search-results">
-                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.noResultsTitle}>No events found</Text>
-                <Text style={styles.noResultsText}>
-                  No events match your search for "{query}". Try adjusting your search terms or filters.
-                </Text>
-                <Pressable 
-                  onPress={() => setQuery('')} 
-                  style={styles.clearSearchButton}
-                  testID="clear-search-results-button"
-                >
-                  <Text style={styles.clearSearchButtonText}>Clear Search</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <View style={styles.emptyWrap} testID="empty-state">
-                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.emptyTitle}>No events yet</Text>
-                <Text style={styles.emptyText}>Create your first event to get started!</Text>
-              </View>
-            )
-          }
-          renderItem={({ item }) => (
-            <EventCard 
-              item={item} 
-              onPress={() => handleEventPress(item.id)} 
-              actions={getEventActions(item)}
-              testID={`event-card-${item.id}`}
-            />
-          )}
-          onEndReachedThreshold={0.01}
-          onEndReached={() => {
-            if (!endReachedOnce.current) {
-              endReachedOnce.current = true;
-              return;
-            }
-            loadMore();
-          }}
-          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
-        />
-        </View>
-      )
-    );
-  }
+  // Inline TabContent removed; using extracted TabContent
 
   const handleBackFromCreate = () => {
     setShowCreateEvent(false);
@@ -1060,165 +874,39 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           {/* Left Sidebar - Smart Filter (Tablet/Desktop only) */}
           {isTablet && (
             <View style={[styles.sidebar, !sidebarVisible && styles.sidebarHidden]}>
-            <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>Smart Filter</Text>
+              <View style={styles.sidebarHeader}>
+                <Text style={styles.sidebarTitle}>Smart Filter</Text>
+              </View>
+              <EventsFilters
+                ownership={ownership}
+                setOwnership={setOwnership}
+                dietFilters={dietFilters}
+                toggleDiet={(d) => setDietFilters(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])}
+                statusTab={statusTab}
+                onStatusChange={(s) => { setStatusTab(s); reloadWith(s); }}
+                useNearby={useNearby}
+                setUseNearby={setUseNearby}
+                isTablet={true}
+                reload={reload}
+              />
             </View>
-            
-            {/* Filter Content */}
-            <View style={styles.filterContent}>
-              {/* Status Tabs */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Status</Text>
-                <Segmented
-                  value={statusTab}
-                  onChange={(value: string) => {
-                    setStatusTab(value as EventStatusMobile);
-                    reloadWith(value as EventStatusMobile);
-                  }}
-                  options={[
-                    { key: "upcoming", label: "Upcoming" },
-                    { key: "past", label: "Past" },
-                    { key: "drafts", label: "Drafts" },
-                  ]}
-                  testID="status-segmented"
-                />
-              </View>
-
-              {/* Ownership Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Ownership</Text>
-                <View style={styles.chipContainer}>
-                  <FilterChip
-                    selected={ownership === "all"}
-                    onPress={() => {
-                      setOwnership("all");
-                      reload();
-                    }}
-                    testID="ownership-all"
-                  >
-                    <Text>All Events</Text>
-                  </FilterChip>
-                  <FilterChip
-                    selected={ownership === "mine"}
-                    onPress={() => {
-                      setOwnership("mine");
-                      reload();
-                    }}
-                    testID="ownership-mine"
-                  >
-                    <Text>My Events</Text>
-                  </FilterChip>
-                  <FilterChip
-                    selected={ownership === "invited"}
-                    onPress={() => {
-                      setOwnership("invited");
-                      reload();
-                    }}
-                    testID="ownership-invited"
-                  >
-                    <Text>Invited Events</Text>
-                  </FilterChip>
-                </View>
-              </View>
-
-              {/* Diet Filters */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Dietary Preferences</Text>
-                <View style={styles.chipContainer}>
-                  {(["veg", "nonveg", "mixed"] as Diet[]).map((diet) => (
-                    <FilterChip
-                      key={diet}
-                      selected={dietFilters.includes(diet)}
-                      onPress={() => {
-                        const newFilters = dietFilters.includes(diet)
-                          ? dietFilters.filter((f) => f !== diet)
-                          : [...dietFilters, diet];
-                        setDietFilters(newFilters);
-                        reload();
-                      }}
-                      testID={`diet-${diet.toLowerCase()}`}
-                    >
-                      {diet === "veg" ? "Veg" : diet === "nonveg" ? "Non-veg" : "Mixed"}
-                    </FilterChip>
-                  ))}
-                </View>
-              </View>
-
-              {/* Location Filter */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>Location</Text>
-                <FilterChip
-                  selected={useNearby}
-                  onPress={() => {
-                    setUseNearby(!useNearby);
-                    reload();
-                  }}
-                  testID="location-nearby"
-                >
-                  {useNearby ? "Nearby Events" : "All Locations"}
-                </FilterChip>
-              </View>
-            </View>
-          </View>
           )}
 
           {/* Right Section - Events */}
           <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
             {/* Events Section Header */}
-            <View style={[styles.eventsHeader, isMobile && { flexDirection: 'column', alignItems: 'flex-start', gap: 8 }]}>
-              <View style={[styles.eventsHeaderLeft, isMobile && { flexDirection: 'column', alignItems: 'flex-start' }]}>
-                <Text style={[styles.eventsTitle, isMobile && { fontSize: 20 }]}>
-                  Events
-                </Text>
-                <Text style={[styles.eventsSubtitle, isMobile && { marginTop: 2 }]}>
-                  {loading ? "Loading..." : `${data.length} event${data.length !== 1 ? 's' : ''} found`}
-                </Text>
-              </View>
-              <View style={[styles.eventsHeaderActions, isMobile && { alignSelf: 'stretch', justifyContent: 'space-between', flexWrap: 'wrap' }]}>
-                <Pressable 
-                  onPress={() => setMapMode(m => !m)} 
-                  style={[styles.filterToggleButton, { marginRight: 8 }]} 
-                  testID="map-toggle-button"
-                >
-                  <Icon name={mapMode ? "List" : "Map"} size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.filterToggleText}>
-                    {mapMode ? "List" : "Map"}
-                  </Text>
-                </Pressable>
-                {/* Filter Toggle Button */}
-                <Pressable 
-                  onPress={() => {
-                    if (isMobile) {
-                      setFiltersVisible(true); // Open bottom sheet on mobile
-                    } else {
-                      setSidebarVisible(!sidebarVisible); // Toggle sidebar on tablet/desktop
-                    }
-                  }} 
-                  style={styles.filterToggleButton}
-                  testID="filter-toggle-button"
-                >
-                  <Icon name="SlidersHorizontal" size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.filterToggleText}>
-                    {isMobile ? "Filters" : (sidebarVisible ? "Hide" : "Show")}
-                  </Text>
-                  {getActiveFiltersCount() > 0 && (
-                    <View style={styles.filterBadge}>
-                      <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
-                    </View>
-                  )}
-                </Pressable>
-                
-                <Pressable
-                  onPress={handleCreateEvent}
-                  style={[styles.createEventButton, !effectivePhoneVerified && { opacity: 0.6 }]}
-                  disabled={!effectivePhoneVerified}
-                  testID="create-event-button"
-                >
-                  <Icon name="Plus" size={16} color="#fff" />
-                  <Text style={styles.createEventButtonText}>Create Event</Text>
-                </Pressable>
-              </View>
-            </View>
+            <EventsHeaderBar
+              total={data.length}
+              loading={loading}
+              isMobile={isMobile}
+              mapMode={mapMode}
+              onToggleMap={() => setMapMode(m => !m)}
+              sidebarVisible={sidebarVisible}
+              onToggleFilters={() => { if (isMobile) setFiltersVisible(true); else setSidebarVisible(!sidebarVisible); }}
+              onCreateEvent={handleCreateEvent}
+              canCreate={!!effectivePhoneVerified}
+              getActiveFiltersCount={getActiveFiltersCount}
+            />
 
             {/* Search */}
             <View style={styles.searchContainer} testID="search-container">
@@ -1271,11 +959,111 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                   }}
                   style={{ width: '100%' }}
                 >
-                  <MobileTabs.Screen name="Upcoming" children={() => <TabContent tabKey="upcoming" />} />
-                  <MobileTabs.Screen name="Drafts" children={() => <TabContent tabKey="drafts" />} />
-                  <MobileTabs.Screen name="Past" children={() => <TabContent tabKey="past" />} />
-                  <MobileTabs.Screen name="Deleted" children={() => <TabContent tabKey="deleted" />} />
-                  <MobileTabs.Screen name="Pending" children={() => <TabContent tabKey="pending-approval" />} />
+                  <MobileTabs.Screen name="Upcoming" children={() => (
+                    <FeatureTabContent
+                      tabKey="upcoming"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Drafts" children={() => (
+                    <FeatureTabContent
+                      tabKey="drafts"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Past" children={() => (
+                    <FeatureTabContent
+                      tabKey="past"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Deleted" children={() => (
+                    <FeatureTabContent
+                      tabKey="deleted"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
+                  <MobileTabs.Screen name="Pending" children={() => (
+                    <FeatureTabContent
+                      tabKey="pending-approval"
+                      statusTab={statusTab}
+                      setStatusTab={setStatusTab}
+                      reloadWith={reloadWith}
+                      loadingPending={loadingPending}
+                      pendingApprovals={pendingApprovals}
+                      mapMode={mapMode}
+                      mapPoints={mapPoints}
+                      handleEventPress={handleEventPress}
+                      loading={loading}
+                      query={query}
+                      data={data}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      loadMore={loadMore}
+                      endReachedOnce={endReachedOnce}
+                      getEventActions={getEventActions}
+                    />
+                  )} />
                 </MobileTabs.Navigator>
               </View>
             ) : (
@@ -1388,13 +1176,17 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
               </View>
             ) : (
             /* List */
-            <FlatList
+          <FlatList
           data={data}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           style={{ marginTop: 10 }}
           refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
           testID="events-list"
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={11}
+          removeClippedSubviews
           ListEmptyComponent={
             loading ? (
               <View style={styles.emptyWrap} testID="loading-container">
@@ -1471,198 +1263,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
 
 /* ------------------ Components ------------------ */
 
-function DietTag({ diet }: { diet: Diet }) {
-  const map = {
-    veg: { bg: "#22C55E", fg: "#062E16", label: "veg" },
-    nonveg: { bg: "#F59E0B", fg: "#3A2000", label: "non-veg" },
-    mixed: { bg: "#7C3AED", fg: "#120B20", label: "mixed" },
-  } as const;
-  const d = map[diet];
-  return (
-    <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, backgroundColor: d.bg + '22', borderWidth: 1, borderColor: d.bg + '55' }}>
-      <Text style={{ color: d.fg, fontWeight: "700", fontSize: 12, textTransform: 'capitalize' }}>{d.label}</Text>
-    </View>
-  );
-}
-
-function StatusPill({ status, testID }: { status: "active" | "cancelled" | "draft" | "deleted" | "past"; testID?: string }) {
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "active":
-        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
-      case "cancelled":
-        return { color: "rgba(239,68,68,0.95)", icon: "close-circle", textColor: "#7f1d1d" };
-      case "draft":
-        return { color: "rgba(251,191,36,0.95)", icon: "create-outline", textColor: "#78350f" };
-      case "deleted":
-        return { color: "rgba(107,114,128,0.95)", icon: "trash-outline", textColor: "#111827" };
-      case "past":
-        return { color: "rgba(59,130,246,0.95)", icon: "time-outline", textColor: "#1e3a8a" };
-      default:
-        return { color: "rgba(16,185,129,0.95)", icon: "checkmark-circle", textColor: "#0b3d2a" };
-    }
-  };
-
-  const config = getStatusConfig(status);
-  
-  return (
-    <View
-      style={
-        {
-          flexDirection: "row",
-          alignItems: "center",
-          paddingHorizontal: 10,
-          paddingVertical: 5,
-          borderRadius: 16,
-          backgroundColor: config.color,
-        }
-      }
-      testID={testID}
-    >
-      <Icon
-        name={
-          (status === "active" && "CircleCheck") ||
-          (status === "cancelled" && "CircleX") ||
-          (status === "draft" && "Pencil") ||
-          (status === "deleted" && "Trash2") ||
-          (status === "past" && "Clock") ||
-          "Circle"
-        }
-        size={14}
-        color="#fff"
-        style={{ marginRight: 4 }}
-      />
-      <Text style={{ fontSize: 12, fontWeight: "700", color: config.textColor, marginLeft: 6 }} testID={`${testID}-text`}>{status}</Text>
-    </View>
-  );
-}
-
-function RolePill({ role, testID }: { role: 'host' | 'guest'; testID?: string }) {
-  const config = role === 'host'
-    ? { bg: 'rgba(236,72,153,0.95)', fg: '#3f0a24', icon: 'User' }
-    : { bg: 'rgba(59,130,246,0.95)', fg: '#10284c', icon: 'Users' };
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 14, backgroundColor: config.bg }} testID={testID}>
-      <Icon name={config.icon as any} size={12} color="#fff" />
-      <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: '800', color: config.fg }} testID={`${testID}-text`}>{role}</Text>
-    </View>
-  );
-}
-
-function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {people.slice(0, 3).map((p, idx) => (
-        <View key={p.id} style={[styles.avatarWrap, { marginLeft: idx === 0 ? 0 : -10 }]}>
-          {p.avatarUrl ? (
-            <Image source={{ uri: p.avatarUrl }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, { alignItems: "center", justifyContent: "center" }]}> 
-              <Icon name="User" size={14} color="#fff" />
-            </View>
-          )}
-        </View>
-      ))}
-      {extra && extra > 0 ? (
-        <View style={[styles.avatarWrap, { marginLeft: -10, backgroundColor: "rgba(255,255,255,0.25)" }]}>
-          <Text style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}>+{extra}</Text>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-function EventCard({ 
-  item, 
-  onPress, 
-  actions = [],
-  testID
-}: { 
-  item: EventItem; 
-  onPress: () => void; 
-  actions?: Array<{
-    key: string;
-    label: string;
-    icon: string;
-    color: string;
-    handler: () => void;
-  }>;
-  testID?: string;
-}) {
-  const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
-  const cardColors = gradients.button.primary;
-  const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
-  return (
-    <Pressable onPress={onPress} testID={testID}>
-      <View style={[styles.card, { backgroundColor: '#FFFFFF' }]}>
-      <View style={styles.cardHeader} testID={`${testID}-header`}>
-        <Text style={styles.cardTitle} testID={`${testID}-title`}>{item.title}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ marginRight: 6 }}>
-            <RolePill role={roleLabel} testID={`${testID}-role`} />
-          </View>
-          {item.statusBadge ? <StatusPill status={item.statusBadge} testID={`${testID}-status`} /> : null}
-        </View>
-      </View>
-
-        <View style={styles.metaRow}>
-          <Icon name="Calendar" size={16} color="#6B7280" style={{ marginRight: 8 }} />
-          <Text style={styles.metaText}>{dateLabel}</Text>
-        </View>
-
-        <View style={[styles.metaRow, { marginTop: 4 }]}>
-          <Icon name="MapPin" size={16} color="#6B7280" style={{ marginRight: 8 }} />
-          <Text style={styles.metaText}>{item.venue}</Text>
-        </View>
-
-        <View style={styles.footerRow}>
-          <View style={styles.footerLeft}>
-            <Icon name="Users" size={16} color="#6B7280" />
-          <Text style={[styles.metaText, { marginLeft: 6 }]}>{item.attendeeCount}</Text>
-        </View>
-
-        <View style={styles.footerCenter}>
-          <DietTag diet={item.diet} />
-        </View>
-
-        <View style={styles.footerRight}>
-          <Avatars
-            people={item.attendeesPreview || []}
-            extra={Math.max(0, (item.attendeeCount || 0) - (item.attendeesPreview?.length || 0))}
-          />
-        </View>
-      </View>
-
-      {/* Action buttons based on event status and ownership */}
-      {actions.length > 0 && (
-        <View style={styles.actionsContainer} testID={`${testID}-actions`}>
-          {actions.map((action) => (
-            <Pressable 
-              key={action.key}
-              onPress={(e) => {
-                e.stopPropagation(); // Prevent triggering the card press
-                console.log("EventList - Action button pressed:", action.key, action.label, "for event:", item.id);
-                action.handler();
-              }}
-              style={[styles.actionButton, { backgroundColor: action.color }]}
-              testID={`${testID}-action-${action.key}`}
-            >
-              <Icon name={
-                action.icon === 'rocket-outline' ? 'Rocket' :
-                action.icon === 'trash-outline' ? 'Trash2' :
-                action.icon === 'close-circle-outline' ? 'CircleX' :
-                action.icon === 'checkmark-circle-outline' ? 'CircleCheck' :
-                action.icon === 'refresh-outline' ? 'RefreshCw' : 'Circle'
-              } size={14} color="#fff" style={{ marginRight: 4 }} />
-              <Text style={styles.actionButtonText} testID={`${testID}-action-${action.key}-text`}>{action.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-        )}
-      </View>
-    </Pressable>
-  );
-}
+/* Local EventCard component removed; using imported EventCard from features */
 
 /* ------------------- Utilities ------------------- */
 

@@ -68,7 +68,8 @@ export function mapDbError(err: PostgrestError | null): ServiceError {
     code,
     details: {
       db_code: err.code,
-      hint: (err as any).hint,
+      // hint is not in the public type; keep as unknown
+      hint: (err as unknown as { hint?: unknown })?.hint,
       details: err.details,
     },
   };
@@ -126,8 +127,12 @@ export function handleResult<T>(res: Response, result: ServiceResult<T>) {
   return res.json(result.data);
 }
 
+type MaybeSingle<T> = {
+  maybeSingle: () => Promise<{ data: T | null; error: PostgrestError | null }>;
+};
+
 export async function mustFindOne<T>(
-  query: any
+  query: MaybeSingle<T>
 ): Promise<ServiceResult<T>> {
   const { data, error } = await query.maybeSingle();
 

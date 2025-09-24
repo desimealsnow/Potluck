@@ -23,6 +23,13 @@ import ParticipantsScreen from "./Participants";
 import {  RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
 
+/**
+ * @ai-context Event Details Screen (mobile)
+ * Shows event details (items, participants), exposes host/guest actions.
+ * @user-journey Open from list → view → publish/cancel/complete or request to join
+ * @related-files apps/server/src/routes/events.routes.ts, apps/server/src/controllers/events.controller.ts
+ */
+
 /* ===================== Config ===================== */
 const API_BASE_URL = "http://localhost:3000/api/v1"; // In React Native, use expo-constants for env vars
 const USE_MOCK = false; // set to false when your REST is ready

@@ -53,7 +53,7 @@ export const searchNearbyEventsController = async (req: Request, res: Response) 
       }
     });
     
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       logger.warn('Validation error in searchNearbyEventsController:', error.issues);
       return res.status(400).json({ 
@@ -93,7 +93,7 @@ export const searchEventsByCityController = async (req: Request, res: Response) 
       }
     });
     
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       logger.warn('Validation error in searchEventsByCityController:', error.issues);
       return res.status(400).json({ 
@@ -134,7 +134,7 @@ export const getPopularEventsController = async (req: Request, res: Response) =>
       }
     });
     
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Error in getPopularEventsController:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -186,7 +186,7 @@ export const getUserNotificationsController = async (req: Request, res: Response
     
     logger.info(`Notifications request for user ${userId}: limit=${limit}, offset=${offset}`);
     
-    const result = await getUserNotifications(userId, limit, offset, status as any);
+    const result = await getUserNotifications(userId, limit, offset, status);
     
     if (!result.ok) {
       return res.status(400).json({ error: result.error });
@@ -202,7 +202,7 @@ export const getUserNotificationsController = async (req: Request, res: Response
       }
     });
     
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Error in getUserNotificationsController:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -316,7 +316,7 @@ export const registerPushTokenController = async (req: Request, res: Response) =
     const result = await registerPushToken(userId, platform, token);
     if (!result.ok) return res.status(400).json({ error: result.error });
     res.json({ id: result.data.id });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -331,7 +331,7 @@ export const getNotificationPreferencesController = async (req: Request, res: Re
     const result = await getNotificationPreferences(userId);
     if (!result.ok) return res.status(400).json({ error: result.error });
     res.json(result.data);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -347,7 +347,7 @@ export const putNotificationPreferencesController = async (req: Request, res: Re
     const result = await upsertNotificationPreferences(userId, prefs);
     if (!result.ok) return res.status(400).json({ error: result.error });
     res.json(result.data);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal server error' });
   }
 };

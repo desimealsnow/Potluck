@@ -8,6 +8,8 @@
 
 > **CRITICAL**: If you're a new AI agent, read **[`docs/AGENT_ENTRY_POINT.md`](AGENT_ENTRY_POINT.md)** FIRST for complete project context and file priorities.
 
+> Also see the lightweight machine-friendly manifest: **`docs/agent/ai-context.json`** for quick entry points and key flows.
+
 ## 🎯 Quick Reference
 
 ### **Project Overview**

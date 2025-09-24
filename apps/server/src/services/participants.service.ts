@@ -133,8 +133,8 @@ export async function updateParticipant(
   // 3) If they dropped from accepted → (maybe|declined), unassign their items
   const dropped = current.status === 'accepted' && (input.status === 'maybe' || input.status === 'declined');
   if (dropped) {
-    const eventId = (current as any).event_id as string;
-    const userId  = (current as any).user_id as string;
+    const eventId = (current as { event_id: string }).event_id;
+    const userId  = (current as { user_id: string }).user_id;
 
     // Unassign all items assigned_to this user for the event
     const { data: affectedItems, error: listErr } = await supabase
@@ -166,8 +166,12 @@ export async function updateParticipant(
           try {
             const { supabase } = await import('../config/supabaseClient');
             await supabase.rpc('promote_from_waitlist', { p_event_id: eventId });
-          } catch {}
-        } catch {}
+          } catch {
+            // ignore
+          }
+        } catch {
+          // ignore
+        }
       }
     }
   }

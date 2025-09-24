@@ -6,7 +6,7 @@ export type DeliveryChannel = 'in_app' | 'push' | 'email';
 export type DeliveryPayload = {
   title?: string;
   body?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   deepLink?: string;
 };
 

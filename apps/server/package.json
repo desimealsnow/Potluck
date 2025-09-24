@@ -88,5 +88,14 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "ai": {
+    "entry_points": {
+      "routes": "src/routes/events.routes.ts",
+      "controller": "src/controllers/events.controller.ts",
+      "service": "src/services/events.service.ts"
+    },
+    "docs": ["../../docs/agent/README.md", "../../docs/api-spec.yaml"],
+    "catalogs": ["../../.agent/repo.catalog.json", "../../.agent/routes.index.json"]
+  }
 }

@@ -76,7 +76,7 @@ export async function searchNearbyEvents(
     logger.info(`Searching for events near ${lat}, ${lon} within ${radius_km}km`);
 
     // Build the base query with location filtering
-    let query = supabase
+    const query = supabase
       .rpc('find_nearby_events', {
         user_lat: lat,
         user_lon: lon,
@@ -115,11 +115,11 @@ export async function searchNearbyEvents(
     }
 
     // Apply client-side filters for now (ideally these would be in the RPC function)
-    let filteredEvents = events || [];
+    let filteredEvents: NearbyEvent[] = (events || []) as NearbyEvent[];
 
     if (q) {
       const searchTerm = q.toLowerCase();
-      filteredEvents = filteredEvents.filter((event: any) => 
+      filteredEvents = filteredEvents.filter((event: NearbyEvent) => 
         event.title.toLowerCase().includes(searchTerm) ||
         event.description?.toLowerCase().includes(searchTerm) ||
         event.city?.toLowerCase().includes(searchTerm)
@@ -128,14 +128,14 @@ export async function searchNearbyEvents(
 
     if (date_from) {
       const fromDate = new Date(date_from);
-      filteredEvents = filteredEvents.filter((event: any) => 
+      filteredEvents = filteredEvents.filter((event: NearbyEvent) => 
         new Date(event.event_date) >= fromDate
       );
     }
 
     if (date_to) {
       const toDate = new Date(date_to);
-      filteredEvents = filteredEvents.filter((event: any) => 
+      filteredEvents = filteredEvents.filter((event: NearbyEvent) => 
         new Date(event.event_date) <= toDate
       );
     }

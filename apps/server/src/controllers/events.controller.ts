@@ -14,6 +14,11 @@ type CreateEventInput  = components['schemas']['EventCreate'];
 type EventUpdateInput = components['schemas']['EventUpdate'];
 type EventCancelInput = components['schemas']['EventCancel'];
 
+/**
+ * @ai-context Events Controller
+ * Thin HTTP handlers delegating to services. Start here from routes.
+ * @related-files ../routes/events.routes.ts, ../services/events.service.ts
+ */
 
 /** POST /events  – create draft event + initial items */
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
@@ -27,7 +32,9 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
       if (!profile?.phone_verified) {
         return res.status(403).json({ ok: false, error: 'Phone verification required before hosting', code: 'PHONE_UNVERIFIED' });
       }
-    } catch {}
+} catch {
+  // no-op
+}
   }
 
   const payload = req.body as CreateEventInput;
@@ -105,7 +112,12 @@ export const listEvents = async (req: AuthenticatedRequest, res: Response) => {
     
     // Debug logging for include parameter
     console.log('🔍 Events controller - parsed params:', JSON.stringify(params, null, 2));
-    require('fs').appendFileSync('debug.log', `🔍 Events controller - parsed params: ${JSON.stringify(params, null, 2)}\n`);
+    try {
+      const fs = await import('fs');
+      fs.appendFileSync('debug.log', `🔍 Events controller - parsed params: ${JSON.stringify(params, null, 2)}\n`);
+  } catch {
+    // no-op
+  }
 
     /*── Service call ──────────────────────────────────────────────────────────*/
     const result = await EventService.listEvents(req.user.id, params);
@@ -166,20 +178,22 @@ export const publishEvent = async (req: AuthenticatedRequest, res: Response) => 
     try {
       console.log('[Publish] Triggering nearby notifications', {
         eventId,
-        title: (result.data as any).event?.title,
-        date: (result.data as any).event?.event_date,
-        is_public: (result.data as any).event?.is_public
+        title: (result.data as { event?: { title?: string; event_date?: string; is_public?: boolean } }).event?.title,
+        date: (result.data as { event?: { title?: string; event_date?: string; is_public?: boolean } }).event?.event_date,
+        is_public: (result.data as { event?: { title?: string; event_date?: string; is_public?: boolean } }).event?.is_public
       });
       const notificationResult = await notifyNearbyUsers(
         eventId,
-        (result.data as any).event?.title,
-        (result.data as any).event?.event_date
+        (result.data as { event?: { title?: string } }).event?.title as string,
+        (result.data as { event?: { event_date?: string } }).event?.event_date as string
       );
       console.log('[Publish] Nearby notifications result', {
         eventId,
         ok: notificationResult.ok,
-        notified_count: (notificationResult as any)?.data?.notified_count,
-        error: (notificationResult as any)?.error
+        notified_count: (notificationResult as { ok: true; data: { notified_count: number } } | { ok: false })['ok']
+          ? (notificationResult as { ok: true; data: { notified_count: number } }).data.notified_count
+          : undefined,
+        error: (notificationResult as { ok: false; error?: string })['ok'] ? undefined : (notificationResult as { ok: false; error?: string }).error
       });
       if (notificationResult.ok) {
         log(`Sent ${notificationResult.data.notified_count} nearby notifications for event ${eventId}`);

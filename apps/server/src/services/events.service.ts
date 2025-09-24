@@ -17,6 +17,13 @@ type EventCancelInput = components['schemas']['EventCancel'];
 logger.info('Debug namespace is Event Service');
 
 /**
+ * @ai-context Events Service
+ * Business logic for Events feature. Controllers call these functions.
+ * @boundaries FRONTEND_BACKEND_COMMS: UI → API routes → Controllers → Services → DB
+ * @related-files ../routes/events.routes.ts, ../controllers/events.controller.ts
+ */
+
+/**
  * Atomically create an Event (status = draft), auto‑RSVP the host, and insert
  * the initial item slots in one Postgres transaction. All input validation is
  * performed via the generated Zod schema before touching the DB.
@@ -47,14 +54,14 @@ export async function createEventWithItems(
 
   // 2a️⃣ Ensure events.is_public defaults to true for newly created events
   try {
-    const newEventId = (data as any)?.event?.id as string | undefined;
-    const isPublic = (data as any)?.event?.is_public as boolean | undefined;
+    const newEventId = (data as { event?: { id?: string; is_public?: boolean } } | null)?.event?.id;
+    const isPublic = (data as { event?: { id?: string; is_public?: boolean } } | null)?.event?.is_public;
     if (newEventId && (isPublic === undefined || isPublic === false)) {
       await supabase
         .from('events')
         .update({ is_public: true })
         .eq('id', newEventId);
-      (data as any).event.is_public = true;
+      (data as { event?: { is_public?: boolean } }).event!.is_public = true;
     }
   } catch (e) {
     logger.warn('[EventService] set default is_public=true failed (non-fatal)', { error: (e as Error)?.message });
@@ -62,10 +69,11 @@ export async function createEventWithItems(
 
   // 2b️⃣  Persist latitude/longitude to locations if provided in payload (RPC may not set them)
   try {
-    const hasCoords = typeof (input as any)?.latitude === 'number' && typeof (input as any)?.longitude === 'number';
+    const hasCoords = typeof (input as unknown as { latitude?: number; longitude?: number })?.latitude === 'number'
+      && typeof (input as unknown as { latitude?: number; longitude?: number })?.longitude === 'number';
     if (hasCoords) {
       // Find the location_id for the newly created event
-      const newEventId = (data as any)?.event?.id as string | undefined;
+      const newEventId = (data as { event?: { id?: string } } | null)?.event?.id;
       if (newEventId) {
         const { data: evRow } = await supabase
           .from('events')
@@ -78,8 +86,8 @@ export async function createEventWithItems(
           const { error: updErr } = await supabase
             .from('locations')
             .update({
-              latitude: (input as any).latitude,
-              longitude: (input as any).longitude,
+              latitude: (input as unknown as { latitude: number }).latitude,
+              longitude: (input as unknown as { longitude: number }).longitude,
               updated_at: new Date().toISOString(),
             })
             .eq('id', locId);
@@ -103,14 +111,14 @@ export async function createEventWithItems(
               .eq('id', locId)
               .single();
 
-            const newName = (locBefore?.name || 'Location') + ' #' + String(newEventId).slice(0, 8);
+            const newName = (locBefore?.name || 'Location') + ' #' + String(newEventId ?? '').slice(0, 8);
             const { data: newLoc, error: insErr } = await supabase
               .from('locations')
               .insert({
                 name: newName,
                 formatted_address: locBefore?.formatted_address ?? null,
-                latitude: (input as any).latitude,
-                longitude: (input as any).longitude,
+                latitude: (input as unknown as { latitude: number }).latitude,
+                longitude: (input as unknown as { longitude: number }).longitude,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
               })
@@ -227,7 +235,7 @@ export async function getEventDetails(
       .eq('user_id', data.created_by)
       .maybeSingle();
     if (!hostError && host) {
-      hostProfile = host as any;
+      hostProfile = host as { display_name?: string | null; avatar_url?: string | null };
     }
 
     // If no display_name, try to get from auth.users using admin client
@@ -413,10 +421,34 @@ async function performLocationBasedSearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0, include } = params;
+  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0 } = params;
   
   try {
-    let events: any[] = [];
+    type EventLite = {
+      id: string;
+      title: string;
+      description?: string | null;
+      event_date: string;
+      is_public: boolean;
+      status: string;
+      capacity_total?: number | null;
+      attendee_count: number;
+      created_by?: string;
+      city?: string | null;
+      meal_type?: string;
+      locations?: {
+        id: string;
+        name: string;
+        formatted_address: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+        lat6?: number | null;
+        lon6?: number | null;
+        place_id?: string | null;
+      } | null;
+      distance_m?: number;
+    };
+    let events: EventLite[] = [];
     let totalCount = 0;
 
     if (lat && lon) {
@@ -473,15 +505,15 @@ async function performLocationBasedSearch(
             return R * c;
           };
 
-          const computed = (joined || [])
-            .filter((e: any) => (
+          const computed: EventLite[] = (joined || [])
+            .filter((e: { locations?: { latitude?: number | null; lat6?: number | null; longitude?: number | null; lon6?: number | null } }) => (
               e.locations && (
                 e.locations.latitude != null || e.locations.lat6 != null
               ) && (
                 e.locations.longitude != null || e.locations.lon6 != null
               )
             ))
-            .map((e: any) => {
+            .map((e: { id: string; title: string; description?: string | null; event_date: string; is_public: boolean; status: string; capacity_total?: number | null; attendee_count: number; locations: { formatted_address?: string | null; latitude?: number | null; lat6?: number | null; longitude?: number | null; lon6?: number | null } }) => {
               const locLat = e.locations.latitude ?? (typeof e.locations.lat6 === 'number' ? e.locations.lat6 / 1_000_000 : null);
               const locLon = e.locations.longitude ?? (typeof e.locations.lon6 === 'number' ? e.locations.lon6 / 1_000_000 : null);
               const dKm = haversineKm(lat, lon, locLat, locLon);
@@ -512,7 +544,7 @@ async function performLocationBasedSearch(
       }
     } else if (near) {
       // Search by city/area name
-      const shouldIncludeLocation = include === 'location';
+      // include flag is parsed at controller; unused here
       const selectFields = 'id, title, event_date, attendee_count, meal_type, status, created_by, city, location_geog, location_id, locations(id, name, formatted_address, latitude, longitude, place_id)';
         
       const { data, error } = await supabase
@@ -562,8 +594,12 @@ async function performLocationBasedSearch(
     }
 
     // Convert to ViewerEventSummary format
-    const shouldIncludeLocation = include === 'location';
-    const items: ViewerEventSummary[] = filteredEvents.map((e: any) => {
+    type JoinedLoc = { id: string; name: string; formatted_address: string; latitude: number; longitude: number; place_id: string };
+    type Filtered = {
+      id: string; title: string; event_date: string; attendee_count: number; meal_type: string; created_by: string;
+      locations?: JoinedLoc | null;
+    };
+    const items: ViewerEventSummary[] = (filteredEvents as Filtered[]).map((e) => {
       const baseItem = {
         id: e.id,
         title: e.title,
@@ -672,7 +708,7 @@ async function performDiscoverySearch(
       logger.info('Location include debug - raw events data:', JSON.stringify(events, null, 2));
     }
 
-    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => {
+    const items: ViewerEventSummary[] = ((events ?? []) as Array<{ id: string; title: string; event_date: string; attendee_count: number; meal_type: string; created_by: string; locations?: { id: string; name: string; formatted_address: string; latitude: number; longitude: number; place_id: string } }>).map((e) => {
       const baseItem = {
         id: e.id,
         title: e.title,
@@ -757,7 +793,7 @@ async function performTraditionalSearch(
       return { ok: false, error: listErr.message, code: '500' };
     }
 
-    const items: ViewerEventSummary[] = (events ?? []).map((e: any) => {
+    const items: ViewerEventSummary[] = ((events ?? []) as Array<{ id: string; title: string; event_date: string; attendee_count: number; meal_type: string; created_by: string; locations?: { id: string; name: string; formatted_address: string; latitude: number; longitude: number; place_id: string } }>).map((e) => {
       const baseItem = {
         id: e.id,
         title: e.title,
@@ -842,7 +878,14 @@ function applyEventFilters<B>(
 
   // Apply ownership filter
   // Use an any-typed local to avoid deep generic instantiation from Postgrest types
-  let b: any = builder;
+  let b = builder as unknown as {
+    eq: (col: string, val: unknown) => typeof builder;
+    in: (col: string, vals: unknown[]) => typeof builder;
+    or: (expr: string) => typeof builder;
+    neq: (col: string, val: unknown) => typeof builder;
+    gte: (col: string, val: unknown) => typeof builder;
+    lte: (col: string, val: unknown) => typeof builder;
+  };
   if (ownership === 'mine') {
     logger.info('[EventService] Applying mine filter');
     b = b.eq('created_by', userId);
@@ -1001,7 +1044,7 @@ export async function updateEventDetails(
 export async function publishEvent(
   eventId: string,
   actorId: string
-): Promise<ServiceResult<any>> {
+): Promise<ServiceResult<EventFull>> {
   logger.info('[EventService] publishEvent', { eventId, actorId });
 
   // 1️⃣ Fetch the event for checks

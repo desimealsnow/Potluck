@@ -92,7 +92,7 @@ export class RequestsRepository {
         .single();
 
       if (insert.error || !insert.data) return mapDbError(insert.error);
-      return { ok: true, data: insert.data as unknown as JoinRequestRow };
+      return { ok: true, data: insert.data as JoinRequestRow };
     } catch (err) {
       logger.error('[RequestsRepo] Exception creating request', { eventId, userId, err });
       return { ok: false, error: 'Failed to create request', code: '500' };
@@ -205,7 +205,7 @@ export class RequestsRepository {
         .single();
       if (current.error || !current.data) return mapDbError(current.error);
 
-      const row = current.data as any;
+      const row = current.data as JoinRequestRow;
       if (expectedCurrentStatus && row.status !== expectedCurrentStatus) {
         return { ok: false, error: 'Invalid status transition', code: '409' };
       }
@@ -240,7 +240,7 @@ export class RequestsRepository {
         .select('*')
         .single();
       if (upd.error || !upd.data) return mapDbError(upd.error);
-      return { ok: true, data: upd.data as unknown as JoinRequestRow };
+      return { ok: true, data: upd.data as JoinRequestRow };
     } catch (err) {
       logger.error('[RequestsRepo] Exception updating request status', { 
         requestId, newStatus, err 
@@ -322,7 +322,7 @@ export class RequestsRepository {
       user_id: row.user_id,
       party_size: row.party_size,
       note: row.note,
-      status: row.status as any,
+      status: row.status as unknown as JoinRequestType['status'],
       hold_expires_at: row.hold_expires_at,
       created_at: row.created_at,
       updated_at: row.updated_at,
@@ -340,7 +340,7 @@ async function fallbackAvailability(eventId: string): Promise<AvailabilityRow | 
     .maybeSingle();
   if (ev.error) return null;
   if (!ev.data) return null;
-  const total = (ev.data as any).capacity_total ?? 0;
+  const total = (ev.data as { capacity_total?: number } | null)?.capacity_total ?? 0;
 
   // Sum confirmed party sizes from participants
   const acc = await supabase
@@ -348,7 +348,7 @@ async function fallbackAvailability(eventId: string): Promise<AvailabilityRow | 
     .select('party_size')
     .eq('event_id', eventId)
     .eq('status', 'accepted');
-  const confirmed = (acc.data || []).reduce((s: number, r: any) => s + (r.party_size || 0), 0);
+  const confirmed = (acc.data || []).reduce((s: number, r: { party_size?: number | null }) => s + (r.party_size || 0), 0);
 
   // Sum held party sizes from pending requests with non-expired hold
   const nowIso = new Date().toISOString();
@@ -358,7 +358,7 @@ async function fallbackAvailability(eventId: string): Promise<AvailabilityRow | 
     .eq('event_id', eventId)
     .eq('status', 'pending')
     .gt('hold_expires_at', nowIso);
-  const held = (holds.data || []).reduce((s: number, r: any) => s + (r.party_size || 0), 0);
+  const held = (holds.data || []).reduce((s: number, r: { party_size?: number | null }) => s + (r.party_size || 0), 0);
 
   const available = Math.max(0, Number(total) - Number(confirmed) - Number(held));
   return { total: Number(total), confirmed, held, available } as AvailabilityRow;

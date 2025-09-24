@@ -5,10 +5,8 @@ import { components } from '../../../../libs/common/src/types.gen';
 import { handle } from '../utils/helper';
 import logger from '../logger';
 
-type AddItemInput  = components['schemas']['ItemCreate'];
-type UpdateItemInput  = components['schemas']['ItemUpdate'];
 type AssignItemInput  = components['schemas']['ItemAssign'];
-type ItemCreateInput = components['schemas']['ItemCreate'];
+type ItemCreateInput  = components['schemas']['ItemCreate'];
 
 /** PATCH /events/:eventId/items/:itemId */
 
@@ -77,7 +75,9 @@ export const listItems = async (req: AuthenticatedRequest, res: Response) => {
   const { eventId } = req.params;
   const actorId      = req.user!.id;
 
-  const { limit = 20, offset = 0 } = req.query as Record<string, any>;
+  const { limit: limitRaw, offset: offsetRaw } = (req.query ?? {}) as Partial<Record<'limit' | 'offset', string | number>>;
+  const limit  = typeof limitRaw === 'string' ? parseInt(limitRaw, 10) : (typeof limitRaw === 'number' ? limitRaw : 20);
+  const offset = typeof offsetRaw === 'string' ? parseInt(offsetRaw, 10) : (typeof offsetRaw === 'number' ? offsetRaw : 0);
 
   const result = await ItemService.listItems(eventId, actorId, {
     limit:  Number(limit),
@@ -97,7 +97,7 @@ export const addItem = async (req: AuthenticatedRequest, res: Response) => {
   if (!result.ok) {
     logger.error('HTTP addItem failed', { eventId, actorId, payload, result });
   } else {
-    logger.info('HTTP addItem success', { eventId, actorId, itemId: (result.data as any)?.id });
+    logger.info('HTTP addItem success', { eventId, actorId, itemId: result.data.id });
   }
   // handle() will send 201 if service sets code='201' or ok:true + res.status(201)
   return handle(res, result);

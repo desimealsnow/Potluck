@@ -1,7 +1,7 @@
 declare module '@payments/core' {
   export type Logger = { info: (msg: string, meta?: unknown) => void; warn: (msg: string, meta?: unknown) => void; error: (msg: string, meta?: unknown) => void };
   export type Metrics = { inc: (name: string, labels?: Record<string, string>) => void; observe: (name: string, value: number, labels?: Record<string, string>) => void };
-  export type ProviderConfig = { provider: string; tenantId: string; liveMode: boolean; credentials: Record<string, any>; defaultCurrency: string };
+  export type ProviderConfig = { provider: string; tenantId: string; liveMode: boolean; credentials: Record<string, unknown>; defaultCurrency: string };
   export interface ProviderConfigStore { getConfig(tenantId: string, provider: string): Promise<ProviderConfig | null>; listEnabledProviders(tenantId: string): Promise<ProviderConfig[]>; }
   export type Plan = { id: string; name: string };
   export type Price = { id: string; planId: string; amountCents: number; currency: string; interval: string };
@@ -20,10 +20,10 @@ declare module '@payments/core' {
   export interface WebhookInbox { seen(provider: string, eventId: string): Promise<boolean>; markProcessed(provider: string, eventId: string): Promise<void>; }
   export interface IdempotencyStore { withKey<T>(key: string, fn: () => Promise<T>): Promise<T>; }
   export const providerRegistry: Record<string, unknown>;
-  export interface PaymentContainer {}
-  export function createWebhookHandler(container?: any): any;
+  export interface PaymentContainer { providers?: Record<string, unknown> }
+  export function createWebhookHandler(container?: PaymentContainer): unknown;
   export function getProviderNames(): string[];
-  export class PaymentService { constructor(container: any); }
+  export class PaymentService { constructor(container: PaymentContainer); }
 }
 
 

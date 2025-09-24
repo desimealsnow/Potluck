@@ -86,7 +86,7 @@ export async function rebalanceUnassigned(
 
     logger.info('[Rebalance] Assigned items', { eventId, assignedCount });
     return { ok: true, data: { assigned: assignedCount } };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Failed to rebalance', code: '500' };
   }
 }

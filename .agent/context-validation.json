@@ -1,75 +1,82 @@
 {
-  "generated_at": "2025-09-20T04:02:02.492Z",
-  "overall_health": "critical",
+  "generated_at": "2025-09-24T10:13:25.166Z",
+  "overall_health": "excellent",
   "validation_results": [
     {
-      "file": "docs/AGENT_ENTRY_POINT.md",
+      "file": "docs/agent/AGENT_ENTRY_POINT.md",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T03:53:57.963Z",
-      "size": 5562,
+      "last_modified": "2025-09-24T08:58:53.414Z",
+      "size": 5414,
       "content_valid": true
     },
     {
-      "file": "docs/agent-knowledge-base.md",
+      "file": "docs/agent/agent-knowledge-base.md",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T03:54:04.462Z",
-      "size": 8952,
+      "last_modified": "2025-09-24T10:05:10.473Z",
+      "size": 9009,
       "content_valid": true
     },
     {
-      "file": "db/schema.json",
-      "exists": false,
-      "issues": [
-        "File does not exist"
-      ]
+      "file": "docs/agent/README.md",
+      "exists": true,
+      "issues": [],
+      "last_modified": "2025-09-24T10:12:49.767Z",
+      "size": 8068,
+      "content_valid": true
     },
     {
       "file": "docs/api-spec.yaml",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-19T17:32:22.307Z",
-      "size": 54986,
+      "last_modified": "2025-09-24T08:58:53.414Z",
+      "size": 57653,
       "content_valid": true
     },
     {
       "file": ".agent/repo.catalog.json",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T04:01:44.711Z",
-      "size": 159360,
+      "last_modified": "2025-09-24T08:58:53.410Z",
+      "size": 181791,
       "content_valid": true
     },
     {
       "file": ".agent/routes.index.json",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T04:01:46.023Z",
-      "size": 77368,
+      "last_modified": "2025-09-24T08:58:53.410Z",
+      "size": 89508,
       "content_valid": true
     },
     {
       "file": ".agent/tests.index.json",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T04:01:46.261Z",
-      "size": 1182604,
+      "last_modified": "2025-09-24T08:58:53.414Z",
+      "size": 1306247,
       "content_valid": true
     },
     {
       "file": ".agent/deps.graph.mmd",
       "exists": true,
       "issues": [],
-      "last_modified": "2025-09-20T04:01:46.264Z",
+      "last_modified": "2025-09-24T08:58:53.410Z",
       "size": 9,
       "content_valid": true
+    },
+    {
+      "file": "apps/server/db/schema.json | db/schema.json",
+      "exists": true,
+      "last_modified": "2025-09-24T08:58:53.414Z",
+      "size": 229756,
+      "content_valid": true,
+      "issues": []
     }
   ],
   "recommendations": [
-    "CRITICAL: Generate missing files: db/schema.json"
+    "All context files are healthy and up-to-date"
   ],
-  "critical_files_missing": [
-    "db/schema.json"
-  ]
+  "critical_files_missing": []
 }

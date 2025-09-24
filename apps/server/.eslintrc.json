@@ -9,5 +9,16 @@
   "env": {
     "node": true,
     "es2021": true
-  }
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.*", "**/*.spec.*", "**/*.test.*"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "no-debugger": "off"
+      }
+    }
+  ]
 }
