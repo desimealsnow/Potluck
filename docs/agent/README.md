@@ -4,6 +4,8 @@
 > **Last Updated**: 2025-09-21
 > **Version**: 1.0
 
+> Quick start: Use the pinned system message in `docs/agent/AGENT_BOOTSTRAP_PROMPT.md` for all new agent chats.
+
 ## 🚨 **START HERE - Essential Reading Order**
 
 ### **1. Entry Point & Quick Start**
