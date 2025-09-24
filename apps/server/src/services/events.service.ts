@@ -421,10 +421,34 @@ async function performLocationBasedSearch(
   userId: string,
   params: ListEventsParams
 ): Promise<ServiceResult<PaginatedEventSummary>> {
-  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0, include } = params;
+  const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0 } = params;
   
   try {
-    let events: Array<Record<string, any>> = [];
+    type EventLite = {
+      id: string;
+      title: string;
+      description?: string | null;
+      event_date: string;
+      is_public: boolean;
+      status: string;
+      capacity_total?: number | null;
+      attendee_count: number;
+      created_by?: string;
+      city?: string | null;
+      meal_type?: string;
+      locations?: {
+        id: string;
+        name: string;
+        formatted_address: string | null;
+        latitude?: number | null;
+        longitude?: number | null;
+        lat6?: number | null;
+        lon6?: number | null;
+        place_id?: string | null;
+      } | null;
+      distance_m?: number;
+    };
+    let events: EventLite[] = [];
     let totalCount = 0;
 
     if (lat && lon) {
@@ -481,7 +505,7 @@ async function performLocationBasedSearch(
             return R * c;
           };
 
-          const computed = (joined || [])
+          const computed: EventLite[] = (joined || [])
             .filter((e: { locations?: { latitude?: number | null; lat6?: number | null; longitude?: number | null; lon6?: number | null } }) => (
               e.locations && (
                 e.locations.latitude != null || e.locations.lat6 != null

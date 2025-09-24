@@ -12,7 +12,7 @@ import { createPaymentContainer } from './services/payments.container';
 import { authGuard } from './middleware/authGuard';
 import type { Request } from 'express';
 // Dev payments routes are optional; only import if available
-let createDevPaymentsRoutes: any;
+let createDevPaymentsRoutes: undefined | ((container: ReturnType<typeof createPaymentContainer>, helpers: { getUserId: (req: Request & { user?: { id?: string } }) => string | undefined; getUserEmail: (req: Request & { user?: { email?: string } }) => string | undefined; }) => express.Router);
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   createDevPaymentsRoutes = require('@payments/core').createDevPaymentsRoutes;

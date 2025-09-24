@@ -358,7 +358,7 @@ export async function registerPushToken(
       return { ok: false, error: error.message };
     }
     return { ok: true, data: { id: data!.id } };
-  } catch (err) {
+  } catch {
     logger.error('[Notifications] registerPushToken exception', { err });
     return { ok: false, error: 'Failed to register push token' };
   }
@@ -374,7 +374,7 @@ export async function getNotificationPreferences(userId: string): Promise<Servic
       .maybeSingle();
     if (error) return { ok: false, error: error.message };
     return { ok: true, data: (data as NotificationPrefs) || { user_id: userId, in_app_enabled: true } };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Failed to get notification preferences' };
   }
 }
@@ -389,7 +389,7 @@ export async function upsertNotificationPreferences(userId: string, prefs: Parti
       .single();
     if (error) return { ok: false, error: error.message };
     return { ok: true, data: data as NotificationPrefs };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Failed to update notification preferences' };
   }
 }
@@ -434,7 +434,7 @@ export async function notifyEventParticipantsCancelled(
     const { error: insErr } = await supabase.from('notifications').insert(rows as unknown as Record<string, unknown>[]);
     if (insErr) return { ok: false, error: insErr.message };
     return { ok: true, data: { notified_count: rows.length } };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Failed to notify participants' };
   }
 }

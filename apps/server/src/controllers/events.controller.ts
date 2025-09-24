@@ -32,7 +32,9 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
       if (!profile?.phone_verified) {
         return res.status(403).json({ ok: false, error: 'Phone verification required before hosting', code: 'PHONE_UNVERIFIED' });
       }
-    } catch {}
+} catch {
+  // no-op
+}
   }
 
   const payload = req.body as CreateEventInput;
