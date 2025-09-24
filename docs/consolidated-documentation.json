@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2025-09-20T04:27:31.863Z",
+    "generated_at": "2025-09-24T10:05:22.109Z",
     "total_files": 33,
-    "total_size": 283401
+    "total_size": 284992
   },
   "categories": {
     "core": {
@@ -10,265 +10,265 @@
       "files": [
         {
           "title": "api-spec",
-          "summary": "## Potluck API Reference\r...",
+          "summary": "## Potluck API Reference...",
           "path": "docs/core/api-spec.md",
-          "size": 6552,
+          "size": 6288,
           "lines": 265
         },
         {
           "title": "api-spec.yaml",
-          "summary": "openapi: 3.1.1\r info:\r   title: Potluck API\r   version: \"0.2.0\"\r servers:\r   - url: http://localhost:3000/api/v1\r paths:\r   /auth/signup:\r     post:\r       summary: Sign up\r       requestBody:\r       ...",
+          "summary": "openapi: 3.1.1 info:   title: Potluck API   version: \"0.2.0\" servers:   - url: http://localhost:3000/api/v1 paths:   /auth/signup:     post:       summary: Sign up       requestBody:         required:...",
           "path": "docs/api-spec.yaml",
-          "size": 54502,
-          "lines": 1647
+          "size": 57169,
+          "lines": 1799
         },
         {
-          "title": "Potluck - Event Management Platform\r",
-          "summary": "A comprehensive event management platform built with React Native (Expo) and Node.js, featuring real-time notifications, user profiles, location-based discovery, and subscription management.\r...",
+          "title": "Potluck - Event Management Platform",
+          "summary": "A comprehensive event management platform built with React Native (Expo) and Node.js, featuring real-time notifications, user profiles, location-based discovery, and subscription management....",
           "path": "README.md",
-          "size": 9065,
-          "lines": 212
+          "size": 10073,
+          "lines": 237
         },
         {
-          "title": "Potluck Application – System Architecture\r",
-          "summary": "> **Status**: Draft · v0.1 · 27 Jun 2025\r...",
+          "title": "Potluck Application – System Architecture",
+          "summary": "> **Status**: Updated · v0.3 · 21 Sep 2025...",
           "path": "docs/core/architecture.md",
-          "size": 13755,
-          "lines": 391
+          "size": 14780,
+          "lines": 407
         },
         {
-          "title": "Row‑Level Security (RLS) Policies – Potluck Application\r",
-          "summary": "> **Status**: Draft · v0.1 · 27 Jun 2025\r...",
+          "title": "Row‑Level Security (RLS) Policies – Potluck Application",
+          "summary": "> **Status**: Draft · v0.1 · 27 Jun 2025...",
           "path": "docs/core/rls-policies.md",
-          "size": 7493,
+          "size": 7279,
           "lines": 215
         }
       ],
-      "total_size": 91367,
+      "total_size": 95589,
       "file_count": 5
     },
     "agent": {
       "title": "AI Agent Documentation",
       "files": [
         {
-          "title": "🤖 AI Agent Documentation Hub\r",
-          "summary": "> **Purpose**: Centralized documentation for AI agents working with the Potluck project\r > **Last Updated**: 2025-09-20\r > **Version**: 1.0\r...",
+          "title": "🤖 AI Agent Documentation Hub",
+          "summary": "> **Purpose**: Centralized documentation for AI agents working with the Potluck project > **Last Updated**: 2025-09-21 > **Version**: 1.0...",
           "path": "docs/agent/README.md",
-          "size": 4965,
-          "lines": 130
+          "size": 7380,
+          "lines": 187
         },
         {
-          "title": "🤖 AI Agent Entry Point - Potluck Project\r",
-          "summary": "> **CRITICAL**: Read this file FIRST before exploring the codebase\r > **Last Updated**: 2025-09-20\r > **Purpose**: Guide AI agents to the most important project files\r...",
+          "title": "🤖 AI Agent Entry Point - Potluck Project",
+          "summary": "> **CRITICAL**: Read this file FIRST before exploring the codebase > **Last Updated**: 2025-09-20 > **Purpose**: Guide AI agents to the most important project files...",
           "path": "docs/agent/AGENT_ENTRY_POINT.md",
-          "size": 5454,
+          "size": 5306,
           "lines": 149
         },
         {
-          "title": "🤖 AI Agent Quick Reference Card\r",
-          "summary": "> **For new AI agents starting work on this project**\r...",
+          "title": "🤖 AI Agent Quick Reference Card",
+          "summary": "> **For new AI agents starting work on this project**...",
           "path": "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
-          "size": 2741,
+          "size": 2667,
           "lines": 75
         },
         {
-          "title": "Agent Catalog Implementation\r",
-          "summary": "> **Status**: Complete ✅  \r > **Date**: 2025-09-20  \r > **Purpose**: Machine-readable codebase catalog for AI agents\r...",
+          "title": "Agent Catalog Implementation",
+          "summary": "> **Status**: Complete ✅   > **Date**: 2025-09-20   > **Purpose**: Machine-readable codebase catalog for AI agents...",
           "path": "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
-          "size": 6177,
+          "size": 5984,
           "lines": 194
         },
         {
-          "title": "AI Agent Architecture Documentation\r",
-          "summary": "> **Purpose**: Comprehensive guide to the AI agent system architecture and design patterns\r > **Last Updated**: 2025-09-20\r > **Version**: 1.0\r...",
+          "title": "AI Agent Architecture Documentation",
+          "summary": "> **Purpose**: Comprehensive guide to the AI agent system architecture and design patterns > **Last Updated**: 2025-09-20 > **Version**: 1.0...",
           "path": "docs/agent/AGENT_ARCHITECTURE.md",
-          "size": 9181,
+          "size": 8917,
           "lines": 265
         },
         {
-          "title": "Potluck AI Agent Knowledge Base\r",
-          "summary": "> **Purpose**: Centralized, structured documentation optimized for AI agents\r > **Last Updated**: 2025-09-20\r > **Version**: 1.1\r...",
+          "title": "Potluck AI Agent Knowledge Base",
+          "summary": "> **Purpose**: Centralized, structured documentation optimized for AI agents > **Last Updated**: 2025-09-21 > **Version**: 1.1...",
           "path": "docs/agent/agent-knowledge-base.md",
-          "size": 8794,
-          "lines": 226
+          "size": 8851,
+          "lines": 229
         }
       ],
-      "total_size": 37312,
+      "total_size": 39105,
       "file_count": 6
     },
     "features": {
       "title": "Feature Documentation",
       "files": [
         {
-          "title": "Comprehensive Billing & Payment Testing\r",
-          "summary": "This directory contains comprehensive tests for all billing and payment-related functionality using **LemonSqueezy** as the payment gateway.\r...",
+          "title": "Comprehensive Billing & Payment Testing",
+          "summary": "This directory contains comprehensive tests for all billing and payment-related functionality using **LemonSqueezy** as the payment gateway....",
           "path": "docs/features/TEST_BILLING_README.md",
-          "size": 8294,
+          "size": 8043,
           "lines": 252
         },
         {
-          "title": "Integrated Location-Based Event Search\r",
-          "summary": "The `/api/v1/events` endpoint has been enhanced with comprehensive location-based search capabilities, providing a unified interface for all event discovery needs.\r...",
+          "title": "Integrated Location-Based Event Search",
+          "summary": "The `/api/v1/events` endpoint has been enhanced with comprehensive location-based search capabilities, providing a unified interface for all event discovery needs....",
           "path": "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
-          "size": 10894,
+          "size": 10563,
           "lines": 332
         },
         {
-          "title": "LemonSqueezy Configuration\r",
+          "title": "LemonSqueezy Configuration",
           "summary": "...",
           "path": "docs/features/LEMONSQUEEZY_CONFIG.md",
-          "size": 1922,
+          "size": 1866,
           "lines": 57
         },
         {
-          "title": "Location-Based Event Discovery System\r",
-          "summary": "This document describes the implementation of a production-ready location-based event discovery system for the Potluck application.\r...",
+          "title": "Location-Based Event Discovery System",
+          "summary": "This document describes the implementation of a production-ready location-based event discovery system for the Potluck application....",
           "path": "docs/features/LOCATION_DISCOVERY_README.md",
-          "size": 11054,
+          "size": 10664,
           "lines": 391
         },
         {
-          "title": "Notifications: Data model, APIs, mobile UX\r",
-          "summary": "This document describes the notification system added/updated in this repo: schema, server endpoints, mobile UI behavior, and delivery.\r...",
+          "title": "Notifications: Data model, APIs, mobile UX",
+          "summary": "This document describes the notification system added/updated in this repo: schema, server endpoints, mobile UI behavior, and delivery....",
           "path": "docs/features/NOTIFICATIONS.md",
-          "size": 5551,
+          "size": 5441,
           "lines": 111
         },
         {
-          "title": "Payment Provider Integration Setup\r",
+          "title": "Payment Provider Integration Setup",
           "summary": "This guide explains how to configure payment providers for payment processing in your Potluck application. The system supports a generic provider approach, making it easy to add and manage multiple pa...",
           "path": "docs/features/PAYMENT_PROVIDERS_SETUP.md",
-          "size": 5739,
+          "size": 5581,
           "lines": 159
         },
         {
-          "title": "Potluck API Testing Guide\r",
-          "summary": "This comprehensive testing setup provides **zero-flakiness** automated testing for the Potluck API with enforced **ServiceResult patterns** and **lifecycle rules**.\r...",
+          "title": "Potluck API Testing Guide",
+          "summary": "This comprehensive testing setup provides **zero-flakiness** automated testing for the Potluck API with enforced **ServiceResult patterns** and **lifecycle rules**....",
           "path": "docs/features/TESTING_README.md",
-          "size": 13147,
+          "size": 12725,
           "lines": 423
         },
         {
-          "title": "User Location Signup & Notification System\r",
-          "summary": "This document describes the enhanced user signup process that includes location data and the automatic notification system for nearby events.\r...",
+          "title": "User Location Signup & Notification System",
+          "summary": "This document describes the enhanced user signup process that includes location data and the automatic notification system for nearby events....",
           "path": "docs/features/USER_LOCATION_SIGNUP_README.md",
-          "size": 9291,
+          "size": 8980,
           "lines": 312
         },
         {
-          "title": "Using @payments/core in another repo\r",
-          "summary": "1) Install and configure `.npmrc` with your private token (see repo root `.npmrc` example).\r...",
+          "title": "Using @payments/core in another repo",
+          "summary": "1) Install and configure `.npmrc` with your private token (see repo root `.npmrc` example)....",
           "path": "docs/features/README.PAYMENTS-CONSUMER.md",
-          "size": 3099,
+          "size": 3015,
           "lines": 85
         }
       ],
-      "total_size": 68991,
+      "total_size": 66878,
       "file_count": 9
     },
     "development": {
       "title": "Development Documentation",
       "files": [
         {
-          "title": "🎉 Comprehensive Billing & Payment Tests - COMPLETE!\r",
+          "title": "🎉 Comprehensive Billing & Payment Tests - COMPLETE!",
           "summary": "...",
           "path": "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-          "size": 8068,
+          "size": 7867,
           "lines": 202
         },
         {
-          "title": "🎉 Test Suite Review & User Workflow Implementation - COMPLETED\r",
+          "title": "🎉 Test Suite Review & User Workflow Implementation - COMPLETED",
           "summary": "...",
           "path": "docs/development/TEST_COMPLETION_SUMMARY.md",
-          "size": 6133,
+          "size": 5991,
           "lines": 143
         },
         {
-          "title": "🛠️ Development Guide\r",
-          "summary": "> **Purpose**: Comprehensive development documentation for the Potluck project\r > **Last Updated**: 2025-09-20\r > **Version**: 1.0\r...",
+          "title": "🛠️ Development Guide",
+          "summary": "> **Purpose**: Comprehensive development documentation for the Potluck project > **Last Updated**: 2025-09-20 > **Version**: 1.0...",
           "path": "docs/development/README.md",
-          "size": 7056,
-          "lines": 184
+          "size": 6974,
+          "lines": 185
         },
         {
-          "title": "LemonSqueezy Complete Testing Guide\r",
-          "summary": "This guide covers the complete LemonSqueezy integration testing workflow, including webhook setup with ngrok as described in their documentation.\r...",
+          "title": "LemonSqueezy Complete Testing Guide",
+          "summary": "This guide covers the complete LemonSqueezy integration testing workflow, including webhook setup with ngrok as described in their documentation....",
           "path": "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-          "size": 6120,
+          "size": 5904,
           "lines": 217
         },
         {
-          "title": "LemonSqueezy Test Setup Guide\r",
-          "summary": "This guide will help you set up LemonSqueezy for testing the payment integration before going to production.\r...",
+          "title": "LemonSqueezy Test Setup Guide",
+          "summary": "This guide will help you set up LemonSqueezy for testing the payment integration before going to production....",
           "path": "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
-          "size": 6216,
+          "size": 6004,
           "lines": 213
         },
         {
-          "title": "Payment & Billing Testing Guide\r",
+          "title": "Payment & Billing Testing Guide",
           "summary": "...",
           "path": "docs/development/PAYMENT_TESTING_GUIDE.md",
-          "size": 3294,
+          "size": 3201,
           "lines": 94
         },
         {
-          "title": "Potluck API - Comprehensive Test Plan\r",
-          "summary": "> **Version**: 1.0  \r > **Target Coverage**: Statements 90%, Branches 85%, Lines 90%, Functions 90%  \r > **Framework**: Jest + Supertest + pgTap (optional)\r...",
+          "title": "Potluck API - Comprehensive Test Plan",
+          "summary": "> **Version**: 1.0   > **Target Coverage**: Statements 90%, Branches 85%, Lines 90%, Functions 90%   > **Framework**: Jest + Supertest + pgTap (optional)...",
           "path": "docs/development/TEST_PLAN.md",
-          "size": 14155,
+          "size": 13801,
           "lines": 355
         },
         {
-          "title": "React Native Paper Dates Setup\r",
+          "title": "React Native Paper Dates Setup",
           "summary": "...",
           "path": "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
-          "size": 1188,
+          "size": 1140,
           "lines": 49
         },
         {
-          "title": "Supabase Authentication Integration\r",
+          "title": "Supabase Authentication Integration",
           "summary": "...",
           "path": "docs/development/SUPABASE_AUTH_GUIDE.md",
-          "size": 4392,
+          "size": 4284,
           "lines": 109
         },
         {
-          "title": "Supabase Setup for Mobile App\r",
+          "title": "Supabase Setup for Mobile App",
           "summary": "...",
           "path": "docs/development/SUPABASE_SETUP.md",
-          "size": 2106,
+          "size": 2036,
           "lines": 71
         },
         {
-          "title": "Test Fixes Summary\r",
+          "title": "Test Fixes Summary",
           "summary": "...",
           "path": "docs/development/TEST_FIXES_SUMMARY.md",
-          "size": 3619,
+          "size": 3517,
           "lines": 103
         }
       ],
-      "total_size": 62347,
+      "total_size": 60719,
       "file_count": 11
     },
     "scripts": {
       "title": "Script Documentation",
       "files": [
         {
-          "title": "Database Schema Capture\r",
-          "summary": "This directory contains scripts for capturing database schema snapshots from Supabase. These snapshots serve as **reference points** for understanding the database structure during development.\r...",
+          "title": "Database Schema Capture",
+          "summary": "This directory contains scripts for capturing database schema snapshots from Supabase. These snapshots serve as **reference points** for understanding the database structure during development....",
           "path": "docs/scripts/SCHEMA_CAPTURE_README.md",
-          "size": 15059,
-          "lines": 425
+          "size": 14652,
+          "lines": 426
         },
         {
-          "title": "Database Schema Validation Script\r",
-          "summary": "This script validates that your database schema is consistent with your API schemas. It's designed as a **safety check** to ensure database constraints match your API expectations.\r...",
+          "title": "Database Schema Validation Script",
+          "summary": "This script validates that your database schema is consistent with your API schemas. It's designed as a **safety check** to ensure database constraints match your API expectations....",
           "path": "docs/scripts/SCHEMA_VALIDATION_README.md",
-          "size": 8325,
+          "size": 8049,
           "lines": 277
         }
       ],
-      "total_size": 23384,
+      "total_size": 22701,
       "file_count": 2
     }
   }

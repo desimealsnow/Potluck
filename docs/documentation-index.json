@@ -1,301 +1,48 @@
 {
   "metadata": {
-    "generated_at": "2025-09-20T04:27:32.488Z",
-    "total_files": 51,
-    "total_size": 357272,
+    "generated_at": "2025-09-24T10:05:22.336Z",
+    "total_files": 54,
+    "total_size": 370773,
     "version": "1.0"
   },
   "categories": {
     "agent": {
       "title": "AI Agent Documentation",
       "description": "Documentation specifically for AI agents",
-      "files": []
-    },
-    "core": {
-      "title": "Core Documentation",
-      "description": "Essential project documentation",
       "files": [
         {
-          "title": "Agent Performance Monitoring Report",
-          "description": "Generated: 2025-09-20T04:01:59.694Z",
-          "path": ".agent\\AGENT_MONITORING_REPORT.md",
-          "fullPath": "C:\\Projects\\Potluck\\.agent\\AGENT_MONITORING_REPORT.md",
-          "size": 664,
-          "lines": 24,
-          "tags": [
-            "testing",
-            "database"
-          ],
-          "lastModified": "2025-09-20T04:01:59.698Z"
-        },
-        {
-          "title": "README.md",
-          "description": "Why do I have a folder named \".expo\" in my project?",
-          "path": ".expo\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\.expo\\README.md",
-          "size": 751,
-          "lines": 9,
-          "tags": [],
-          "lastModified": "2025-09-10T05:22:31.868Z"
-        },
-        {
-          "title": "README.md",
-          "description": "Why do I have a folder named \".expo\" in my project?",
-          "path": "apps\\mobile\\.expo\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\apps\\mobile\\.expo\\README.md",
-          "size": 751,
-          "lines": 9,
-          "tags": [],
-          "lastModified": "2025-09-08T13:16:27.577Z"
-        },
-        {
-          "title": "Background Agent Setup Guide\r",
-          "description": "Before starting any background agents, run:\r",
-          "path": "docs\\BACKGROUND_AGENT_SETUP.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\BACKGROUND_AGENT_SETUP.md",
-          "size": 2241,
-          "lines": 90,
-          "tags": [
-            "testing",
-            "payments"
-          ],
-          "lastModified": "2025-09-20T04:09:55.508Z"
-        },
-        {
-          "title": "Row‑Level Security (RLS) Policies – Potluck Application\r",
-          "description": "**Status**: Draft · v0.1 · 27 Jun 2025\r",
-          "path": "docs\\core\\rls-policies.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\core\\rls-policies.md",
-          "size": 7493,
-          "lines": 215,
-          "tags": [
-            "testing",
-            "database",
-            "payments"
-          ],
-          "lastModified": "2025-06-27T06:27:09.378Z"
-        },
-        {
-          "title": "React Native Paper Dates Setup\r",
-          "description": "```bash\r",
-          "path": "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md",
-          "size": 1188,
-          "lines": 49,
-          "tags": [
-            "mobile"
-          ],
-          "lastModified": "2025-09-09T15:40:48.226Z"
-        },
-        {
-          "title": "🚀 Getting Started with payment-core\r",
-          "description": "```bash\r",
-          "path": "packages\\payments\\GETTING_STARTED.md",
-          "fullPath": "C:\\Projects\\Potluck\\packages\\payments\\GETTING_STARTED.md",
-          "size": 1778,
-          "lines": 69,
-          "tags": [
-            "testing",
-            "payments"
-          ],
-          "lastModified": "2025-09-20T04:23:00.188Z"
-        }
-      ]
-    },
-    "features": {
-      "title": "Feature Documentation",
-      "description": "Feature-specific guides and implementations",
-      "files": []
-    },
-    "development": {
-      "title": "Development Guides",
-      "description": "Development, testing, and setup documentation",
-      "files": []
-    },
-    "scripts": {
-      "title": "Script Documentation",
-      "description": "Documentation for utility scripts and tools",
-      "files": []
-    },
-    "api": {
-      "title": "API Documentation",
-      "description": "API specifications and integration guides",
-      "files": [
-        {
-          "title": "API Documentation",
-          "description": "Generated: 2025-09-20T04:01:56.817Z",
-          "path": ".agent\\API_GUIDE.md",
-          "fullPath": "C:\\Projects\\Potluck\\.agent\\API_GUIDE.md",
-          "size": 16282,
-          "lines": 965,
-          "tags": [
-            "api",
-            "payments",
-            "location",
-            "notifications"
-          ],
-          "lastModified": "2025-09-20T04:01:56.832Z"
-        },
-        {
-          "title": "Agent Context Validation Report",
-          "description": "Generated: 2025-09-20T04:02:02.492Z",
-          "path": ".agent\\CONTEXT_VALIDATION_REPORT.md",
-          "fullPath": "C:\\Projects\\Potluck\\.agent\\CONTEXT_VALIDATION_REPORT.md",
-          "size": 799,
-          "lines": 28,
-          "tags": [
-            "api",
-            "testing",
-            "database"
-          ],
-          "lastModified": "2025-09-20T04:02:02.553Z"
-        },
-        {
-          "title": "Repo Catalog (for agents)",
-          "description": "This directory contains machine-readable catalogs of the codebase structure, generated automatically from the source code.",
-          "path": ".agent\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\.agent\\README.md",
-          "size": 1189,
-          "lines": 34,
-          "tags": [
-            "api",
-            "testing"
-          ],
-          "lastModified": "2025-09-20T04:01:46.265Z"
-        },
-        {
-          "title": "Potluck Mobile App - E2E Testing Documentation\r",
-          "description": "This document outlines all user flow paths and testing strategies for the Potluck mobile app built with React Native/Expo. The app allows users to create, manage, and participate in potluck events.\r",
-          "path": "apps\\mobile\\tests\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\apps\\mobile\\tests\\README.md",
-          "size": 12446,
-          "lines": 480,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "location"
-          ],
-          "lastModified": "2025-09-16T16:42:40.605Z"
-        },
-        {
-          "title": "Schema Management Summary\r",
-          "description": "This document provides an overview of the complete schema management system implemented for the Potluck application.\r",
-          "path": "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-          "fullPath": "C:\\Projects\\Potluck\\apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-          "size": 6012,
-          "lines": 180,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "deployment"
-          ],
-          "lastModified": "2025-09-19T16:37:03.070Z"
-        },
-        {
-          "title": "REST Tests\r",
-          "description": "Quick REST tests that authenticate to get a bearer token and hit endpoints.\r",
-          "path": "apps\\server\\tests\\rest\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\apps\\server\\tests\\rest\\README.md",
-          "size": 473,
-          "lines": 16,
-          "tags": [
-            "api",
-            "testing",
-            "location"
-          ],
-          "lastModified": "2025-09-18T09:00:20.159Z"
-        },
-        {
-          "title": "Join Requests System - Test Plan\r",
-          "description": "Comprehensive test coverage for the join requests and event discovery system, ensuring all business logic, edge cases, and user interactions are validated.\r",
-          "path": "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
-          "fullPath": "C:\\Projects\\Potluck\\apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
-          "size": 6962,
-          "lines": 212,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "location",
-            "notifications"
-          ],
-          "lastModified": "2025-09-11T08:22:04.701Z"
-        },
-        {
-          "title": "Changelog\r",
-          "description": "No description available",
-          "path": "CHANGELOG.md",
-          "fullPath": "C:\\Projects\\Potluck\\CHANGELOG.md",
-          "size": 10857,
-          "lines": 211,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "location",
-            "notifications"
-          ],
-          "lastModified": "2025-09-19T06:26:22.779Z"
-        },
-        {
-          "title": "Potluck AI Agent Knowledge Base\r",
-          "description": "**Purpose**: Centralized, structured documentation optimized for AI agents\r",
-          "path": "docs\\agent\\agent-knowledge-base.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\agent-knowledge-base.md",
-          "size": 8794,
-          "lines": 226,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "location",
-            "notifications",
-            "deployment"
-          ],
-          "lastModified": "2025-09-20T03:54:04.462Z"
-        },
-        {
-          "title": "AI Agent Architecture Documentation\r",
-          "description": "**Purpose**: Comprehensive guide to the AI agent system architecture and design patterns\r",
-          "path": "docs\\agent\\AGENT_ARCHITECTURE.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\AGENT_ARCHITECTURE.md",
-          "size": 9181,
+          "title": "AI Agent Architecture Documentation",
+          "description": "**Purpose**: Comprehensive guide to the AI agent system architecture and design patterns",
+          "path": "docs/agent/AGENT_ARCHITECTURE.md",
+          "fullPath": "/workspace/docs/agent/AGENT_ARCHITECTURE.md",
+          "size": 8917,
           "lines": 265,
           "tags": [
             "api",
             "testing"
           ],
-          "lastModified": "2025-09-20T03:59:21.996Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "Agent Catalog Implementation\r",
-          "description": "**Status**: Complete ✅  \r",
-          "path": "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-          "size": 6177,
+          "title": "Agent Catalog Implementation",
+          "description": "**Status**: Complete ✅  ",
+          "path": "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+          "fullPath": "/workspace/docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+          "size": 5984,
           "lines": 194,
           "tags": [
             "api",
             "testing",
             "database"
           ],
-          "lastModified": "2025-09-20T03:50:57.595Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "🤖 AI Agent Entry Point - Potluck Project\r",
-          "description": "**CRITICAL**: Read this file FIRST before exploring the codebase\r",
-          "path": "docs\\agent\\AGENT_ENTRY_POINT.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\AGENT_ENTRY_POINT.md",
-          "size": 5454,
+          "title": "🤖 AI Agent Entry Point - Potluck Project",
+          "description": "**CRITICAL**: Read this file FIRST before exploring the codebase",
+          "path": "docs/agent/AGENT_ENTRY_POINT.md",
+          "fullPath": "/workspace/docs/agent/AGENT_ENTRY_POINT.md",
+          "size": 5306,
           "lines": 149,
           "tags": [
             "api",
@@ -306,14 +53,14 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-20T03:53:57.963Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "🤖 AI Agent Quick Reference Card\r",
-          "description": "**For new AI agents starting work on this project**\r",
-          "path": "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-          "size": 2741,
+          "title": "🤖 AI Agent Quick Reference Card",
+          "description": "**For new AI agents starting work on this project**",
+          "path": "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+          "fullPath": "/workspace/docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+          "size": 2667,
           "lines": 75,
           "tags": [
             "api",
@@ -324,218 +71,33 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-20T03:53:19.831Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "🤖 AI Agent Documentation Hub\r",
-          "description": "**Purpose**: Centralized documentation for AI agents working with the Potluck project\r",
-          "path": "docs\\agent\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\agent\\README.md",
-          "size": 4965,
-          "lines": 130,
+          "title": "🤖 AI Agent Documentation Hub",
+          "description": "**Purpose**: Centralized documentation for AI agents working with the Potluck project",
+          "path": "docs/agent/README.md",
+          "fullPath": "/workspace/docs/agent/README.md",
+          "size": 7380,
+          "lines": 187,
           "tags": [
             "api",
             "testing",
             "database",
-            "payments"
-          ],
-          "lastModified": "2025-09-20T04:20:27.178Z"
-        },
-        {
-          "title": "api-spec.md",
-          "description": "- Base URL: `/api/v1`\r",
-          "path": "docs\\core\\api-spec.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\core\\api-spec.md",
-          "size": 6552,
-          "lines": 265,
-          "tags": [
-            "api",
-            "testing",
+            "mobile",
             "payments",
             "location",
-            "deployment"
+            "notifications"
           ],
-          "lastModified": "2025-08-23T05:27:39.235Z"
+          "lastModified": "2025-09-24T09:59:41.864Z"
         },
         {
-          "title": "Potluck Application – System Architecture\r",
-          "description": "**Status**: Draft · v0.1 · 27 Jun 2025\r",
-          "path": "docs\\core\\architecture.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\core\\architecture.md",
-          "size": 13755,
-          "lines": 391,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-19T18:20:50.624Z"
-        },
-        {
-          "title": "🎉 Comprehensive Billing & Payment Tests - COMPLETE!\r",
-          "description": "I have successfully created comprehensive mock data and tests for all payment and invoice related endpoints using **LemonSqueezy** as your payment gateway. This provides enterprise-grade testing coverage for your billing system.\r",
-          "path": "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-          "size": 8068,
-          "lines": 202,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-10T15:54:38.348Z"
-        },
-        {
-          "title": "LemonSqueezy Complete Testing Guide\r",
-          "description": "This guide covers the complete LemonSqueezy integration testing workflow, including webhook setup with ngrok as described in their documentation.\r",
-          "path": "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-          "size": 6120,
-          "lines": 217,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-10T16:39:45.436Z"
-        },
-        {
-          "title": "LemonSqueezy Test Setup Guide\r",
-          "description": "This guide will help you set up LemonSqueezy for testing the payment integration before going to production.\r",
-          "path": "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-          "size": 6216,
-          "lines": 213,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-10T15:38:07.385Z"
-        },
-        {
-          "title": "📦 NPM Package Management Guide\r",
-          "description": "**Purpose**: Complete guide for creating, building, and publishing npm packages in the Potluck monorepo\r",
-          "path": "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-          "size": 10885,
-          "lines": 467,
-          "tags": [
-            "api",
-            "testing",
-            "payments"
-          ],
-          "lastModified": "2025-09-20T04:27:00.017Z"
-        },
-        {
-          "title": "Payment & Billing Testing Guide\r",
-          "description": "```bash\r",
-          "path": "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\PAYMENT_TESTING_GUIDE.md",
-          "size": 3294,
-          "lines": 94,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-10T15:54:46.294Z"
-        },
-        {
-          "title": "🛠️ Development Guide\r",
-          "description": "**Purpose**: Comprehensive development documentation for the Potluck project\r",
-          "path": "docs\\development\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\README.md",
-          "size": 7056,
-          "lines": 184,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "mobile"
-          ],
-          "lastModified": "2025-09-20T04:27:28.810Z"
-        },
-        {
-          "title": "Supabase Setup for Mobile App\r",
-          "description": "1. **Update Supabase Client Configuration**\r",
-          "path": "docs\\development\\SUPABASE_SETUP.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\SUPABASE_SETUP.md",
-          "size": 2106,
-          "lines": 71,
-          "tags": [
-            "api",
-            "mobile",
-            "deployment"
-          ],
-          "lastModified": "2025-09-09T08:28:51.150Z"
-        },
-        {
-          "title": "🎉 Test Suite Review & User Workflow Implementation - COMPLETED\r",
-          "description": "As a test suite developer, I have comprehensively reviewed all unit and integration tests, fixed compilation errors, and created a complete 2-user event workflow demonstration that shows how a host creates an event and how a guest can access it.\r",
-          "path": "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\TEST_COMPLETION_SUMMARY.md",
-          "size": 6133,
-          "lines": 143,
-          "tags": [
-            "api",
-            "testing",
-            "database"
-          ],
-          "lastModified": "2025-09-11T10:15:28.152Z"
-        },
-        {
-          "title": "Test Fixes Summary\r",
-          "description": "This document summarizes the recent fixes applied to resolve TypeScript compilation errors and test execution issues in the Potluck API test suite.\r",
-          "path": "docs\\development\\TEST_FIXES_SUMMARY.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\TEST_FIXES_SUMMARY.md",
-          "size": 3619,
-          "lines": 103,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "payments"
-          ],
-          "lastModified": "2025-09-11T11:00:38.692Z"
-        },
-        {
-          "title": "Potluck API - Comprehensive Test Plan\r",
-          "description": "**Version**: 1.0  \r",
-          "path": "docs\\development\\TEST_PLAN.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\TEST_PLAN.md",
-          "size": 14155,
-          "lines": 355,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "payments",
-            "location",
-            "deployment"
-          ],
-          "lastModified": "2025-09-10T14:49:41.207Z"
-        },
-        {
-          "title": "Documentation Index",
-          "description": "Generated: 2025-09-20T04:04:27.097Z",
-          "path": "docs\\documentation-index.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\documentation-index.md",
-          "size": 26667,
-          "lines": 369,
+          "title": "Potluck AI Agent Knowledge Base",
+          "description": "**Purpose**: Centralized, structured documentation optimized for AI agents",
+          "path": "docs/agent/agent-knowledge-base.md",
+          "fullPath": "/workspace/docs/agent/agent-knowledge-base.md",
+          "size": 8851,
+          "lines": 229,
           "tags": [
             "api",
             "testing",
@@ -546,30 +108,121 @@
             "notifications",
             "deployment"
           ],
-          "lastModified": "2025-09-20T04:04:27.098Z"
+          "lastModified": "2025-09-24T10:05:10.473Z"
+        }
+      ]
+    },
+    "core": {
+      "title": "Core Documentation",
+      "description": "Essential project documentation",
+      "files": [
+        {
+          "title": "Agent Performance Monitoring Report",
+          "description": "Generated: 2025-09-20T04:01:59.694Z",
+          "path": ".agent/AGENT_MONITORING_REPORT.md",
+          "fullPath": "/workspace/.agent/AGENT_MONITORING_REPORT.md",
+          "size": 664,
+          "lines": 24,
+          "tags": [
+            "testing",
+            "database"
+          ],
+          "lastModified": "2025-09-24T08:58:53.406Z"
         },
         {
-          "title": "Documentation Consolidation Summary",
-          "description": "Generated: 2025-09-20T04:27:31.891Z",
-          "path": "docs\\documentation-summary.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\documentation-summary.md",
-          "size": 3797,
-          "lines": 77,
+          "title": "README.md",
+          "description": "Why do I have a folder named \".expo\" in my project?",
+          "path": ".expo/README.md",
+          "fullPath": "/workspace/.expo/README.md",
+          "size": 751,
+          "lines": 9,
+          "tags": [],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "Attributions.md",
+          "description": "This Figma Make file includes photos from [Unsplash](https://unsplash.com) used under [license](https://unsplash.com/license).",
+          "path": "apps/mobile/figma/Attributions.md",
+          "fullPath": "/workspace/apps/mobile/figma/Attributions.md",
+          "size": 289,
+          "lines": 3,
+          "tags": [],
+          "lastModified": "2025-09-24T08:58:53.438Z"
+        },
+        {
+          "title": "General guidelines",
+          "description": "<!--",
+          "path": "apps/mobile/figma/guidelines/Guidelines.md",
+          "fullPath": "/workspace/apps/mobile/figma/guidelines/Guidelines.md",
+          "size": 2555,
+          "lines": 62,
+          "tags": [],
+          "lastModified": "2025-09-24T08:58:53.438Z"
+        },
+        {
+          "title": "Background Agent Setup Guide",
+          "description": "Before starting any background agents, run:",
+          "path": "docs/BACKGROUND_AGENT_SETUP.md",
+          "fullPath": "/workspace/docs/BACKGROUND_AGENT_SETUP.md",
+          "size": 2152,
+          "lines": 90,
           "tags": [
-            "api",
             "testing",
-            "database",
-            "mobile",
             "payments"
           ],
-          "lastModified": "2025-09-20T04:27:31.893Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "Integrated Location-Based Event Search\r",
-          "description": "The `/api/v1/events` endpoint has been enhanced with comprehensive location-based search capabilities, providing a unified interface for all event discovery needs.\r",
-          "path": "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-          "size": 10894,
+          "title": "Row‑Level Security (RLS) Policies – Potluck Application",
+          "description": "**Status**: Draft · v0.1 · 27 Jun 2025",
+          "path": "docs/core/rls-policies.md",
+          "fullPath": "/workspace/docs/core/rls-policies.md",
+          "size": 7279,
+          "lines": 215,
+          "tags": [
+            "testing",
+            "database",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "ui-refresh.md",
+          "description": "Summary of the visual refresh and primitives introduced for the RN app:",
+          "path": "docs/ui-refresh.md",
+          "fullPath": "/workspace/docs/ui-refresh.md",
+          "size": 2253,
+          "lines": 79,
+          "tags": [
+            "mobile"
+          ],
+          "lastModified": "2025-09-24T08:58:53.406Z"
+        },
+        {
+          "title": "🚀 Getting Started with payment-core",
+          "description": "```bash",
+          "path": "packages/payments/GETTING_STARTED.md",
+          "fullPath": "/workspace/packages/payments/GETTING_STARTED.md",
+          "size": 1710,
+          "lines": 69,
+          "tags": [
+            "testing",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        }
+      ]
+    },
+    "features": {
+      "title": "Feature Documentation",
+      "description": "Feature-specific guides and implementations",
+      "files": [
+        {
+          "title": "Integrated Location-Based Event Search",
+          "description": "The `/api/v1/events` endpoint has been enhanced with comprehensive location-based search capabilities, providing a unified interface for all event discovery needs.",
+          "path": "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+          "fullPath": "/workspace/docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+          "size": 10563,
           "lines": 332,
           "tags": [
             "api",
@@ -578,28 +231,28 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-18T11:14:50.642Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "LemonSqueezy Configuration\r",
-          "description": "Add these to your `.env` file:\r",
-          "path": "docs\\features\\LEMONSQUEEZY_CONFIG.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\LEMONSQUEEZY_CONFIG.md",
-          "size": 1922,
+          "title": "LemonSqueezy Configuration",
+          "description": "Add these to your `.env` file:",
+          "path": "docs/features/LEMONSQUEEZY_CONFIG.md",
+          "fullPath": "/workspace/docs/features/LEMONSQUEEZY_CONFIG.md",
+          "size": 1866,
           "lines": 57,
           "tags": [
             "api",
             "database",
             "payments"
           ],
-          "lastModified": "2025-09-17T17:06:33.039Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "Location-Based Event Discovery System\r",
-          "description": "This document describes the implementation of a production-ready location-based event discovery system for the Potluck application.\r",
-          "path": "docs\\features\\LOCATION_DISCOVERY_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\LOCATION_DISCOVERY_README.md",
-          "size": 11054,
+          "title": "Location-Based Event Discovery System",
+          "description": "This document describes the implementation of a production-ready location-based event discovery system for the Potluck application.",
+          "path": "docs/features/LOCATION_DISCOVERY_README.md",
+          "fullPath": "/workspace/docs/features/LOCATION_DISCOVERY_README.md",
+          "size": 10664,
           "lines": 391,
           "tags": [
             "api",
@@ -610,14 +263,14 @@
             "notifications",
             "deployment"
           ],
-          "lastModified": "2025-09-18T05:39:49.596Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "Notifications: Data model, APIs, mobile UX\r",
-          "description": "This document describes the notification system added/updated in this repo: schema, server endpoints, mobile UI behavior, and delivery.\r",
-          "path": "docs\\features\\NOTIFICATIONS.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\NOTIFICATIONS.md",
-          "size": 5551,
+          "title": "Notifications: Data model, APIs, mobile UX",
+          "description": "This document describes the notification system added/updated in this repo: schema, server endpoints, mobile UI behavior, and delivery.",
+          "path": "docs/features/NOTIFICATIONS.md",
+          "fullPath": "/workspace/docs/features/NOTIFICATIONS.md",
+          "size": 5441,
           "lines": 111,
           "tags": [
             "api",
@@ -627,14 +280,14 @@
             "notifications",
             "deployment"
           ],
-          "lastModified": "2025-09-19T17:32:22.249Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "Payment Provider Integration Setup\r",
-          "description": "This guide explains how to configure payment providers for payment processing in your Potluck application. The system supports a generic provider approach, making it easy to add and manage multiple payment providers.\r",
-          "path": "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-          "size": 5739,
+          "title": "Payment Provider Integration Setup",
+          "description": "This guide explains how to configure payment providers for payment processing in your Potluck application. The system supports a generic provider approach, making it easy to add and manage multiple payment providers.",
+          "path": "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+          "fullPath": "/workspace/docs/features/PAYMENT_PROVIDERS_SETUP.md",
+          "size": 5581,
           "lines": 159,
           "tags": [
             "api",
@@ -643,14 +296,29 @@
             "payments",
             "deployment"
           ],
-          "lastModified": "2025-09-10T15:06:26.338Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "Potluck API Testing Guide\r",
-          "description": "This comprehensive testing setup provides **zero-flakiness** automated testing for the Potluck API with enforced **ServiceResult patterns** and **lifecycle rules**.\r",
-          "path": "docs\\features\\TESTING_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\TESTING_README.md",
-          "size": 13147,
+          "title": "Using @payments/core in another repo",
+          "description": "1) Install and configure `.npmrc` with your private token (see repo root `.npmrc` example).",
+          "path": "docs/features/README.PAYMENTS-CONSUMER.md",
+          "fullPath": "/workspace/docs/features/README.PAYMENTS-CONSUMER.md",
+          "size": 3015,
+          "lines": 85,
+          "tags": [
+            "testing",
+            "database",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Potluck API Testing Guide",
+          "description": "This comprehensive testing setup provides **zero-flakiness** automated testing for the Potluck API with enforced **ServiceResult patterns** and **lifecycle rules**.",
+          "path": "docs/features/TESTING_README.md",
+          "fullPath": "/workspace/docs/features/TESTING_README.md",
+          "size": 12725,
           "lines": 423,
           "tags": [
             "api",
@@ -660,14 +328,14 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-19T17:32:30.958Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "Comprehensive Billing & Payment Testing\r",
-          "description": "This directory contains comprehensive tests for all billing and payment-related functionality using **LemonSqueezy** as the payment gateway.\r",
-          "path": "docs\\features\\TEST_BILLING_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\TEST_BILLING_README.md",
-          "size": 8294,
+          "title": "Comprehensive Billing & Payment Testing",
+          "description": "This directory contains comprehensive tests for all billing and payment-related functionality using **LemonSqueezy** as the payment gateway.",
+          "path": "docs/features/TEST_BILLING_README.md",
+          "fullPath": "/workspace/docs/features/TEST_BILLING_README.md",
+          "size": 8043,
           "lines": 252,
           "tags": [
             "api",
@@ -675,14 +343,14 @@
             "database",
             "payments"
           ],
-          "lastModified": "2025-09-10T15:54:34.850Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
         },
         {
-          "title": "User Location Signup & Notification System\r",
-          "description": "This document describes the enhanced user signup process that includes location data and the automatic notification system for nearby events.\r",
-          "path": "docs\\features\\USER_LOCATION_SIGNUP_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\USER_LOCATION_SIGNUP_README.md",
-          "size": 9291,
+          "title": "User Location Signup & Notification System",
+          "description": "This document describes the enhanced user signup process that includes location data and the automatic notification system for nearby events.",
+          "path": "docs/features/USER_LOCATION_SIGNUP_README.md",
+          "fullPath": "/workspace/docs/features/USER_LOCATION_SIGNUP_README.md",
+          "size": 8980,
           "lines": 312,
           "tags": [
             "api",
@@ -690,15 +358,297 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-18T05:39:49.564Z"
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        }
+      ]
+    },
+    "development": {
+      "title": "Development Guides",
+      "description": "Development, testing, and setup documentation",
+      "files": [
+        {
+          "title": "🎉 Comprehensive Billing & Payment Tests - COMPLETE!",
+          "description": "I have successfully created comprehensive mock data and tests for all payment and invoice related endpoints using **LemonSqueezy** as your payment gateway. This provides enterprise-grade testing coverage for your billing system.",
+          "path": "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+          "fullPath": "/workspace/docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+          "size": 7867,
+          "lines": 202,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "Potluck Documentation\r",
-          "description": "**Centralized documentation hub for the Potluck event management platform**\r",
-          "path": "docs\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\README.md",
-          "size": 5002,
+          "title": "LemonSqueezy Complete Testing Guide",
+          "description": "This guide covers the complete LemonSqueezy integration testing workflow, including webhook setup with ngrok as described in their documentation.",
+          "path": "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+          "fullPath": "/workspace/docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+          "size": 5904,
+          "lines": 217,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "LemonSqueezy Test Setup Guide",
+          "description": "This guide will help you set up LemonSqueezy for testing the payment integration before going to production.",
+          "path": "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+          "fullPath": "/workspace/docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+          "size": 6004,
+          "lines": 213,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "📦 NPM Package Management Guide",
+          "description": "**Purpose**: Complete guide for creating, building, and publishing npm packages in the Potluck monorepo",
+          "path": "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+          "fullPath": "/workspace/docs/development/NPM_PACKAGE_MANAGEMENT.md",
+          "size": 10419,
+          "lines": 467,
+          "tags": [
+            "api",
+            "testing",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "🚀 NPM Package Management - Quick Reference",
+          "description": "**Quick reference for creating and publishing npm packages in the Potluck monorepo**",
+          "path": "docs/development/NPM_QUICK_REFERENCE.md",
+          "fullPath": "/workspace/docs/development/NPM_QUICK_REFERENCE.md",
+          "size": 4620,
+          "lines": 196,
+          "tags": [
+            "api",
+            "testing"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Payment & Billing Testing Guide",
+          "description": "```bash",
+          "path": "docs/development/PAYMENT_TESTING_GUIDE.md",
+          "fullPath": "/workspace/docs/development/PAYMENT_TESTING_GUIDE.md",
+          "size": 3201,
+          "lines": 94,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "React Native Paper Dates Setup",
+          "description": "```bash",
+          "path": "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+          "fullPath": "/workspace/docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+          "size": 1140,
+          "lines": 49,
+          "tags": [
+            "mobile"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "🛠️ Development Guide",
+          "description": "**Purpose**: Comprehensive development documentation for the Potluck project",
+          "path": "docs/development/README.md",
+          "fullPath": "/workspace/docs/development/README.md",
+          "size": 6974,
+          "lines": 185,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Supabase Authentication Integration",
+          "description": "I've successfully integrated Supabase's authentication system into your mobile app, replacing the custom login/signup forms with a robust, production-ready solution.",
+          "path": "docs/development/SUPABASE_AUTH_GUIDE.md",
+          "fullPath": "/workspace/docs/development/SUPABASE_AUTH_GUIDE.md",
+          "size": 4284,
+          "lines": 109,
+          "tags": [
+            "testing",
+            "mobile",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Supabase Setup for Mobile App",
+          "description": "1. **Update Supabase Client Configuration**",
+          "path": "docs/development/SUPABASE_SETUP.md",
+          "fullPath": "/workspace/docs/development/SUPABASE_SETUP.md",
+          "size": 2036,
+          "lines": 71,
+          "tags": [
+            "api",
+            "mobile",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "🎉 Test Suite Review & User Workflow Implementation - COMPLETED",
+          "description": "As a test suite developer, I have comprehensively reviewed all unit and integration tests, fixed compilation errors, and created a complete 2-user event workflow demonstration that shows how a host creates an event and how a guest can access it.",
+          "path": "docs/development/TEST_COMPLETION_SUMMARY.md",
+          "fullPath": "/workspace/docs/development/TEST_COMPLETION_SUMMARY.md",
+          "size": 5991,
           "lines": 143,
+          "tags": [
+            "api",
+            "testing",
+            "database"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Test Fixes Summary",
+          "description": "This document summarizes the recent fixes applied to resolve TypeScript compilation errors and test execution issues in the Potluck API test suite.",
+          "path": "docs/development/TEST_FIXES_SUMMARY.md",
+          "fullPath": "/workspace/docs/development/TEST_FIXES_SUMMARY.md",
+          "size": 3517,
+          "lines": 103,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Potluck API - Comprehensive Test Plan",
+          "description": "**Version**: 1.0  ",
+          "path": "docs/development/TEST_PLAN.md",
+          "fullPath": "/workspace/docs/development/TEST_PLAN.md",
+          "size": 13801,
+          "lines": 355,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "payments",
+            "location",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        }
+      ]
+    },
+    "scripts": {
+      "title": "Script Documentation",
+      "description": "Documentation for utility scripts and tools",
+      "files": [
+        {
+          "title": "Database Schema Capture",
+          "description": "This directory contains scripts for capturing database schema snapshots from Supabase. These snapshots serve as **reference points** for understanding the database structure during development.",
+          "path": "docs/scripts/SCHEMA_CAPTURE_README.md",
+          "fullPath": "/workspace/docs/scripts/SCHEMA_CAPTURE_README.md",
+          "size": 14652,
+          "lines": 426,
+          "tags": [
+            "api",
+            "testing",
+            "database"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Database Schema Validation Script",
+          "description": "**Note**: The `--sync` and `--fix` options are deprecated. Use `npm run schema:generate` instead for schema generation.",
+          "path": "docs/scripts/SCHEMA_VALIDATION_README.md",
+          "fullPath": "/workspace/docs/scripts/SCHEMA_VALIDATION_README.md",
+          "size": 8049,
+          "lines": 277,
+          "tags": [
+            "api",
+            "testing",
+            "database"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        }
+      ]
+    },
+    "api": {
+      "title": "API Documentation",
+      "description": "API specifications and integration guides",
+      "files": [
+        {
+          "title": "API Documentation",
+          "description": "Generated: 2025-09-20T04:01:56.817Z",
+          "path": ".agent/API_GUIDE.md",
+          "fullPath": "/workspace/.agent/API_GUIDE.md",
+          "size": 16282,
+          "lines": 965,
+          "tags": [
+            "api",
+            "payments",
+            "location",
+            "notifications"
+          ],
+          "lastModified": "2025-09-24T08:58:53.406Z"
+        },
+        {
+          "title": "Agent Context Validation Report",
+          "description": "Generated: 2025-09-20T04:02:02.492Z",
+          "path": ".agent/CONTEXT_VALIDATION_REPORT.md",
+          "fullPath": "/workspace/.agent/CONTEXT_VALIDATION_REPORT.md",
+          "size": 799,
+          "lines": 28,
+          "tags": [
+            "api",
+            "testing",
+            "database"
+          ],
+          "lastModified": "2025-09-24T08:58:53.406Z"
+        },
+        {
+          "title": "Repo Catalog (for agents)",
+          "description": "This directory contains machine-readable catalogs of the codebase structure, generated automatically from the source code.",
+          "path": ".agent/README.md",
+          "fullPath": "/workspace/.agent/README.md",
+          "size": 1189,
+          "lines": 34,
+          "tags": [
+            "api",
+            "testing"
+          ],
+          "lastModified": "2025-09-24T08:58:53.406Z"
+        },
+        {
+          "title": "Changelog",
+          "description": "No description available",
+          "path": "CHANGELOG.md",
+          "fullPath": "/workspace/CHANGELOG.md",
+          "size": 10647,
+          "lines": 211,
           "tags": [
             "api",
             "testing",
@@ -706,61 +656,16 @@
             "mobile",
             "payments",
             "location",
-            "notifications",
-            "deployment"
+            "notifications"
           ],
-          "lastModified": "2025-09-19T18:14:38.611Z"
+          "lastModified": "2025-09-24T08:58:53.414Z"
         },
         {
-          "title": "Database Schema Capture\r",
-          "description": "This directory contains scripts for capturing database schema snapshots from Supabase. These snapshots serve as **reference points** for understanding the database structure during development.\r",
-          "path": "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\scripts\\SCHEMA_CAPTURE_README.md",
-          "size": 15059,
-          "lines": 425,
-          "tags": [
-            "api",
-            "testing",
-            "database"
-          ],
-          "lastModified": "2025-09-19T18:06:31.375Z"
-        },
-        {
-          "title": "Database Schema Validation Script\r",
-          "description": "**Note**: The `--sync` and `--fix` options are deprecated. Use `npm run schema:generate` instead for schema generation.\r",
-          "path": "docs\\scripts\\SCHEMA_VALIDATION_README.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\scripts\\SCHEMA_VALIDATION_README.md",
-          "size": 8325,
-          "lines": 277,
-          "tags": [
-            "api",
-            "testing",
-            "database"
-          ],
-          "lastModified": "2025-09-19T15:00:01.375Z"
-        },
-        {
-          "title": "@payments/core\r",
-          "description": "A framework- and provider-agnostic payments module with explicit ports, a provider registry, idempotent webhook handling, and tiny server adapters. Built to be plugged into multiple repos.\r",
-          "path": "packages\\payments\\README.md",
-          "fullPath": "C:\\Projects\\Potluck\\packages\\payments\\README.md",
-          "size": 16870,
-          "lines": 508,
-          "tags": [
-            "api",
-            "testing",
-            "database",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-20T04:22:10.310Z"
-        },
-        {
-          "title": "Potluck Project Summary\r",
-          "description": "**For AI agents starting new chats about this project**\r",
+          "title": "Potluck Project Summary",
+          "description": "**For AI agents starting new chats about this project**",
           "path": "PROJECT_SUMMARY.md",
-          "fullPath": "C:\\Projects\\Potluck\\PROJECT_SUMMARY.md",
-          "size": 3947,
+          "fullPath": "/workspace/PROJECT_SUMMARY.md",
+          "size": 3828,
           "lines": 120,
           "tags": [
             "api",
@@ -771,15 +676,15 @@
             "location",
             "notifications"
           ],
-          "lastModified": "2025-09-20T04:03:41.805Z"
+          "lastModified": "2025-09-24T08:58:53.434Z"
         },
         {
-          "title": "Potluck - Event Management Platform\r",
-          "description": "**IMPORTANT**: If you're an AI agent, start by reading **[`docs/agent/README.md`](docs/agent/README.md)** for complete project context and file priorities.\r",
+          "title": "Potluck - Event Management Platform",
+          "description": "**IMPORTANT**: If you're an AI agent, start by reading **[`docs/agent/README.md`](docs/agent/README.md)** for complete project context and file priorities.",
           "path": "README.md",
-          "fullPath": "C:\\Projects\\Potluck\\README.md",
-          "size": 9065,
-          "lines": 212,
+          "fullPath": "/workspace/README.md",
+          "size": 10073,
+          "lines": 237,
           "tags": [
             "api",
             "testing",
@@ -790,830 +695,1148 @@
             "notifications",
             "deployment"
           ],
-          "lastModified": "2025-09-20T04:04:38.677Z"
+          "lastModified": "2025-09-24T08:58:53.434Z"
+        },
+        {
+          "title": "Potluck Mobile App - E2E Testing Documentation",
+          "description": "This document outlines all user flow paths and testing strategies for the Potluck mobile app built with React Native/Expo. The app allows users to create, manage, and participate in potluck events.",
+          "path": "apps/mobile/tests/README.md",
+          "fullPath": "/workspace/apps/mobile/tests/README.md",
+          "size": 12778,
+          "lines": 493,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "location"
+          ],
+          "lastModified": "2025-09-24T08:58:53.410Z"
+        },
+        {
+          "title": "Schema Management Summary",
+          "description": "This document provides an overview of the complete schema management system implemented for the Potluck application.",
+          "path": "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+          "fullPath": "/workspace/apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+          "size": 5833,
+          "lines": 180,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.410Z"
+        },
+        {
+          "title": "REST Tests (UI-equivalent)",
+          "description": "Purpose",
+          "path": "apps/server/tests/rest/README.md",
+          "fullPath": "/workspace/apps/server/tests/rest/README.md",
+          "size": 5911,
+          "lines": 113,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T08:58:53.410Z"
+        },
+        {
+          "title": "Join Requests System - Test Plan",
+          "description": "Comprehensive test coverage for the join requests and event discovery system, ensuring all business logic, edge cases, and user interactions are validated.",
+          "path": "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+          "fullPath": "/workspace/apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+          "size": 6751,
+          "lines": 212,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "location",
+            "notifications"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "Potluck Documentation",
+          "description": "**Centralized documentation hub for the Potluck event management platform**",
+          "path": "docs/README.md",
+          "fullPath": "/workspace/docs/README.md",
+          "size": 5907,
+          "lines": 164,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "location",
+            "notifications",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "api-spec.md",
+          "description": "- Base URL: `/api/v1`",
+          "path": "docs/core/api-spec.md",
+          "fullPath": "/workspace/docs/core/api-spec.md",
+          "size": 6288,
+          "lines": 265,
+          "tags": [
+            "api",
+            "testing",
+            "payments",
+            "location",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "Potluck Application – System Architecture",
+          "description": "**Status**: Updated · v0.3 · 21 Sep 2025",
+          "path": "docs/core/architecture.md",
+          "fullPath": "/workspace/docs/core/architecture.md",
+          "size": 14780,
+          "lines": 407,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
+        },
+        {
+          "title": "Documentation Index",
+          "description": "Generated: 2025-09-20T04:27:32.490Z",
+          "path": "docs/documentation-index.md",
+          "fullPath": "/workspace/docs/documentation-index.md",
+          "size": 27482,
+          "lines": 379,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments",
+            "location",
+            "notifications",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.418Z"
+        },
+        {
+          "title": "Documentation Consolidation Summary",
+          "description": "Generated: 2025-09-24T10:05:22.129Z",
+          "path": "docs/documentation-summary.md",
+          "fullPath": "/workspace/docs/documentation-summary.md",
+          "size": 3767,
+          "lines": 77,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "mobile",
+            "payments"
+          ],
+          "lastModified": "2025-09-24T10:05:22.129Z"
+        },
+        {
+          "title": "@payments/core",
+          "description": "A framework- and provider-agnostic payments module with explicit ports, a provider registry, idempotent webhook handling, and tiny server adapters. Built to be plugged into multiple repos.",
+          "path": "packages/payments/README.md",
+          "fullPath": "/workspace/packages/payments/README.md",
+          "size": 16363,
+          "lines": 508,
+          "tags": [
+            "api",
+            "testing",
+            "database",
+            "payments",
+            "deployment"
+          ],
+          "lastModified": "2025-09-24T08:58:53.414Z"
         }
       ]
     },
     "deployment": {
       "title": "Deployment & Operations",
       "description": "Deployment, configuration, and operational guides",
-      "files": [
-        {
-          "title": "Supabase Authentication Integration\r",
-          "description": "I've successfully integrated Supabase's authentication system into your mobile app, replacing the custom login/signup forms with a robust, production-ready solution.\r",
-          "path": "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\development\\SUPABASE_AUTH_GUIDE.md",
-          "size": 4392,
-          "lines": 109,
-          "tags": [
-            "testing",
-            "mobile",
-            "deployment"
-          ],
-          "lastModified": "2025-09-09T08:37:46.225Z"
-        },
-        {
-          "title": "Using @payments/core in another repo\r",
-          "description": "1) Install and configure `.npmrc` with your private token (see repo root `.npmrc` example).\r",
-          "path": "docs\\features\\README.PAYMENTS-CONSUMER.md",
-          "fullPath": "C:\\Projects\\Potluck\\docs\\features\\README.PAYMENTS-CONSUMER.md",
-          "size": 3099,
-          "lines": 85,
-          "tags": [
-            "testing",
-            "database",
-            "payments",
-            "deployment"
-          ],
-          "lastModified": "2025-09-17T10:23:41.644Z"
-        }
-      ]
+      "files": []
     }
   },
   "search_index": {
     "by_tag": {
       "testing": [
-        ".agent\\AGENT_MONITORING_REPORT.md",
-        ".agent\\CONTEXT_VALIDATION_REPORT.md",
-        ".agent\\README.md",
-        "apps\\mobile\\tests\\README.md",
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "apps\\server\\tests\\rest\\README.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
+        ".agent/AGENT_MONITORING_REPORT.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
+        ".agent/README.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ARCHITECTURE.md",
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\agent\\README.md",
-        "docs\\BACKGROUND_AGENT_SETUP.md",
-        "docs\\core\\api-spec.md",
-        "docs\\core\\architecture.md",
-        "docs\\core\\rls-policies.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\README.md",
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\README.PAYMENTS-CONSUMER.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\TEST_BILLING_README.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md",
-        "docs\\README.md",
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md",
-        "packages\\payments\\GETTING_STARTED.md",
-        "packages\\payments\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/README.md",
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md",
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md",
+        "packages/payments/GETTING_STARTED.md",
+        "packages/payments/README.md"
       ],
       "database": [
-        ".agent\\AGENT_MONITORING_REPORT.md",
-        ".agent\\CONTEXT_VALIDATION_REPORT.md",
-        "apps\\mobile\\tests\\README.md",
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
+        ".agent/AGENT_MONITORING_REPORT.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\agent\\README.md",
-        "docs\\core\\architecture.md",
-        "docs\\core\\rls-policies.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\README.md",
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\README.PAYMENTS-CONSUMER.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\TEST_BILLING_README.md",
-        "docs\\README.md",
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md",
-        "packages\\payments\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/README.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/README.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md",
+        "packages/payments/README.md"
       ],
       "api": [
-        ".agent\\API_GUIDE.md",
-        ".agent\\CONTEXT_VALIDATION_REPORT.md",
-        ".agent\\README.md",
-        "apps\\mobile\\tests\\README.md",
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "apps\\server\\tests\\rest\\README.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
+        ".agent/API_GUIDE.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
+        ".agent/README.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ARCHITECTURE.md",
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\agent\\README.md",
-        "docs\\core\\api-spec.md",
-        "docs\\core\\architecture.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\README.md",
-        "docs\\development\\SUPABASE_SETUP.md",
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\TEST_BILLING_README.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md",
-        "docs\\README.md",
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md",
-        "packages\\payments\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/README.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md",
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md",
+        "packages/payments/README.md"
       ],
       "payments": [
-        ".agent\\API_GUIDE.md",
-        "apps\\mobile\\tests\\README.md",
+        ".agent/API_GUIDE.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\agent\\README.md",
-        "docs\\BACKGROUND_AGENT_SETUP.md",
-        "docs\\core\\api-spec.md",
-        "docs\\core\\architecture.md",
-        "docs\\core\\rls-policies.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\README.PAYMENTS-CONSUMER.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\TEST_BILLING_README.md",
-        "docs\\README.md",
-        "packages\\payments\\GETTING_STARTED.md",
-        "packages\\payments\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/tests/rest/README.md",
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "packages/payments/GETTING_STARTED.md",
+        "packages/payments/README.md"
       ],
       "location": [
-        ".agent\\API_GUIDE.md",
-        "apps\\mobile\\tests\\README.md",
-        "apps\\server\\tests\\rest\\README.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
+        ".agent/API_GUIDE.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\core\\api-spec.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md",
-        "docs\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
       ],
       "notifications": [
-        ".agent\\API_GUIDE.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
+        ".agent/API_GUIDE.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\documentation-index.md",
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md",
-        "docs\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/documentation-index.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
       ],
       "mobile": [
-        "apps\\mobile\\tests\\README.md",
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
         "CHANGELOG.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\core\\architecture.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md",
-        "docs\\development\\README.md",
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-        "docs\\development\\SUPABASE_SETUP.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\README.md",
         "PROJECT_SUMMARY.md",
-        "README.md"
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/architecture.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+        "docs/development/README.md",
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/ui-refresh.md"
       ],
       "deployment": [
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\core\\api-spec.md",
-        "docs\\core\\architecture.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-        "docs\\development\\SUPABASE_SETUP.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\documentation-index.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\NOTIFICATIONS.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\README.PAYMENTS-CONSUMER.md",
-        "docs\\README.md",
-        "packages\\payments\\README.md",
-        "README.md"
+        "README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "docs/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "packages/payments/README.md"
       ]
     },
     "by_path": {
-      ".agent\\AGENT_MONITORING_REPORT.md": [
-        ".agent\\AGENT_MONITORING_REPORT.md"
+      ".agent": [
+        ".agent/AGENT_MONITORING_REPORT.md",
+        ".agent/API_GUIDE.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
+        ".agent/README.md"
       ],
-      ".agent\\API_GUIDE.md": [
-        ".agent\\API_GUIDE.md"
+      ".agent/AGENT_MONITORING_REPORT.md": [
+        ".agent/AGENT_MONITORING_REPORT.md"
       ],
-      ".agent\\CONTEXT_VALIDATION_REPORT.md": [
-        ".agent\\CONTEXT_VALIDATION_REPORT.md"
+      ".agent/API_GUIDE.md": [
+        ".agent/API_GUIDE.md"
       ],
-      ".agent\\README.md": [
-        ".agent\\README.md"
+      ".agent/CONTEXT_VALIDATION_REPORT.md": [
+        ".agent/CONTEXT_VALIDATION_REPORT.md"
       ],
-      ".expo\\README.md": [
-        ".expo\\README.md"
+      ".agent/README.md": [
+        ".agent/README.md"
       ],
-      "apps\\mobile\\.expo\\README.md": [
-        "apps\\mobile\\.expo\\README.md"
+      ".expo": [
+        ".expo/README.md"
       ],
-      "apps\\mobile\\tests\\README.md": [
-        "apps\\mobile\\tests\\README.md"
-      ],
-      "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md": [
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md"
-      ],
-      "apps\\server\\tests\\rest\\README.md": [
-        "apps\\server\\tests\\rest\\README.md"
-      ],
-      "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md"
+      ".expo/README.md": [
+        ".expo/README.md"
       ],
       "CHANGELOG.md": [
         "CHANGELOG.md"
-      ],
-      "docs\\agent\\agent-knowledge-base.md": [
-        "docs\\agent\\agent-knowledge-base.md"
-      ],
-      "docs\\agent\\AGENT_ARCHITECTURE.md": [
-        "docs\\agent\\AGENT_ARCHITECTURE.md"
-      ],
-      "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md": [
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md"
-      ],
-      "docs\\agent\\AGENT_ENTRY_POINT.md": [
-        "docs\\agent\\AGENT_ENTRY_POINT.md"
-      ],
-      "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md": [
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md"
-      ],
-      "docs\\agent\\README.md": [
-        "docs\\agent\\README.md"
-      ],
-      "docs\\BACKGROUND_AGENT_SETUP.md": [
-        "docs\\BACKGROUND_AGENT_SETUP.md"
-      ],
-      "docs\\core\\api-spec.md": [
-        "docs\\core\\api-spec.md"
-      ],
-      "docs\\core\\architecture.md": [
-        "docs\\core\\architecture.md"
-      ],
-      "docs\\core\\rls-policies.md": [
-        "docs\\core\\rls-policies.md"
-      ],
-      "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md": [
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
-      ],
-      "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md": [
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md"
-      ],
-      "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md": [
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md"
-      ],
-      "docs\\development\\NPM_PACKAGE_MANAGEMENT.md": [
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md"
-      ],
-      "docs\\development\\PAYMENT_TESTING_GUIDE.md": [
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md"
-      ],
-      "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md": [
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md"
-      ],
-      "docs\\development\\README.md": [
-        "docs\\development\\README.md"
-      ],
-      "docs\\development\\SUPABASE_AUTH_GUIDE.md": [
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md"
-      ],
-      "docs\\development\\SUPABASE_SETUP.md": [
-        "docs\\development\\SUPABASE_SETUP.md"
-      ],
-      "docs\\development\\TEST_COMPLETION_SUMMARY.md": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "docs\\development\\TEST_FIXES_SUMMARY.md": [
-        "docs\\development\\TEST_FIXES_SUMMARY.md"
-      ],
-      "docs\\development\\TEST_PLAN.md": [
-        "docs\\development\\TEST_PLAN.md"
-      ],
-      "docs\\documentation-index.md": [
-        "docs\\documentation-index.md"
-      ],
-      "docs\\documentation-summary.md": [
-        "docs\\documentation-summary.md"
-      ],
-      "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md": [
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md"
-      ],
-      "docs\\features\\LEMONSQUEEZY_CONFIG.md": [
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md"
-      ],
-      "docs\\features\\LOCATION_DISCOVERY_README.md": [
-        "docs\\features\\LOCATION_DISCOVERY_README.md"
-      ],
-      "docs\\features\\NOTIFICATIONS.md": [
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "docs\\features\\PAYMENT_PROVIDERS_SETUP.md": [
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md"
-      ],
-      "docs\\features\\README.PAYMENTS-CONSUMER.md": [
-        "docs\\features\\README.PAYMENTS-CONSUMER.md"
-      ],
-      "docs\\features\\TESTING_README.md": [
-        "docs\\features\\TESTING_README.md"
-      ],
-      "docs\\features\\TEST_BILLING_README.md": [
-        "docs\\features\\TEST_BILLING_README.md"
-      ],
-      "docs\\features\\USER_LOCATION_SIGNUP_README.md": [
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "docs\\README.md": [
-        "docs\\README.md"
-      ],
-      "docs\\scripts\\SCHEMA_CAPTURE_README.md": [
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md"
-      ],
-      "docs\\scripts\\SCHEMA_VALIDATION_README.md": [
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md"
-      ],
-      "packages\\payments\\GETTING_STARTED.md": [
-        "packages\\payments\\GETTING_STARTED.md"
-      ],
-      "packages\\payments\\README.md": [
-        "packages\\payments\\README.md"
       ],
       "PROJECT_SUMMARY.md": [
         "PROJECT_SUMMARY.md"
       ],
       "README.md": [
         "README.md"
+      ],
+      "apps": [
+        "apps/mobile/figma/Attributions.md",
+        "apps/mobile/figma/guidelines/Guidelines.md",
+        "apps/mobile/tests/README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/mobile": [
+        "apps/mobile/figma/Attributions.md",
+        "apps/mobile/figma/guidelines/Guidelines.md",
+        "apps/mobile/tests/README.md"
+      ],
+      "apps/mobile/figma": [
+        "apps/mobile/figma/Attributions.md",
+        "apps/mobile/figma/guidelines/Guidelines.md"
+      ],
+      "apps/mobile/figma/Attributions.md": [
+        "apps/mobile/figma/Attributions.md"
+      ],
+      "apps/mobile/figma/guidelines": [
+        "apps/mobile/figma/guidelines/Guidelines.md"
+      ],
+      "apps/mobile/figma/guidelines/Guidelines.md": [
+        "apps/mobile/figma/guidelines/Guidelines.md"
+      ],
+      "apps/mobile/tests": [
+        "apps/mobile/tests/README.md"
+      ],
+      "apps/mobile/tests/README.md": [
+        "apps/mobile/tests/README.md"
+      ],
+      "apps/server": [
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md": [
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md"
+      ],
+      "apps/server/tests": [
+        "apps/server/tests/rest/README.md",
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/server/tests/rest": [
+        "apps/server/tests/rest/README.md"
+      ],
+      "apps/server/tests/rest/README.md": [
+        "apps/server/tests/rest/README.md"
+      ],
+      "apps/server/tests/unit": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/server/tests/unit/modules": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/server/tests/unit/modules/requests": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "apps/server/tests/unit/modules/requests/TEST_PLAN.md": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "docs": [
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+        "docs/development/README.md",
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md",
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md",
+        "docs/ui-refresh.md"
+      ],
+      "docs/BACKGROUND_AGENT_SETUP.md": [
+        "docs/BACKGROUND_AGENT_SETUP.md"
+      ],
+      "docs/README.md": [
+        "docs/README.md"
+      ],
+      "docs/agent": [
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md"
+      ],
+      "docs/agent/AGENT_ARCHITECTURE.md": [
+        "docs/agent/AGENT_ARCHITECTURE.md"
+      ],
+      "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md": [
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md"
+      ],
+      "docs/agent/AGENT_ENTRY_POINT.md": [
+        "docs/agent/AGENT_ENTRY_POINT.md"
+      ],
+      "docs/agent/AI_AGENT_QUICK_REFERENCE.md": [
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md"
+      ],
+      "docs/agent/README.md": [
+        "docs/agent/README.md"
+      ],
+      "docs/agent/agent-knowledge-base.md": [
+        "docs/agent/agent-knowledge-base.md"
+      ],
+      "docs/core": [
+        "docs/core/api-spec.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md"
+      ],
+      "docs/core/api-spec.md": [
+        "docs/core/api-spec.md"
+      ],
+      "docs/core/architecture.md": [
+        "docs/core/architecture.md"
+      ],
+      "docs/core/rls-policies.md": [
+        "docs/core/rls-policies.md"
+      ],
+      "docs/development": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+        "docs/development/README.md",
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md"
+      ],
+      "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
+      ],
+      "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md": [
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md"
+      ],
+      "docs/development/LEMONSQUEEZY_TEST_SETUP.md": [
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md"
+      ],
+      "docs/development/NPM_PACKAGE_MANAGEMENT.md": [
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md"
+      ],
+      "docs/development/NPM_QUICK_REFERENCE.md": [
+        "docs/development/NPM_QUICK_REFERENCE.md"
+      ],
+      "docs/development/PAYMENT_TESTING_GUIDE.md": [
+        "docs/development/PAYMENT_TESTING_GUIDE.md"
+      ],
+      "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md": [
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md"
+      ],
+      "docs/development/README.md": [
+        "docs/development/README.md"
+      ],
+      "docs/development/SUPABASE_AUTH_GUIDE.md": [
+        "docs/development/SUPABASE_AUTH_GUIDE.md"
+      ],
+      "docs/development/SUPABASE_SETUP.md": [
+        "docs/development/SUPABASE_SETUP.md"
+      ],
+      "docs/development/TEST_COMPLETION_SUMMARY.md": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "docs/development/TEST_FIXES_SUMMARY.md": [
+        "docs/development/TEST_FIXES_SUMMARY.md"
+      ],
+      "docs/development/TEST_PLAN.md": [
+        "docs/development/TEST_PLAN.md"
+      ],
+      "docs/documentation-index.md": [
+        "docs/documentation-index.md"
+      ],
+      "docs/documentation-summary.md": [
+        "docs/documentation-summary.md"
+      ],
+      "docs/features": [
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/NOTIFICATIONS.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "docs/features/INTEGRATED_LOCATION_SEARCH_README.md": [
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md"
+      ],
+      "docs/features/LEMONSQUEEZY_CONFIG.md": [
+        "docs/features/LEMONSQUEEZY_CONFIG.md"
+      ],
+      "docs/features/LOCATION_DISCOVERY_README.md": [
+        "docs/features/LOCATION_DISCOVERY_README.md"
+      ],
+      "docs/features/NOTIFICATIONS.md": [
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "docs/features/PAYMENT_PROVIDERS_SETUP.md": [
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md"
+      ],
+      "docs/features/README.PAYMENTS-CONSUMER.md": [
+        "docs/features/README.PAYMENTS-CONSUMER.md"
+      ],
+      "docs/features/TESTING_README.md": [
+        "docs/features/TESTING_README.md"
+      ],
+      "docs/features/TEST_BILLING_README.md": [
+        "docs/features/TEST_BILLING_README.md"
+      ],
+      "docs/features/USER_LOCATION_SIGNUP_README.md": [
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "docs/scripts": [
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
+      ],
+      "docs/scripts/SCHEMA_CAPTURE_README.md": [
+        "docs/scripts/SCHEMA_CAPTURE_README.md"
+      ],
+      "docs/scripts/SCHEMA_VALIDATION_README.md": [
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
+      ],
+      "docs/ui-refresh.md": [
+        "docs/ui-refresh.md"
+      ],
+      "packages": [
+        "packages/payments/GETTING_STARTED.md",
+        "packages/payments/README.md"
+      ],
+      "packages/payments": [
+        "packages/payments/GETTING_STARTED.md",
+        "packages/payments/README.md"
+      ],
+      "packages/payments/GETTING_STARTED.md": [
+        "packages/payments/GETTING_STARTED.md"
+      ],
+      "packages/payments/README.md": [
+        "packages/payments/README.md"
       ]
     },
     "by_title": {
       "agent": [
-        ".agent\\AGENT_MONITORING_REPORT.md",
-        ".agent\\CONTEXT_VALIDATION_REPORT.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ARCHITECTURE.md",
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md",
-        "docs\\agent\\README.md",
-        "docs\\BACKGROUND_AGENT_SETUP.md"
+        ".agent/AGENT_MONITORING_REPORT.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/agent/README.md",
+        "docs/agent/agent-knowledge-base.md"
       ],
       "performance": [
-        ".agent\\AGENT_MONITORING_REPORT.md"
+        ".agent/AGENT_MONITORING_REPORT.md"
       ],
       "monitoring": [
-        ".agent\\AGENT_MONITORING_REPORT.md"
+        ".agent/AGENT_MONITORING_REPORT.md"
       ],
       "report": [
-        ".agent\\AGENT_MONITORING_REPORT.md",
-        ".agent\\CONTEXT_VALIDATION_REPORT.md"
+        ".agent/AGENT_MONITORING_REPORT.md",
+        ".agent/CONTEXT_VALIDATION_REPORT.md"
       ],
       "api": [
-        ".agent\\API_GUIDE.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\features\\TESTING_README.md"
+        ".agent/API_GUIDE.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/features/TESTING_README.md"
       ],
       "documentation": [
-        ".agent\\API_GUIDE.md",
-        "apps\\mobile\\tests\\README.md",
-        "docs\\agent\\AGENT_ARCHITECTURE.md",
-        "docs\\agent\\README.md",
-        "docs\\documentation-index.md",
-        "docs\\documentation-summary.md",
-        "docs\\README.md"
+        ".agent/API_GUIDE.md",
+        "apps/mobile/tests/README.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/agent/README.md",
+        "docs/documentation-index.md",
+        "docs/documentation-summary.md"
       ],
       "context": [
-        ".agent\\CONTEXT_VALIDATION_REPORT.md"
+        ".agent/CONTEXT_VALIDATION_REPORT.md"
       ],
       "validation": [
-        ".agent\\CONTEXT_VALIDATION_REPORT.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md"
+        ".agent/CONTEXT_VALIDATION_REPORT.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
       ],
       "repo": [
-        ".agent\\README.md",
-        "docs\\features\\README.PAYMENTS-CONSUMER.md"
+        ".agent/README.md",
+        "docs/features/README.PAYMENTS-CONSUMER.md"
       ],
       "catalog": [
-        ".agent\\README.md",
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md"
+        ".agent/README.md",
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md"
       ],
       "(for": [
-        ".agent\\README.md"
+        ".agent/README.md"
       ],
       "agents)": [
-        ".agent\\README.md"
+        ".agent/README.md"
       ],
       "readme.md": [
-        ".expo\\README.md",
-        "apps\\mobile\\.expo\\README.md"
-      ],
-      "potluck": [
-        "apps\\mobile\\tests\\README.md",
-        "docs\\agent\\agent-knowledge-base.md",
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "docs\\core\\architecture.md",
-        "docs\\core\\rls-policies.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\README.md",
-        "PROJECT_SUMMARY.md",
-        "README.md"
-      ],
-      "mobile": [
-        "apps\\mobile\\tests\\README.md",
-        "docs\\development\\SUPABASE_SETUP.md",
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "app": [
-        "apps\\mobile\\tests\\README.md",
-        "docs\\development\\SUPABASE_SETUP.md"
-      ],
-      "e2e": [
-        "apps\\mobile\\tests\\README.md"
-      ],
-      "testing": [
-        "apps\\mobile\\tests\\README.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\features\\TESTING_README.md",
-        "docs\\features\\TEST_BILLING_README.md"
-      ],
-      "schema": [
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md"
-      ],
-      "management": [
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-        "README.md"
-      ],
-      "summary": [
-        "apps\\server\\SCHEMA_MANAGEMENT_SUMMARY.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\documentation-summary.md",
-        "PROJECT_SUMMARY.md"
-      ],
-      "rest": [
-        "apps\\server\\tests\\rest\\README.md"
-      ],
-      "tests": [
-        "apps\\server\\tests\\rest\\README.md",
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
-      ],
-      "join": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md"
-      ],
-      "requests": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md"
-      ],
-      "system": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
-        "docs\\core\\architecture.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "test": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-        "docs\\development\\TEST_FIXES_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md"
-      ],
-      "plan": [
-        "apps\\server\\tests\\unit\\modules\\requests\\TEST_PLAN.md",
-        "docs\\development\\TEST_PLAN.md"
+        ".expo/README.md"
       ],
       "changelog": [
         "CHANGELOG.md"
       ],
-      "knowledge": [
-        "docs\\agent\\agent-knowledge-base.md"
-      ],
-      "base": [
-        "docs\\agent\\agent-knowledge-base.md"
-      ],
-      "architecture": [
-        "docs\\agent\\AGENT_ARCHITECTURE.md",
-        "docs\\core\\architecture.md"
-      ],
-      "implementation": [
-        "docs\\agent\\AGENT_CATALOG_IMPLEMENTATION.md",
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "entry": [
-        "docs\\agent\\AGENT_ENTRY_POINT.md"
-      ],
-      "point": [
-        "docs\\agent\\AGENT_ENTRY_POINT.md"
+      "potluck": [
+        "PROJECT_SUMMARY.md",
+        "README.md",
+        "apps/mobile/tests/README.md",
+        "docs/README.md",
+        "docs/agent/AGENT_ENTRY_POINT.md",
+        "docs/agent/agent-knowledge-base.md",
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/features/TESTING_README.md"
       ],
       "project": [
-        "docs\\agent\\AGENT_ENTRY_POINT.md",
-        "PROJECT_SUMMARY.md"
+        "PROJECT_SUMMARY.md",
+        "docs/agent/AGENT_ENTRY_POINT.md"
       ],
-      "quick": [
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md"
-      ],
-      "reference": [
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md"
-      ],
-      "card": [
-        "docs\\agent\\AI_AGENT_QUICK_REFERENCE.md"
-      ],
-      "hub": [
-        "docs\\agent\\README.md"
-      ],
-      "background": [
-        "docs\\BACKGROUND_AGENT_SETUP.md"
-      ],
-      "setup": [
-        "docs\\BACKGROUND_AGENT_SETUP.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md",
-        "docs\\development\\SUPABASE_SETUP.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md"
-      ],
-      "guide": [
-        "docs\\BACKGROUND_AGENT_SETUP.md",
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\development\\README.md",
-        "docs\\features\\TESTING_README.md"
-      ],
-      "api-spec.md": [
-        "docs\\core\\api-spec.md"
-      ],
-      "application": [
-        "docs\\core\\architecture.md",
-        "docs\\core\\rls-policies.md"
-      ],
-      "row‑level": [
-        "docs\\core\\rls-policies.md"
-      ],
-      "security": [
-        "docs\\core\\rls-policies.md"
-      ],
-      "(rls)": [
-        "docs\\core\\rls-policies.md"
-      ],
-      "policies": [
-        "docs\\core\\rls-policies.md"
-      ],
-      "comprehensive": [
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\TEST_PLAN.md",
-        "docs\\features\\TEST_BILLING_README.md"
-      ],
-      "billing": [
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\features\\TEST_BILLING_README.md"
-      ],
-      "payment": [
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
-        "docs\\development\\PAYMENT_TESTING_GUIDE.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md",
-        "docs\\features\\TEST_BILLING_README.md"
-      ],
-      "complete!": [
-        "docs\\development\\COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
-      ],
-      "lemonsqueezy": [
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
-        "docs\\development\\LEMONSQUEEZY_TEST_SETUP.md",
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md"
-      ],
-      "complete": [
-        "docs\\development\\LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md"
-      ],
-      "npm": [
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md"
-      ],
-      "package": [
-        "docs\\development\\NPM_PACKAGE_MANAGEMENT.md"
-      ],
-      "react": [
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md"
-      ],
-      "native": [
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md"
-      ],
-      "paper": [
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md"
-      ],
-      "dates": [
-        "docs\\development\\REACT_NATIVE_PAPER_DATES_SETUP.md"
-      ],
-      "🛠️": [
-        "docs\\development\\README.md"
-      ],
-      "development": [
-        "docs\\development\\README.md"
-      ],
-      "supabase": [
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-        "docs\\development\\SUPABASE_SETUP.md"
-      ],
-      "authentication": [
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md"
-      ],
-      "integration": [
-        "docs\\development\\SUPABASE_AUTH_GUIDE.md",
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md"
-      ],
-      "for": [
-        "docs\\development\\SUPABASE_SETUP.md"
-      ],
-      "suite": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "review": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "user": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md",
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "workflow": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "completed": [
-        "docs\\development\\TEST_COMPLETION_SUMMARY.md"
-      ],
-      "fixes": [
-        "docs\\development\\TEST_FIXES_SUMMARY.md"
-      ],
-      "index": [
-        "docs\\documentation-index.md"
-      ],
-      "consolidation": [
-        "docs\\documentation-summary.md"
-      ],
-      "integrated": [
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md"
-      ],
-      "location-based": [
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md"
+      "summary": [
+        "PROJECT_SUMMARY.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/documentation-summary.md"
       ],
       "event": [
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md",
-        "docs\\features\\LOCATION_DISCOVERY_README.md",
-        "README.md"
+        "README.md",
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LOCATION_DISCOVERY_README.md"
       ],
-      "search": [
-        "docs\\features\\INTEGRATED_LOCATION_SEARCH_README.md"
-      ],
-      "configuration": [
-        "docs\\features\\LEMONSQUEEZY_CONFIG.md"
-      ],
-      "discovery": [
-        "docs\\features\\LOCATION_DISCOVERY_README.md"
-      ],
-      "notifications:": [
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "data": [
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "model,": [
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "apis,": [
-        "docs\\features\\NOTIFICATIONS.md"
-      ],
-      "provider": [
-        "docs\\features\\PAYMENT_PROVIDERS_SETUP.md"
-      ],
-      "using": [
-        "docs\\features\\README.PAYMENTS-CONSUMER.md"
-      ],
-      "@payments/core": [
-        "docs\\features\\README.PAYMENTS-CONSUMER.md",
-        "packages\\payments\\README.md"
-      ],
-      "another": [
-        "docs\\features\\README.PAYMENTS-CONSUMER.md"
-      ],
-      "location": [
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "signup": [
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "notification": [
-        "docs\\features\\USER_LOCATION_SIGNUP_README.md"
-      ],
-      "database": [
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md",
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md"
-      ],
-      "capture": [
-        "docs\\scripts\\SCHEMA_CAPTURE_README.md"
-      ],
-      "script": [
-        "docs\\scripts\\SCHEMA_VALIDATION_README.md"
-      ],
-      "getting": [
-        "packages\\payments\\GETTING_STARTED.md"
-      ],
-      "started": [
-        "packages\\payments\\GETTING_STARTED.md"
-      ],
-      "with": [
-        "packages\\payments\\GETTING_STARTED.md"
-      ],
-      "payment-core": [
-        "packages\\payments\\GETTING_STARTED.md"
+      "management": [
+        "README.md",
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md"
       ],
       "platform": [
         "README.md"
+      ],
+      "attributions.md": [
+        "apps/mobile/figma/Attributions.md"
+      ],
+      "general": [
+        "apps/mobile/figma/guidelines/Guidelines.md"
+      ],
+      "guidelines": [
+        "apps/mobile/figma/guidelines/Guidelines.md"
+      ],
+      "mobile": [
+        "apps/mobile/tests/README.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "app": [
+        "apps/mobile/tests/README.md",
+        "docs/development/SUPABASE_SETUP.md"
+      ],
+      "e2e": [
+        "apps/mobile/tests/README.md"
+      ],
+      "testing": [
+        "apps/mobile/tests/README.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/features/TESTING_README.md",
+        "docs/features/TEST_BILLING_README.md"
+      ],
+      "schema": [
+        "apps/server/SCHEMA_MANAGEMENT_SUMMARY.md",
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
+      ],
+      "rest": [
+        "apps/server/tests/rest/README.md"
+      ],
+      "tests": [
+        "apps/server/tests/rest/README.md",
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
+      ],
+      "(ui-equivalent)": [
+        "apps/server/tests/rest/README.md"
+      ],
+      "join": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "requests": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md"
+      ],
+      "system": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/core/architecture.md",
+        "docs/features/LOCATION_DISCOVERY_README.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "test": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/development/TEST_FIXES_SUMMARY.md",
+        "docs/development/TEST_PLAN.md"
+      ],
+      "plan": [
+        "apps/server/tests/unit/modules/requests/TEST_PLAN.md",
+        "docs/development/TEST_PLAN.md"
+      ],
+      "background": [
+        "docs/BACKGROUND_AGENT_SETUP.md"
+      ],
+      "setup": [
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md",
+        "docs/development/SUPABASE_SETUP.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md"
+      ],
+      "guide": [
+        "docs/BACKGROUND_AGENT_SETUP.md",
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/development/README.md",
+        "docs/features/TESTING_README.md"
+      ],
+      "architecture": [
+        "docs/agent/AGENT_ARCHITECTURE.md",
+        "docs/core/architecture.md"
+      ],
+      "implementation": [
+        "docs/agent/AGENT_CATALOG_IMPLEMENTATION.md",
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "entry": [
+        "docs/agent/AGENT_ENTRY_POINT.md"
+      ],
+      "point": [
+        "docs/agent/AGENT_ENTRY_POINT.md"
+      ],
+      "quick": [
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/development/NPM_QUICK_REFERENCE.md"
+      ],
+      "reference": [
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md",
+        "docs/development/NPM_QUICK_REFERENCE.md"
+      ],
+      "card": [
+        "docs/agent/AI_AGENT_QUICK_REFERENCE.md"
+      ],
+      "hub": [
+        "docs/agent/README.md"
+      ],
+      "knowledge": [
+        "docs/agent/agent-knowledge-base.md"
+      ],
+      "base": [
+        "docs/agent/agent-knowledge-base.md"
+      ],
+      "api-spec.md": [
+        "docs/core/api-spec.md"
+      ],
+      "application": [
+        "docs/core/architecture.md",
+        "docs/core/rls-policies.md"
+      ],
+      "row‑level": [
+        "docs/core/rls-policies.md"
+      ],
+      "security": [
+        "docs/core/rls-policies.md"
+      ],
+      "(rls)": [
+        "docs/core/rls-policies.md"
+      ],
+      "policies": [
+        "docs/core/rls-policies.md"
+      ],
+      "comprehensive": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/TEST_PLAN.md",
+        "docs/features/TEST_BILLING_README.md"
+      ],
+      "billing": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/features/TEST_BILLING_README.md"
+      ],
+      "payment": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md",
+        "docs/development/PAYMENT_TESTING_GUIDE.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md",
+        "docs/features/TEST_BILLING_README.md"
+      ],
+      "complete!": [
+        "docs/development/COMPREHENSIVE_BILLING_TESTS_SUMMARY.md"
+      ],
+      "lemonsqueezy": [
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md",
+        "docs/development/LEMONSQUEEZY_TEST_SETUP.md",
+        "docs/features/LEMONSQUEEZY_CONFIG.md"
+      ],
+      "complete": [
+        "docs/development/LEMONSQUEEZY_COMPLETE_TESTING_GUIDE.md"
+      ],
+      "npm": [
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md"
+      ],
+      "package": [
+        "docs/development/NPM_PACKAGE_MANAGEMENT.md",
+        "docs/development/NPM_QUICK_REFERENCE.md"
+      ],
+      "react": [
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md"
+      ],
+      "native": [
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md"
+      ],
+      "paper": [
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md"
+      ],
+      "dates": [
+        "docs/development/REACT_NATIVE_PAPER_DATES_SETUP.md"
+      ],
+      "🛠️": [
+        "docs/development/README.md"
+      ],
+      "development": [
+        "docs/development/README.md"
+      ],
+      "supabase": [
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/development/SUPABASE_SETUP.md"
+      ],
+      "authentication": [
+        "docs/development/SUPABASE_AUTH_GUIDE.md"
+      ],
+      "integration": [
+        "docs/development/SUPABASE_AUTH_GUIDE.md",
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md"
+      ],
+      "for": [
+        "docs/development/SUPABASE_SETUP.md"
+      ],
+      "suite": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "review": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "user": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md",
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "workflow": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "completed": [
+        "docs/development/TEST_COMPLETION_SUMMARY.md"
+      ],
+      "fixes": [
+        "docs/development/TEST_FIXES_SUMMARY.md"
+      ],
+      "index": [
+        "docs/documentation-index.md"
+      ],
+      "consolidation": [
+        "docs/documentation-summary.md"
+      ],
+      "integrated": [
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md"
+      ],
+      "location-based": [
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md",
+        "docs/features/LOCATION_DISCOVERY_README.md"
+      ],
+      "search": [
+        "docs/features/INTEGRATED_LOCATION_SEARCH_README.md"
+      ],
+      "configuration": [
+        "docs/features/LEMONSQUEEZY_CONFIG.md"
+      ],
+      "discovery": [
+        "docs/features/LOCATION_DISCOVERY_README.md"
+      ],
+      "notifications:": [
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "data": [
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "model,": [
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "apis,": [
+        "docs/features/NOTIFICATIONS.md"
+      ],
+      "provider": [
+        "docs/features/PAYMENT_PROVIDERS_SETUP.md"
+      ],
+      "using": [
+        "docs/features/README.PAYMENTS-CONSUMER.md"
+      ],
+      "@payments/core": [
+        "docs/features/README.PAYMENTS-CONSUMER.md",
+        "packages/payments/README.md"
+      ],
+      "another": [
+        "docs/features/README.PAYMENTS-CONSUMER.md"
+      ],
+      "location": [
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "signup": [
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "notification": [
+        "docs/features/USER_LOCATION_SIGNUP_README.md"
+      ],
+      "database": [
+        "docs/scripts/SCHEMA_CAPTURE_README.md",
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
+      ],
+      "capture": [
+        "docs/scripts/SCHEMA_CAPTURE_README.md"
+      ],
+      "script": [
+        "docs/scripts/SCHEMA_VALIDATION_README.md"
+      ],
+      "ui-refresh.md": [
+        "docs/ui-refresh.md"
+      ],
+      "getting": [
+        "packages/payments/GETTING_STARTED.md"
+      ],
+      "started": [
+        "packages/payments/GETTING_STARTED.md"
+      ],
+      "with": [
+        "packages/payments/GETTING_STARTED.md"
+      ],
+      "payment-core": [
+        "packages/payments/GETTING_STARTED.md"
       ]
     },
     "by_content": {}
