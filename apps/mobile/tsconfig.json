@@ -7,11 +7,13 @@
     "paths": {
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],
+      "@/features/*": ["src/features/*"],
       "@/utils/*": ["src/utils/*"],
       "@/types/*": ["src/types/*"],
       "@/hooks/*": ["src/hooks/*"],
       "@/services/*": ["src/services/*"],
       "@/config/*": ["src/config/*"],
+      "@/theme/*": ["src/theme/*"],
       "@common/*": ["../../libs/common/src/*"]
     }
   }

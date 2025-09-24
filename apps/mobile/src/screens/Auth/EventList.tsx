@@ -20,6 +20,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
+import { EventCard } from "@/features/events/components/EventCard";
 import Header from "../../components/Header";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from '@react-navigation/native';
@@ -42,7 +43,7 @@ import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import { Input, Chip, FilterChip, FilterBottomSheet, FilterSidebar, AppliedFiltersBar, Segmented } from "@/components";
 import { formatDateTimeRange } from "@/utils/dateUtils";
-import { gradients } from "@/theme";
+import { gradients, breakpoints, useDeviceKind } from "@/theme";
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -195,8 +196,7 @@ interface EventListProps {
 
 export default function EventList({ userLocation: propUserLocation }: EventListProps = {}) {
   const { width } = useWindowDimensions();
-  const isTablet = width >= 768;
-  const isMobile = width < 768;
+  const { isTablet, isMobile } = { isTablet: width >= 768, isMobile: width < 768 };
   // Resolve bypass flag from Expo config extras first (dev web/native), then process.env (prod web)
   const cfgExtra = ((Constants.expoConfig?.extra)
     || (Constants as any)?.manifest2?.extra
@@ -595,47 +595,19 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
     setShowEventDetails(true);
   };
 
-  // Get available actions for an event based on status and ownership
+  // Get available actions for an event based on status and ownership (moved to lib)
   const getEventActions = (item: EventItem) => {
-    if (!item.actualStatus) {
-      console.log("EventList - No status:", { actualStatus: item.actualStatus, ownership: item.ownership });
-      return [];
-    }
-    
-    const status = item.actualStatus;
-    // Show owner-only actions when we can confidently infer ownership
-    // - If backend marks item as mine
-    // - If user has selected ownership filter = mine
-    // - Drafts and Deleted are always mine by construction
-    const isOwner = (item.ownership === 'mine') || (ownership === 'mine') || (status === 'draft') || (status === 'purged');
-    const actions = [];
-
-    console.log("EventList - Event status and ownership:", { status, ownership: item.ownership ?? ownership, isOwner, itemId: item.id });
-
-    if (isOwner) {
-      switch (status) {
-        case 'draft':
-          actions.push({ key: 'publish', label: pendingActionKey === `publish:${item.id}` ? 'Tap again to confirm' : 'Publish', icon: 'rocket-outline', color: '#4CAF50', handler: () => requestConfirmThenRun(`publish:${item.id}`, () => handlePublishEvent(item.id)) });
-          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
-          break;
-        case 'published':
-          actions.push({ key: 'cancel', label: pendingActionKey === `cancel:${item.id}` ? 'Tap again to confirm' : 'Cancel', icon: 'close-circle-outline', color: '#FF9800', handler: () => requestConfirmThenRun(`cancel:${item.id}`, () => handleCancelEvent(item.id)) });
-          actions.push({ key: 'complete', label: pendingActionKey === `complete:${item.id}` ? 'Tap again to confirm' : 'Complete', icon: 'checkmark-circle-outline', color: '#2196F3', handler: () => requestConfirmThenRun(`complete:${item.id}`, () => handleCompleteEvent(item.id)) });
-          break;
-        case 'completed':
-          // Backend does not allow purging completed events; no actions
-          break;
-        case 'cancelled':
-          actions.push({ key: 'purge', label: pendingActionKey === `purge:${item.id}` ? 'Tap again to confirm' : 'Delete', icon: 'trash-outline', color: '#F44336', handler: () => requestConfirmThenRun(`purge:${item.id}`, () => handlePurgeEvent(item.id)) });
-          break;
-        case 'purged':
-          actions.push({ key: 'restore', label: pendingActionKey === `restore:${item.id}` ? 'Tap again to confirm' : 'Restore', icon: 'refresh-outline', color: '#9C27B0', handler: () => requestConfirmThenRun(`restore:${item.id}`, () => handleRestoreEvent(item.id)) });
-          break;
-      }
-    }
-
-    console.log("EventList - Available actions for", item.id, ":", actions);
-    return actions;
+    const { getEventActions: compute } = require('@/features/events/lib/getEventActions');
+    return compute(item, {
+      ownershipFilter: ownership,
+      pendingActionKey,
+      requestConfirmThenRun,
+      onPublish: handlePublishEvent,
+      onCancel: handleCancelEvent,
+      onComplete: handleCompleteEvent,
+      onPurge: handlePurgeEvent,
+      onRestore: handleRestoreEvent,
+    });
   };
 
   // TabContent component for mobile tabs: sets statusTab and renders the existing desktop content sections
@@ -781,9 +753,9 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             )
           }
           renderItem={({ item }) => (
-            <EventCard 
-              item={item} 
-              onPress={() => handleEventPress(item.id)} 
+            <EventCard
+              item={item}
+              onPress={() => handleEventPress(item.id)}
               actions={getEventActions(item)}
               testID={`event-card-${item.id}`}
             />
