@@ -32,7 +32,14 @@ export async function signup(
   const userId = data.user!.id;
 
   // Create user profile with location data
-  const profileData: any = {
+  const profileData: {
+    user_id: string;
+    display_name?: string;
+    discoverability_enabled: boolean;
+    discoverability_radius_km: number;
+    geo_precision: 'exact' | 'city';
+    city?: string;
+  } = {
     user_id: userId,
     display_name: displayName,
     discoverability_enabled: locationData?.discoverability_enabled ?? true,
@@ -87,7 +94,7 @@ export async function login(email: string, password: string) {
   return { user: data.user, session: data.session };
 }
 
-export async function logout(accessToken: string) {
+export async function logout(): Promise<{ success: true } | { error: string }> {
   const { error } = await supabase.auth.signOut();
   if (error) return { error: error.message };
   return { success: true };

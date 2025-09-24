@@ -1044,7 +1044,7 @@ export async function updateEventDetails(
 export async function publishEvent(
   eventId: string,
   actorId: string
-): Promise<ServiceResult<any>> {
+): Promise<ServiceResult<EventFull>> {
   logger.info('[EventService] publishEvent', { eventId, actorId });
 
   // 1️⃣ Fetch the event for checks

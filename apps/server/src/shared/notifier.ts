@@ -3,10 +3,10 @@
 // For production, integrate with email/push/SMS providers
 // ===============================================
 
-interface NotificationPayload {
+export interface NotificationPayload {
   type: string;
   userId: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 interface JoinRequestNotificationData {

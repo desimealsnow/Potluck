@@ -8,7 +8,7 @@ import {
   RequestIdParam,
   ListRequestsQuery 
 } from './requests.schema';
-import logger from '../../logger';
+// logger imported elsewhere if needed; remove until used to satisfy lint
 
 // ===============================================
 // Controllers for join requests endpoints

@@ -57,10 +57,10 @@ export const supabasePersistence: BillingPersistencePort = {
     const { error } = await supabase.from('billing_plans').upsert({
       id: plan.id,
       name: plan.name,
-      amount_cents: (plan as any).amountCents ?? (plan as any).amount_cents ?? 0,
-      currency: (plan as any).currency ?? 'usd',
-      interval: (plan as any).interval ?? 'month',
-      is_active: (plan as any).is_active ?? true
+      amount_cents: (plan as unknown as { amountCents?: number; amount_cents?: number }).amountCents ?? (plan as unknown as { amount_cents?: number }).amount_cents ?? 0,
+      currency: (plan as unknown as { currency?: string }).currency ?? 'usd',
+      interval: (plan as unknown as { interval?: string }).interval ?? 'month',
+      is_active: (plan as unknown as { is_active?: boolean }).is_active ?? true
     });
     if (error) {
       console.error('[payments.persistence] upsertPlan failed', error);
@@ -109,8 +109,8 @@ export const supabasePersistence: BillingPersistencePort = {
     }
   },
   async recordInvoice(inv: Invoice) {
-    const userId = (inv as any).userId as string | undefined;
-    const provider = ((inv as any).provider as string | undefined) ?? 'lemonsqueezy';
+    const userId = (inv as unknown as { userId?: string }).userId;
+    const provider = (inv as unknown as { provider?: string }).provider ?? 'lemonsqueezy';
     const payload = {
       id: inv.id,
       subscription_id: inv.subscriptionId ?? null,
@@ -120,7 +120,16 @@ export const supabasePersistence: BillingPersistencePort = {
       status: inv.status,
       invoice_date: inv.issuedAt,
       provider,
-    } as any;
+    } as {
+      id: string;
+      subscription_id: string | null;
+      user_id?: string;
+      amount_cents: number;
+      currency: string;
+      status: string;
+      invoice_date: string;
+      provider: string;
+    };
     if (!payload.user_id) {
       console.warn('[payments.persistence] recordInvoice missing user_id; invoice payload', payload);
     }
