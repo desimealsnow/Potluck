@@ -23,6 +23,7 @@ import { Icon } from "@/components/ui/Icon";
 import { EventCard } from "@/features/events/components/EventCard";
 import Header from "../../components/Header";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { EventsHeaderBar } from '@/features/events/components/EventsHeaderBar';
 import { useFocusEffect } from '@react-navigation/native';
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
@@ -1144,60 +1145,18 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           {/* Right Section - Events */}
           <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
             {/* Events Section Header */}
-            <View style={[styles.eventsHeader, isMobile && { flexDirection: 'column', alignItems: 'flex-start', gap: 8 }]}>
-              <View style={[styles.eventsHeaderLeft, isMobile && { flexDirection: 'column', alignItems: 'flex-start' }]}>
-                <Text style={[styles.eventsTitle, isMobile && { fontSize: 20 }]}>
-                  Events
-                </Text>
-                <Text style={[styles.eventsSubtitle, isMobile && { marginTop: 2 }]}>
-                  {loading ? "Loading..." : `${data.length} event${data.length !== 1 ? 's' : ''} found`}
-                </Text>
-              </View>
-              <View style={[styles.eventsHeaderActions, isMobile && { alignSelf: 'stretch', justifyContent: 'space-between', flexWrap: 'wrap' }]}>
-                <Pressable 
-                  onPress={() => setMapMode(m => !m)} 
-                  style={[styles.filterToggleButton, { marginRight: 8 }]} 
-                  testID="map-toggle-button"
-                >
-                  <Icon name={mapMode ? "List" : "Map"} size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.filterToggleText}>
-                    {mapMode ? "List" : "Map"}
-                  </Text>
-                </Pressable>
-                {/* Filter Toggle Button */}
-                <Pressable 
-                  onPress={() => {
-                    if (isMobile) {
-                      setFiltersVisible(true); // Open bottom sheet on mobile
-                    } else {
-                      setSidebarVisible(!sidebarVisible); // Toggle sidebar on tablet/desktop
-                    }
-                  }} 
-                  style={styles.filterToggleButton}
-                  testID="filter-toggle-button"
-                >
-                  <Icon name="SlidersHorizontal" size={16} color="rgba(255,255,255,0.8)" />
-                  <Text style={styles.filterToggleText}>
-                    {isMobile ? "Filters" : (sidebarVisible ? "Hide" : "Show")}
-                  </Text>
-                  {getActiveFiltersCount() > 0 && (
-                    <View style={styles.filterBadge}>
-                      <Text style={styles.filterBadgeText}>{getActiveFiltersCount()}</Text>
-                    </View>
-                  )}
-                </Pressable>
-                
-                <Pressable
-                  onPress={handleCreateEvent}
-                  style={[styles.createEventButton, !effectivePhoneVerified && { opacity: 0.6 }]}
-                  disabled={!effectivePhoneVerified}
-                  testID="create-event-button"
-                >
-                  <Icon name="Plus" size={16} color="#fff" />
-                  <Text style={styles.createEventButtonText}>Create Event</Text>
-                </Pressable>
-              </View>
-            </View>
+            <EventsHeaderBar
+              total={data.length}
+              loading={loading}
+              isMobile={isMobile}
+              mapMode={mapMode}
+              onToggleMap={() => setMapMode(m => !m)}
+              sidebarVisible={sidebarVisible}
+              onToggleFilters={() => { if (isMobile) setFiltersVisible(true); else setSidebarVisible(!sidebarVisible); }}
+              onCreateEvent={handleCreateEvent}
+              canCreate={!!effectivePhoneVerified}
+              getActiveFiltersCount={getActiveFiltersCount}
+            />
 
             {/* Search */}
             <View style={styles.searchContainer} testID="search-container">
