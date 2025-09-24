@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { authGuard }   from '../middleware/authGuard';
 import { validate }    from '../middleware/validateSchema';
 import { routeLogger } from '../middleware/logger.middleware';
@@ -7,7 +7,7 @@ import { schemas }     from '../validators';          // generated Zod
 // ───── Controllers ───────────────────────────────────────────
 import * as E from '../controllers/events.controller';
 import * as R from '../modules/requests';
-import { RequestsService } from '../modules/requests';
+// import { RequestsService } from '../modules/requests';
 import * as RB from '../controllers/rebalance.controller';
 
 // child routers
@@ -124,8 +124,8 @@ router.get(
   '/requests/all',
   authGuard,
   routeLogger('GET /events/requests/all'),
-  async (req: any, res) => {
-    const userId = req.user!.id;
+  async (req, res: Response) => {
+    const userId = (req as import('../middleware/authGuard').AuthenticatedRequest).user!.id;
     // find events where user is host
     const { supabase } = await import('../config/supabaseClient');
     const { data: events, error } = await supabase
@@ -133,7 +133,7 @@ router.get(
       .select('id')
       .eq('created_by', userId);
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    const ids = (events || []).map(e => (e as any).id);
+    const ids = (events ?? []).map((e: { id: string }) => e.id);
     if (!ids.length) return res.json({ data: [], totalCount: 0, nextOffset: null });
 
     const { data, error: listErr } = await supabase

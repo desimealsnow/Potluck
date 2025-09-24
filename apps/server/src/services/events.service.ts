@@ -423,7 +423,7 @@ async function performLocationBasedSearch(
   const { lat, lon, radius_km = 25, near, q, diet, limit = 20, offset = 0, include } = params;
   
   try {
-    let events: any[] = [];
+    let events: Array<Record<string, any>> = [];
     let totalCount = 0;
 
     if (lat && lon) {

@@ -91,7 +91,7 @@ export const BillingController = {
       provider,
       userId,
       userEmail,
-      userName: (req.user as any)?.name,
+      userName: (req.user as { name?: string } | undefined)?.name,
     });
     
     if (!plan_id || !provider) {
@@ -107,7 +107,7 @@ export const BillingController = {
     console.log('🔧 Using variant ID directly:', plan_id);
 
     // Use new PaymentService with idempotency and tenant awareness
-    const service: any = createPaymentService();
+    const service = createPaymentService();
     // Prefer returning directly to the app so Expo WebBrowser.openAuthSessionAsync can auto-close
     // IMPORTANT: Do NOT mutate the return URL. AuthSession closes only if the
     // final navigated URL starts with the EXACT returnUrl passed to openAuthSessionAsync.
@@ -170,15 +170,20 @@ export const BillingController = {
       .maybeSingle();
     if (error) return handle(res, err(error.message, '500', error));
     if (!data || data.user_id !== userId) return handle(res, err('Not found', '404'));
-    const s: any = data;
+    const s = data as {
+      id: string; plan_id: string; provider_subscription_id: string; provider: string; status: string;
+      start_date?: string; current_period_start?: string; current_period_end?: string;
+      trial_start?: string | null; trial_end?: string | null; cancel_at_period_end?: boolean;
+      created_at: string; updated_at: string;
+    };
     const sub: Subscription = {
       id: s.id,
       plan_id: s.plan_id,
       provider_subscription_id: s.provider_subscription_id,
       provider: s.provider,
       status: s.status,
-      current_period_start: s.start_date ?? s.current_period_start,
-      current_period_end: s.current_period_end,
+      current_period_start: s.start_date ?? s.current_period_start!,
+      current_period_end: s.current_period_end!,
       trial_start: s.trial_start ?? undefined,
       trial_end: s.trial_end ?? undefined,
       cancel_at_period_end: s.cancel_at_period_end ?? false,
@@ -203,7 +208,7 @@ export const BillingController = {
     if (exErr) return handle(res, err(exErr.message, '500', exErr));
     if (!existing || existing.user_id !== userId) return handle(res, err('Not found', '404'));
 
-    const update: Record<string, any> = {};
+    const update: Partial<{ cancel_at_period_end: boolean; plan_id: string }> = {};
     if (body.cancel_at_period_end !== undefined) update.cancel_at_period_end = body.cancel_at_period_end;
     if (body.plan_id) update.plan_id = body.plan_id;
 
@@ -308,7 +313,7 @@ export const BillingController = {
       .maybeSingle();
     if (error) return handle(res, err(error.message, '500', error));
     if (!data) return handle(res, err('Insert failed', '500'));
-    const m = data as any;
+    const m = data as { id: string; user_id: string; provider: string; method_id: string; is_default: boolean; brand?: string | null; last_four?: string | null; exp_month?: number | null; exp_year?: number | null; created_at: string };
     const pm: PaymentMethod = {
       id: m.id,
       user_id: m.user_id,
@@ -335,7 +340,7 @@ export const BillingController = {
       .maybeSingle();
     if (error) return handle(res, err(error.message, '500', error));
     if (!data || data.user_id !== userId) return handle(res, err('Not found', '404'));
-    const m: any = data;
+    const m = data as { id: string; user_id: string; provider: string; method_id: string; is_default: boolean; brand?: string | null; last_four?: string | null; exp_month?: number | null; exp_year?: number | null; created_at: string };
     const pm: PaymentMethod = {
       id: m.id,
       user_id: m.user_id,
@@ -456,7 +461,7 @@ export const BillingController = {
       .maybeSingle();
     if (error) return handle(res, err(error.message, '500', error));
     if (!data || data.user_id !== userId) return handle(res, err('Not found', '404'));
-    const i: any = data;
+    const i = data as { id: string; subscription_id?: string | null; user_id: string; invoice_id?: string | null; provider: string; amount_cents: number; currency: string; status: string; invoice_date: string; paid_date?: string | null; created_at: string };
     const row: Invoice = {
       id: i.id,
       subscription_id: i.subscription_id ?? undefined,

@@ -27,7 +27,7 @@ export interface NotificationPayload {
   event_date?: string;
   distance_km?: number;
   host_name?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface NotificationRecord {
@@ -65,7 +65,7 @@ export async function createNotification(params: {
         item_id: params.itemId,
         ...(params.payload || {}),
       } satisfies NotificationPayload,
-    } as any;
+    };
 
     const { data, error } = await supabase
       .from('notifications')
@@ -110,9 +110,9 @@ export async function notifyNearbyUsers(
       return { ok: false, error: eventError?.message ?? 'Event not found' };
     }
 
-    const loc: any = Array.isArray((eventData as any).locations)
-      ? (eventData as any).locations[0]
-      : (eventData as any).locations;
+    const loc = Array.isArray((eventData as { locations?: unknown }).locations)
+      ? (eventData as { locations: Array<{ latitude?: number | null; longitude?: number | null; formatted_address?: string | null }> }).locations[0]
+      : (eventData as { locations?: { latitude?: number | null; longitude?: number | null; formatted_address?: string | null } }).locations;
     const lat = loc?.latitude as number | null;
     const lon = loc?.longitude as number | null;
     const radiusKm = 25;
@@ -145,20 +145,20 @@ export async function notifyNearbyUsers(
       .select('created_by')
       .eq('id', eventId)
       .single();
-    const hostId = (eventOwner as any)?.created_by as string | undefined;
+    const hostId = (eventOwner as { created_by?: string } | null)?.created_by;
 
     // Check subscriptions for users
-    const candidateIds: string[] = (nearbyUsers || []).map((u: any) => u.user_id);
+    const candidateIds: string[] = (nearbyUsers || []).map((u: { user_id: string }) => u.user_id);
     const { data: subs } = await supabase
       .from('user_subscriptions')
       .select('user_id, status')
       .in('user_id', candidateIds);
-    const activeSet = new Set<string>((subs || []).filter(s => ['active','trialing','past_due'].includes((s as any).status)).map(s => (s as any).user_id));
+    const activeSet = new Set<string>((subs || []).filter((s: { status?: string }) => ['active','trialing','past_due'].includes(s.status || '')).map((s: { user_id: string }) => s.user_id));
 
     // Build notifications only for eligible users
     const notifications = (nearbyUsers || [])
-      .filter((user: any) => user.user_id !== hostId && activeSet.has(user.user_id))
-      .map((user: any) => ({
+      .filter((user: { user_id: string; distance_m: number }) => user.user_id !== hostId && activeSet.has(user.user_id))
+      .map((user: { user_id: string; distance_m: number }) => ({
       user_id: user.user_id,
       type: 'event_created' as const,
       event_id: eventId,
@@ -177,7 +177,7 @@ export async function notifyNearbyUsers(
 
     const { error: insertError } = await supabase
       .from('notifications')
-      .insert(notifications);
+      .insert(notifications as unknown as Record<string, unknown>[]);
 
     if (insertError) {
       logger.error('[Notifications] Insert failed', { eventId, error: insertError.message });
