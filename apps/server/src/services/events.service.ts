@@ -520,7 +520,7 @@ async function performLocationBasedSearch(
       }
     } else if (near) {
       // Search by city/area name
-      const shouldIncludeLocation = include === 'location';
+      // include flag is parsed at controller; unused here
       const selectFields = 'id, title, event_date, attendee_count, meal_type, status, created_by, city, location_geog, location_id, locations(id, name, formatted_address, latitude, longitude, place_id)';
         
       const { data, error } = await supabase

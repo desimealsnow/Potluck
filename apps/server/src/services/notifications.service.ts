@@ -231,7 +231,10 @@ export async function getUserNotifications(
       };
     listQuery = listQuery.eq('user_id', userId);
     if (status === 'unread') listQuery = listQuery.is('read_at', null);
-    const { data: notifications, error: notificationsError } = await (listQuery as unknown as any)
+    const { data: notifications, error: notificationsError } = await (listQuery as unknown as {
+      order: (col: string, opts: { ascending: boolean }) => typeof listQuery;
+      range: (from: number, to: number) => Promise<{ data: NotificationRecord[]; error: { message: string } | null }>;
+    })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
