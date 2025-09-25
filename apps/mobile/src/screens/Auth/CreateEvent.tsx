@@ -782,7 +782,7 @@ export default function CreateEventScreen({
           });
         }}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -879,7 +879,7 @@ function ParticipantPlanningInput({
           ))}
         </View>
       )}
-    </LinearGradient>
+    </View>
   );
 }
 

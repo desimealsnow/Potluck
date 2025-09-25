@@ -513,10 +513,10 @@ function ActionButton({ action, index, testID }: { action: EventCardAction; inde
     action.handler();
   }, [action]);
   
-  const actionGradients: Record<string, string[]> = {
+  const actionGradients: Record<string, readonly [string, string, ...string[]]> = {
     'publish': theme.gradients.button.success,
-    'delete': ['#FFB4B4', '#FC5C65'],
-    'cancel': ['#FFB088', '#FF8E53'],
+    'delete': ['#FFB4B4', '#FC5C65'] as readonly [string, string, ...string[]],
+    'cancel': ['#FFB088', '#FF8E53'] as readonly [string, string, ...string[]],
     'complete': theme.gradients.button.secondary,
     'restore': theme.gradients.button.primary,
   };
@@ -556,7 +556,8 @@ function ActionButton({ action, index, testID }: { action: EventCardAction; inde
   );
 }
 
-export const EventCardEnhanced = React.memo(EventCardEnhanced);
+const MemoizedEventCardEnhanced = React.memo(EventCardEnhanced);
+export { MemoizedEventCardEnhanced as EventCardEnhanced };
 
 const styles = StyleSheet.create({
   cardContainer: {

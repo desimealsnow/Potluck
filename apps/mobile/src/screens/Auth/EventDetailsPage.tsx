@@ -589,7 +589,7 @@ export default function EventDetailsPage({
     }
   };
 
-  const gradient = useMemo(() => gradients.header.event, []);
+  const gradient = useMemo(() => vibrantTheme.gradients.header.event, []);
   // Item library sheet state for Items tab
   const [pickerOpen, setPickerOpen] = useState(false);
 

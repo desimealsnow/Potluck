@@ -329,7 +329,7 @@ export function InputEnhanced({
       
       {error && (
         <View style={styles.errorContainer}>
-          <Icon name="AlertCircle" size={rf(14)} color={theme.colors.state.error} />
+          <Icon name="Info" size={rf(14)} color={theme.colors.state.error} />
           <Text style={[styles.errorText, { fontSize: rf(12) }, errorStyle]}>
             {error}
           </Text>

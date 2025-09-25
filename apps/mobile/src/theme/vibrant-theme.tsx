@@ -96,25 +96,26 @@ export const vibrantColors = {
 export const vibrantGradients = {
   // Header gradients
   header: {
-    primary: ['#FF6B6B', '#FF8E53'],     // Coral to orange
-    secondary: ['#4ECDC4', '#95E1A4'],   // Turquoise to mint
-    celebration: ['#FFD93D', '#FFB088'],  // Yellow to peach
-    evening: ['#9F7AEA', '#FF6BCB'],     // Purple to pink
+    primary: ['#FF6B6B', '#FF8E53'] as readonly [string, string, ...string[]],     // Coral to orange
+    secondary: ['#4ECDC4', '#95E1A4'] as readonly [string, string, ...string[]],   // Turquoise to mint
+    celebration: ['#FFD93D', '#FFB088'] as readonly [string, string, ...string[]],  // Yellow to peach
+    evening: ['#9F7AEA', '#FF6BCB'] as readonly [string, string, ...string[]],     // Purple to pink
+    event: ['#8338EC', '#FF6B6B'] as readonly [string, string, ...string[]],       // Purple to coral
   },
   
   // Button gradients
   button: {
-    primary: ['#FF6B6B', '#FF8E53'],
-    secondary: ['#4ECDC4', '#56CCF2'],
-    success: ['#95E1A4', '#6BCF7F'],
-    special: ['#9F7AEA', '#FF6BCB'],
+    primary: ['#FF6B6B', '#FF8E53'] as readonly [string, string, ...string[]],
+    secondary: ['#4ECDC4', '#56CCF2'] as readonly [string, string, ...string[]],
+    success: ['#95E1A4', '#6BCF7F'] as readonly [string, string, ...string[]],
+    special: ['#9F7AEA', '#FF6BCB'] as readonly [string, string, ...string[]],
   },
   
   // Card backgrounds
   card: {
-    subtle: ['#FFFFFF', '#FFF9F5'],
-    highlight: ['#FFE5E5', '#FFF0E6'],
-    special: ['#F0E6FF', '#E6F7FF'],
+    subtle: ['#FFFFFF', '#FFF9F5'] as readonly [string, string, ...string[]],
+    highlight: ['#FFE5E5', '#FFF0E6'] as readonly [string, string, ...string[]],
+    special: ['#F0E6FF', '#E6F7FF'] as readonly [string, string, ...string[]],
   },
 };
 
@@ -151,12 +152,12 @@ export const vibrantTypography = {
   },
   
   weights: {
-    light: '300',
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-    heavy: '800',
+    light: '300' as const,
+    normal: '400' as const,
+    medium: '500' as const,
+    semibold: '600' as const,
+    bold: '700' as const,
+    heavy: '800' as const,
   },
 };
 

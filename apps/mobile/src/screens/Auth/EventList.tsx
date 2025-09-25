@@ -289,7 +289,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   }, []);
 
   const bgGradient = useMemo(
-    () => gradients.header.event,
+    () => vibrantTheme.gradients.header.event,
     []
   );
 
@@ -972,27 +972,6 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       searchQuery={query}
                     />
                   )} />
-                  {/* OLD CODE
-                    <TabContentVibrant
-                      tabKey="drafts"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
-                      data={data}
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
-                      getEventActions={getEventActions}
-                    />
-                  )} />
                   <MobileTabs.Screen 
                     name="Past" 
                     listeners={{
@@ -1013,27 +992,6 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       searchQuery={query}
                     />
                   )} />
-                  {/* OLD CODE
-                    <TabContentVibrant
-                      tabKey="past"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
-                      data={data}
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
-                      getEventActions={getEventActions}
-                    />
-                  )} />
                   <MobileTabs.Screen 
                     name="Deleted" 
                     listeners={{
@@ -1052,27 +1010,6 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       onEventPress={handleEventPress}
                       getEventActions={getEventActions}
                       searchQuery={query}
-                    />
-                  )} />
-                  {/* OLD CODE
-                    <TabContentVibrant
-                      tabKey="deleted"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
-                      data={data}
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
-                      getEventActions={getEventActions}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -1257,7 +1194,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             )
           }
           renderItem={({ item }) => (
-            <EventCard 
+            <EventCardEnhanced 
               item={item} 
               onPress={() => handleEventPress(item.id)} 
               actions={getEventActions(item)}

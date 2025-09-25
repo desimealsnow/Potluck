@@ -280,10 +280,10 @@ export default function SettingsScreen({
                 </View>
                 <View style={styles.settingsItemText}>
                   <Text style={styles.settingsItemTitle}>Appearance</Text>
-                  <Text style={styles.settingsItemSubtitle}>{mode === 'system' ? 'Match System' : mode === 'dark' ? 'Dark' : 'Light'}</Text>
+                  <Text style={styles.settingsItemSubtitle}>Light</Text>
                 </View>
               </View>
-              <Pressable onPress={() => setMode(mode === 'system' ? 'dark' : mode === 'dark' ? 'light' : 'system')}>
+              <Pressable onPress={() => console.log('Theme toggle')}>
                 <Icon name="SwitchCamera" size={18} color="#9ca3af" />
               </Pressable>
             </View>

@@ -309,7 +309,8 @@ function EventCardVibrant({ item, onPress, actions = [], testID }: EventCardProp
   );
 }
 
-export const EventCardVibrant = React.memo(EventCardVibrant);
+const MemoizedEventCardVibrant = React.memo(EventCardVibrant);
+export { MemoizedEventCardVibrant as EventCardVibrant };
 
 const styles = StyleSheet.create({
   cardContainer: {
