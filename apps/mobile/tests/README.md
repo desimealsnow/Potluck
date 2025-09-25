@@ -477,8 +477,6 @@ jobs:
 
 *Last Updated: December 2024*
 *Author: Senior Playwright Developer*
-<<<<<<< Current (Your changes)
-=======
 
 ## Deep Link & Universal/App Links
 
@@ -489,4 +487,3 @@ jobs:
 - Test:
   - iOS: `xcrun simctl openurl booted potluck://event/<id>`
   - Android: `adb shell am start -a android.intent.action.VIEW -d "https://potluck.example.com/events/<id>"`
->>>>>>> Incoming (Background Agent changes)

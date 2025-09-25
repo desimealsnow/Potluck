@@ -4,6 +4,8 @@
 > **Last Updated**: 2025-09-21
 > **Version**: 1.0
 
+> Quick start: Use the pinned system message in `docs/agent/AGENT_BOOTSTRAP_PROMPT.md` for all new agent chats.
+
 ## 🚨 **START HERE - Essential Reading Order**
 
 ### **1. Entry Point & Quick Start**
@@ -114,6 +116,9 @@ If background agents can't find the payments package:
 - **Always regenerate** catalogs after significant code changes
 - **Don't manually edit** `.agent/` files - they're auto-generated
 - **Check timestamps** in generated files to ensure they're current
+- **Pinned rule**: For new agent chats, load these in order:
+  1) `docs/agent/README.md`  2) `docs/agent/agent-knowledge-base.md`
+  3) `apps/server/db/schema.json`  4) `docs/api-spec.yaml`  5) `.agent/repo.catalog.json`
 
 ## 🚀 **Quick Start Checklist**
 
@@ -123,6 +128,70 @@ If background agents can't find the payments package:
 - [ ] Review `docs/api-spec.yaml` for API surface
 - [ ] Explore `.agent/repo.catalog.json` for code structure
 - [ ] Use `.agent/routes.index.json` for endpoint mapping
+
+### Agent Bootstrap (fail-fast)
+- Confirm these files exist and are current:
+  - `.agent/repo.catalog.json`, `.agent/routes.index.json`, `docs/documentation-index.json`
+  - `docs/agent/README.md`, `docs/agent/agent-knowledge-base.md`, `docs/agent/ai-context.json`
+- If missing/stale, run: `npm run agent:update`
+- To verify, run: `npm run context:validate` (fails if critical files are missing)
+
+## 🤖 AI Co‑Pilot Guide (Onboarding)
+
+### Repo Structure (high‑level)
+```
+apps/
+  mobile/   # Expo React Native app (screens, components, services)
+  server/   # Express API (routes, controllers, services)
+packages/
+  payments/ # Payment providers core lib
+  common/   # Shared types/utils
+```
+
+### Key Concepts
+- Potluck events have hosts, guests, items, and join requests with capacity holds
+- Discovery supports nearby/city queries (PostGIS/RPC fallbacks)
+- Push notifications via Expo; phone verification gating for hosting
+
+### Entry Points
+- Mobile UI: `apps/mobile/src/screens/Auth/EventList.tsx` → `EventDetailsPage.tsx`
+- API flow: `apps/server/src/routes/events.routes.ts` → `events.controller.ts` → `events.service.ts`
+
+### AI Navigation Hints
+- Start with `.agent/repo.catalog.json` to find files and exports
+- Map endpoints with `.agent/routes.index.json` then open the controller/service
+- Database relations/functions are in `apps/server/db/schema.json`
+
+### Error Handling Pattern
+- Services return `ServiceResult<T>` with `{ ok, data?|error?, code? }`
+- Controllers call `handle(res, result)` to map codes to HTTP responses
+
+### Event Lifecycle Mapping (mobile ↔ backend)
+- Mobile tabs: `upcoming | past | drafts | deleted`
+- API status: `published | completed | draft | purged | cancelled`
+- Mapping: `upcoming → published`, `past → completed`, `drafts → draft`, `deleted → purged`
+- Note: `cancelled` appears only as a server status; mobile surfaces it via badges/actions
+
+### Events List Query Cheatsheet
+- Pagination: `limit`, `offset`
+- Search: `q`
+- Filters: `status`, `ownership` (all|mine|invited), `diet` (veg,nonveg,mixed)
+- Discovery: `lat`, `lon`, `radius_km`, `is_public=true` (includes public + my events)
+- Includes: `include=location` to ensure location info is joined
+
+### Feature → Route Map
+- List events: `GET /events`
+- Event details: `GET /events/{eventId}`
+- Publish / Cancel / Complete: `POST /events/{id}/publish|cancel|complete`
+- Purge / Restore: `POST /events/{id}/purge|restore`
+- Items: `GET/POST /events/{id}/items`, `GET/PUT/DELETE /events/{id}/items/{itemId}`
+- Participants: `GET/POST /events/{id}/participants`, `GET/PUT/DELETE /events/{id}/participants/{partId}`
+- Join Requests: `POST/GET /events/{id}/requests`, plus approve/decline/waitlist endpoints
+
+### Related Files
+- Join Requests: `apps/server/src/modules/requests/*`
+- Items: `apps/server/src/routes/items.routes.ts`
+- Participants: `apps/server/src/routes/participants.routes.ts`
 
 ---
 

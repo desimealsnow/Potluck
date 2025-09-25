@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, statSync, writeFileSync as fsWrite } from 'fs';
 import { resolve } from 'path';
 
 interface ValidationResult {
@@ -22,9 +22,9 @@ interface ContextValidation {
   console.log('🔍 Validating agent context...');
   
   const criticalFiles = [
-    'docs/AGENT_ENTRY_POINT.md',
-    'docs/agent-knowledge-base.md',
-    'db/schema.json',
+    'docs/agent/AGENT_ENTRY_POINT.md',
+    'docs/agent/agent-knowledge-base.md',
+    'docs/agent/README.md',
     'docs/api-spec.yaml',
     '.agent/repo.catalog.json',
     '.agent/routes.index.json',
@@ -43,6 +43,19 @@ interface ContextValidation {
       criticalFilesMissing.push(file);
     }
   }
+  // Special case: database schema may live in either location
+  const dbSchemaAlt = ['apps/server/db/schema.json', 'db/schema.json'];
+  const dbExists = dbSchemaAlt.some(p => existsSync(resolve(p)));
+  const dbResult: ValidationResult = {
+    file: 'apps/server/db/schema.json | db/schema.json',
+    exists: dbExists,
+    last_modified: dbExists ? newestMtime(dbSchemaAlt) : undefined,
+    size: dbExists ? safeStatSize(dbSchemaAlt) : undefined,
+    content_valid: dbExists,
+    issues: dbExists ? [] : ['File does not exist in either path']
+  };
+  validationResults.push(dbResult);
+  if (!dbExists) criticalFilesMissing.push('apps/server/db/schema.json|db/schema.json');
   
   // Determine overall health
   const overallHealth = determineOverallHealth(validationResults, criticalFilesMissing);
@@ -60,14 +73,19 @@ interface ContextValidation {
   
   // Write validation report
   const report = generateValidationReport(validation);
-  writeFileSync('.agent/context-validation.json', JSON.stringify(validation, null, 2));
-  writeFileSync('.agent/CONTEXT_VALIDATION_REPORT.md', report);
+  ensureAgentDir();
+  writeFileSafe('.agent/context-validation.json', JSON.stringify(validation, null, 2));
+  writeFileSafe('.agent/CONTEXT_VALIDATION_REPORT.md', report);
   
   console.log(`✅ Context validation complete!`);
   console.log(`📊 Overall Health: ${overallHealth.toUpperCase()}`);
   console.log(`⚠️  Critical files missing: ${criticalFilesMissing.length}`);
   console.log(`📁 Generated .agent/context-validation.json`);
   console.log(`📁 Generated .agent/CONTEXT_VALIDATION_REPORT.md`);
+  if (criticalFilesMissing.length > 0) {
+    console.error('🚫 Critical context files missing. Run: npm run agent:update');
+    process.exit(1);
+  }
 })();
 
 function validateFile(filePath: string): ValidationResult {
@@ -86,7 +104,7 @@ function validateFile(filePath: string): ValidationResult {
   }
   
   try {
-    const stats = require('fs').statSync(fullPath);
+    const stats = statSync(fullPath);
     result.last_modified = stats.mtime.toISOString();
     result.size = stats.size;
     
@@ -215,6 +233,27 @@ function generateValidationReport(validation: ContextValidation): string {
   return markdown;
 }
 
-function writeFileSync(path: string, content: string) {
-  require('fs').writeFileSync(path, content);
+function writeFileSafe(path: string, content: string) {
+  fsWrite(path, content);
+}
+
+function ensureAgentDir() {
+  try { mkdirSync('.agent', { recursive: true }); } catch {}
+}
+
+function newestMtime(paths: string[]): string | undefined {
+  const times = paths
+    .map(p => resolve(p))
+    .filter(p => existsSync(p))
+    .map(p => statSync(p).mtime.getTime());
+  if (!times.length) return undefined;
+  return new Date(Math.max(...times)).toISOString();
+}
+
+function safeStatSize(paths: string[]): number | undefined {
+  for (const p of paths) {
+    const abs = resolve(p);
+    if (existsSync(abs)) return statSync(abs).size;
+  }
+  return undefined;
 }

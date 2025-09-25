@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from '@/components';
 import Header from '@/components/Header';
 import { apiClient, Invoice } from '@/services/apiClient';
 
 export default function InvoicesScreen({ onBack }: { onBack?: () => void }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
 
   const load = useCallback(async () => {
     try { 
@@ -33,7 +32,7 @@ export default function InvoicesScreen({ onBack }: { onBack?: () => void }) {
     }
   }, []);
 
-  const bg = useMemo(() => ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const, []);
+  // Removed unused bg variable
 
   return (
     <View style={{ flex: 1, backgroundColor: '#351657' }}>

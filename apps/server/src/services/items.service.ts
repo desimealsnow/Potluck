@@ -4,13 +4,13 @@ import logger from '../logger';
 import { z } from 'zod';
 import { schemas }  from '../validators';           // <- generated Zod objects
 import {ServiceResult, toDbColumns, mapDbError } from '../utils/helper';
-import {GuardResult,ensureEventEditable,ensureActorCanAssign} from '../utils/eventGuards';
+import {ensureEventEditable,ensureActorCanAssign} from '../utils/eventGuards';
 type ItemCreate  = components['schemas']['ItemCreate'];
-type ItemUpdate   = components['schemas']['ItemUpdate'];
+// type ItemUpdate   = components['schemas']['ItemUpdate'];
 type Item  = components['schemas']['Item'];
 
 
-const ALLOWED_UPDATE_FIELDS = ['name', 'category', 'perGuestQty'] as const;
+// const ALLOWED_UPDATE_FIELDS = ['name', 'category', 'perGuestQty'] as const;
 /** create a new item slot */
 export async function addItem(
   eventId: string,
@@ -18,10 +18,10 @@ export async function addItem(
   userId: string
 ): Promise<ServiceResult<components['schemas']['Item']>> {
   logger.info(`addItem: start`, { eventId, userId, input });
-  const payload: any = { ...input, event_id: eventId, created_by: userId };
+  const payload: Record<string, unknown> = { ...input, event_id: eventId, created_by: userId };
   // Map optional source IDs to columns (if provided)
-  if ((input as any).catalog_item_id) payload.catalog_item_id = (input as any).catalog_item_id;
-  if ((input as any).user_item_id) payload.user_item_id = (input as any).user_item_id;
+  if ((input as unknown as { catalog_item_id?: string }).catalog_item_id) payload.catalog_item_id = (input as unknown as { catalog_item_id?: string }).catalog_item_id;
+  if ((input as unknown as { user_item_id?: string }).user_item_id) payload.user_item_id = (input as unknown as { user_item_id?: string }).user_item_id;
 
   const { data, error } = await supabase
     .from('event_items')
@@ -32,9 +32,9 @@ export async function addItem(
   if (error) {
     logger.error(`addItem: insert failed`, { eventId, userId, input, dbError: error });
     // Surface a better code using mapDbError if available
-    return { ok:false, error: error.message || 'Insert failed', code: (error.code as any) || '500' };
+    return mapDbError(error);
   }
-  logger.info(`addItem: success`, { eventId, itemId: (data as any)?.id });
+  logger.info(`addItem: success`, { eventId, itemId: (data as { id?: string } | null)?.id });
   return { ok:true,data: data as Item };
 }
 
@@ -202,8 +202,7 @@ export async function assignItem(
 /** delete slot */
 export async function deleteItem(
   eventId: string,
-  itemId: string,
-  actorId: string
+  itemId: string
 ): Promise<ServiceResult<null>> {
   const { error } = await supabase
     .from('event_items')
@@ -220,7 +219,7 @@ export async function deleteItem(
  */
 export async function listItems(
   eventId: string,
-  actorId: string,
+  _actorId: string,
   opts: { limit?: number; offset?: number } = {}
 ): Promise<ServiceResult<components['schemas']['Item'][]>> {
   const limit  = opts.limit  ?? 20;
@@ -243,8 +242,7 @@ export async function listItems(
  */
 export async function getItem(
   eventId: string,
-  itemId: string,
-  actorId: string
+  itemId: string
 ): Promise<ServiceResult<components['schemas']['Item']>> {
   const { data, error } = await supabase
     .from('event_items')

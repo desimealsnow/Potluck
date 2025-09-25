@@ -36,10 +36,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  const accessToken = req.headers.authorization?.split(' ')[1];
-  if (!accessToken) return res.status(400).json({ error: 'No auth token' });
-
-  const result = await AuthService.logout(accessToken);
+  const result = await AuthService.logout();
   if ('error' in result) return res.status(400).json(result);
   res.json({ message: 'Logged out' });
 };

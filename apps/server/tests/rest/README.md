@@ -98,8 +98,6 @@ CI / GitHub Actions
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`
   - `LEMONSQUEEZY_API_KEY`, `LEMONSQUEEZY_STORE_ID`, `LEMONSQUEEZY_WEBHOOK_SECRET`
 - The workflow starts the API from the compiled output `dist/src/index.js` and hits `/health` before tests.
-<<<<<<< Current (Your changes)
-=======
 
 Universal/App Links (for share/QR)
 - Server exposes a public landing at `GET /events/{eventId}` which renders an HTML deep-link opener.
@@ -109,4 +107,3 @@ Universal/App Links (for share/QR)
     - iOS: `ios.associatedDomains` → `applinks:YOUR_DOMAIN`
     - Android: `android.intentFilters` for `https://YOUR_DOMAIN/events/*`
 - Optionally set `PUBLIC_BASE_URL` on the server so the landing page points to the correct canonical domain.
->>>>>>> Incoming (Background Agent changes)

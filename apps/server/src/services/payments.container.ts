@@ -1,4 +1,4 @@
-import type { PaymentContainer, ProviderConfigStore, Logger, Metrics } from '@payments/core';
+import type { PaymentContainer, ProviderConfigStore, Logger, Metrics, IdempotencyStore, WebhookInbox } from '@payments/core';
 import { providerRegistry, PaymentService } from '@payments/core';
 import { SupabaseConfigStore, supabasePersistence, simpleEventBus, supabaseInbox, supabaseIdempotency } from './payments.adapters';
 
@@ -9,8 +9,8 @@ const logger: Logger = {
 };
 
 const metrics: Metrics = {
-  inc(name: string, labels?: Record<string, string>) { /* hook up to prom client here */ },
-  observe(name: string, value: number, labels?: Record<string, string>) { /* hook up to prom client here */ }
+  inc() { /* hook up to prom client here */ },
+  observe() { /* hook up to prom client here */ }
 };
 
 // Use real adapters where available (Supabase), fallback to simple/in-memory
@@ -27,16 +27,17 @@ export function createPaymentContainer(): PaymentContainer {
     _keys: new Set<string>(),
     async withKey<T>(key: string, fn: () => Promise<T>) { if (!this._keys.has(key)) this._keys.add(key); return fn(); }
   } as const;
-  return {
+  const container: PaymentContainer = {
     providers: providerRegistry,
     persistence: supabasePersistence,
     events: simpleEventBus,
     logger,
     metrics,
     configs,
-    inbox: useMemory ? (memoryInbox as any) : supabaseInbox,
-    idempotency: useMemory ? (memoryIdempotency as any) : supabaseIdempotency,
+    inbox: useMemory ? (memoryInbox as unknown as WebhookInbox) : supabaseInbox,
+    idempotency: useMemory ? (memoryIdempotency as unknown as IdempotencyStore) : supabaseIdempotency,
   };
+  return container;
 }
 
 export function createPaymentService(): PaymentService {

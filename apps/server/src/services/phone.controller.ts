@@ -49,7 +49,7 @@ export async function sendCode(req: Request, res: Response) {
   try {
     const sms = getSmsProvider();
     await sms.send(phone, `Your Potluck verification code is ${code}. It expires in 10 minutes.`);
-  } catch (e) {
+  } catch {
     console.log('[SMS] failed to send via provider, falling back to console');
     console.log(`[OTP] For user ${userId} → ${phone}: ${code}`);
   }

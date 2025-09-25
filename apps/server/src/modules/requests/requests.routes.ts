@@ -105,7 +105,7 @@ router.patch(
   authGuard,
   routeLogger('PATCH /events/:eventId/requests/:requestId/reorder'),
   async (req, res) => {
-    const { eventId, requestId } = req.params as any;
+    const { eventId, requestId } = req.params as { eventId: string; requestId: string };
     const pos = Number((req.body || {}).waitlist_pos);
     if (!isFinite(pos)) return res.status(400).json({ ok: false, error: 'waitlist_pos required', code: '400' });
     const { supabase } = await import('../../config/supabaseClient');
@@ -128,7 +128,7 @@ router.post(
   authGuard,
   routeLogger('POST /events/:eventId/requests/promote'),
   async (req, res) => {
-    const { eventId } = req.params as any;
+    const { eventId } = req.params as { eventId: string };
     const { supabase } = await import('../../config/supabaseClient');
     const { data, error } = await supabase.rpc('promote_from_waitlist', { p_event_id: eventId });
     if (error) return res.status(500).json({ ok: false, error: error.message });

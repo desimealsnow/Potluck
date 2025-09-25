@@ -23,6 +23,13 @@ import ParticipantsScreen from "./Participants";
 import {  RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
 import { supabase } from "../../config/supabaseClient";
 
+/**
+ * @ai-context Event Details Screen (mobile)
+ * Shows event details (items, participants), exposes host/guest actions.
+ * @user-journey Open from list → view → publish/cancel/complete or request to join
+ * @related-files apps/server/src/routes/events.routes.ts, apps/server/src/controllers/events.controller.ts
+ */
+
 /* ===================== Config ===================== */
 const API_BASE_URL = "http://localhost:3000/api/v1"; // In React Native, use expo-constants for env vars
 const USE_MOCK = false; // set to false when your REST is ready
@@ -247,7 +254,9 @@ function useEventData(eventId: string) {
               }
             } : prev);
           }
-        } catch {}
+        } catch (error) {
+          console.warn('Failed to update item:', error);
+        }
       }
       const itemsRaw = Array.isArray(it) ? it : [];
       const mappedItems: ItemDTO[] = itemsRaw.map((x: any) => ({
@@ -295,10 +304,10 @@ export default function EventDetailsPage({
 }: { 
   eventId?: string; 
   onBack?: () => void; 
-  onActionCompleted?: (nextTab: "upcoming" | "past" | "drafts" | "deleted") => void;
+  onActionCompleted?: (_nextTab: "upcoming" | "past" | "drafts" | "deleted") => void;
 }) {
   const [active, setActive] = useState<Tab>("overview");
-  const { loading, refreshing, event, items, participants, refresh, setItems } = useEventData(eventId);
+  const { loading, refreshing, event, items, participants: _participants, refresh, setItems } = useEventData(eventId);
   const isHost = event?.ownership === 'mine';
   const [shareOpen, setShareOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ name: string; category: string; per_guest_qty: number } | undefined>();
@@ -714,7 +723,7 @@ export default function EventDetailsPage({
                 <Text style={styles.modalButtonText}>Close</Text>
               </Pressable>
               <Pressable style={styles.modalButton} onPress={async () => {
-                try { await Share.share({ message: `${API_BASE_URL}/events/${eventId}` }); } catch {}
+                try { await Share.share({ message: `${API_BASE_URL}/events/${eventId}` }); } catch (error) { console.warn('Failed to share:', error); }
               }}>
                 <Text style={styles.modalButtonText}>Share</Text>
               </Pressable>
@@ -1316,7 +1325,7 @@ async function mockApi<T>(path: string, _init?: RequestInit): Promise<any> {
   await new Promise((r) => setTimeout(r, 200));
   
   // Handle different event IDs
-  const eventIdMatch = path.match(/\/events\/([^\/]+)$/);
+  const eventIdMatch = path.match(/\/events\/([^/]+)$/);
   if (eventIdMatch) {
     const eventId = eventIdMatch[1];
     

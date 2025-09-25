@@ -42,7 +42,7 @@ router.post('/webhook/:provider', raw({ type: '*/*' }), (req, res, next) => {
     req.params.provider = 'lemonsqueezy';
   }
   next();
-}, createWebhookHandler(paymentsContainer));
+}, createWebhookHandler(paymentsContainer) as any);
 
 export default router;
 

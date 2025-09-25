@@ -4,11 +4,11 @@ import logger from '../../logger';
 import { createNotification } from '../../services/notifications.service';
 import type {
   JoinRequestType,
+  JoinRequestRow,
   JoinRequestAddType,
   PaginatedJoinRequestsType,
   AvailabilityType,
   ListRequestsQueryType,
-  RequestErrorCode,
 } from './requests.types';
 
 // ===============================================
@@ -95,7 +95,9 @@ export class RequestsService {
           payload: { request_id: result.data.id }
         });
       }
-    } catch {}
+    } catch {
+      // ignore notification failure
+    }
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -147,7 +149,9 @@ export class RequestsService {
         eventId: result.data.event_id,
         payload: { event_id: result.data.event_id, type: 'request_approved' }
       });
-    } catch {}
+    } catch {
+      // ignore notification failure
+    }
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -178,7 +182,9 @@ export class RequestsService {
         eventId: result.data.event_id,
         payload: { event_id: result.data.event_id, type: 'request_declined' }
       });
-    } catch {}
+    } catch {
+      // ignore notification failure
+    }
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -209,7 +215,9 @@ export class RequestsService {
         eventId: result.data.event_id,
         payload: { event_id: result.data.event_id, type: 'request_waitlisted' }
       });
-    } catch {}
+    } catch {
+      // ignore notification failure
+    }
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -294,7 +302,9 @@ export class RequestsService {
         eventId: result.data.event_id,
         payload: { event_id: result.data.event_id, type: 'hold_extended' }
       });
-    } catch {}
+    } catch {
+      // ignore notification failure
+    }
 
     return { ok: true, data: this.transformRowToApi(result.data) };
   }
@@ -345,14 +355,14 @@ export class RequestsService {
   /**
    * Transform database row to API format
    */
-  private static transformRowToApi(row: any): JoinRequestType {
+  private static transformRowToApi(row: JoinRequestRow): JoinRequestType {
     return {
       id: row.id,
       event_id: row.event_id,
       user_id: row.user_id,
       party_size: row.party_size,
       note: row.note,
-      status: row.status,
+      status: row.status as "pending" | "approved" | "declined" | "waitlisted" | "expired" | "cancelled",
       hold_expires_at: row.hold_expires_at,
       created_at: row.created_at,
       updated_at: row.updated_at,
@@ -362,7 +372,7 @@ export class RequestsService {
   /**
    * Send notification (stub - implement with actual notification provider)
    */
-  private static sendNotification(type: string, request: any): void {
+  private static sendNotification(type: string, request: { id: string; user_id: string }): void {
     // TODO: Integrate with notification service
     logger.info('[RequestsService] Notification stub', { 
       type, 

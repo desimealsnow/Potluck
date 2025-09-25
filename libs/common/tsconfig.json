@@ -10,7 +10,8 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/types.gen.ts"
   ]
 }
 

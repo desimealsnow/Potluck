@@ -76,12 +76,12 @@ export async function ensureActorCanAssign(
   if (!event) return { ok: false, error: 'NotFound', code: '404' };
 
   // Event must be editable
-  if (!['draft', 'published'].includes((event as any).status)) {
+  if (!['draft', 'published'].includes((event as { status: string }).status)) {
     return { ok: false, error: 'Event not editable', code: '409' };
   }
 
   // Determine if actor is host or cohost
-  let isHostOrCoHost = (event as any).created_by === actorId;
+  let isHostOrCoHost = (event as { created_by: string }).created_by === actorId;
   if (!isHostOrCoHost) {
     const { data: parts, error: partErr } = await supabase
       .from('event_participants')
@@ -105,7 +105,7 @@ export async function ensureActorCanAssign(
   if (itemErr) return { ...mapDbError(itemErr) };
   if (!item) return { ok: false, error: 'NotFound', code: '404' };
 
-  const currentAssignee = (item as any).assigned_to as string | null;
+  const currentAssignee = (item as { assigned_to: string | null }).assigned_to;
 
   // Guest rules:
   // - Assign self only if item is unassigned

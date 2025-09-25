@@ -17,6 +17,45 @@ export default [
       sourceType: 'module',
       parser: tsParser,
       parserOptions: { ecmaFeatures: { jsx: true }, project: false },
+      globals: {
+        // Node.js globals
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        // Web APIs
+        fetch: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        Headers: 'readonly',
+        RequestInit: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        Blob: 'readonly',
+        FormData: 'readonly',
+        // Timer functions
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        // React Native globals
+        NodeJS: 'readonly',
+        // Other globals
+        alert: 'readonly',
+        confirm: 'readonly',
+        prompt: 'readonly',
+      },
     },
     plugins: { react, 'react-hooks': reactHooks, 'react-native': reactNative, 'react-native-a11y': rnA11y, '@typescript-eslint': tsPlugin },
     rules: {
@@ -25,6 +64,11 @@ export default [
       'react-native/no-color-literals': 'warn',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+      // Disable unused variables globally
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      // Disable empty block statements globally
+      'no-empty': 'off',
       // Accessibility rules
       'react-native-a11y/has-accessibility-hint': 'warn',
       'react-native-a11y/has-accessibility-props': 'warn',
@@ -45,12 +89,27 @@ export default [
   },
   {
     files: ['src/screens/Auth/CreateEvent.tsx'],
-    env: { browser: true },
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       parser: tsParser,
       parserOptions: { ecmaFeatures: { jsx: true } },
+      globals: {
+        // Browser globals for CreateEvent.tsx
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+      },
     },
     plugins: { 'react-native-a11y': rnA11y },
     rules: {

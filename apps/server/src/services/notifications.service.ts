@@ -27,7 +27,7 @@ export interface NotificationPayload {
   event_date?: string;
   distance_km?: number;
   host_name?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface NotificationRecord {
@@ -65,7 +65,7 @@ export async function createNotification(params: {
         item_id: params.itemId,
         ...(params.payload || {}),
       } satisfies NotificationPayload,
-    } as any;
+    };
 
     const { data, error } = await supabase
       .from('notifications')
@@ -110,9 +110,9 @@ export async function notifyNearbyUsers(
       return { ok: false, error: eventError?.message ?? 'Event not found' };
     }
 
-    const loc: any = Array.isArray((eventData as any).locations)
-      ? (eventData as any).locations[0]
-      : (eventData as any).locations;
+    const loc = Array.isArray((eventData as { locations?: unknown }).locations)
+      ? (eventData as { locations: Array<{ latitude?: number | null; longitude?: number | null; formatted_address?: string | null }> }).locations[0]
+      : (eventData as { locations?: { latitude?: number | null; longitude?: number | null; formatted_address?: string | null } }).locations;
     const lat = loc?.latitude as number | null;
     const lon = loc?.longitude as number | null;
     const radiusKm = 25;
@@ -145,20 +145,20 @@ export async function notifyNearbyUsers(
       .select('created_by')
       .eq('id', eventId)
       .single();
-    const hostId = (eventOwner as any)?.created_by as string | undefined;
+    const hostId = (eventOwner as { created_by?: string } | null)?.created_by;
 
     // Check subscriptions for users
-    const candidateIds: string[] = (nearbyUsers || []).map((u: any) => u.user_id);
+    const candidateIds: string[] = (nearbyUsers || []).map((u: { user_id: string }) => u.user_id);
     const { data: subs } = await supabase
       .from('user_subscriptions')
       .select('user_id, status')
       .in('user_id', candidateIds);
-    const activeSet = new Set<string>((subs || []).filter(s => ['active','trialing','past_due'].includes((s as any).status)).map(s => (s as any).user_id));
+    const activeSet = new Set<string>((subs || []).filter((s: { status?: string }) => ['active','trialing','past_due'].includes(s.status || '')).map((s: { user_id: string }) => s.user_id));
 
     // Build notifications only for eligible users
     const notifications = (nearbyUsers || [])
-      .filter((user: any) => user.user_id !== hostId && activeSet.has(user.user_id))
-      .map((user: any) => ({
+      .filter((user: { user_id: string; distance_m: number }) => user.user_id !== hostId && activeSet.has(user.user_id))
+      .map((user: { user_id: string; distance_m: number }) => ({
       user_id: user.user_id,
       type: 'event_created' as const,
       event_id: eventId,
@@ -177,7 +177,7 @@ export async function notifyNearbyUsers(
 
     const { error: insertError } = await supabase
       .from('notifications')
-      .insert(notifications);
+      .insert(notifications as unknown as Record<string, unknown>[]);
 
     if (insertError) {
       logger.error('[Notifications] Insert failed', { eventId, error: insertError.message });
@@ -206,8 +206,8 @@ export async function getUserNotifications(
     // Get total count
     let countQuery = supabase
       .from('notifications')
-      .select('*', { count: 'exact', head: true }) as any;
-    countQuery = countQuery.eq('user_id', userId);
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
     if (status === 'unread') countQuery = countQuery.is('read_at', null);
     const { count, error: countError } = await countQuery;
 
@@ -219,10 +219,18 @@ export async function getUserNotifications(
     // Get notifications with pagination
     let listQuery = supabase
       .from('notifications')
-      .select('*') as any;
+      .select('*') as unknown as {
+        eq: (col: string, v: unknown) => typeof listQuery;
+        is: (col: string, v: unknown) => typeof listQuery;
+        order: (col: string, opts: { ascending: boolean }) => typeof listQuery;
+        range: (from: number, to: number) => Promise<{ data: NotificationRecord[]; error: { message: string } | null }>;
+      };
     listQuery = listQuery.eq('user_id', userId);
     if (status === 'unread') listQuery = listQuery.is('read_at', null);
-    const { data: notifications, error: notificationsError } = await listQuery
+    const { data: notifications, error: notificationsError } = await (listQuery as unknown as {
+      order: (col: string, opts: { ascending: boolean }) => typeof listQuery;
+      range: (from: number, to: number) => Promise<{ data: NotificationRecord[]; error: { message: string } | null }>;
+    })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -352,7 +360,8 @@ export async function registerPushToken(
   }
 }
 
-export async function getNotificationPreferences(userId: string): Promise<ServiceResult<any>> {
+type NotificationPrefs = { user_id: string; in_app_enabled?: boolean; push_enabled?: boolean };
+export async function getNotificationPreferences(userId: string): Promise<ServiceResult<NotificationPrefs>> {
   try {
     const { data, error } = await supabase
       .from('notification_preferences')
@@ -360,13 +369,13 @@ export async function getNotificationPreferences(userId: string): Promise<Servic
       .eq('user_id', userId)
       .maybeSingle();
     if (error) return { ok: false, error: error.message };
-    return { ok: true, data: data || { user_id: userId, in_app_enabled: true } };
-  } catch (err) {
+    return { ok: true, data: (data as NotificationPrefs) || { user_id: userId, in_app_enabled: true } };
+  } catch {
     return { ok: false, error: 'Failed to get notification preferences' };
   }
 }
 
-export async function upsertNotificationPreferences(userId: string, prefs: any): Promise<ServiceResult<any>> {
+export async function upsertNotificationPreferences(userId: string, prefs: Partial<NotificationPrefs>): Promise<ServiceResult<NotificationPrefs>> {
   try {
     const payload = { ...prefs, user_id: userId, updated_at: new Date().toISOString() };
     const { data, error } = await supabase
@@ -375,8 +384,8 @@ export async function upsertNotificationPreferences(userId: string, prefs: any):
       .select('*')
       .single();
     if (error) return { ok: false, error: error.message };
-    return { ok: true, data };
-  } catch (err) {
+    return { ok: true, data: data as NotificationPrefs };
+  } catch {
     return { ok: false, error: 'Failed to update notification preferences' };
   }
 }
@@ -418,10 +427,10 @@ export async function notifyEventParticipantsCancelled(
 
     if (!rows.length) return { ok: true, data: { notified_count: 0 } };
 
-    const { error: insErr } = await supabase.from('notifications').insert(rows as any);
+    const { error: insErr } = await supabase.from('notifications').insert(rows as unknown as Record<string, unknown>[]);
     if (insErr) return { ok: false, error: insErr.message };
     return { ok: true, data: { notified_count: rows.length } };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Failed to notify participants' };
   }
 }

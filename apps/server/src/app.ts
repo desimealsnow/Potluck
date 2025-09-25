@@ -12,11 +12,12 @@ import { createPaymentContainer } from './services/payments.container';
 import { authGuard } from './middleware/authGuard';
 import type { Request } from 'express';
 // Dev payments routes are optional; only import if available
-let createDevPaymentsRoutes: any;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  createDevPaymentsRoutes = require('@payments/core').createDevPaymentsRoutes;
-} catch {}
+let createDevPaymentsRoutes: undefined | ((container: ReturnType<typeof createPaymentContainer>, helpers: { getUserId: (req: Request & { user?: { id?: string } }) => string | undefined; getUserEmail: (req: Request & { user?: { email?: string } }) => string | undefined; }) => express.Router);
+import('@payments/core').then(mod => {
+  createDevPaymentsRoutes = (mod as unknown as { createDevPaymentsRoutes?: typeof createDevPaymentsRoutes }).createDevPaymentsRoutes;
+}).catch(() => {
+  // optional in dev
+});
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 import { raw } from 'body-parser';

@@ -1,12 +1,15 @@
 // src/types/express.d.ts
-import 'express';
+import 'express-serve-static-core';
 
-declare module 'express' {
-  export interface Request {
-    user?: {
-      id: string;
-      email?: string;
-      // Add other user fields if needed
-    };
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email?: string;
+      };
+    }
   }
 }
+
+export {};

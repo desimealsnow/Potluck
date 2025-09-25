@@ -50,7 +50,7 @@ export default function MyJoinRequestsScreen({ onBack }: { onBack?: () => void }
 
         <ScrollView style={{ flex: 1, padding: 16 }}>
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Pending Approvals</Text>
+            <Text style={styles.sectionTitle}>Requests</Text>
             {data?.data && data.data.length > 0 ? (
               data.data.map(req => (
                 <View key={req.id} style={styles.row}>

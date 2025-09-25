@@ -27,7 +27,9 @@ export const add = async (req: AuthenticatedRequest, res: Response) => {
           return res.status(403).json({ ok: false, error: 'Phone verification required before RSVP', code: 'PHONE_UNVERIFIED' });
         }
       }
-    } catch {}
+    } catch {
+      // ignore
+    }
   }
 
   const result = await svc.addParticipant(eventId, input);
@@ -99,8 +101,8 @@ export const transfer = async (
 ) => {
   const { eventId, partId } = req.params;
   const actorId = req.user!.id;
-  const newUserId = (req.body as any)?.new_user_id as string;
-  const carryItems = Boolean((req.body as any)?.carry_items);
+  const newUserId = (req.body as { new_user_id?: string })?.new_user_id as string;
+  const carryItems = Boolean((req.body as { carry_items?: unknown })?.carry_items);
   const result = await transferParticipant(eventId, partId, actorId, { newUserId, carryItems });
   return handle(res, result);
 };

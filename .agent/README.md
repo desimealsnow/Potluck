@@ -18,6 +18,18 @@ Use these files as structured context when:
 - Understanding test coverage
 - Analyzing module relationships
 
+Before starting any background session, validate context freshness:
+
+```
+npm run context:validate
+```
+
+If validation fails or catalogs are stale, run:
+
+```
+npm run agent:update
+```
+
 ## Ground Truth
 
 The source code is the ground truth. These catalogs are generated automatically and should be regenerated when:
