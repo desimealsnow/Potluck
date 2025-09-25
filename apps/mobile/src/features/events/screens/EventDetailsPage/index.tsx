@@ -1,1 +1,2 @@
-export { default } from '../../../../screens/Auth/EventDetailsPage';
+import EventDetailsPage from '../../../../screens/Auth/EventDetailsPage';
+export default EventDetailsPage;
