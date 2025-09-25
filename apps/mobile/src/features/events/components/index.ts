@@ -1,3 +1,6 @@
 // Barrel for reusable UI components in the events feature
-// Export subcomponents here as they are moved/created
+export { default as EventListHeader } from './EventListHeader';
+export { EventsFilters } from './EventsFilters';
+export * from './EventFilters';
+export * from './EventsView';
 

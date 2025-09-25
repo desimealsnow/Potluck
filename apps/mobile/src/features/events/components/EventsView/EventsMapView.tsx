@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, Pressable, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Icon } from '@/components/ui/Icon';
-
-type MapPoint = { id: string; lat: number; lon: number; title?: string };
+import type { MapPoint } from '@/features/events/types/ui';
 
 type Props = {
   mapPoints: MapPoint[];
