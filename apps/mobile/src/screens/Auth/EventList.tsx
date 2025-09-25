@@ -22,7 +22,7 @@ import { EventCard } from "@/features/events/components/EventCard";
 import Header from "../../components/Header";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { EventsHeaderBar } from '@/features/events/components/EventsHeaderBar';
+import EventListHeader from '@/features/events/components/EventListHeader';
 import EventDetailsPage from "./EventDetailsPage";
 import CreateEventScreen from "./CreateEvent";
 import PlansScreen from "./PlansScreen";
@@ -862,7 +862,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           {/* Right Section - Events */}
           <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
             {/* Events Section Header */}
-            <EventsHeaderBar
+            <EventListHeader
               total={data.length}
               loading={loading}
               isMobile={isMobile}
