@@ -14,10 +14,13 @@ import {
   Share,
 } from "react-native";
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon, Segmented, ProgressBar } from "@/components";
 import Header from "@/components/Header";
-import { gradients } from "@/theme";
+import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
 import {  RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
@@ -586,7 +589,7 @@ export default function EventDetailsPage({
     }
   };
 
-  const gradient = useMemo(() => gradients.header.event, []);
+  const gradient = useMemo(() => vibrantTheme.gradients.header.event, []);
   // Item library sheet state for Items tab
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -630,7 +633,9 @@ export default function EventDetailsPage({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#351657' }]}>
+    <LinearGradient 
+      colors={vibrantTheme.gradients.card.subtle}
+      style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <Header
           onNotifications={() => {}}
@@ -745,7 +750,7 @@ export default function EventDetailsPage({
         excludeCatalogIds={[...(Array.isArray(items) ? items : []).map(i => i.catalog_item_id!).filter(Boolean)]}
         excludeUserItemIds={[...(Array.isArray(items) ? items : []).map(i => i.user_item_id!).filter(Boolean)]}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -762,7 +767,9 @@ function TopBar({
   onShare?: () => void;
 }) {
   return (
-    <View style={[styles.topBar, { backgroundColor: '#351657' }]}> 
+    <LinearGradient 
+      colors={vibrantTheme.gradients.header.primary}
+      style={styles.topBar}> 
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Pressable onPress={onBack} style={styles.topBarButton}>
           <Icon name="ChevronLeft" size={20} color="#ffffff" />
@@ -778,7 +785,7 @@ function TopBar({
           <Icon name="Share2" size={20} color="#ffffff" />
         </Pressable>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -1476,7 +1483,7 @@ const styles = StyleSheet.create({
   },
   eventHeader: {
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.05)',
     padding: 16,
@@ -1554,7 +1561,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.05)',
     padding: 16,
@@ -1612,7 +1619,7 @@ const styles = StyleSheet.create({
     height: 8,
     width: '100%',
     borderRadius: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: vibrantTheme.colors.border.light,
   },
   progressBar: {
     height: 8,
@@ -1628,7 +1635,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     borderRadius: 20,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: vibrantTheme.colors.border.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1698,7 +1705,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   rsvpButtonAccepted: {
-    backgroundColor: '#16a34a',
+    backgroundColor: vibrantTheme.colors.state.success,
     borderColor: 'transparent',
   },
   rsvpButtonAcceptedInactive: {
@@ -1706,7 +1713,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(22, 163, 74, 0.4)',
   },
   rsvpButtonDeclined: {
-    backgroundColor: '#dc2626',
+    backgroundColor: vibrantTheme.colors.state.error,
     borderColor: 'transparent',
   },
   rsvpButtonDeclinedInactive: {
@@ -1734,7 +1741,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     padding: 12,
     fontSize: 14,
     minHeight: 80,
@@ -1818,11 +1825,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   claimButtonActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   claimButtonComplete: {
-    backgroundColor: '#16a34a',
+    backgroundColor: vibrantTheme.colors.state.success,
     borderColor: 'transparent',
   },
   claimButtonText: {
@@ -1846,7 +1853,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: vibrantTheme.colors.border.light,
   },
   qtyBtnText: {
     fontSize: 16,
@@ -1856,7 +1863,7 @@ const styles = StyleSheet.create({
   progress: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: vibrantTheme.colors.border.light,
     overflow: 'hidden',
   },
   progressFill: {
@@ -1880,7 +1887,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
   },
   filterButtonText: {
     fontSize: 14,
@@ -1894,7 +1901,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#2563eb',
+    backgroundColor: vibrantTheme.colors.secondary.blue,
     marginLeft: 'auto',
   },
   inviteButtonText: {
@@ -1904,7 +1911,7 @@ const styles = StyleSheet.create({
   },
   participantCard: {
     borderRadius: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.05)',
     padding: 12,
@@ -1957,7 +1964,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: vibrantTheme.colors.background.card,
     borderRadius: 12,
     padding: 24,
     minWidth: 280,
@@ -1991,11 +1998,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
-    backgroundColor: '#2563eb',
+    backgroundColor: vibrantTheme.colors.secondary.blue,
     minWidth: 60,
   },
   modalButtonDestructive: {
-    backgroundColor: '#dc2626',
+    backgroundColor: vibrantTheme.colors.state.error,
   },
   modalButtonCancel: {
     backgroundColor: '#6b7280',
@@ -2046,7 +2053,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#A22AD0",
+    backgroundColor: vibrantTheme.colors.primary.main,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
@@ -2105,7 +2112,7 @@ const styles = StyleSheet.create({
   catalogButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#A22AD0",
+    backgroundColor: vibrantTheme.colors.primary.main,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,

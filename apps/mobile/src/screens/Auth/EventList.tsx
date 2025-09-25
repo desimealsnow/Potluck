@@ -18,7 +18,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
-import { EventCard } from "@/features/events/components/EventCard";
+import { EventCardEnhanced } from "@/features/events/components/EventCardEnhanced";
+import { SmoothEventList } from "@/features/events/components/SmoothEventList";
 import Header from "../../components/Header";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -41,9 +42,10 @@ import InvoicesScreen from "./InvoicesScreen";
 import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import {  FilterBottomSheet,  Segmented } from "@/components";
-import { gradients } from "@/theme";
+import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
 import { EventsFilters } from "@/features/events/components/EventsFilters";
-import { TabContent as FeatureTabContent } from "@/features/events/components/TabContent";
+import { TabContentVibrant } from "@/features/events/components/TabContentVibrant";
 import * as Notifications from 'expo-notifications';
 import type { 
   Diet, 
@@ -61,7 +63,8 @@ import type {
  */
 
 // Constants
-const PAGE_PADDING = 16;
+const responsive = getResponsiveStyles();
+const PAGE_PADDING = responsive.containerPadding;
 
 /* --------------------- Config --------------------- */
 const PAGE_SIZE = 10;
@@ -286,7 +289,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   }, []);
 
   const bgGradient = useMemo(
-    () => gradients.header.event,
+    () => vibrantTheme.gradients.header.event,
     []
   );
 
@@ -912,7 +915,10 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
 
             {/* Status selector: Top Tabs on mobile, segmented on larger screens */}
             {isMobile ? (
-              <View style={{ flex: 1, backgroundColor: '#351657' }} testID="status-filter-container">
+              <LinearGradient 
+                colors={vibrantTheme.gradients.card.subtle}
+                style={{ flex: 1 }} 
+                testID="status-filter-container">
                 <MobileTabs.Navigator
                   initialLayout={{ width }}
                   screenOptions={{
@@ -920,7 +926,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     swipeEnabled: true,
                     tabBarScrollEnabled: true,
                     tabBarItemStyle: { width: 'auto' },
-                    tabBarStyle: { backgroundColor: '#351657' },
+                    tabBarStyle: { backgroundColor: vibrantTheme.colors.background.primary },
                     tabBarIndicatorStyle: { backgroundColor: '#fff' },
                     tabBarLabelStyle: { color: '#fff', fontWeight: '700', textTransform: 'none' },
                   }}
@@ -935,24 +941,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <FeatureTabContent
-                      tabKey="upcoming"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
+                    <SmoothEventList
                       data={data}
+                      loading={loading}
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
                       getEventActions={getEventActions}
+                      searchQuery={query}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -964,24 +961,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <FeatureTabContent
-                      tabKey="drafts"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
+                    <SmoothEventList
                       data={data}
+                      loading={loading}
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
                       getEventActions={getEventActions}
+                      searchQuery={query}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -993,24 +981,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <FeatureTabContent
-                      tabKey="past"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
+                    <SmoothEventList
                       data={data}
+                      loading={loading}
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
                       getEventActions={getEventActions}
+                      searchQuery={query}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -1022,24 +1001,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <FeatureTabContent
-                      tabKey="deleted"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
+                    <SmoothEventList
                       data={data}
+                      loading={loading}
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
                       getEventActions={getEventActions}
+                      searchQuery={query}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -1051,7 +1021,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <FeatureTabContent
+                    <TabContentVibrant
                       tabKey="pending-approval"
                       statusTab={statusTab}
                       setStatusTab={setStatusTab}
@@ -1072,7 +1042,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                     />
                   )} />
                 </MobileTabs.Navigator>
-              </View>
+              </LinearGradient>
             ) : (
               <View style={[styles.segmentWrap]} testID="status-filter-container">
                 <Segmented
@@ -1224,7 +1194,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             )
           }
           renderItem={({ item }) => (
-            <EventCard 
+            <EventCardEnhanced 
               item={item} 
               onPress={() => handleEventPress(item.id)} 
               actions={getEventActions(item)}
@@ -1291,9 +1261,9 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     width: 280,
-    backgroundColor: "#351657",
+    backgroundColor: vibrantTheme.colors.background.primary,
     borderRightWidth: 1,
-    borderRightColor: "rgba(255,255,255,0.1)",
+    borderRightColor: vibrantTheme.colors.border.light,
   },
   sidebarHidden: {
     width: 0,
@@ -1306,29 +1276,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: vibrantTheme.colors.border.light,
   },
   sidebarTitle: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 18,
     fontWeight: "700",
   },
   filterToggle: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: vibrantTheme.colors.primary.light,
   },
   filterContent: {
     padding: 8,
   },
   filterSection: {
     marginBottom: 16,
-    backgroundColor: "#373244",
+    backgroundColor: vibrantTheme.colors.background.card,
     borderRadius: 12,
     padding: 16,
   },
   filterSectionTitle: {
-    color: "rgba(255,255,255,0.8)",
+    color: vibrantTheme.colors.text.secondary,
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 12,
@@ -1340,7 +1310,7 @@ const styles = StyleSheet.create({
   },
   eventsSection: {
     flex: 1,
-    backgroundColor: "#351657",
+    backgroundColor: vibrantTheme.colors.background.primary,
   },
   eventsSectionMobile: {
     width: "100%", // Full width on mobile when no sidebar
@@ -1352,18 +1322,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
+    borderBottomColor: vibrantTheme.colors.border.light,
   },
   eventsHeaderLeft: {
     flex: 1,
   },
   eventsTitle: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 20,
     fontWeight: "700",
   },
   eventsSubtitle: {
-    color: "rgba(255,255,255,0.7)",
+    color: vibrantTheme.colors.text.muted,
     fontSize: 14,
     marginTop: 2,
   },
@@ -1374,13 +1344,13 @@ const styles = StyleSheet.create({
   createEventButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: vibrantTheme.colors.primary.main,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
   },
   createEventButtonText: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 6,
@@ -1389,14 +1359,14 @@ const styles = StyleSheet.create({
   filterToggleButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: vibrantTheme.colors.primary.light,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     marginRight: 8,
   },
   filterToggleText: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 8,
@@ -1411,7 +1381,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   filterBadgeText: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 10,
     fontWeight: "700",
   },
@@ -1474,7 +1444,7 @@ const styles = StyleSheet.create({
   },
   searchInput: { 
     flex: 1, 
-    color: "#fff", 
+    color: vibrantTheme.colors.text.primary, 
     fontSize: 16,
     fontWeight: "500",
     paddingVertical: 0,
@@ -1488,13 +1458,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: vibrantTheme.colors.primary.light,
     borderRadius: 8,
     borderLeftWidth: 3,
     borderLeftColor: "#7b2ff7",
   },
   searchResultsText: {
-    color: "rgba(255,255,255,0.8)",
+    color: vibrantTheme.colors.text.secondary,
     fontSize: 14,
     fontWeight: "500",
   },
@@ -1545,23 +1515,23 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     paddingVertical: 40,
     paddingHorizontal: 32,
-    backgroundColor: "#351657",
+    backgroundColor: vibrantTheme.colors.background.primary,
   },
   loadingText: {
-    color: "rgba(255,255,255,0.8)",
+    color: vibrantTheme.colors.text.secondary,
     fontSize: 16,
     marginTop: 12,
     fontWeight: "500",
   },
   noResultsTitle: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 20,
     fontWeight: "700",
     marginTop: 16,
     textAlign: "center",
   },
   noResultsText: {
-    color: "rgba(255,255,255,0.7)",
+    color: vibrantTheme.colors.text.muted,
     fontSize: 14,
     marginTop: 8,
     textAlign: "center",
@@ -1571,25 +1541,25 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: vibrantTheme.colors.primary.main,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
+    borderColor: vibrantTheme.colors.border.medium,
   },
   clearSearchButtonText: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 14,
     fontWeight: "600",
   },
   emptyTitle: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 20,
     fontWeight: "700",
     marginTop: 16,
     textAlign: "center",
   },
   emptyText: {
-    color: "rgba(255,255,255,0.7)",
+    color: vibrantTheme.colors.text.muted,
     fontSize: 14,
     marginTop: 8,
     textAlign: "center",
@@ -1620,7 +1590,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   actionButtonText: {
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
     fontSize: 12,
     fontWeight: "700",
   },
