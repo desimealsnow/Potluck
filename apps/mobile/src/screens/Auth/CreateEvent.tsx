@@ -12,7 +12,7 @@ import { apiClient } from "@/services/apiClient";
 import { Card, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from "@/components";
 import { Input } from "@/components/ui/Input";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
-import { gradients } from "@/theme";
+import { vibrantTheme } from "@/theme/vibrant-theme";
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import type { 
   MealType, 
@@ -91,7 +91,7 @@ export default function CreateEventScreen({
   const canNextFromLocation = !!selectedLoc;
 
   const headerGradient = useMemo(
-    () => gradients.header.event,
+    () => vibrantTheme.gradients.header.primary,
     []
   );
 
@@ -229,7 +229,9 @@ export default function CreateEventScreen({
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#351657' }}>
+    <LinearGradient 
+      colors={vibrantTheme.gradients.card.subtle}
+      style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Header Component */}
             <Header
@@ -242,7 +244,10 @@ export default function CreateEventScreen({
             />
         
         {/* Top bar */}
-        <View style={[styles.topBar, { backgroundColor: '#351657' }]} testID="create-event-header">
+        <LinearGradient 
+          colors={vibrantTheme.gradients.header.primary}
+          style={styles.topBar} 
+          testID="create-event-header">
           <View style={styles.topLeft}>
             {onBack && (
               <Pressable onPress={onBack} style={{ marginRight: 8 }} hitSlop={10} testID="back-button">
@@ -255,7 +260,7 @@ export default function CreateEventScreen({
           <Pressable onPress={onBack} style={styles.cancelButton} testID="cancel-button">
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </Pressable>
-        </View>
+        </LinearGradient>
 
         {/* Stepper */}
         <Stepper step={step} />
@@ -789,7 +794,7 @@ function EventInput({ style, ...props }: any) {
       borderRadius: 14,
       borderWidth: 1,
       borderColor: '#E5E7EB',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: vibrantTheme.colors.background.card,
       flexDirection: 'row',
       alignItems: 'center',
       paddingRight: 8,
@@ -871,7 +876,7 @@ function ParticipantPlanningInput({
           ))}
         </View>
       )}
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -926,7 +931,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 16, fontWeight: "900", color: "#A22AD0" },
 
   label: { fontWeight: "800", color: "#3C3C3C", marginBottom: 6, marginTop: 6 },
-  inputWrap: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)", backgroundColor: "#fff", flexDirection: "row", alignItems: "center", paddingRight: 8, paddingLeft: 0, overflow: "hidden" },
+  inputWrap: { height: 48, borderRadius: 14, borderWidth: 1, borderColor: vibrantTheme.colors.border.light, backgroundColor: vibrantTheme.colors.background.card, flexDirection: "row", alignItems: "center", paddingRight: 8, paddingLeft: 0, overflow: "hidden" },
   inputWrapMultiline: { height: 80, alignItems: "flex-start", paddingTop: 8 },
   inputIcon: { width: 40, alignItems: "center", justifyContent: "center" },
   input: { flex: 1, paddingHorizontal: 6, fontSize: 15, color: "#1a1a1a" },
@@ -937,7 +942,7 @@ const styles = StyleSheet.create({
 
   foodRow: { flexDirection: "row", gap: 12, marginTop: 8 },
   foodOption: { flex: 1, height: 64, borderRadius: 16, borderWidth: 1, borderColor: "rgba(0,0,0,0.12)", backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center" },
-  foodOptionActive: { backgroundColor: "#1BAC55", borderColor: "transparent" },
+  foodOptionActive: { backgroundColor: vibrantTheme.colors.state.success, borderColor: "transparent" },
   foodLabel: { marginTop: 6, fontWeight: "800", color: "#585858" },
 
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
@@ -958,7 +963,7 @@ const styles = StyleSheet.create({
 
   segmented: { flexDirection: "row", backgroundColor: "rgba(0,0,0,0.05)", padding: 4, borderRadius: 12 },
   segment: { flex: 1, borderRadius: 8, height: 38, alignItems: "center", justifyContent: "center" },
-  segmentActive: { backgroundColor: "#fff", borderWidth: 1, borderColor: "rgba(0,0,0,0.08)" },
+  segmentActive: { backgroundColor: vibrantTheme.colors.background.card, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)" },
   segmentText: { fontWeight: "700", color: "#7A3D7A" },
   segmentTextActive: { fontWeight: "900", color: "#5A2A8C" },
 
@@ -966,7 +971,7 @@ const styles = StyleSheet.create({
   rowLeft: { color: "#3b3b3b", fontWeight: "700" },
   rowRight: { fontWeight: "900", color: "#5A2A8C" },
 
-  addBtn: { backgroundColor: "#9C5CFF", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
+  addBtn: { backgroundColor: vibrantTheme.colors.secondary.purple, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
 
   inviteRow: {
     borderWidth: 1, borderColor: "rgba(0,0,0,0.1)", backgroundColor: "#fff",
@@ -984,7 +989,7 @@ const styles = StyleSheet.create({
 
   ghostBtn: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "rgba(255,255,255,0.9)", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(0,0,0,0.12)" },
   ghostText: { fontWeight: "800", color: "#6B6B6B" },
-  cta: { flex: 1, height: 44, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#FF5630" },
+  cta: { flex: 1, height: 44, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: vibrantTheme.colors.primary.main },
   ctaText: { color: "#fff", fontWeight: "900", fontSize: 16 },
   
   // Responsive container to center content on wide layouts (web/tablet)

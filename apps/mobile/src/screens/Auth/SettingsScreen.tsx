@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
 import Header from "@/components/Header";
-import { useTheme } from "@/theme";
+import { vibrantTheme } from "@/theme/vibrant-theme";
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
 import type { User } from "@supabase/supabase-js";
@@ -54,13 +54,12 @@ export default function SettingsScreen({
   onShowPrivacy?: () => void;
   onShowHelp?: () => void;
 }) {
-  const { mode, setMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
   const gradient = useMemo(
-    () => ["#7b2ff7", "#ff2d91", "#ff8a8a"] as const, // purple → hot pink → soft coral
+    () => vibrantTheme.gradients.header.primary,
     []
   );
 
@@ -208,7 +207,9 @@ export default function SettingsScreen({
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#351657' }}>
+    <LinearGradient 
+      colors={vibrantTheme.gradients.card.subtle}
+      style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1 }}>
         {/* Header Component */}
             <Header
@@ -221,13 +222,15 @@ export default function SettingsScreen({
             />
         
         {/* Top bar */}
-        <View style={[styles.topBar, { backgroundColor: '#351657' }]}>
+        <LinearGradient 
+          colors={vibrantTheme.gradients.header.primary}
+          style={styles.topBar}>
           <Pressable onPress={onBack} style={styles.iconBtn}>
             <Icon name="ChevronLeft" size={20} color="#fff" />
           </Pressable>
           <Text style={styles.title}>Settings</Text>
           <View style={{ width: 40 }} />
-        </View>
+        </LinearGradient>
 
         {/* Content */}
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -290,7 +293,7 @@ export default function SettingsScreen({
           </View>
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -300,7 +303,7 @@ function SettingsItemComponent({ item }: { item: SettingsItem }) {
     <Pressable onPress={item.onPress} style={styles.settingsItem}>
       <View style={styles.settingsItemLeft}>
         <View style={[styles.iconContainer, item.danger && styles.dangerIcon]}>
-          <Icon name={item.icon as any} size={20} color={item.danger ? "#ef4444" : "#7b2ff7"} />
+          <Icon name={item.icon as any} size={20} color={item.danger ? vibrantTheme.colors.state.error : vibrantTheme.colors.primary.main} />
         </View>
         <View style={styles.settingsItemText}>
           <Text style={[styles.settingsItemTitle, item.danger && styles.dangerText]}>
@@ -333,12 +336,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: vibrantTheme.colors.primary.light,
   },
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#fff",
+    color: vibrantTheme.colors.text.primary,
   },
   scroll: {
     flex: 1,
@@ -350,7 +353,7 @@ const styles = StyleSheet.create({
   profileCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: vibrantTheme.colors.background.card,
     padding: 20,
     borderRadius: 16,
     marginBottom: 8,
@@ -363,7 +366,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#7b2ff7",
+    backgroundColor: vibrantTheme.colors.primary.main,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -385,7 +388,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: vibrantTheme.colors.background.card,
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
@@ -403,13 +406,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(123, 47, 247, 0.1)",
+    backgroundColor: vibrantTheme.colors.secondary.purple + '22',
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   dangerIcon: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    backgroundColor: vibrantTheme.colors.state.error + '22',
   },
   settingsItemText: {
     flex: 1,
@@ -456,7 +459,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   mealPreferenceTag: {
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: vibrantTheme.colors.primary.light,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
