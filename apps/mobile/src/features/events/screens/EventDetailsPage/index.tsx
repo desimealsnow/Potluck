@@ -1,4 +1,2 @@
-import React from 'react';
-export default function EventDetailsPage() {
-  return null;
-}
+import EventDetailsPage from '../../../../screens/Auth/EventDetailsPage';
+export default EventDetailsPage;
