@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Icon } from '@/components/ui/Icon';
+import { Icon } from '@/ui/Icon';
 
 export type EventsHeaderBarProps = {
   total: number;

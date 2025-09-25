@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { View, Text, ActivityIndicator, Alert, Linking, Pressable, FlatList, RefreshControl } from 'react-native';
-import { Icon } from '@/components/ui/Icon';
+import { Icon } from '@/ui/Icon';
 import type { EventItem, EventStatusMobile, Ownership } from '@common/types';
-import { EventCard } from './EventCard';
+import { EventCard } from '@/events/components/EventCard';
 
 export type TabContentProps = {
   tabKey: EventStatusMobile | 'pending-approval';

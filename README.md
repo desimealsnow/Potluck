@@ -39,6 +39,43 @@ A comprehensive event management platform built with React Native (Expo) and Nod
 - **Location Services**: Expo Location with OpenStreetMap Nominatim API
 - **Push Notifications**: Expo Notifications for real-time alerts
 
+### Project Structure
+```
+apps/mobile/
+├── src/
+│   ├── core/                    # Core application logic
+│   │   ├── config/             # Configuration files (Supabase, etc.)
+│   │   └── navigation/          # Navigation setup
+│   ├── features/               # Feature-based modules
+│   │   ├── auth/               # Authentication screens & logic
+│   │   ├── events/             # Event management
+│   │   ├── payments/           # Subscription & billing
+│   │   ├── profile/            # User profile management
+│   │   ├── notifications/      # Notification handling
+│   │   └── debug/              # Debug utilities
+│   ├── shared/                 # Shared components & utilities
+│   │   ├── components/         # Reusable UI components
+│   │   │   ├── ui/             # Basic UI components
+│   │   │   ├── forms/          # Form components
+│   │   │   └── layout/         # Layout components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── utils/              # Utility functions
+│   │   ├── services/           # API services
+│   │   └── types/              # TypeScript type definitions
+│   └── assets/                 # Static assets
+├── tsconfig.json               # TypeScript configuration with path mappings
+├── metro.config.js            # Metro bundler configuration
+├── babel.config.js            # Babel transpilation configuration
+└── package.json               # Dependencies and scripts
+```
+
+### Absolute Imports System
+The project uses a comprehensive absolute import system that enables:
+- **Drag-and-drop file movement**: Move files between directories by updating only configuration files
+- **No barrel exports**: Direct file imports without index.ts barrel files
+- **Feature-based organization**: Clear separation of concerns by feature
+- **TypeScript support**: Full IntelliSense and type checking for all aliases
+
 ### Database Schema
 - **Events**: Event management with capacity and public/private settings
 - **User Profiles**: Enhanced profiles with meal preferences and setup completion tracking
@@ -46,7 +83,15 @@ A comprehensive event management platform built with React Native (Expo) and Nod
 - **Join Requests**: Event discovery and join request workflow
 - **Subscriptions**: Billing and subscription management
 
-## 📱 Recent Updates (v2025-09-19)
+## 📱 Recent Updates (v2025-01-20)
+
+### Project Structure & Development Experience
+- ✅ **Absolute Imports**: Complete migration from relative to absolute imports across the entire codebase
+- ✅ **Feature-Based Architecture**: Reorganized code into feature-based structure (`src/features/`, `src/shared/`, `src/core/`)
+- ✅ **Drag-and-Drop Workflow**: Configured aliases to enable file movement with only config updates
+- ✅ **TypeScript Path Mapping**: Comprehensive path mappings in `tsconfig.json` for all features and shared components
+- ✅ **Metro & Babel Configuration**: Updated bundler configurations to support absolute imports
+- ✅ **ESLint Optimization**: Streamlined ESLint rules for React Native development
 
 ### User Profile & Settings Management
 - ✅ **Profile Setup Flow**: Multi-step onboarding with display name, location, and meal preferences

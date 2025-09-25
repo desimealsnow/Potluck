@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { FilterChip } from '@/components/ui/FilterChip';
-import { Segmented } from '@/components/ui/Segmented';
+import { FilterChip } from '@/ui/FilterChip';
+import { Segmented } from '@/ui/Segmented';
 import type { Diet, Ownership, EventStatusMobile } from '@common/types';
 
 export type EventsFiltersProps = {

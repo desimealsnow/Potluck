@@ -7,6 +7,7 @@
 ## 📚 Development Documentation
 
 ### **Core Development**
+- **[Project Structure & Imports](PROJECT_STRUCTURE_AND_IMPORTS.md)** - Absolute imports and project organization
 - **[NPM Package Management](NPM_PACKAGE_MANAGEMENT.md)** - Complete guide for creating, building, and publishing npm packages
 - **[NPM Quick Reference](NPM_QUICK_REFERENCE.md)** - Quick reference card for common NPM operations
 - **[TypeScript Configuration](typescript.md)** - TypeScript setup and best practices

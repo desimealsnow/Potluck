@@ -12,6 +12,41 @@ This document outlines all user flow paths and testing strategies for the Potluc
 - **UI Components**: Custom components + React Native Paper
 - **Navigation**: Screen-based navigation with state management
 - **Backend**: REST API at `http://localhost:3000/api/v1`
+- **Project Structure**: Feature-based organization with absolute imports
+- **Import System**: Drag-and-drop workflow with config-only updates
+
+### Project Structure
+```
+src/
+├── core/                    # Core application logic
+│   ├── config/             # Configuration files (Supabase, etc.)
+│   └── navigation/          # Navigation setup
+├── features/               # Feature-based modules
+│   ├── auth/               # Authentication screens & logic
+│   ├── events/             # Event management
+│   ├── payments/           # Subscription & billing
+│   ├── profile/            # User profile management
+│   ├── notifications/      # Notification handling
+│   └── debug/              # Debug utilities
+├── shared/                 # Shared components & utilities
+│   ├── components/         # Reusable UI components
+│   │   ├── ui/             # Basic UI components
+│   │   ├── forms/          # Form components
+│   │   └── layout/         # Layout components
+│   ├── hooks/              # Custom React hooks
+│   ├── utils/              # Utility functions
+│   ├── services/           # API services
+│   └── types/              # TypeScript type definitions
+└── assets/                 # Static assets
+```
+
+### Absolute Imports
+The app uses absolute imports for better organization and drag-and-drop file movement:
+- `@/features/*` - Feature-specific imports
+- `@/shared/*` - Shared components and utilities
+- `@/core/*` - Core application logic
+- `@/ui` - UI components
+- `@/config` - Configuration files
 
 ### Current Test Coverage
 - **Unit Tests**: Jest with React Native Testing Library

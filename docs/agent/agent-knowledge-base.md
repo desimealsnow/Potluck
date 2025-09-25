@@ -22,6 +22,14 @@
 ```
 apps/
 ├── mobile/          # React Native app (iOS/Android)
+│   ├── src/
+│   │   ├── core/           # Core application logic
+│   │   ├── features/       # Feature-based modules
+│   │   ├── shared/         # Shared components & utilities
+│   │   └── assets/         # Static assets
+│   ├── tsconfig.json       # TypeScript with absolute imports
+│   ├── metro.config.js     # Metro bundler configuration
+│   └── babel.config.js     # Babel transpilation config
 ├── server/          # Node.js API server
 └── web/            # Web dashboard (future)
 
@@ -32,6 +40,8 @@ packages/
 docs/
 ├── api-spec.yaml   # OpenAPI specification
 ├── architecture.md # System architecture
+├── development/    # Development guides
+│   └── PROJECT_STRUCTURE_AND_IMPORTS.md # Absolute imports guide
 └── agent-knowledge-base.md # This file
 
 .agent/
@@ -58,6 +68,7 @@ docs/
 - [Integrated Search](features/INTEGRATED_LOCATION_SEARCH_README.md) - Location-based search
 
 ### **Development Documentation**
+- [Project Structure & Imports](development/PROJECT_STRUCTURE_AND_IMPORTS.md) - Absolute imports and project organization
 - [Testing Guide](development/TESTING_README.md) - Testing strategies
 - [Mobile Setup](development/SUPABASE_SETUP.md) - Mobile app configuration
 - [Payment Testing](development/PAYMENT_TESTING_GUIDE.md) - Payment system testing
@@ -68,6 +79,13 @@ docs/
 - [Schema Validation](scripts/SCHEMA_VALIDATION_README.md) - Schema validation tools
 
 ## 🔧 Technical Details
+
+### **Mobile App Structure (NEW)**
+- **Architecture**: Feature-based organization with absolute imports
+- **Entry Point**: `apps/mobile/index.ts` → `App.tsx`
+- **Configuration**: TypeScript path mappings, Metro aliases, Babel module resolver
+- **Import System**: Drag-and-drop workflow with config-only updates
+- **Key Files**: `tsconfig.json`, `metro.config.js`, `babel.config.js`
 
 ### **Database Schema**
 - **Location**: `apps/server/db/schema.sql` (SQL) + `apps/server/db/schema.json` (JSON for agents)

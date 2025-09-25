@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
-import { Icon } from '@/components/ui/Icon';
+import { Icon } from '@/ui/Icon';
 import { gradients } from '@/theme';
 import { formatDateTimeRange } from '@/utils/dateUtils';
 import type { EventItem, Attendee, Diet } from '@common/types';
