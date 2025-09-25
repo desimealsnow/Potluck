@@ -13,6 +13,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Icon } from "@/components";
 import Header from "@/components/Header";
 import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
+import { BlurView } from 'expo-blur';
 import { supabase } from "../../config/supabaseClient";
 import { apiClient } from "../../services/apiClient";
 import type { User } from "@supabase/supabase-js";
@@ -58,6 +60,7 @@ export default function SettingsScreen({
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
+  const responsive = getResponsiveStyles();
   const gradient = useMemo(
     () => vibrantTheme.gradients.header.primary,
     []

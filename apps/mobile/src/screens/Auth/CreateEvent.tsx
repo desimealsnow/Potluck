@@ -13,6 +13,9 @@ import { Card, Label, Button, Chip, Badge, Segmented, FoodOption, Stepper } from
 import { Input } from "@/components/ui/Input";
 import { formatDate, formatTime, combineDateTime } from "@/utils/dateUtils";
 import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
+import { BlurView } from 'expo-blur';
+import { Image } from 'expo-image';
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import type { 
   MealType, 

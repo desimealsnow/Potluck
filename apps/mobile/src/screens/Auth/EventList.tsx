@@ -18,7 +18,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
-import { EventCardVibrant } from "@/features/events/components/EventCardVibrant";
+import { EventCardEnhanced } from "@/features/events/components/EventCardEnhanced";
+import { SmoothEventList } from "@/features/events/components/SmoothEventList";
 import Header from "../../components/Header";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -42,6 +43,7 @@ import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import {  FilterBottomSheet,  Segmented } from "@/components";
 import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
 import { EventsFilters } from "@/features/events/components/EventsFilters";
 import { TabContentVibrant } from "@/features/events/components/TabContentVibrant";
 import * as Notifications from 'expo-notifications';
@@ -61,7 +63,8 @@ import type {
  */
 
 // Constants
-const PAGE_PADDING = 16;
+const responsive = getResponsiveStyles();
+const PAGE_PADDING = responsive.containerPadding;
 
 /* --------------------- Config --------------------- */
 const PAGE_SIZE = 10;
@@ -938,24 +941,15 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
-                    <TabContentVibrant
-                      tabKey="upcoming"
-                      statusTab={statusTab}
-                      setStatusTab={setStatusTab}
-                      reloadWith={reloadWith}
-                      loadingPending={loadingPending}
-                      pendingApprovals={pendingApprovals}
-                      mapMode={mapMode}
-                      mapPoints={mapPoints}
-                      handleEventPress={handleEventPress}
-                      loading={loading}
-                      query={query}
+                    <SmoothEventList
                       data={data}
+                      loading={loading}
                       refreshing={refreshing}
                       onRefresh={onRefresh}
-                      loadMore={loadMore}
-                      endReachedOnce={endReachedOnce}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
                       getEventActions={getEventActions}
+                      searchQuery={query}
                     />
                   )} />
                   <MobileTabs.Screen 
@@ -967,6 +961,18 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
+                    <SmoothEventList
+                      data={data}
+                      loading={loading}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
+                      getEventActions={getEventActions}
+                      searchQuery={query}
+                    />
+                  )} />
+                  {/* OLD CODE
                     <TabContentVibrant
                       tabKey="drafts"
                       statusTab={statusTab}
@@ -996,6 +1002,18 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
+                    <SmoothEventList
+                      data={data}
+                      loading={loading}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
+                      getEventActions={getEventActions}
+                      searchQuery={query}
+                    />
+                  )} />
+                  {/* OLD CODE
                     <TabContentVibrant
                       tabKey="past"
                       statusTab={statusTab}
@@ -1025,6 +1043,18 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                       }
                     }}
                     children={() => (
+                    <SmoothEventList
+                      data={data}
+                      loading={loading}
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      onLoadMore={loadMore}
+                      onEventPress={handleEventPress}
+                      getEventActions={getEventActions}
+                      searchQuery={query}
+                    />
+                  )} />
+                  {/* OLD CODE
                     <TabContentVibrant
                       tabKey="deleted"
                       statusTab={statusTab}

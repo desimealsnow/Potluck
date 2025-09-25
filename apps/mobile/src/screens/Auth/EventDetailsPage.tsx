@@ -15,10 +15,12 @@ import {
 } from "react-native";
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon, Segmented, ProgressBar } from "@/components";
 import Header from "@/components/Header";
 import { vibrantTheme } from "@/theme/vibrant-theme";
+import { rw, rh, rf, rs, getResponsiveStyles, isTablet } from "@/utils/responsive";
 import ItemLibrarySheet from "@/components/items/ItemLibrarySheet";
 import ParticipantsScreen from "./Participants";
 import {  RequestToJoinButton, JoinRequestsManager } from '../../components/joinRequests';
