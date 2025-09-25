@@ -42,7 +42,7 @@ import MyJoinRequestsScreen from "./MyJoinRequestsScreen";
 import { apiClient } from "@/services/apiClient";
 import {  FilterBottomSheet,  Segmented } from "@/components";
 import { gradients } from "@/theme";
-import { EventsFilters } from "@/features/events/components/EventsFilters";
+import { EventsFilters } from "@/features/events/components";
 import { TabContent as FeatureTabContent } from "@/features/events/components/TabContent";
 import * as Notifications from 'expo-notifications';
 import type { 
