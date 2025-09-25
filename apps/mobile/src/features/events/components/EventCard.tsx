@@ -5,6 +5,9 @@ import { gradients } from '@/theme';
 import { formatDateTimeRange } from '@/utils/dateUtils';
 import type { EventItem, Attendee, Diet } from '@common/types';
 
+/**
+ * Renders a dietary tag based on the provided diet type.
+ */
 function DietTag({ diet }: { diet: Diet }) {
   const map = {
     veg: { bg: '#22C55E', fg: '#062E16', label: 'veg' },
@@ -19,6 +22,15 @@ function DietTag({ diet }: { diet: Diet }) {
   );
 }
 
+/**
+ * Renders a status pill component based on the provided status.
+ *
+ * The function determines the appropriate color, text color, and icon for the status pill by evaluating the status parameter. It then returns a styled View component containing an icon and the status text, with optional testID for testing purposes.
+ *
+ * @param status - The status of the pill, which can be 'active', 'cancelled', 'draft', 'deleted', or 'past'.
+ * @param testID - An optional string used for testing purposes to identify the component.
+ * @returns A JSX element representing the status pill.
+ */
 function StatusPill({ status, testID }: { status: 'active' | 'cancelled' | 'draft' | 'deleted' | 'past'; testID?: string }) {
   const config = (() => {
     switch (status) {
@@ -44,6 +56,9 @@ function StatusPill({ status, testID }: { status: 'active' | 'cancelled' | 'draf
   );
 }
 
+/**
+ * Renders a row of avatar icons for the given attendees, with an optional extra count.
+ */
 function Avatars({ people, extra }: { people: Attendee[]; extra?: number }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -78,6 +93,19 @@ export type EventCardProps = {
   testID?: string;
 };
 
+/**
+ * Renders an event card with details and actions for a specific event.
+ *
+ * The function formats the event date and determines the role of the user (host or guest) based on ownership.
+ * It displays the event title, date, venue, attendee count, and any associated actions.
+ * Each action can trigger a handler while preventing event propagation.
+ *
+ * @param {Object} props - The properties for the event card.
+ * @param {Object} props.item - The event item containing details like title, date, venue, and attendees.
+ * @param {Function} props.onPress - The function to call when the card is pressed.
+ * @param {Array} [props.actions] - An optional array of action objects to display on the card.
+ * @param {string} [props.testID] - An optional test ID for testing purposes.
+ */
 function EventCardBase({ item, onPress, actions = [], testID }: EventCardProps) {
   const dateLabel = formatDateTimeRange(new Date(item.date), item.time ? new Date(item.time) : undefined);
   const roleLabel = item.ownership === 'mine' ? 'host' : 'guest';
