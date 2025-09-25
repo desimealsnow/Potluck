@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { FilterChip } from '@/components/ui/FilterChip';
 import { Segmented } from '@/components/ui/Segmented';
+import { SegmentedStatus } from './EventFilters/StatusFilter/SegmentedStatus';
+import { OwnershipChips } from './EventFilters/OwnershipFilter/OwnershipChips';
+import { DietChips } from './EventFilters/DietFilter/DietChips';
 import type { Diet, Ownership, EventStatusMobile } from '@common/types';
 
 export type EventsFiltersProps = {
@@ -23,33 +26,16 @@ export function EventsFilters({ ownership, setOwnership, dietFilters, toggleDiet
       {isTablet && (
         <View style={{ marginBottom: 16, backgroundColor: '#373244', borderRadius: 12, padding: 16 }}>
           <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '600', marginBottom: 12 }}>Status</Text>
-          <Segmented
-            value={statusTab}
-            onChange={(v: string) => onStatusChange(v as EventStatusMobile)}
-            options={[{ key: 'upcoming', label: 'Upcoming' }, { key: 'past', label: 'Past' }, { key: 'drafts', label: 'Drafts' }]}
-            testID="status-segmented"
-          />
+          <SegmentedStatus value={statusTab} onChange={onStatusChange} testID="status-segmented" />
         </View>
       )}
       <View style={{ marginBottom: 16, backgroundColor: '#373244', borderRadius: 12, padding: 16 }}>
         <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '600', marginBottom: 12 }}>Ownership</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {(['all', 'mine', 'invited'] as Ownership[]).map(key => (
-            <FilterChip key={key} selected={ownership === key} onPress={() => { setOwnership(key); reload(); }} testID={`ownership-${key}`}>
-              <Text style={{ color: '#fff' }}>{key === 'all' ? 'All Events' : key === 'mine' ? 'My Events' : 'Invited Events'}</Text>
-            </FilterChip>
-          ))}
-        </View>
+        <OwnershipChips ownership={ownership} setOwnership={setOwnership} reload={reload} />
       </View>
       <View style={{ marginBottom: 16, backgroundColor: '#373244', borderRadius: 12, padding: 16 }}>
         <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '600', marginBottom: 12 }}>Dietary Preferences</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {(['veg', 'nonveg', 'mixed'] as Diet[]).map(diet => (
-            <FilterChip key={diet} selected={dietFilters.includes(diet)} onPress={() => { toggleDiet(diet); reload(); }} testID={`diet-${diet}`}>
-              <Text style={{ color: '#fff' }}>{diet === 'veg' ? 'Veg' : diet === 'nonveg' ? 'Non-veg' : 'Mixed'}</Text>
-            </FilterChip>
-          ))}
-        </View>
+        <DietChips dietFilters={dietFilters} toggleDiet={toggleDiet} reload={reload} />
       </View>
       <View style={{ marginBottom: 16, backgroundColor: '#373244', borderRadius: 12, padding: 16 }}>
         <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '600', marginBottom: 12 }}>Location</Text>
