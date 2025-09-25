@@ -17,6 +17,23 @@ export type EventsFiltersProps = {
   reload: () => void;
 };
 
+/**
+ * Renders a set of filters for event selection based on ownership, dietary preferences, and location.
+ *
+ * The function displays segmented controls for event status, filter chips for ownership and dietary preferences,
+ * and a toggle for nearby events. It updates the state and reloads the data when filters are changed.
+ *
+ * @param ownership - The current ownership filter value.
+ * @param setOwnership - Function to update the ownership filter.
+ * @param dietFilters - An array of selected dietary preferences.
+ * @param toggleDiet - Function to toggle a dietary preference.
+ * @param statusTab - The current selected status tab.
+ * @param onStatusChange - Function to handle changes in the status tab.
+ * @param useNearby - Boolean indicating if nearby events should be shown.
+ * @param setUseNearby - Function to toggle the nearby events filter.
+ * @param isTablet - Boolean indicating if the device is a tablet.
+ * @param reload - Function to reload the event data.
+ */
 export function EventsFilters({ ownership, setOwnership, dietFilters, toggleDiet, statusTab, onStatusChange, useNearby, setUseNearby, isTablet, reload }: EventsFiltersProps) {
   return (
     <View style={{ padding: 8 }}>
