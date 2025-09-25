@@ -562,19 +562,17 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
   };
 
   // Get available actions for an event based on status and ownership (moved to lib)
-  const getEventActions = (item: EventItem) => {
-    const { getEventActions: compute } = require('@/features/events/lib/getEventActions');
-    return compute(item, {
-      ownershipFilter: ownership,
-      pendingActionKey,
-      requestConfirmThenRun,
-      onPublish: handlePublishEvent,
-      onCancel: handleCancelEvent,
-      onComplete: handleCompleteEvent,
-      onPurge: handlePurgeEvent,
-      onRestore: handleRestoreEvent,
-    });
-  };
+  const { useEventActions } = require('@/features/events/hooks/useEventActions');
+  const getEventActions = useEventActions({
+    ownershipFilter: ownership,
+    pendingActionKey,
+    requestConfirmThenRun,
+    onPublish: handlePublishEvent,
+    onCancel: handleCancelEvent,
+    onComplete: handleCompleteEvent,
+    onPurge: handlePurgeEvent,
+    onRestore: handleRestoreEvent,
+  });
 
   // Inline TabContent removed; using extracted TabContent
 
