@@ -2,17 +2,17 @@ import React from 'react';
 import { View, FlatList, RefreshControl, ActivityIndicator, Text } from 'react-native';
 import { Icon } from '@/components/ui/Icon';
 import { EventCard } from '@/features/events/components/EventCard';
-import type { EventListItem } from '@/features/events/types/ui';
+import type { EventItem } from '@common/types';
 
 type Props = {
-  data: EventListItem[];
+  data: EventItem[];
   loading: boolean;
   refreshing: boolean;
   onRefresh: () => void;
   onEndReached: () => void;
   endReachedOnceRef: React.MutableRefObject<boolean>;
   onPressItem: (id: string) => void;
-  getEventActions: (item: EventListItem) => any[];
+  getEventActions: (item: EventItem) => any[];
   query: string;
   styles: any;
 };
