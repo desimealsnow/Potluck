@@ -19,6 +19,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Constants from 'expo-constants';
 import { Icon } from "@/components/ui/Icon";
 import { EventCard } from "@/features/events/components/EventCard";
+import { EventsListView, EventsMapView } from "@/features/events/components/EventsView";
 import Header from "../../components/Header";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -1142,105 +1143,30 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
                 )}
               </View>
             ) : mapMode ? (
-              <View style={{ paddingHorizontal: PAGE_PADDING, paddingTop: 12 }}>
-                <View style={styles.mapContainer}>
-                  <View style={styles.mapPlaceholder}>
-                    <Icon name="Map" size={48} color="#9CA3AF" />
-                    <Text style={styles.mapPlaceholderTitle}>Map View</Text>
-                    <Text style={styles.mapPlaceholderText}>
-                      {mapPoints.length} event{mapPoints.length !== 1 ? 's' : ''} in your area
-                    </Text>
-                    <Pressable 
-                      style={styles.mapButton}
-                      onPress={() => {
-                        if (mapPoints.length > 0) {
-                          const firstPoint = mapPoints[0];
-                          const url = `https://www.google.com/maps?q=${firstPoint.lat},${firstPoint.lon}`;
-                          Linking.openURL(url).catch(() => {
-                            Alert.alert('Error', 'Could not open maps');
-                          });
-                        }
-                      }}
-                    >
-                      <Icon name="ExternalLink" size={16} color="#fff" />
-                      <Text style={styles.mapButtonText}>Open in Maps</Text>
-                    </Pressable>
-                  </View>
-                </View>
-                <View style={{ marginTop: 10 }}>
-                  {mapPoints.map(p => (
-                    <View key={p.id} style={[styles.card, { backgroundColor: '#fff' }]}>
-                      <Text style={{ fontWeight: '800', color: '#111827' }}>{p.title || 'Event'}</Text>
-                      <Text style={{ color: '#374151', marginTop: 2 }}>{p.lat.toFixed(4)}, {p.lon.toFixed(4)}</Text>
-                      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                        <Pressable onPress={() => handleEventPress(p.id)} style={[styles.actionButton, { backgroundColor: '#7b2ff7' }]}>
-                          <Text style={styles.actionButtonText}>Open</Text>
-                        </Pressable>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
+              <EventsMapView 
+                mapPoints={mapPoints}
+                styles={styles}
+                onOpenMaps={(lat, lon) => {
+                  const url = `https://www.google.com/maps?q=${lat},${lon}`;
+                  Linking.openURL(url).catch(() => {
+                    Alert.alert('Error', 'Could not open maps');
+                  });
+                }}
+                onOpenEvent={(id) => handleEventPress(id)}
+              />
             ) : (
-            /* List */
-          <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          style={{ marginTop: 10 }}
-          refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
-          testID="events-list"
-          initialNumToRender={8}
-          maxToRenderPerBatch={8}
-          windowSize={11}
-          removeClippedSubviews
-          ListEmptyComponent={
-            loading ? (
-              <View style={styles.emptyWrap} testID="loading-container">
-                <ActivityIndicator color="#fff" testID="loading-indicator" />
-                <Text style={styles.loadingText}>Loading events...</Text>
-              </View>
-            ) : query.length > 0 ? (
-              <View style={styles.emptyWrap} testID="no-search-results">
-                <Icon name="Search" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.noResultsTitle}>No events found</Text>
-                <Text style={styles.noResultsText}>
-                  No events match your search for "{query}". Try adjusting your search terms or filters.
-                </Text>
-                <Pressable 
-                  onPress={() => setQuery('')} 
-                  style={styles.clearSearchButton}
-                  testID="clear-search-results-button"
-                >
-                  <Text style={styles.clearSearchButtonText}>Clear Search</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <View style={styles.emptyWrap} testID="empty-state">
-                <Icon name="Calendar" size={48} color="rgba(255,255,255,0.4)" />
-                <Text style={styles.emptyTitle}>No events yet</Text>
-                <Text style={styles.emptyText}>Create your first event to get started!</Text>
-              </View>
-            )
-          }
-          renderItem={({ item }) => (
-            <EventCard 
-              item={item} 
-              onPress={() => handleEventPress(item.id)} 
-              actions={getEventActions(item)}
-              testID={`event-card-${item.id}`}
-            />
-          )}
-          onEndReachedThreshold={0.01}
-          onEndReached={() => {
-            if (!endReachedOnce.current) {
-              endReachedOnce.current = true;
-              return;
-            }
-            loadMore();
-          }}
-          ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
-            />
+              <EventsListView
+                data={data}
+                loading={loading}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                onEndReached={loadMore}
+                endReachedOnceRef={endReachedOnce}
+                onPressItem={handleEventPress}
+                getEventActions={getEventActions}
+                query={query}
+                styles={styles}
+              />
             ))}
           </View>
         </View>
