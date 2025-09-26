@@ -8,7 +8,7 @@ import {
   LAYOUT,
   EVENT_LIST_COLORS,
   EVENT_LIST_LAYOUT 
-} from '@/shared/theme';
+} from '@/theme';
 
 const styles = StyleSheet.create({
   // Layout containers

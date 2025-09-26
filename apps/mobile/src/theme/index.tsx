@@ -259,6 +259,108 @@ export function ThemeProvider({ children, mode: initialMode = 'system' as ThemeM
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }
 
+// Layout constants
+export const LAYOUT = {
+  AVATAR_SIZE: 32,
+  ICON_BUTTON_SIZE: 36,
+  BADGE_SIZE: 20,
+} as const;
+
+// Event list specific layout constants
+export const EVENT_LIST_LAYOUT = {
+  SIDEBAR_WIDTH: 280,
+  SEARCH_HEIGHT: 48,
+  MAP_HEIGHT: 200,
+} as const;
+
+// Event list specific color constants
+export const EVENT_LIST_COLORS = {
+  SIDEBAR_BACKGROUND: '#1a1a2e',
+  SIDEBAR_TITLE: '#ffffff',
+  EVENTS_SECTION_BACKGROUND: '#16213e',
+  SEARCH_BORDER_LEFT: '#7C3AED',
+  SEARCH_RESULTS_TEXT: '#e2e8f0',
+  EMPTY_STATE_BACKGROUND: '#0f172a',
+  MAP_PLACEHOLDER_TITLE: '#ffffff',
+  MAP_PLACEHOLDER_TEXT: '#94a3b8',
+  MAP_BUTTON: '#7C3AED',
+} as const;
+
+// Extended color constants for backward compatibility
+export const COLORS = {
+  ...colors,
+  // Additional color constants used in EventList.styles.ts
+  BORDER_PRIMARY: colors.border.strong,
+  BORDER_SECONDARY: colors.border.subtle,
+  BORDER_TERTIARY: colors.border.subtle,
+  BORDER_QUATERNARY: colors.border.subtle,
+  BORDER_QUINARY: colors.border.strong,
+  TEXT_PRIMARY: colors.text.primary,
+  TEXT_SECONDARY: colors.text.secondary,
+  TEXT_TERTIARY: colors.text.muted,
+  TEXT_DARK_SECONDARY: colors.text.secondary,
+  TEXT_DARK_TERTIARY: colors.text.muted,
+  BACKGROUND_OVERLAY: colors.neutral.card,
+  BACKGROUND_OVERLAY_DIM: 'rgba(255,255,255,0.05)',
+  BACKGROUND_OVERLAY_BRIGHT: 'rgba(255,255,255,0.1)',
+  BACKGROUND_OVERLAY_BRIGHTER: 'rgba(255,255,255,0.15)',
+  BACKGROUND_SECONDARY: colors.neutral.bgAlt,
+  CARD_BACKGROUND_ALT: colors.neutral.card,
+  ACCENT_ERROR_BADGE: colors.state.error,
+  ACCENT_ERROR_BADGE_ALT: colors.state.error,
+};
+
+// Extended spacing constants for backward compatibility
+export const SPACING = {
+  ...spacing,
+  // Additional spacing constants used in EventList.styles.ts
+  PAGE_PADDING: 16,
+  XXXL: 48,
+  XXL: 32,
+  // Uppercase versions for backward compatibility
+  XS: spacing.xs,
+  SM: spacing.sm,
+  MD: spacing.md,
+  LG: spacing.lg,
+  XL: spacing.xl,
+};
+
+// Extended typography constants for backward compatibility
+export const TYPOGRAPHY = {
+  ...typography,
+  // Additional typography constants used in EventList.styles.ts
+  XS: typography.fontSize.xs,
+  SM: typography.fontSize.sm,
+  MD: typography.fontSize.base,
+  LG: typography.fontSize.lg,
+  XL: typography.fontSize.xl,
+  XXL: typography.fontSize['2xl'],
+  XXXL: typography.fontSize['3xl'],
+  BOLD: typography.fontWeight.bold,
+  MEDIUM: typography.fontWeight.medium,
+  SEMIBOLD: typography.fontWeight.semibold,
+  EXTRABOLD: typography.fontWeight.extrabold,
+};
+
+// Extended border radius constants for backward compatibility
+export const BORDER_RADIUS = {
+  ...borderRadius,
+  // Additional border radius constants used in EventList.styles.ts
+  XL: borderRadius.xl,
+  LG: borderRadius.lg,
+  MD: borderRadius.md,
+  SM: borderRadius.sm,
+};
+
+// Extended shadow constants for backward compatibility
+export const SHADOWS = {
+  ...shadows,
+  // Additional shadow constants used in EventList.styles.ts
+  SEARCH: shadows.sm,
+  CARD: shadows.md,
+  BUTTON: shadows.sm,
+};
+
 // Category color mapping
 export const categoryColors = {
   Appetizer: '#06B6D4',
