@@ -8,6 +8,14 @@ export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  
+  // Content wrapper for web/desktop to constrain width while keeping background full-width
+  contentWrapper: {
+    flex: 1,
+    maxWidth: 1200, // Maximum width for better readability
+    alignSelf: 'center', // Center the content
+    width: '100%', // Take full width up to maxWidth
+  },
   scrollView: {
     flex: 1,
   },
@@ -18,6 +26,15 @@ export const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 12,
     paddingBottom: 24,
+  },
+  
+  // Responsive content container for web/desktop
+  contentContainerWeb: {
+    paddingHorizontal: 12,
+    paddingBottom: 24,
+    // Allow content to expand horizontally when needed
+    minWidth: '100%',
+    flexGrow: 1,
   },
   topBar: {
     flexDirection: 'row',
@@ -699,9 +716,11 @@ export const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(162, 42, 208, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
       android: { elevation: 8 },

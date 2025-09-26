@@ -75,6 +75,14 @@ export const styles = StyleSheet.create({
   eventsSectionMobile: {
     width: "100%", // Full width on mobile when no sidebar
   },
+  
+  // Content wrapper for web/desktop to constrain width while keeping background full-width
+  eventsContentWrapper: {
+    flex: 1,
+    maxWidth: 1200, // Maximum width for better readability
+    alignSelf: 'center', // Center the content
+    width: '100%', // Take full width up to maxWidth
+  },
   eventsHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -184,6 +192,13 @@ export const styles = StyleSheet.create({
     marginTop: 12,
     marginHorizontal: 0,
   },
+  // Responsive search container for web/desktop
+  searchContainerWeb: {
+    marginTop: 12,
+    marginHorizontal: 0,
+    maxWidth: 1000, // Constrain search width
+    alignSelf: 'center',
+  },
   searchWrap: {
     height: 48,
     borderRadius: 12,
@@ -222,6 +237,19 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     borderLeftWidth: 3,
     borderLeftColor: "#7b2ff7",
+  },
+  // Responsive search results indicator for web/desktop
+  searchResultsIndicatorWeb: {
+    marginTop: 8,
+    marginHorizontal: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#7b2ff7",
+    maxWidth: 1000, // Constrain search results width
+    alignSelf: 'center',
   },
   searchResultsText: {
     color: "rgba(255,255,255,0.8)",
@@ -328,6 +356,14 @@ export const styles = StyleSheet.create({
 
   // Standardized list padding
   listContent: { paddingHorizontal: PAGE_PADDING, paddingBottom: 24 },
+  
+  // Responsive list content for web/desktop
+  listContentWeb: {
+    paddingHorizontal: 16, // Reduced padding for more compact layout
+    paddingBottom: 24,
+    maxWidth: 1000, // Constrain content width for better readability
+    alignSelf: 'center',
+  },
 
   // Action buttons styles
   actionsContainer: {

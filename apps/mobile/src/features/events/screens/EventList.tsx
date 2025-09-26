@@ -861,8 +861,10 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
 
           {/* Right Section - Events */}
           <View style={[styles.eventsSection, isMobile && styles.eventsSectionMobile]}>
-            {/* Events Section Header */}
-            <EventsHeaderBar
+            {/* Content Wrapper for Web/Desktop */}
+            <View style={isTablet ? styles.eventsContentWrapper : { flex: 1 }}>
+              {/* Events Section Header */}
+              <EventsHeaderBar
               total={data.length}
               loading={loading}
               isMobile={isMobile}
@@ -1190,6 +1192,8 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           style={{ marginTop: 10 }}
           refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
           testID="events-list"
+          numColumns={isTablet ? 2 : 1}
+          key={isTablet ? 'grid' : 'list'} // Force re-render when switching layouts
           initialNumToRender={8}
           maxToRenderPerBatch={8}
           windowSize={11}
@@ -1224,12 +1228,14 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
             )
           }
           renderItem={({ item }) => (
-            <EventCard 
-              item={item} 
-              onPress={() => handleEventPress(item.id)} 
-              actions={getEventActions(item)}
-              testID={`event-card-${item.id}`}
-            />
+            <View style={isTablet ? { flex: 1, marginHorizontal: 4 } : {}}>
+              <EventCard 
+                item={item} 
+                onPress={() => handleEventPress(item.id)} 
+                actions={getEventActions(item)}
+                testID={`event-card-${item.id}`}
+              />
+            </View>
           )}
           onEndReachedThreshold={0.01}
           onEndReached={() => {
@@ -1242,6 +1248,7 @@ export default function EventList({ userLocation: propUserLocation }: EventListP
           ListFooterComponent={loading && data.length > 0 ? <ActivityIndicator style={{ marginVertical: 16 }} color="#fff" testID="load-more-indicator" /> : null}
             />
             ))}
+            </View> {/* Close content wrapper */}
           </View>
         </View>
 

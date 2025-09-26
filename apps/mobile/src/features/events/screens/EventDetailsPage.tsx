@@ -11,6 +11,7 @@ import {
   Modal,
   Linking,
   Share,
+  useWindowDimensions,
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -307,22 +308,47 @@ export default function EventDetailsPage({
   onBack?: () => void; 
   onActionCompleted?: (_nextTab: "upcoming" | "past" | "drafts" | "deleted") => void;
 }) {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  
   const [active, setActive] = useState<Tab>("overview");
+  
+  // Reset scroll button state when tab changes
+  useEffect(() => {
+    // Reset to top state when tab changes
+    setIsAtTop(true);
+    setShowScrollButton(true);
+    // Scroll to top when tab changes
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, 100);
+  }, [active]);
   const { loading, refreshing, event, items, participants: _participants, refresh, setItems } = useEventData(eventId);
   const isHost = event?.ownership === 'mine';
   const [shareOpen, setShareOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ name: string; category: string; per_guest_qty: number } | undefined>();
-  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(true); // Show button initially
+  const [isAtTop, setIsAtTop] = useState(true);
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   // Scroll handlers
   const handleScroll = useCallback((event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    setShowScrollButton(offsetY > 300);
+    console.log('Scroll offset:', offsetY); // Debug log
+    const nearTop = offsetY < 50; // Consider "at top" if within 50px
+    const scrolledDown = offsetY > 100; // Show button after 100px scroll
+    
+    // Always show button, but change its behavior based on position
+    setShowScrollButton(true);
+    setIsAtTop(nearTop);
   }, []);
 
   const scrollToTop = useCallback(() => {
     scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
   }, []);
 
   // Provide inline handlers to ItemsTab
@@ -642,7 +668,16 @@ export default function EventDetailsPage({
           showNavigation={false}
         />
         <TopBar title="Event Details" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Content Wrapper for Web/Desktop */}
+        <View style={isTablet ? styles.contentWrapper : { flex: 1 }}>
+          <ScrollView 
+            ref={scrollViewRef}
+            style={styles.scrollView} 
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={isTablet}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
           <View style={styles.headerContainer}>
             <EventHeader 
               isLoading={loading} 
@@ -653,7 +688,7 @@ export default function EventDetailsPage({
 
           <TabsBar active={active} onChange={setActive} showRequests={!!isHost} />
 
-          <View style={styles.contentContainer}>
+          <View style={isTablet ? styles.contentContainerWeb : styles.contentContainer}>
             {active === "overview" && (
               <OverviewTab isLoading={loading || refreshing} event={event} eventId={eventId} isHost={!!isHost} />
             )}
@@ -692,11 +727,19 @@ export default function EventDetailsPage({
             )}
           </View>
         </ScrollView>
+        </View> {/* Close content wrapper */}
         
-        {/* Scroll to Top Button */}
+        {/* Smart Scroll Button */}
         {showScrollButton && (
-          <Pressable style={styles.scrollToTopButton} onPress={scrollToTop}>
-            <Icon name="ChevronUp" size={20} color="#fff" />
+          <Pressable 
+            style={styles.scrollToTopButton} 
+            onPress={isAtTop ? scrollToBottom : scrollToTop}
+          >
+            <Icon 
+              name={isAtTop ? "ChevronDown" : "ChevronUp"} 
+              size={20} 
+              color="#A22AD0" 
+            />
           </Pressable>
         )}
       </SafeAreaView>

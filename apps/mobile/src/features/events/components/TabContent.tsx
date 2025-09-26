@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, ActivityIndicator, Alert, Linking, Pressable, FlatList, RefreshControl } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, Linking, Pressable, FlatList, RefreshControl, useWindowDimensions } from 'react-native';
 import { Icon } from '@/ui/Icon';
 import type { EventItem, EventStatusMobile, Ownership } from '@common/types';
 import { EventCard } from '@/events/components/EventCard';
@@ -49,6 +49,9 @@ export function TabContent({
   endReachedOnce,
   getEventActions,
 }: TabContentProps) {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
+  const isWeb = width >= 1024;
 
   const renderEventCard = useCallback(({ item }: { item: EventItem }) => {
     const actions = getEventActions(item);
@@ -131,6 +134,8 @@ export function TabContent({
         style={{ marginTop: 10 }}
         refreshControl={<RefreshControl tintColor="#fff" refreshing={refreshing} onRefresh={onRefresh} />}
         testID="events-list"
+        numColumns={isTablet ? 2 : 1}
+        key={isTablet ? 'grid' : 'list'} // Force re-render when switching layouts
         ListEmptyComponent={
           loading ? (
             <View style={{ alignItems: 'center', paddingVertical: 40, paddingHorizontal: 32, backgroundColor: '#351657' }} testID="loading-container">
@@ -153,7 +158,18 @@ export function TabContent({
             </View>
           )
         }
-        renderItem={renderEventCard}
+        renderItem={({ item, index }) => {
+          const actions = getEventActions(item);
+          return (
+            <View style={isTablet ? { flex: 1, marginHorizontal: 4 } : {}}>
+              <EventCard
+                item={item}
+                onPress={() => handleEventPress(item.id)}
+                actions={actions}
+              />
+            </View>
+          );
+        }}
         onEndReachedThreshold={0.01}
         onEndReached={() => {
           if (!endReachedOnce.current) {
