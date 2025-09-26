@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, View } from 'react-native';
-import { colors, borderRadius, chipTones } from '@/theme';
+import { Pressable, Text, View } from 'react-native';
+import { colors, chipTones } from '@/theme';
 import { Icon } from '@/ui/Icon';
 import type { ChipTone } from '@common/types';
+import { styles } from '../styles/ChipStyle';
 
 export interface ChipProps {
   children: React.ReactNode;
@@ -10,7 +11,7 @@ export interface ChipProps {
   tone?: ChipTone;
   selected?: boolean;
   onPress?: () => void;
-  style?: any;
+  style1?: any;
   textStyle?: any;
   testID?: string;
 }
@@ -21,7 +22,7 @@ export function Chip({
   tone = 'sky',
   selected = false,
   onPress,
-  style,
+  style1: style,
   textStyle,
   testID,
 }: ChipProps) {
@@ -74,21 +75,4 @@ export function Chip({
   );
 }
 
-const styles = StyleSheet.create({
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: borderRadius.xl,
-    borderWidth: 1,
-    marginRight: 10,
-  },
-  icon: {
-    marginRight: 6,
-  },
-  text: {
-    fontWeight: '700',
-    fontSize: 14,
-  },
-});
+
