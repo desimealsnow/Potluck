@@ -8,6 +8,7 @@ import type { StepperStep } from '@common/types';
 export interface StepperProps {
   step: StepperStep;
   style?: any;
+  testID?: string;
 }
 
 const steps = [
@@ -17,19 +18,20 @@ const steps = [
   { key: 3, icon: "Users", label: "Participants" },
 ] as const;
 
-export function Stepper({ step, style }: StepperProps) {
+export function Stepper({ step, style, testID }: StepperProps) {
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style]} testID={testID || "stepper"}>
       {steps.map((s, i) => {
         const active = step === s.key;
         return (
-          <View key={s.key} style={styles.stepContainer}>
+          <View key={s.key} style={styles.stepContainer} testID={`step-${s.key}`}>
             <LinearGradient
               colors={active ? ["#7C3AED", "#9333EA"] : ["#E5E7EB", "#F3F4F6"]}
               style={[
                 styles.iconContainer,
                 active && styles.iconContainerActive,
               ]}
+              testID={`step-${s.key}-icon`}
             >
               <Icon
                 name={s.icon as any}
@@ -40,14 +42,14 @@ export function Stepper({ step, style }: StepperProps) {
             <Text style={[
               styles.label,
               active && styles.labelActive,
-            ]}>
+            ]} testID={`step-${s.key}-label`}>
               {s.label}
             </Text>
             {i < steps.length - 1 && (
               <View style={[
                 styles.bar,
                 active && styles.barActive,
-              ]} />
+              ]} testID={`step-${s.key}-bar`} />
             )}
           </View>
         );

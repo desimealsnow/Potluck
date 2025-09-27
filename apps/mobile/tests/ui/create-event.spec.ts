@@ -94,14 +94,14 @@ test.describe('Create Event Flow', () => {
     await page.screenshot({ path: 'test-results/create-event-step1-complete.png' });
     
     // Proceed to next step
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
   });
 
   test('should complete Step 2 - Location Selection', async ({ page }) => {
     // First complete step 1
     await page.getByTestId('event-title-input').fill('Test Event');
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Check Step 2 elements
@@ -127,14 +127,14 @@ test.describe('Create Event Flow', () => {
     await page.screenshot({ path: 'test-results/create-event-step2.png' });
     
     // Proceed to next step
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
   });
 
   test('should complete Step 3 - Menu Planning', async ({ page }) => {
     // Complete steps 1 and 2 first
     await page.getByTestId('event-title-input').fill('Test Event');
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Select a location
@@ -142,7 +142,7 @@ test.describe('Create Event Flow', () => {
     if (await firstLocation.isVisible()) {
       await firstLocation.click();
     }
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Check Step 3 elements
@@ -171,32 +171,32 @@ test.describe('Create Event Flow', () => {
     await page.screenshot({ path: 'test-results/create-event-step3.png' });
     
     // Proceed to final step
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
   });
 
   test('should complete Step 4 - Participant Planning and Create Event', async ({ page }) => {
     // Complete all previous steps
     await page.getByTestId('event-title-input').fill('Final Test Event');
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     const firstLocation = page.getByText(/Central Park|Times Square|Brooklyn Bridge/).first();
     if (await firstLocation.isVisible()) {
       await firstLocation.click();
     }
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     const dishNameInput = page.getByPlaceholder(/Grandma's Famous Mac & Cheese/i).first();
     if (await dishNameInput.isVisible()) {
       await dishNameInput.fill('Test Dish');
     }
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Check Step 4 elements
-    await expect(page.getByText('Plan Your Guest List')).toBeVisible();
+    await expect(page.getByText('Plan Your Guest List').first()).toBeVisible();
     
     // Add participant emails if the input is available
     const participantEmailInput = page.getByPlaceholder(/friend@email.com/i);
@@ -238,7 +238,7 @@ test.describe('Create Event Flow', () => {
 
   test('should validate required fields in Step 1', async ({ page }) => {
     // Try to proceed without filling required fields
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     
     // Should show validation alert or remain on step 1
     // The validation might show as an alert dialog
@@ -251,11 +251,11 @@ test.describe('Create Event Flow', () => {
   test('should allow navigation back to previous steps', async ({ page }) => {
     // Go to step 2
     await page.getByTestId('event-title-input').fill('Test Event');
-    await page.getByTestId('next-step-button').click();
+    await page.getByTestId('next-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Go back to step 1
-    await page.getByTestId('back-step-button').click();
+    await page.getByTestId('back-step-inline').click();
     await page.waitForTimeout(1000);
     
     // Should be back on step 1
