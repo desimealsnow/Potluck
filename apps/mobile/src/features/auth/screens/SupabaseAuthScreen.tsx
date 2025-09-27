@@ -64,6 +64,15 @@ export default function SupabaseAuthScreen() {
 }
 
 // Custom Auth Form using Supabase methods
+/**
+ * Renders an authentication form for user sign-in and sign-up.
+ *
+ * This component manages user authentication through email/password and Google OAuth. It handles form state,
+ * validates input fields, and provides feedback via alerts for various authentication scenarios.
+ * The component also allows users to toggle between sign-up and sign-in modes, and to reset their password.
+ *
+ * @returns {JSX.Element} The rendered authentication form component.
+ */
 function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
