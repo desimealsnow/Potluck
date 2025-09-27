@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Icon, Segmented, ProgressBar } from "@/ui";
+import { Icon, Segmented, ProgressBar, Card as UICard, Chip as UIChip } from "@/ui";
 import Header from "@/layout/Header";
 import { gradients } from "@/theme";
 import ItemLibrarySheet from "@/events/components/ItemLibrarySheet";
@@ -657,8 +657,8 @@ export default function EventDetailsPage({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#351657' }]}>
-      <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.container, { backgroundColor: '#351657' }]} testID="event-details-container">
+      <SafeAreaView style={styles.safeArea} testID="event-details-safe-area">
         <Header
           onNotifications={() => {}}
           onSettings={() => {}}
@@ -669,7 +669,7 @@ export default function EventDetailsPage({
         />
         <TopBar title="Event Details" onBack={onBack} onRefresh={refresh} onShare={() => setShareOpen(true)} />
         {/* Content Wrapper for Web/Desktop */}
-        <View style={isTablet ? styles.contentWrapper : { flex: 1 }}>
+        <View style={isTablet ? styles.contentWrapper : { flex: 1 }} testID="event-details-content-wrapper">
           <ScrollView 
             ref={scrollViewRef}
             style={styles.scrollView} 
@@ -677,8 +677,9 @@ export default function EventDetailsPage({
             showsHorizontalScrollIndicator={isTablet}
             onScroll={handleScroll}
             scrollEventThrottle={16}
+            testID="event-details-scroll-view"
           >
-          <View style={styles.headerContainer}>
+          <View style={styles.headerContainer} testID="event-details-header-container">
             <EventHeader 
               isLoading={loading} 
               event={event || undefined} 
@@ -688,7 +689,7 @@ export default function EventDetailsPage({
 
           <TabsBar active={active} onChange={setActive} showRequests={!!isHost} />
 
-          <View style={isTablet ? styles.contentContainerWeb : styles.contentContainer}>
+          <View style={isTablet ? styles.contentContainerWeb : styles.contentContainer} testID="event-details-tab-content">
             {active === "overview" && (
               <OverviewTab isLoading={loading || refreshing} event={event} eventId={eventId} isHost={!!isHost} />
             )}
@@ -712,7 +713,7 @@ export default function EventDetailsPage({
               />
             )}
             {active === "participants" && (
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1 }} testID="participants-tab-content">
                 <ParticipantsScreen 
                   eventId={eventId} 
                   showHeader={false}
@@ -721,7 +722,7 @@ export default function EventDetailsPage({
             )}
 
             {active === "requests" && isHost && (
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1 }} testID="requests-tab-content">
                 <JoinRequestsManager eventId={eventId} />
               </View>
             )}
@@ -734,6 +735,7 @@ export default function EventDetailsPage({
           <Pressable 
             style={styles.scrollToTopButton} 
             onPress={isAtTop ? scrollToBottom : scrollToTop}
+            testID="scroll-to-top-button"
           >
             <Icon 
               name={isAtTop ? "ChevronDown" : "ChevronUp"} 
@@ -806,19 +808,19 @@ function TopBar({
   onShare?: () => void;
 }) {
   return (
-    <View style={[styles.topBar, { backgroundColor: '#351657' }]}> 
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Pressable onPress={onBack} style={styles.topBarButton}>
+    <View style={[styles.topBar, { backgroundColor: '#351657' }]} testID="event-details-top-bar"> 
+      <View style={{ flexDirection: 'row', alignItems: 'center' }} testID="top-bar-left-section">
+        <Pressable onPress={onBack} style={styles.topBarButton} testID="back-button">
           <Icon name="ChevronLeft" size={20} color="#ffffff" />
         </Pressable>
-        <Icon name="Utensils" size={20} color="#ffffff" />
-        <Text style={[styles.topBarTitle, { color: '#ffffff', marginLeft: 8 }]}>{title || 'Event Details'}</Text>
+        <Icon name="Utensils" size={20} color="#ffffff" testID="event-icon" />
+        <Text style={[styles.topBarTitle, { color: '#ffffff', marginLeft: 8 }]} testID="event-details-title">{title || 'Event Details'}</Text>
       </View>
-      <View style={[styles.topBarActions] }>
-        <Pressable onPress={onRefresh} style={styles.topBarButton}>
+      <View style={[styles.topBarActions]} testID="top-bar-actions">
+        <Pressable onPress={onRefresh} style={styles.topBarButton} testID="refresh-button">
           <Icon name="RefreshCcw" size={20} color="#ffffff" />
         </Pressable>
-        <Pressable onPress={onShare} style={styles.topBarButton}>
+        <Pressable onPress={onShare} style={styles.topBarButton} testID="share-button">
           <Icon name="Share2" size={20} color="#ffffff" />
         </Pressable>
       </View>
@@ -847,21 +849,21 @@ function EventHeader({
   //
 
   return (
-    <View style={styles.eventHeader}>
-      <Text style={styles.eventTitle}>{event.title}</Text>
-      <Text style={styles.eventDate}>
+    <View style={styles.eventHeader} testID="event-header">
+      <Text style={styles.eventTitle} testID="event-title">{event.title}</Text>
+      <Text style={styles.eventDate} testID="event-date">
         {formatDateRange(event.start, event.end)}
       </Text>
       {/* Location Card */}
-      <Card>
-        <View style={styles.locationHeader}>
-          <Icon name="MapPin" size={20} color="#A22AD0" />
-          <Text style={styles.locationTitle}>📍 Event Location</Text>
+      <UICard>
+        <View style={styles.locationHeader} testID="location-header">
+          <Icon name="MapPin" size={20} color="#A22AD0" testID="location-icon" />
+          <Text style={styles.locationTitle} testID="location-title">📍 Event Location</Text>
         </View>
-        <View style={styles.locationContent}>
-          <Text style={styles.locationText}>{String((event as any).location ?? 'Location not specified')}</Text>
+        <View style={styles.locationContent} testID="location-content">
+          <Text style={styles.locationText} testID="location-text">{String((event as any).location ?? 'Location not specified')}</Text>
           {event.geo?.address && event.geo.address !== (event as any).location && (
-            <Text style={styles.locationAddress}>{event.geo.address}</Text>
+            <Text style={styles.locationAddress} testID="location-address">{event.geo.address}</Text>
           )}
           {event.geo?.latitude && event.geo?.longitude && (
             <Pressable 
@@ -872,27 +874,28 @@ function EventHeader({
                   Alert.alert('Error', 'Could not open maps');
                 });
               }}
+              testID="open-maps-button"
             >
               <Icon name="ExternalLink" size={16} color="#A22AD0" />
-              <Text style={styles.mapButtonText}>Open in Maps</Text>
+              <Text style={styles.mapButtonText} testID="open-maps-text">Open in Maps</Text>
             </Pressable>
           )}
         </View>
-      </Card>
+      </UICard>
 
       {/* Event Details Chips */}
-      <View style={styles.chipContainer}>
+      <View style={styles.chipContainer} testID="event-chips-container">
         {(event.perks ?? []).map((p) => (
-          <Chip key={p} icon="Utensils" tone="emerald">{p}</Chip>
+          <UIChip key={p} icon="Utensils" tone="emerald" testID={`perk-chip-${p}`}>{p}</UIChip>
         ))}
-        <Chip icon="Users" tone="violet">{event.attendingCount} attending</Chip>
+        <UIChip icon="Users" tone="violet" testID="attending-count-chip">{event.attendingCount} attending</UIChip>
       </View>
 
       {/* Debug/Test UI removed */}
 
       {/* Action buttons based on event status and ownership */}
       {actions.length > 0 && (
-        <View style={styles.actionsContainer}>
+        <View style={styles.actionsContainer} testID="event-actions-container">
           {actions.map((action) => (
             <Pressable 
               key={action.key}
@@ -901,9 +904,10 @@ function EventHeader({
                 action.handler();
               }} 
               style={[styles.actionButton, { backgroundColor: action.color }]}
+              testID={`action-button-${action.key}`}
             >
               <Icon name={action.icon as any} size={18} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={styles.actionButtonText}>{action.label}</Text>
+              <Text style={styles.actionButtonText} testID={`action-button-${action.key}-text`}>{action.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -937,8 +941,8 @@ function TabsBar({
     ...(showRequests ? [{ key: "requests" as Tab, label: "Requests" }] : []),
   ];
   return (
-    <View style={styles.tabsContainer}>
-      <View style={styles.tabsRow}>
+    <View style={styles.tabsContainer} testID="tabs-container">
+      <View style={styles.tabsRow} testID="tabs-row">
         {tabs.map((t) => (
           <Pressable
             key={t.key}
@@ -947,11 +951,12 @@ function TabsBar({
               styles.tabButton,
               active === t.key && styles.tabButtonActive
             ]}
+            testID={`tab-${t.key}`}
           >
             <Text style={[
               styles.tabText,
               active === t.key && styles.tabTextActive
-            ]}>
+            ]} testID={`tab-${t.key}-text`}>
               {t.label}
             </Text>
           </Pressable>
@@ -977,23 +982,23 @@ function OverviewTab({
   }
 
   return (
-    <View style={styles.tabContent}>
+    <View style={styles.tabContent} testID="overview-tab-content">
       {/* Join Request (guest) or Host info */}
       {!isHost ? (
-        <Card>
-          <Text style={styles.sectionTitle}>Request to Join</Text>
+        <UICard testID="join-request-card">
+          <Text style={styles.sectionTitle} testID="join-request-title">Request to Join</Text>
           <RequestToJoinButton eventId={eventId} eventTitle={event.title} />
-        </Card>
+        </UICard>
       ) : null}
 
 
       {/* Notes */}
-      <Card>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionIcon}>
+      <UICard testID="notes-card">
+        <View style={styles.sectionHeader} testID="notes-header">
+          <View style={styles.sectionIcon} testID="notes-icon">
             <Text style={styles.emoji}>💬</Text>
           </View>
-          <Text style={styles.sectionTitle}>Notes</Text>
+          <Text style={styles.sectionTitle} testID="notes-title">Notes</Text>
         </View>
         <TextInput
           placeholder="Add any notes or special requirements..."
@@ -1001,31 +1006,32 @@ function OverviewTab({
           numberOfLines={3}
           style={styles.textInput}
           textAlignVertical="top"
+          testID="notes-input"
         />
-      </Card>
+      </UICard>
 
       {/* Host */}
-      <Card>
-        <Text style={styles.sectionTitle}>Event Host</Text>
-        <View style={styles.hostContainer}>
+      <UICard testID="host-card">
+        <Text style={styles.sectionTitle} testID="host-title">Event Host</Text>
+        <View style={styles.hostContainer} testID="host-container">
           <Avatar name={event.host.name} src={event.host.avatar} />
-          <View style={styles.hostInfo}>
-            <Text style={styles.hostName}>{event.host.name}</Text>
+          <View style={styles.hostInfo} testID="host-info">
+            <Text style={styles.hostName} testID="host-name">{event.host.name}</Text>
           </View>
         </View>
-      </Card>
+      </UICard>
 
       {/* Details */}
-      <Card>
-        <Text style={styles.sectionTitle}>Event Details</Text>
-        <Text style={styles.eventIntro}>{event.details.intro}</Text>
-        <Text style={styles.eventDetail}>
+      <UICard testID="event-details-card">
+        <Text style={styles.sectionTitle} testID="event-details-title">Event Details</Text>
+        <Text style={styles.eventIntro} testID="event-intro">{event.details.intro}</Text>
+        <Text style={styles.eventDetail} testID="event-detail-bring">
           <Text style={styles.eventDetailLabel}>What to bring:</Text> {event.details.bring}
         </Text>
-        <Text style={styles.eventDetail}>
+        <Text style={styles.eventDetail} testID="event-detail-backup">
           <Text style={styles.eventDetailLabel}>Weather backup:</Text> {event.details.backup}
         </Text>
-      </Card>
+      </UICard>
     </View>
   );
 }
@@ -1088,7 +1094,7 @@ function ItemsTab({
   console.log("ItemsTab - items:", items, "safeItems:", safeItems, "isLoading:", isLoading);
   
   return (
-    <View style={styles.tabContent}>
+    <View style={styles.tabContent} testID="items-tab-content">
       {/* Add item (host only) */}
       <AddItemRow 
         onAdd={(name, category, perGuestQty) => {
@@ -1099,7 +1105,7 @@ function ItemsTab({
         selectedItem={selectedItem}
       />
       {isHost && (
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }} testID="rebalance-container">
           <Pressable
             onPress={async () => {
               try {
@@ -1110,8 +1116,9 @@ function ItemsTab({
               }
             }}
             style={[styles.claimButton, styles.claimButtonActive]}
+            testID="rebalance-button"
           >
-            <Text style={styles.claimButtonText}>Rebalance</Text>
+            <Text style={styles.claimButtonText} testID="rebalance-button-text">Rebalance</Text>
           </Pressable>
         </View>
       )}
@@ -1120,28 +1127,28 @@ function ItemsTab({
         const pct = clamp01(it.claimedQty / it.requiredQty);
         const complete = it.claimedQty >= it.requiredQty;
         return (
-          <Card key={it.id}>
-            <View style={styles.itemHeader}>
+          <UICard key={it.id} testID={`item-card-${it.id}`}>
+            <View style={styles.itemHeader} testID={`item-header-${it.id}`}>
               <InlineEditableItem
                 item={it}
                 onChange={(patch) => updateInlineItem(it.id, patch)}
                 onDelete={() => deleteInlineItem(it.id)}
               />
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, -1)}>
-                  <Text style={styles.qtyBtnText}>-</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} testID={`item-controls-${it.id}`}>
+                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, -1)} testID={`item-decrease-${it.id}`}>
+                  <Text style={styles.qtyBtnText} testID={`item-decrease-text-${it.id}`}>-</Text>
                 </Pressable>
-                <Text style={styles.itemCount}>{it.claimedQty} / {it.requiredQty}</Text>
-                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, +1)}>
-                  <Text style={styles.qtyBtnText}>+</Text>
+                <Text style={styles.itemCount} testID={`item-count-${it.id}`}>{it.claimedQty} / {it.requiredQty}</Text>
+                <Pressable style={styles.qtyBtn} onPress={() => adjustInlineClaim(it.id, +1)} testID={`item-increase-${it.id}`}>
+                  <Text style={styles.qtyBtnText} testID={`item-increase-text-${it.id}`}>+</Text>
                 </Pressable>
               </View>
             </View>
-            <ProgressBar value={pct} color={colorForName(it.name)} />
+            <ProgressBar value={pct} color={colorForName(it.name)} testID={`item-progress-${it.id}`} />
             {complete && (
-              <Text style={styles.completeText}>✓ Complete</Text>
+              <Text style={styles.completeText} testID={`item-complete-${it.id}`}>✓ Complete</Text>
             )}
-          </Card>
+          </UICard>
         );
       })}
     </View>
@@ -1175,34 +1182,34 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
   }, [selectedItem]);
   
   return (
-    <Card>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>✨ Add New Item</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Pressable onPress={onOpenPicker} style={styles.catalogButton}>
+    <UICard testID="add-item-card">
+      <View style={styles.cardHeader} testID="add-item-header">
+        <Text style={styles.cardTitle} testID="add-item-title">✨ Add New Item</Text>
+        <View style={{ flexDirection: 'row', gap: 8 }} testID="add-item-actions">
+          <Pressable onPress={onOpenPicker} style={styles.catalogButton} testID="browse-catalog-button">
             <Icon name="Search" size={16} color="#fff" />
-            <Text style={styles.catalogButtonText}>Browse Catalog</Text>
+            <Text style={styles.catalogButtonText} testID="browse-catalog-text">Browse Catalog</Text>
           </Pressable>
         </View>
       </View>
       
-      <Text style={styles.label}>Item Name</Text>
-      <Pressable onPress={onOpenPicker} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]}>
-        <Text style={[styles.inputText, { color: name ? '#111827' : '#9CA3AF' }]}>
+      <Text style={styles.label} testID="item-name-label">Item Name</Text>
+      <Pressable onPress={onOpenPicker} style={[styles.inputWrap, { borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#fff' }]} testID="item-name-picker">
+        <Text style={[styles.inputText, { color: name ? '#111827' : '#9CA3AF' }]} testID="item-name-display">
           {name || 'Pick from Catalog / My Items'}
         </Text>
         <Icon name="ChevronDown" size={16} color="#9CA3AF" />
       </Pressable>
       
-      <View style={{ marginTop: 6 }}>
-        <Pressable onPress={onOpenPicker} style={[styles.chip, { alignSelf: 'flex-start' }]} hitSlop={8}>
-          <Text style={styles.chipText}>Pick from Catalog / My Items</Text>
+      <View style={{ marginTop: 6 }} testID="catalog-chip-container">
+        <Pressable onPress={onOpenPicker} style={[styles.chip, { alignSelf: 'flex-start' }]} hitSlop={8} testID="catalog-chip">
+          <Text style={styles.chipText} testID="catalog-chip-text">Pick from Catalog / My Items</Text>
         </Pressable>
       </View>
       
-      <View style={styles.row}>
-        <View style={{ flex: 1, marginRight: 8 }}>
-          <Text style={styles.label}>Category</Text>
+      <View style={styles.row} testID="item-form-row">
+        <View style={{ flex: 1, marginRight: 8 }} testID="category-container">
+          <Text style={styles.label} testID="category-label">Category</Text>
           <Segmented
             options={[
               { key: "Main Course", label: "Main Course" },
@@ -1213,10 +1220,11 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
             ]}
             value={category || "Main Course"}
             onChange={(v) => setCategory(v)}
+            testID="category-segmented"
           />
         </View>
-        <View style={{ width: 100 }}>
-          <Text style={styles.label}>Per Guest</Text>
+        <View style={{ width: 100 }} testID="quantity-container">
+          <Text style={styles.label} testID="quantity-label">Per Guest</Text>
           <TextInput
             value={qty}
             onChangeText={(t) => setQty(t.replace(/[^0-9.]/g, ""))}
@@ -1224,11 +1232,12 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
             style={styles.inputWrap}
             placeholder="1"
             placeholderTextColor="#9CA3AF"
+            testID="quantity-input"
           />
         </View>
       </View>
       
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }} testID="add-item-button-container">
         <Pressable
           onPress={() => {
             const q = Math.max(0.01, parseFloat(qty || "0") || 0.01);
@@ -1238,22 +1247,28 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
           }}
           style={[styles.addButton, { opacity: !name.trim() ? 0.6 : 1 }]}
           disabled={!name.trim()}
+          testID="add-item-button"
         >
           <Icon name="Plus" size={16} color="#fff" />
-          <Text style={styles.addButtonText}>Add Item</Text>
+          <Text style={styles.addButtonText} testID="add-item-button-text">Add Item</Text>
         </Pressable>
       </View>
-    </Card>
+    </UICard>
   );
 }
 
 function InlineEditableItem({ item, onChange, onDelete }: { item: ItemDTO; onChange: (patch: any) => void; onDelete: () => void }) {
   const [name, setName] = useState(item.name);
   return (
-    <View style={{ flex: 1, paddingRight: 8 }}>
-      <TextInput value={name} onChangeText={(t) => { setName(t); onChange({ name: t }); }} style={[styles.textInput, { height: 40 }]} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }}>
-        <Pressable onPress={onDelete} style={[styles.qtyBtn, { backgroundColor: '#ef4444' }]}>
+    <View style={{ flex: 1, paddingRight: 8 }} testID={`inline-editable-item-${item.id}`}>
+      <TextInput 
+        value={name} 
+        onChangeText={(t) => { setName(t); onChange({ name: t }); }} 
+        style={[styles.textInput, { height: 40 }]} 
+        testID={`item-name-input-${item.id}`}
+      />
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6 }} testID={`item-actions-${item.id}`}>
+        <Pressable onPress={onDelete} style={[styles.qtyBtn, { backgroundColor: '#ef4444' }]} testID={`item-delete-${item.id}`}>
           <Icon name="Trash2" size={14} color="#fff" />
         </Pressable>
       </View>

@@ -9,9 +9,10 @@ export interface CardProps {
   right?: React.ReactNode;
   style?: any;
   titleStyle?: any;
+  testID?: string;
 }
 
-export function Card({ children, title, right, style, titleStyle }: CardProps) {
+export function Card({ children, title, right, style, titleStyle, testID }: CardProps) {
   const { reducedMotion } = useTheme();
   const opacity = useRef(new Animated.Value(reducedMotion ? 1 : 0)).current;
   const translateY = useRef(new Animated.Value(reducedMotion ? 0 : 6)).current;
@@ -25,7 +26,7 @@ export function Card({ children, title, right, style, titleStyle }: CardProps) {
   }, [reducedMotion, opacity, translateY]);
 
   return (
-    <Animated.View style={[styles.card, style, { opacity, transform: [{ translateY }] }]}>
+    <Animated.View style={[styles.card, style, { opacity, transform: [{ translateY }] }]} testID={testID}>
       {title && (
         <View style={styles.header}>
           <Text style={[styles.title, titleStyle]}>{title}</Text>

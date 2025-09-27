@@ -37,22 +37,22 @@ export default function Header({
 
 
   return (
-        <View style={styles.container}>
-      <View style={[styles.content, !isTablet && styles.mobileContent]}>
+        <View style={styles.container} testID="header-container">
+      <View style={[styles.content, !isTablet && styles.mobileContent]} testID="header-content">
         {/* Left Section - Logo & Navigation */}
-        <View style={[styles.leftSection, !isTablet && styles.mobileLeftSection]}>
-          <View style={[styles.logoSection, !isTablet && styles.mobileLogoSection]}>
-            <View style={[styles.logoContainer, !isTablet && styles.mobileLogoContainer]}>
-              <Icon name="Calendar" size={!isTablet ? 20 : 24} color="#1F2937" />
+        <View style={[styles.leftSection, !isTablet && styles.mobileLeftSection]} testID="header-left-section">
+          <View style={[styles.logoSection, !isTablet && styles.mobileLogoSection]} testID="logo-section">
+            <View style={[styles.logoContainer, !isTablet && styles.mobileLogoContainer]} testID="logo-container">
+              <Icon name="Calendar" size={!isTablet ? 20 : 24} color="#1F2937" testID="logo-icon" />
             </View>
             {isTablet && (
-              <View style={styles.logoText}>
-                <Text style={styles.logoTitle}>Potluck</Text>
-                <Text style={styles.logoSubtitle}>Professional Event Platform</Text>
+              <View style={styles.logoText} testID="logo-text">
+                <Text style={styles.logoTitle} testID="logo-title">Potluck</Text>
+                <Text style={styles.logoSubtitle} testID="logo-subtitle">Professional Event Platform</Text>
               </View>
             )}
             {!isTablet && (
-              <Text style={styles.mobileLogoTitle}>Potluck</Text>
+              <Text style={styles.mobileLogoTitle} testID="mobile-logo-title">Potluck</Text>
             )}
           </View>
           
@@ -93,10 +93,10 @@ export default function Header({
 
           {/* Notifications - Only show on tablet */}
           {onNotifications && isTablet && (
-            <Pressable onPress={onNotifications} style={styles.notificationButton}>
+            <Pressable onPress={onNotifications} style={styles.notificationButton} testID="notifications-button">
               <Icon name="Bell" size={18} color="#6B7280" />
               {unreadCount > 0 && (
-                <View style={styles.notificationBadge}>
+                <View style={styles.notificationBadge} testID="notification-badge">
                   <Text style={styles.notificationBadgeText}>
                     {unreadCount > 9 ? '9+' : String(unreadCount)}
                   </Text>
@@ -107,14 +107,14 @@ export default function Header({
 
           {/* Settings - Only show on tablet */}
           {onSettings && isTablet && (
-            <Pressable onPress={onSettings} style={styles.actionButton}>
+            <Pressable onPress={onSettings} style={styles.actionButton} testID="settings-button">
               <Icon name="Settings" size={18} color="#6B7280" />
             </Pressable>
           )}
 
           {/* Plans - Only show on tablet */}
           {onPlans && isTablet && (
-            <Pressable onPress={onPlans} style={styles.actionButton}>
+            <Pressable onPress={onPlans} style={styles.actionButton} testID="plans-button">
               <Icon name="CreditCard" size={18} color="#6B7280" />
             </Pressable>
           )}
@@ -161,11 +161,12 @@ export default function Header({
                       }} 
                       style={styles.mobileMenuItem}
                       activeOpacity={0.7}
+                      testID="mobile-notifications-button"
                     >
                       <Icon name="Bell" size={20} color="#6B7280" />
                       <Text style={styles.mobileMenuItemText}>Notifications</Text>
                       {unreadCount > 0 && (
-                        <View style={styles.mobileNotificationBadge}>
+                        <View style={styles.mobileNotificationBadge} testID="mobile-notification-badge">
                           <Text style={styles.mobileNotificationBadgeText}>
                             {unreadCount > 9 ? '9+' : String(unreadCount)}
                           </Text>
@@ -183,6 +184,7 @@ export default function Header({
                       }} 
                       style={styles.mobileMenuItem}
                       activeOpacity={0.7}
+                      testID="mobile-settings-button"
                     >
                       <Icon name="Settings" size={20} color="#6B7280" />
                       <Text style={styles.mobileMenuItemText}>Settings</Text>
@@ -198,6 +200,7 @@ export default function Header({
                       }} 
                       style={styles.mobileMenuItem}
                       activeOpacity={0.7}
+                      testID="mobile-plans-button"
                     >
                       <Icon name="CreditCard" size={20} color="#6B7280" />
                       <Text style={styles.mobileMenuItemText}>Plans</Text>
@@ -212,6 +215,7 @@ export default function Header({
                     }} 
                     style={styles.mobileMenuItem}
                     activeOpacity={0.7}
+                    testID="logout-button"
                   >
                     <Icon name="LogOut" size={20} color="#6B7280" />
                     <Text style={styles.mobileMenuItemText}>Logout</Text>
