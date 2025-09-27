@@ -56,11 +56,12 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 - **Coverage Thresholds**: 80% lines, 75% branches, 80% functions, 80% statements
 
 ### E2E Test Architecture
-- **Reusable Utilities**: Centralized event management and authentication functions
+- **Reusable Utilities**: Centralized event management, authentication, and item management functions
 - **Smart Login Detection**: Automatic detection of existing login state
 - **Sequential Execution**: Configured to prevent state corruption between tests
 - **Cross-Platform Testing**: Desktop, mobile, and tablet configurations
 - **Comprehensive Test IDs**: Reliable element selection across all UI components
+- **Item Management**: Comprehensive item creation, assignment, claiming, and rebalancing utilities
 
 ---
 
@@ -193,7 +194,7 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 
 **Tabs**:
 1. **Overview**: RSVP, notes, host info, event details
-2. **Items**: Menu items with claim/unclaim functionality
+2. **Items**: Menu items with claim/unclaim functionality, item management, and rebalancing
 3. **Participants**: Participant management (via ParticipantsScreen)
 4. **Requests**: Join request management (host only)
 
@@ -266,9 +267,79 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 - Promo code validation
 - Current plan indicators
 
-### 5. Component-Level Interactions
+### 5. Item Management Flows
 
-#### 5.1 Join Requests (Host View)
+#### 5.1 Item Creation and Management
+**Components**: ItemCard, ItemForm, CategorySelector, QuantityInput
+
+**Features**:
+- Create items with name, category, and per-guest quantity
+- Edit existing items
+- Delete items (with claim validation)
+- Item categorization (Main Course, Side Dish, Dessert, Beverage, Appetizer, Salad)
+- Dietary tags and restrictions
+
+**Test Scenarios**:
+- Create event with multiple items
+- Add items to existing events
+- Edit item details
+- Delete unclaimed items
+- Prevent deletion of claimed items
+- Handle item validation errors
+
+#### 5.2 Item Assignment and Claiming
+**Components**: ClaimButton, UnclaimButton, AssignmentModal, QuantitySelector
+
+**Features**:
+- Claim items for specific quantities
+- Unclaim items
+- Assign items to specific users
+- Quantity adjustments
+- Claim status indicators
+
+**Test Scenarios**:
+- Single user claiming multiple items
+- Multiple users claiming different items
+- Concurrent claiming of same item
+- Quantity adjustments
+- Overclaiming prevention
+
+#### 5.3 Participant Dropout and Rebalancing
+**Components**: RebalanceButton, DropoutModal, ItemStatusIndicator
+
+**Features**:
+- Handle participant dropouts
+- Release claimed items when participant leaves
+- Rebalance items among remaining participants
+- Item status tracking
+
+**Test Scenarios**:
+- Single participant dropout
+- Multiple participant dropouts
+- Partial item claims after dropout
+- Rebalancing with remaining participants
+- Item status updates
+
+#### 5.4 Item Filtering and Search
+**Components**: ItemSearch, CategoryFilter, DietaryFilter, SortOptions
+
+**Features**:
+- Search items by name
+- Filter by category
+- Filter by dietary restrictions
+- Sort items by various criteria
+- Item recommendations
+
+**Test Scenarios**:
+- Search functionality
+- Category filtering
+- Dietary restrictions filtering
+- Item sorting
+- Recommendation system
+
+### 6. Component-Level Interactions
+
+#### 6.1 Join Requests (Host View)
 **Components**: JoinRequestsManager, RequestToJoinButton, AvailabilityBadge
 
 **Features**:
@@ -276,7 +347,7 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 - Approve/deny requests
 - Availability status management
 
-#### 5.2 Payment Components  
+#### 6.2 Payment Components  
 **Components**: PlanCard, InvoiceCard, PaymentStatusBadge
 
 **Features**:
@@ -284,7 +355,7 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 - Payment status indicators
 - Invoice management
 
-#### 5.3 Form Components
+#### 6.3 Form Components
 **Components**: Stepper, FoodOption, Input, Button, etc.
 
 **Features**:
@@ -505,6 +576,11 @@ tests/ui/
 ├── event-list.spec.ts          # Events dashboard and filtering
 ├── create-event.spec.ts        # Event creation wizard
 ├── event-details.spec.ts       # Event management and details
+├── item-management-basic.spec.ts # Basic item management tests
+├── item-management-multi-user.spec.ts # Multi-user item scenarios
+├── item-management-dropout.spec.ts # Participant dropout scenarios
+├── item-management-edge-cases.spec.ts # Edge cases and error handling
+├── item-management-real-world.spec.ts # Real-world potluck scenarios
 ├── settings.spec.ts            # Settings and profile management
 ├── plans.spec.ts               # Billing and subscription plans
 ├── subscription.spec.ts        # Payment flow integration
@@ -514,7 +590,15 @@ tests/ui/
 ### Test Data
 - **Test User**: `host@test.dev` / `password123`
 - **Test Events**: Created dynamically during tests
+- **Test Items**: Predefined item templates for different scenarios
 - **Mock Payment**: LemonSqueezy integration (sandbox mode)
+
+### Item Management Test Utilities
+- **Item Templates**: Predefined item configurations for different event types
+- **Event Templates**: Complete event configurations with items
+- **Multi-User Scenarios**: Utilities for testing host-guest interactions
+- **Dropout Simulation**: Tools for testing participant dropout scenarios
+- **Edge Case Testing**: Utilities for testing error conditions and edge cases
 
 ### Screenshots and Artifacts
 All test artifacts are saved to `test-results/`:
