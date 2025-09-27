@@ -408,7 +408,7 @@ test.describe('Edge Cases and Error Handling', () => {
     
     // Simulate crash by closing and reopening browser
     await hostPage.close();
-    await hostPage = await hostContext.newPage();
+    hostPage = await hostContext.newPage();
     
     // Reload and check data persistence
     await hostPage.goto(process.env.MOBILE_WEB_URL || 'http://localhost:8081/');
