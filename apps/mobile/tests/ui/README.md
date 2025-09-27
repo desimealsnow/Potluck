@@ -382,4 +382,3 @@ For questions or issues with the test suite:
 2. Review the Playwright documentation
 3. Check for common issues in this README
 4. Create an issue in the project repository
-

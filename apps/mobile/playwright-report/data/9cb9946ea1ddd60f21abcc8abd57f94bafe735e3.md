@@ -1,0 +1,103 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - generic [ref=e7]:
+    - generic [ref=e9]:
+      - img [ref=e11]
+      - generic [ref=e13]:
+        - generic [ref=e14]: Potluck
+        - generic [ref=e15]: Professional Event Platform
+    - generic [ref=e16]:
+      - img [ref=e19] [cursor=pointer]
+      - img [ref=e26] [cursor=pointer]
+      - img [ref=e30] [cursor=pointer]
+      - img [ref=e34] [cursor=pointer]
+  - generic [ref=e36]:
+    - img [ref=e38] [cursor=pointer]
+    - generic [ref=e40]: Settings
+  - generic [ref=e42]:
+    - generic [ref=e44] [cursor=pointer]:
+      - img [ref=e46] [cursor=pointer]
+      - generic [ref=e49] [cursor=pointer]:
+        - generic [ref=e50] [cursor=pointer]: Ram
+        - generic [ref=e51] [cursor=pointer]: host@test.dev
+        - generic [ref=e52] [cursor=pointer]:
+          - generic [ref=e53] [cursor=pointer]: "Dietary Preferences:"
+          - generic [ref=e54] [cursor=pointer]:
+            - generic [ref=e56] [cursor=pointer]: Vegetarian
+            - generic [ref=e58] [cursor=pointer]: Dairy-Free
+            - generic [ref=e60] [cursor=pointer]: Vegan
+    - generic [ref=e61]:
+      - generic [ref=e62] [cursor=pointer]:
+        - generic [ref=e63] [cursor=pointer]:
+          - img [ref=e65] [cursor=pointer]
+          - generic [ref=e67] [cursor=pointer]:
+            - generic [ref=e68] [cursor=pointer]: Subscription
+            - generic [ref=e69] [cursor=pointer]: Manage your plan
+        - img [ref=e70] [cursor=pointer]
+      - generic [ref=e72] [cursor=pointer]:
+        - generic [ref=e73] [cursor=pointer]:
+          - img [ref=e75] [cursor=pointer]
+          - generic [ref=e78] [cursor=pointer]:
+            - generic [ref=e79] [cursor=pointer]: Invoices
+            - generic [ref=e80] [cursor=pointer]: View and download invoices
+        - img [ref=e81] [cursor=pointer]
+      - generic [ref=e83] [cursor=pointer]:
+        - generic [ref=e84] [cursor=pointer]:
+          - img [ref=e86] [cursor=pointer]
+          - generic [ref=e89] [cursor=pointer]:
+            - generic [ref=e90] [cursor=pointer]: My Join Requests
+            - generic [ref=e91] [cursor=pointer]: Requests you’ve made to join events
+        - img [ref=e92] [cursor=pointer]
+      - generic [ref=e94] [cursor=pointer]:
+        - generic [ref=e95] [cursor=pointer]:
+          - img [ref=e97] [cursor=pointer]
+          - generic [ref=e98] [cursor=pointer]:
+            - generic [ref=e99] [cursor=pointer]: My Items
+            - generic [ref=e100] [cursor=pointer]: Manage your saved item templates
+        - img [ref=e101] [cursor=pointer]
+      - generic [ref=e103] [cursor=pointer]:
+        - generic [ref=e104] [cursor=pointer]:
+          - img [ref=e106] [cursor=pointer]
+          - generic [ref=e109] [cursor=pointer]:
+            - generic [ref=e110] [cursor=pointer]: User Preferences
+            - generic [ref=e111] [cursor=pointer]: Profile and account settings
+        - img [ref=e112] [cursor=pointer]
+      - generic [ref=e114] [cursor=pointer]:
+        - generic [ref=e115] [cursor=pointer]:
+          - img [ref=e117] [cursor=pointer]
+          - generic [ref=e120] [cursor=pointer]:
+            - generic [ref=e121] [cursor=pointer]: Privacy & Security
+            - generic [ref=e122] [cursor=pointer]: Data and privacy settings
+        - img [ref=e123] [cursor=pointer]
+      - generic [ref=e125] [cursor=pointer]:
+        - generic [ref=e126] [cursor=pointer]:
+          - img [ref=e128] [cursor=pointer]
+          - generic [ref=e133] [cursor=pointer]:
+            - generic [ref=e134] [cursor=pointer]: Help & Support
+            - generic [ref=e135] [cursor=pointer]: Get help and contact support
+        - img [ref=e136] [cursor=pointer]
+      - generic [ref=e138] [cursor=pointer]:
+        - generic [ref=e139] [cursor=pointer]:
+          - img [ref=e141] [cursor=pointer]
+          - generic [ref=e143] [cursor=pointer]:
+            - generic [ref=e144] [cursor=pointer]: About
+            - generic [ref=e145] [cursor=pointer]: App version and info
+        - img [ref=e146] [cursor=pointer]
+      - generic [ref=e149] [cursor=pointer]:
+        - img [ref=e151] [cursor=pointer]
+        - generic [ref=e154] [cursor=pointer]:
+          - generic [ref=e155] [cursor=pointer]: Sign Out
+          - generic [ref=e156] [cursor=pointer]: Sign out of your account
+    - generic [ref=e158]:
+      - generic [ref=e159]:
+        - img [ref=e161]
+        - generic [ref=e163]:
+          - generic [ref=e164]: Appearance
+          - generic [ref=e165]: Match System
+      - img [ref=e167] [cursor=pointer]
+    - generic [ref=e173]:
+      - generic [ref=e174]: Potluck App v1.0.0
+      - generic [ref=e175]: © 2024 Potluck. All rights reserved.
+```

@@ -607,4 +607,3 @@ test.describe('Item Management and Claiming', () => {
     console.log('✅ Item assignment test completed!');
   });
 });
-

@@ -492,4 +492,3 @@ test.describe('Event Lifecycle Management', () => {
     console.log('✅ Event status transitions test completed!');
   });
 });
-

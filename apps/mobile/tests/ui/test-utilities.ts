@@ -106,7 +106,7 @@ export class PotluckTestUtils {
     
     // Return event ID (extract from URL or page content)
     const currentUrl = this.page.url();
-    const eventIdMatch = currentUrl.match(/\/events\/([^\/]+)/);
+    const eventIdMatch = currentUrl.match(/\/events\/([^/]+)/);
     return eventIdMatch ? eventIdMatch[1] : 'test-event-id';
   }
 
@@ -534,4 +534,3 @@ export async function clearAllData(page: Page): Promise<void> {
   // Clear cookies
   await page.context().clearCookies();
 }
-

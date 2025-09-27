@@ -134,7 +134,7 @@ test.describe('Multi-User Potluck Scenarios', () => {
     
     // Get event ID from URL or page content
     const currentUrl = hostPage.url();
-    const eventIdMatch = currentUrl.match(/\/events\/([^\/]+)/);
+    const eventIdMatch = currentUrl.match(/\/events\/([^/]+)/);
     eventId = eventIdMatch ? eventIdMatch[1] : 'test-event-id';
     
     // === GUEST SIDE: Login and Request to Join ===
@@ -619,4 +619,3 @@ test.describe('Multi-User Potluck Scenarios', () => {
     console.log('✅ Capacity limits and waitlist test completed!');
   });
 });
-

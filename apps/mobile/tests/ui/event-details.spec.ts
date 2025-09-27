@@ -233,7 +233,7 @@ test.describe('Event Details Flow', () => {
         await expect(itemList.first()).toBeVisible();
         
         // Test claim/unclaim functionality
-        const claimButtons = page.getByText(/claim|unclaim|\+|\-/);
+        const claimButtons = page.getByText(/claim|unclaim|\+|-/);
         if (await claimButtons.count() > 0) {
           const firstClaimButton = claimButtons.first();
           await firstClaimButton.click();

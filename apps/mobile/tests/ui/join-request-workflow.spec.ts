@@ -583,4 +583,3 @@ test.describe('Join Request Workflow', () => {
     console.log('✅ Bulk request management test completed!');
   });
 });
-

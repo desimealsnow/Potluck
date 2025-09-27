@@ -615,4 +615,3 @@ async function joinEventAsGuest(guestPage: Page, email: string) {
   
   await guestPage.close();
 }
-

@@ -60,7 +60,6 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // Parallel execution configuration
   workers: process.env.CI ? 2 : 4,
-
   // Test match patterns
   testMatch: [
     '**/*.spec.ts',
