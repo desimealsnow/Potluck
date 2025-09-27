@@ -518,6 +518,113 @@ export async function createAndPublishEvent(
   return eventId;
 }
 
+export async function createEventWithItems(
+  page: Page,
+  title: string,
+  description: string,
+  items: Array<{name: string, category: string, perGuestQty: number}>,
+  minGuests: string = '5',
+  maxGuests: string = '20'
+): Promise<string> {
+  console.log(`Creating event with items: ${title}`);
+  
+  await page.getByTestId('create-event-button').click();
+  await expect(page.getByTestId('create-event-header')).toBeVisible({ timeout: 10000 });
+  
+  // Fill event details
+  await page.getByTestId('event-title-input').fill(title);
+  await page.getByTestId('event-description-input').fill(description);
+  
+  // Set guest numbers
+  const minGuestsInput = page.locator('input').filter({ hasText: /min/i }).or(page.getByPlaceholder(/min/i)).first();
+  const maxGuestsInput = page.locator('input').filter({ hasText: /max/i }).or(page.getByPlaceholder(/max/i)).first();
+  
+  if (await minGuestsInput.isVisible()) {
+    await minGuestsInput.clear();
+    await minGuestsInput.fill(minGuests);
+  }
+  if (await maxGuestsInput.isVisible()) {
+    await maxGuestsInput.clear();
+    await maxGuestsInput.fill(maxGuests);
+  }
+  
+  // Go through all steps
+  await page.getByTestId('next-step-inline').click();
+  await page.waitForTimeout(1000);
+  
+  // Location step
+  const locationSearch = page.getByPlaceholder(/search for the perfect spot/i);
+  if (await locationSearch.isVisible()) {
+    await locationSearch.fill('Central Park');
+    await page.waitForTimeout(2000);
+    
+    const firstSuggestion = page.locator('text=Central Park').first();
+    if (await firstSuggestion.isVisible()) {
+      await firstSuggestion.click();
+      await page.waitForTimeout(1000);
+    }
+  }
+  
+  await page.getByTestId('next-step-inline').click();
+  await page.waitForTimeout(1000);
+  
+  // Items step - add all items
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const dishNameInput = page.getByPlaceholder(/Grandma's Famous Mac & Cheese/i).nth(i);
+    if (await dishNameInput.isVisible()) {
+      await dishNameInput.fill(item.name);
+    }
+    
+    // Set category if available
+    const categorySelect = page.getByTestId(`category-select-${i}`);
+    if (await categorySelect.isVisible()) {
+      await categorySelect.click();
+      await page.getByText(item.category).click();
+    }
+    
+    // Set quantity if available
+    const quantityInput = page.getByTestId(`quantity-input-${i}`);
+    if (await quantityInput.isVisible()) {
+      await quantityInput.clear();
+      await quantityInput.fill(item.perGuestQty.toString());
+    }
+    
+    // Add another item if this isn't the last one
+    const addAnotherButton = page.getByTestId('add-another-item-button');
+    if (await addAnotherButton.isVisible() && i < items.length - 1) {
+      await addAnotherButton.click();
+      await page.waitForTimeout(500);
+    }
+  }
+  
+  await page.getByTestId('next-step-inline').click();
+  await page.waitForTimeout(1000);
+  
+  // Create the event
+  await page.getByTestId('create-event-final-button').click();
+  await page.waitForTimeout(3000);
+  
+  // After event creation, click OK to return to events list
+  await page.getByText('OK').click();
+  await page.waitForTimeout(2000);
+  
+  // Navigate to the created event
+  const eventCards = page.locator('[data-testid^="event-card-"]');
+  if (await eventCards.count() > 0) {
+    await eventCards.first().click();
+    await page.waitForTimeout(2000);
+  }
+  
+  // Get event ID from URL
+  const currentUrl = page.url();
+  const eventIdMatch = currentUrl.match(/\/events\/([^/]+)/);
+  const eventId = eventIdMatch ? eventIdMatch[1] : '';
+  
+  console.log(`✅ Event with items created successfully: ${title} (ID: ${eventId})`);
+  return eventId;
+}
+
 export async function setupHostGuestScenario(
   hostPage: Page, 
   guestPage: Page, 
