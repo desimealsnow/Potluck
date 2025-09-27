@@ -12,6 +12,26 @@ The test suite covers all major functionality of the Potluck platform, including
 - **Item management** - Add, edit, claim, unclaim items
 - **Edge cases** - Error handling, capacity limits, network issues
 - **Cross-platform testing** - Desktop, mobile, tablet
+- **Authentication flows** - Login, signup, validation, error handling
+- **UI element testing** - Comprehensive testID coverage for reliable element selection
+
+## ✅ Current Status
+
+**Last Updated**: September 27, 2024
+
+### What's Working
+- ✅ **Authentication tests** - All login/signup flows working
+- ✅ **Test ID coverage** - Comprehensive testID attributes added to all UI components
+- ✅ **TypeScript compilation** - All type errors resolved
+- ✅ **JavaScript bundle** - App loads successfully in browser
+- ✅ **Playwright configuration** - Multi-browser testing setup complete
+
+### Recent Fixes
+- **Fixed missing dependency**: Added `react-native-gesture-handler` for web compatibility
+- **Added testID support**: Updated Card, Chip, ProgressBar components to support testID props
+- **Resolved TypeScript errors**: Fixed import conflicts and type definitions
+- **Enhanced authentication UI**: Added comprehensive test IDs to auth forms
+- **Updated component interfaces**: All UI components now support testID attributes
 
 ## 📁 Test Structure
 
@@ -22,11 +42,17 @@ tests/ui/
 ├── test-utilities.ts                   # Test utilities and helpers
 ├── global-setup.ts                     # Global test setup
 ├── global-teardown.ts                  # Global test teardown
+├── auth.spec.ts                        # Authentication flow tests
+├── event-list.spec.ts                  # Event list and navigation tests
+├── create-event.spec.ts                # Event creation tests
+├── event-details.spec.ts               # Event details and management tests
 ├── multi-user-scenarios.spec.ts        # Multi-user interaction tests
 ├── event-lifecycle.spec.ts             # Event lifecycle tests
 ├── join-request-workflow.spec.ts       # Join request workflow tests
 ├── item-management.spec.ts             # Item management tests
 ├── edge-cases.spec.ts                  # Edge case and error handling tests
+├── debug.spec.ts                       # Debug and troubleshooting tests
+├── console-debug.spec.ts               # Console error debugging tests
 └── test-results/                       # Test results and screenshots
 ```
 
@@ -35,7 +61,16 @@ tests/ui/
 ### Prerequisites
 
 1. **Mobile app running**: Ensure the mobile app is running on `http://localhost:8081`
-2. **Test users**: Ensure test users exist in the database:
+   ```bash
+   cd /workspace/apps/mobile
+   npx expo start --web --port 8081
+   ```
+2. **Dependencies installed**: Ensure all required dependencies are installed:
+   ```bash
+   npm install
+   npx playwright install
+   ```
+3. **Test users**: Ensure test users exist in the database:
    - `host@test.dev` / `password123`
    - `guest@test.dev` / `password123`
    - `guest2@test.dev` / `password123`
@@ -62,20 +97,32 @@ MOBILE_WEB_URL=http://localhost:3000 npm run test:playwright all
 
 ### Available Test Suites
 
-| Suite | Description | Duration |
-|-------|-------------|----------|
-| `smoke` | Basic functionality tests | ~5 min |
-| `multi-user` | Host-guest interactions | ~10 min |
-| `event-lifecycle` | Event management workflows | ~10 min |
-| `join-requests` | Join request workflows | ~10 min |
-| `item-management` | Item claiming and management | ~10 min |
-| `edge-cases` | Error handling and edge cases | ~10 min |
-| `all` | Complete test suite | ~30 min |
-| `ui-only` | Desktop Chrome only | ~20 min |
-| `mobile-only` | Mobile Chrome only | ~20 min |
-| `tablet-only` | Tablet Chrome only | ~20 min |
+| Suite | Description | Duration | Status |
+|-------|-------------|----------|---------|
+| `smoke` | Basic functionality tests | ~5 min | ✅ Working |
+| `auth` | Authentication flow tests | ~3 min | ✅ Working |
+| `multi-user` | Host-guest interactions | ~10 min | ✅ Ready |
+| `event-lifecycle` | Event management workflows | ~10 min | ✅ Ready |
+| `join-requests` | Join request workflows | ~10 min | ✅ Ready |
+| `item-management` | Item claiming and management | ~10 min | ✅ Ready |
+| `edge-cases` | Error handling and edge cases | ~10 min | ✅ Ready |
+| `all` | Complete test suite | ~30 min | ✅ Ready |
+| `ui-only` | Desktop Chrome only | ~20 min | ✅ Ready |
+| `mobile-only` | Mobile Chrome only | ~20 min | ✅ Ready |
+| `tablet-only` | Tablet Chrome only | ~20 min | ✅ Ready |
 
 ## 🧪 Test Scenarios
+
+### Authentication Flows
+
+Tests user authentication and validation:
+
+- **Login Flow**: Valid credentials, invalid credentials, empty fields
+- **Signup Flow**: New user registration, email validation, password requirements
+- **Form Validation**: Real-time validation feedback, error messages
+- **Password Toggle**: Show/hide password functionality
+- **Mode Switching**: Toggle between login and signup modes
+- **Forgot Password**: Password reset functionality
 
 ### Multi-User Scenarios
 
@@ -196,9 +243,26 @@ npx playwright test multi-user-scenarios.spec.ts --grep "Host creates event"
 ### Common Issues
 
 1. **Mobile app not running**: Ensure the app is accessible at the configured URL
-2. **Test users not found**: Create test users in the database
-3. **Timeout errors**: Increase timeout values in configuration
-4. **Flaky tests**: Check for race conditions and add proper waits
+   ```bash
+   # Check if app is running
+   curl -I http://localhost:8081
+   
+   # Start the app
+   cd /workspace/apps/mobile
+   npx expo start --web --port 8081
+   ```
+
+2. **JavaScript bundle errors**: Ensure all dependencies are installed
+   ```bash
+   # Install missing dependencies
+   npm install react-native-gesture-handler
+   npx playwright install
+   ```
+
+3. **Test users not found**: Create test users in the database
+4. **Timeout errors**: Increase timeout values in configuration
+5. **Flaky tests**: Check for race conditions and add proper waits
+6. **TypeScript compilation errors**: Ensure all testID props are properly typed
 
 ## 📈 Best Practices
 
@@ -283,6 +347,32 @@ When adding new tests:
 3. Add proper test IDs to new UI elements
 4. Update this README if adding new test suites
 5. Ensure tests are deterministic and reliable
+
+### Adding Test IDs
+
+When adding new UI components, ensure they have proper test IDs:
+
+```typescript
+// ✅ Good - Add testID to interactive elements
+<Pressable testID="submit-button" onPress={handleSubmit}>
+  <Text>Submit</Text>
+</Pressable>
+
+// ✅ Good - Add testID to form inputs
+<TextInput testID="email-input" placeholder="Email" />
+
+// ✅ Good - Add testID to containers for grouping
+<View testID="form-container">
+  {/* form content */}
+</View>
+```
+
+### Test ID Naming Convention
+
+- Use kebab-case: `submit-button`, `email-input`
+- Be descriptive: `welcome-title`, `password-toggle`
+- Group related elements: `form-email`, `form-password`, `form-submit`
+- Use consistent prefixes: `auth-`, `event-`, `item-`
 
 ## 📞 Support
 
