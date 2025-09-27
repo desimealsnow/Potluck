@@ -17,10 +17,10 @@ export type EventsHeaderBarProps = {
 
 export function EventsHeaderBar({ total, loading, isMobile, mapMode, onToggleMap, sidebarVisible, onToggleFilters, onCreateEvent, canCreate, getActiveFiltersCount }: EventsHeaderBarProps) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' }} testID="events-header">
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>Events</Text>
-        <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 2 }}>{loading ? 'Loading...' : `${total} event${total !== 1 ? 's' : ''} found`}</Text>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }} testID="events-title">Events</Text>
+        <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 2 }} testID="events-count">{loading ? 'Loading...' : `${total} event${total !== 1 ? 's' : ''} found`}</Text>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Pressable onPress={onToggleMap} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, marginRight: 8 }} testID="map-toggle-button" accessibilityRole="button" accessibilityLabel={mapMode ? 'Switch to list view' : 'Switch to map view'}>

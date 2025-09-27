@@ -266,9 +266,9 @@ export default function CreateEventScreen({
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120, alignItems: 'center' }}>
           <View style={styles.pageContainer}>
           {step === 0 && (
-            <Card title="🎉 Potluck Details" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt}>
+            <Card title="🎉 Potluck Details" style={[styles.cardConstrained, styles.cardSurface]} titleStyle={styles.cardTitleAlt} testID="event-details-card">
               {/* Title */}
-              <Label style={{ color: '#000' }}>Event Title</Label>
+              <Label style={{ color: '#000' }} testID="title-label">Event Title</Label>
               <Input
                 placeholder="Enter title"
                 placeholderTextColor="#B4B4BD"
@@ -279,7 +279,7 @@ export default function CreateEventScreen({
               />
 
               {/* Description */}
-              <Label style={{ color: '#000' }}>Description (Optional)</Label>
+              <Label style={{ color: '#000' }} testID="description-label">Description (Optional)</Label>
               <Input 
                 placeholder="Tell guests about your event..." 
                 placeholderTextColor="#B4B4BD"
@@ -475,7 +475,7 @@ export default function CreateEventScreen({
               <Text style={[styles.sectionLabel, { marginTop: 12 }]}>🏛️ Popular Spots</Text>
               <View style={styles.chips}>
                 {popular.map((p) => (
-                  <Pressable key={p.label} onPress={() => setSelectedLoc(p)} style={[styles.chip, selectedLoc?.label === p.label && styles.chipActive]}>
+                  <Pressable key={p.label} onPress={() => setSelectedLoc(p)} style={[styles.chip, selectedLoc?.label === p.label && styles.chipActive]} testID={`location-${p.label.toLowerCase().replace(/\s+/g, '-')}`}>
                     <Text style={[styles.chipText, selectedLoc?.label === p.label && styles.chipTextActive]}>{p.label}</Text>
                   </Pressable>
                 ))}
@@ -506,6 +506,7 @@ export default function CreateEventScreen({
                 <Pressable
                   onPress={() => setStep(0 as StepperStep)}
                   style={[styles.ghostBtn, styles.inlineBtn]}
+                  testID="back-step-inline"
                 >
                   <Text style={styles.ghostText}>Back</Text>
                 </Pressable>
@@ -515,6 +516,7 @@ export default function CreateEventScreen({
                     setStep(2 as StepperStep);
                   }}
                   style={[styles.cta, styles.inlineBtn]}
+                  testID="next-step-inline"
                 >
                   <Text style={styles.ctaText}>Next</Text>
                 </Pressable>
@@ -607,6 +609,7 @@ export default function CreateEventScreen({
                 <Pressable
                   onPress={() => setStep(3 as StepperStep)}
                   style={[styles.cta, styles.inlineBtn]}
+                  testID="next-step-inline"
                 >
                   <Text style={styles.ctaText}>Next</Text>
                 </Pressable>
