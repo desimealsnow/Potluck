@@ -43,6 +43,16 @@ test.describe('Multi-User Potluck Scenarios', () => {
     }, { timeout: 15000 });
   });
 
+  test('should create browser context for host and guest', async () => {
+    // Simple test to verify multi-user setup works
+    await expect(hostPage).toBeTruthy();
+    await expect(guestPage).toBeTruthy();
+    
+    // Check that both pages can load the auth screen
+    await expect(hostPage.getByTestId('email-input')).toBeVisible();
+    await expect(guestPage.getByTestId('email-input')).toBeVisible();
+  });
+
   test('Host creates event and guest requests to join - Happy Path', async () => {
     // === HOST SIDE: Login and Create Event ===
     console.log('Host: Logging in...');
@@ -75,18 +85,24 @@ test.describe('Multi-User Potluck Scenarios', () => {
       await maxGuestsInput.fill('20');
     }
     
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(1000);
     
     // Location step
     const locationSearch = hostPage.getByPlaceholder(/search for the perfect spot/i);
     if (await locationSearch.isVisible()) {
       await locationSearch.fill('Central Park');
-      await locationSearch.press('Enter');
       await hostPage.waitForTimeout(2000);
+      
+      // Select the first location suggestion
+      const firstLocation = hostPage.getByTestId('location-central-park');
+      if (await firstLocation.isVisible()) {
+        await firstLocation.click();
+        await hostPage.waitForTimeout(1000);
+      }
     }
     
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(1000);
     
     // Menu step
@@ -95,7 +111,7 @@ test.describe('Multi-User Potluck Scenarios', () => {
       await dishNameInput.fill('Test Main Course');
     }
     
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(1000);
     
     // Create event
@@ -208,11 +224,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     await hostPage.getByTestId('event-description-input').fill('Testing rejection scenario');
     
     // Quick create (skip detailed steps)
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
     await hostPage.getByTestId('create-event-final-button').click();
     await hostPage.waitForTimeout(2000);
@@ -294,11 +310,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     await hostPage.getByTestId('event-description-input').fill('Testing cancellation scenario');
     
     // Quick create
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
     await hostPage.getByTestId('create-event-final-button').click();
     await hostPage.waitForTimeout(2000);
@@ -393,11 +409,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     await hostPage.getByTestId('event-description-input').fill('Testing item management');
     
     // Quick create
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
     await hostPage.getByTestId('create-event-final-button').click();
     await hostPage.waitForTimeout(2000);
@@ -506,11 +522,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     }
     
     // Quick create
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
     await hostPage.getByTestId('create-event-final-button').click();
     await hostPage.waitForTimeout(2000);

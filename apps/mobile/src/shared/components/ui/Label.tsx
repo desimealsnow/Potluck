@@ -6,11 +6,12 @@ export interface LabelProps {
   children: React.ReactNode;
   style?: any;
   required?: boolean;
+  testID?: string;
 }
 
-export function Label({ children, style, required = false }: LabelProps) {
+export function Label({ children, style, required = false, testID }: LabelProps) {
   return (
-    <Text style={[styles.label, style]}>
+    <Text style={[styles.label, style]} testID={testID}>
       {children}
       {required && <Text style={styles.required}> *</Text>}
     </Text>
