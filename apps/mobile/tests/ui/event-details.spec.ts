@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsHost } from './event-test-utilities';
 
 test.describe('Event Details Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,15 +7,13 @@ test.describe('Event Details Flow', () => {
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     
-    // Login first
+    // Login first using proven utilities
     await page.waitForFunction(() => {
       const hasLoading = !!document.querySelector('[data-testid="loading-container"]');
       return !hasLoading;
     }, { timeout: 10000 });
     
-    await page.getByTestId('email-input').fill('host@test.dev');
-    await page.getByTestId('password-input').fill('password123');
-    await page.getByTestId('sign-in-button').click();
+    await loginAsHost(page);
     
     // Wait for events list to load
     await expect(page.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
@@ -49,7 +48,7 @@ test.describe('Event Details Flow', () => {
     } else {
       // No events available, create one first or skip
       console.log('No events found to test event details');
-      test.skip('No events available for testing event details');
+      test.skip(true, 'No events available for testing event details');
     }
   });
 
@@ -57,15 +56,14 @@ test.describe('Event Details Flow', () => {
     // First create or navigate to an event
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
     await page.waitForTimeout(2000);
     
     // Check for top bar with back button
-    const backButton = page.locator('button').filter({ hasText: /back|arrow/i }).first()
-      .or(page.locator('[data-testid*="back"]'));
+    const backButton = page.getByTestId('back-button');
     
     if (await backButton.isVisible()) {
       await expect(backButton).toBeVisible();
@@ -84,7 +82,7 @@ test.describe('Event Details Flow', () => {
   test('should display event information and status', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -121,7 +119,7 @@ test.describe('Event Details Flow', () => {
   test('should navigate between tabs (Overview, Items, Participants, Requests)', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -145,7 +143,7 @@ test.describe('Event Details Flow', () => {
   test('should display and interact with Overview tab', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -196,7 +194,7 @@ test.describe('Event Details Flow', () => {
   test('should display and interact with Items tab', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -249,7 +247,7 @@ test.describe('Event Details Flow', () => {
   test('should display Participants tab', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -281,7 +279,7 @@ test.describe('Event Details Flow', () => {
   test('should display Requests tab for hosts', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -324,7 +322,7 @@ test.describe('Event Details Flow', () => {
   test('should display host action buttons based on event status', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
@@ -358,16 +356,14 @@ test.describe('Event Details Flow', () => {
   test('should navigate back to events list', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();
     await page.waitForTimeout(2000);
     
     // Find and click back button
-    const backButton = page.locator('button').filter({ hasText: /back|arrow/i }).first()
-      .or(page.locator('[data-testid*="back"]'))
-      .or(page.locator('button').first()); // Fallback to first button
+    const backButton = page.getByTestId('back-button');
     
     if (await backButton.isVisible()) {
       await backButton.click();
@@ -380,7 +376,7 @@ test.describe('Event Details Flow', () => {
   test('should handle event details loading states', async ({ page }) => {
     const eventCards = page.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() === 0) {
-      test.skip('No events available');
+      test.skip(true, 'No events available');
     }
     
     await eventCards.first().click();

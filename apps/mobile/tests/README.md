@@ -50,8 +50,17 @@ The app uses absolute imports for better organization and drag-and-drop file mov
 
 ### Current Test Coverage
 - **Unit Tests**: Jest with React Native Testing Library
+- **E2E Tests**: Playwright with comprehensive test suite
 - **Components Covered**: AvailabilityBadge, JoinRequestsManager, RequestToJoinButton, useJoinRequests hook, apiClient service
+- **E2E Coverage**: Authentication, Event Management, Multi-user scenarios, UI interactions
 - **Coverage Thresholds**: 80% lines, 75% branches, 80% functions, 80% statements
+
+### E2E Test Architecture
+- **Reusable Utilities**: Centralized event management and authentication functions
+- **Smart Login Detection**: Automatic detection of existing login state
+- **Sequential Execution**: Configured to prevent state corruption between tests
+- **Cross-Platform Testing**: Desktop, mobile, and tablet configurations
+- **Comprehensive Test IDs**: Reliable element selection across all UI components
 
 ---
 
@@ -352,10 +361,63 @@ tests/
 4. Cross-platform consistency
 
 ### Test Data Strategy
-- Consistent test users and credentials
-- Reusable event templates
-- Mock payment responses
-- Cleanup procedures
+- **Static Test Users**: Predefined users in `test-utilities.ts`
+- **Dynamic Events**: Events created during test execution
+- **Reusable Templates**: Event and user data factories
+- **Mock Payment Responses**: LemonSqueezy integration (sandbox mode)
+- **Cleanup Procedures**: Manual cleanup (Supabase cleanup utilities needed)
+
+### Test Data Management
+
+#### Current Approach
+- **Test Users**: Static credentials defined in `test-utilities.ts`
+- **Event Data**: Created dynamically during test execution
+- **Cleanup**: Relies on app state management and page reloads
+- **Isolation**: Tests use `beforeEach` hooks for clean state
+
+#### Supabase Cleanup Status
+**Current State**: No automated Supabase cleanup utilities implemented
+
+**Available Files**:
+- `global-teardown.ts` - Placeholder for cleanup logic
+- `global-setup.ts` - Test environment setup
+
+**Recommended Implementation**:
+```typescript
+// Add to global-teardown.ts
+async function cleanupTestData() {
+  // Connect to Supabase
+  const supabase = createClient(url, key);
+  
+  // Delete test events
+  await supabase.from('events').delete().like('title', 'Test%');
+  
+  // Reset test user data
+  await supabase.from('profiles').update({...}).eq('email', 'host@test.dev');
+  
+  // Clear test databases
+  await supabase.from('join_requests').delete().like('event_id', '%');
+}
+```
+
+#### Test Data Factories
+```typescript
+// Recommended pattern for consistent test data
+export const createTestEvent = (overrides = {}) => ({
+  title: 'Test Event',
+  description: 'Test Description',
+  min_guests: 5,
+  max_guests: 20,
+  ...overrides
+});
+
+export const createTestUser = (overrides = {}) => ({
+  email: 'test@example.com',
+  password: 'password123',
+  displayName: 'Test User',
+  ...overrides
+});
+```
 
 ---
 

@@ -1,4 +1,16 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { 
+  loginAsHost, 
+  loginAsGuest, 
+  createAndPublishEvent, 
+  cancelEvent, 
+  deleteEvent,
+  requestToJoinEvent,
+  approveGuestRequest,
+  rejectGuestRequest,
+  verifyGuestJoined,
+  setupHostGuestScenario
+} from './event-test-utilities';
 
 test.describe('Multi-User Potluck Scenarios', () => {
   let hostContext: BrowserContext;
@@ -55,95 +67,27 @@ test.describe('Multi-User Potluck Scenarios', () => {
 
   test('Host creates event and guest requests to join - Happy Path', async () => {
     // === HOST SIDE: Login and Create Event ===
-    console.log('Host: Logging in...');
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    await loginAsHost(hostPage);
     await hostPage.screenshot({ path: 'test-results/multi-user-host-dashboard.png' });
 
-    // Create event
-    console.log('Host: Creating event...');
-    await hostPage.getByTestId('create-event-button').click();
-    await expect(hostPage.getByTestId('create-event-header')).toBeVisible({ timeout: 10000 });
-    
-    // Fill event details
-    await hostPage.getByTestId('event-title-input').fill('Multi-User Test Event');
-    await hostPage.getByTestId('event-description-input').fill('A test event for multi-user scenarios');
-    
-    // Set guest limits
-    const minGuestsInput = hostPage.locator('input').filter({ hasText: /min/i }).or(hostPage.getByPlaceholder(/min/i)).first();
-    const maxGuestsInput = hostPage.locator('input').filter({ hasText: /max/i }).or(hostPage.getByPlaceholder(/max/i)).first();
-    
-    if (await minGuestsInput.isVisible()) {
-      await minGuestsInput.clear();
-      await minGuestsInput.fill('5');
-    }
-    if (await maxGuestsInput.isVisible()) {
-      await maxGuestsInput.clear();
-      await maxGuestsInput.fill('20');
-    }
-    
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(1000);
-    
-    // Location step
-    const locationSearch = hostPage.getByPlaceholder(/search for the perfect spot/i);
-    if (await locationSearch.isVisible()) {
-      await locationSearch.fill('Central Park');
-      await hostPage.waitForTimeout(2000);
-      
-      // Select the first location suggestion
-      const firstLocation = hostPage.getByTestId('location-central-park');
-      if (await firstLocation.isVisible()) {
-        await firstLocation.click();
-        await hostPage.waitForTimeout(1000);
-      }
-    }
-    
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(1000);
-    
-    // Menu step
-    const dishNameInput = hostPage.getByPlaceholder(/Grandma's Famous Mac & Cheese/i).first();
-    if (await dishNameInput.isVisible()) {
-      await dishNameInput.fill('Test Main Course');
-    }
-    
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(1000);
-    
-    // Create event
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(3000);
-    
-    // Publish event
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-      
-      const okButton = hostPage.getByTestId('ok-button');
-      if (await okButton.isVisible()) {
-        await okButton.click();
-      }
-    }
+    // Create and publish event using reusable functions
+    console.log('Host: Creating and publishing event...');
+    eventId = await createAndPublishEvent(hostPage, 'Multi-User Test Event', 'A test event for multi-user scenarios');
     
     await hostPage.screenshot({ path: 'test-results/multi-user-host-event-created.png' });
     
-    // Get event ID from URL or page content
-    const currentUrl = hostPage.url();
-    const eventIdMatch = currentUrl.match(/\/events\/([^/]+)/);
-    eventId = eventIdMatch ? eventIdMatch[1] : 'test-event-id';
-    
     // === GUEST SIDE: Login and Request to Join ===
-    console.log('Guest: Logging in...');
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
+    // Navigate guest page to login page first
+    await guestPage.goto(`${process.env.MOBILE_WEB_URL || 'http://localhost:8081'}/`);
+    await guestPage.waitForLoadState('domcontentloaded');
     
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Wait for loading to complete
+    await guestPage.waitForFunction(() => {
+      const hasLoading = !!document.querySelector('[data-testid="loading-container"]');
+      return !hasLoading;
+    }, { timeout: 15000 });
+    
+    await loginAsGuest(guestPage);
     await guestPage.screenshot({ path: 'test-results/multi-user-guest-dashboard.png' });
     
     // Look for the created event
@@ -211,41 +155,14 @@ test.describe('Multi-User Potluck Scenarios', () => {
     // Similar setup as above, but this time host rejects the request
     console.log('Host: Creating event for rejection test...');
     
-    // Host login and event creation (similar to above)
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Host login and event creation using proven utilities
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Create and publish event using proven utilities
+    const eventId = await createAndPublishEvent(hostPage, 'Rejection Test Event', 'Testing rejection scenario');
     
-    // Create and publish event (abbreviated for brevity)
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Rejection Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing rejection scenario');
-    
-    // Quick create (skip detailed steps)
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
-    
-    // Guest requests to join
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Guest requests to join using proven utilities
+    await loginAsGuest(guestPage);
     
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() > 0) {
@@ -297,41 +214,14 @@ test.describe('Multi-User Potluck Scenarios', () => {
     // Setup: Host creates event, guest joins, then host cancels
     console.log('Testing event cancellation after guest joins...');
     
-    // Host creates and publishes event
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Host creates and publishes event using proven utilities
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Create event using proven utilities
+    const eventId = await createAndPublishEvent(hostPage, 'Cancellation Test Event', 'Testing cancellation scenario');
     
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Cancellation Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing cancellation scenario');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
-    
-    // Guest joins
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Guest joins using proven utilities
+    await loginAsGuest(guestPage);
     
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() > 0) {
@@ -396,34 +286,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     // Setup: Host creates event with items, guest joins, both manage items
     console.log('Testing item management between host and guest...');
     
-    // Host creates event with items
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Host creates event with items using proven utilities
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Item Management Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing item management');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create event using proven utilities
+    const eventId = await createAndPublishEvent(hostPage, 'Item Management Test Event', 'Testing item management');
     
     // Host adds items
     const hostEventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -460,12 +327,8 @@ test.describe('Multi-User Potluck Scenarios', () => {
       }
     }
     
-    // Guest joins and claims items
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Guest joins and claims items using proven utilities
+    await loginAsGuest(guestPage);
     
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() > 0) {
@@ -496,47 +359,11 @@ test.describe('Multi-User Potluck Scenarios', () => {
     // Test scenario where event reaches capacity and guests are waitlisted
     console.log('Testing capacity limits and waitlist...');
     
-    // Host creates event with limited capacity
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Host creates event with limited capacity using proven utilities
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event with limited capacity
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Capacity Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing capacity limits');
-    
-    // Set very low capacity
-    const minGuestsInput = hostPage.locator('input').filter({ hasText: /min/i }).or(hostPage.getByPlaceholder(/min/i)).first();
-    const maxGuestsInput = hostPage.locator('input').filter({ hasText: /max/i }).or(hostPage.getByPlaceholder(/max/i)).first();
-    
-    if (await minGuestsInput.isVisible()) {
-      await minGuestsInput.clear();
-      await minGuestsInput.fill('1');
-    }
-    if (await maxGuestsInput.isVisible()) {
-      await maxGuestsInput.clear();
-      await maxGuestsInput.fill('2'); // Very limited capacity
-    }
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-inline').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create event with limited capacity using proven utilities
+    const eventId = await createAndPublishEvent(hostPage, 'Capacity Test Event', 'Testing capacity limits', '1', '2');
     
     // Multiple guests try to join
     const guestEmails = ['guest1@test.dev', 'guest2@test.dev', 'guest3@test.dev'];

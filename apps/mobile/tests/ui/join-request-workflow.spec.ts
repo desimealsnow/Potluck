@@ -1,4 +1,5 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { loginAsHost, loginAsGuest, createAndPublishEvent } from './event-test-utilities';
 
 test.describe('Join Request Workflow', () => {
   let hostContext: BrowserContext;
@@ -46,56 +47,14 @@ test.describe('Join Request Workflow', () => {
     
     // === HOST: Create and Publish Event ===
     console.log('Host: Creating and publishing event...');
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Join Request Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing join request workflow');
-    
-    // Set capacity
-    const minGuestsInput = hostPage.locator('input').filter({ hasText: /min/i }).or(hostPage.getByPlaceholder(/min/i)).first();
-    const maxGuestsInput = hostPage.locator('input').filter({ hasText: /max/i }).or(hostPage.getByPlaceholder(/max/i)).first();
-    
-    if (await minGuestsInput.isVisible()) {
-      await minGuestsInput.clear();
-      await minGuestsInput.fill('5');
-    }
-    if (await maxGuestsInput.isVisible()) {
-      await maxGuestsInput.clear();
-      await maxGuestsInput.fill('20');
-    }
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Join Request Test Event', 'Testing join request workflow', '5', '20');
     
     await hostPage.screenshot({ path: 'test-results/join-request-1-host-event-published.png' });
     
     // === GUEST: Request to Join ===
     console.log('Guest: Requesting to join...');
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    await loginAsGuest(guestPage);
     
     // Find and click on the event
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
@@ -197,41 +156,12 @@ test.describe('Join Request Workflow', () => {
   test('Join request rejection workflow', async () => {
     console.log('Testing join request rejection workflow...');
     
-    // Setup: Host creates event, guest requests, host rejects
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Setup: Host creates event, guest requests, host rejects using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Rejection Test Event', 'Testing rejection workflow');
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create and publish event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Rejection Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing rejection workflow');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
-    
-    // Guest requests to join
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Guest requests to join using proven utilities
+    await loginAsGuest(guestPage);
     
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
     if (await eventCards.count() > 0) {
@@ -306,47 +236,9 @@ test.describe('Join Request Workflow', () => {
   test('Waitlist functionality', async () => {
     console.log('Testing waitlist functionality...');
     
-    // Create event with limited capacity
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event with very limited capacity
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Waitlist Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing waitlist functionality');
-    
-    // Set very low capacity
-    const minGuestsInput = hostPage.locator('input').filter({ hasText: /min/i }).or(hostPage.getByPlaceholder(/min/i)).first();
-    const maxGuestsInput = hostPage.locator('input').filter({ hasText: /max/i }).or(hostPage.getByPlaceholder(/max/i)).first();
-    
-    if (await minGuestsInput.isVisible()) {
-      await minGuestsInput.clear();
-      await minGuestsInput.fill('1');
-    }
-    if (await maxGuestsInput.isVisible()) {
-      await maxGuestsInput.clear();
-      await maxGuestsInput.fill('2'); // Very limited capacity
-    }
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create event with limited capacity using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Waitlist Test Event', 'Testing waitlist functionality', '1', '2');
     
     // Multiple guests try to join
     const guestEmails = ['guest1@test.dev', 'guest2@test.dev', 'guest3@test.dev'];
@@ -361,11 +253,8 @@ test.describe('Join Request Workflow', () => {
         return !hasLoading;
       }, { timeout: 15000 });
       
-      await guestPage.getByTestId('email-input').fill(guestEmails[i]);
-      await guestPage.getByTestId('password-input').fill('password123');
-      await guestPage.getByTestId('sign-in-button').click();
-      
-      await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+      // Use our proven login utility
+      await loginAsGuest(guestPage, i + 1);
       
       const eventCards = guestPage.locator('[data-testid^="event-card-"]');
       if (await eventCards.count() > 0) {
@@ -446,33 +335,10 @@ test.describe('Join Request Workflow', () => {
     // This test would require time manipulation or specific test data
     // For now, we'll test the UI elements that would show expired requests
     
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Expiration Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing request expiration');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create and publish event
+    const eventId = await createAndPublishEvent(hostPage, 'Expiration Test Event', 'Testing request expiration');
     
     // Navigate to event
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -508,34 +374,11 @@ test.describe('Join Request Workflow', () => {
   test('Bulk request management', async () => {
     console.log('Testing bulk request management...');
     
-    // Create event
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Login and create event
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Bulk Management Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing bulk request management');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create and publish event
+    const eventId = await createAndPublishEvent(hostPage, 'Bulk Management Test Event', 'Testing bulk request management');
     
     // Navigate to event
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');

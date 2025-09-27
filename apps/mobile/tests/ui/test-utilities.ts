@@ -74,7 +74,7 @@ export class PotluckTestUtils {
     }
     
     // Navigate through steps
-    await this.page.getByTestId('next-step-button').click();
+    await this.page.getByTestId('next-step-inline').click();
     await this.page.waitForTimeout(1000);
     
     // Location step
@@ -85,7 +85,7 @@ export class PotluckTestUtils {
       await this.page.waitForTimeout(2000);
     }
     
-    await this.page.getByTestId('next-step-button').click();
+    await this.page.getByTestId('next-step-inline').click();
     await this.page.waitForTimeout(1000);
     
     // Menu step
@@ -94,7 +94,7 @@ export class PotluckTestUtils {
       await dishNameInput.fill('Test Main Course');
     }
     
-    await this.page.getByTestId('next-step-button').click();
+    await this.page.getByTestId('next-step-inline').click();
     await this.page.waitForTimeout(1000);
     
     // Create event
@@ -389,7 +389,7 @@ export const TEST_USERS = {
   HOST: {
     email: 'host@test.dev',
     password: 'password123',
-    displayName: 'Test Host'
+    displayName: 'Ram'
   },
   GUEST: {
     email: 'guest@test.dev',

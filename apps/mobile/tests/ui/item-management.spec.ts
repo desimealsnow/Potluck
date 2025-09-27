@@ -1,4 +1,5 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { loginAsHost, loginAsGuest, createAndPublishEvent } from './event-test-utilities';
 
 test.describe('Item Management and Claiming', () => {
   let hostContext: BrowserContext;
@@ -22,6 +23,7 @@ test.describe('Item Management and Claiming', () => {
   test.beforeEach(async () => {
     const url = process.env.MOBILE_WEB_URL || 'http://localhost:8081/';
     
+    // Navigate both pages to the app URL to ensure they're on the login screen
     await hostPage.goto(url);
     await guestPage.goto(url);
     
@@ -43,34 +45,9 @@ test.describe('Item Management and Claiming', () => {
   test('Host creates event with items and manages them', async () => {
     console.log('Testing host item management...');
     
-    // Host login
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Item Management Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing item management functionality');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Host login and create event using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Item Management Test Event', 'Testing item management functionality');
     
     // Navigate to event
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -179,41 +156,12 @@ test.describe('Item Management and Claiming', () => {
   test('Guest claims and unclaims items', async () => {
     console.log('Testing guest item claiming...');
     
-    // Setup: Host creates event with items
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Setup: Host creates event with items using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Guest Claiming Test Event', 'Testing guest item claiming');
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event with items
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Guest Claiming Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing guest item claiming');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
-    
-    // Guest joins event
-    await guestPage.getByTestId('email-input').fill('guest@test.dev');
-    await guestPage.getByTestId('password-input').fill('password123');
-    await guestPage.getByTestId('sign-in-button').click();
-    
-    await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Guest joins event using proven utilities
+    await loginAsGuest(guestPage);
     
     // Find and join event
     const eventCards = guestPage.locator('[data-testid^="event-card-"]');
@@ -304,34 +252,9 @@ test.describe('Item Management and Claiming', () => {
   test('Item progress tracking and completion', async () => {
     console.log('Testing item progress tracking...');
     
-    // Host creates event with items
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Progress Tracking Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing item progress tracking');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Host creates event with items using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Progress Tracking Test Event', 'Testing item progress tracking');
     
     // Add items with different quantities
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -430,34 +353,9 @@ test.describe('Item Management and Claiming', () => {
   test('Item category management and filtering', async () => {
     console.log('Testing item category management...');
     
-    // Host creates event with items of different categories
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Category Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing item categories');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Host creates event with items of different categories using proven utilities
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Category Test Event', 'Testing item categories');
     
     // Add items of different categories
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -522,35 +420,10 @@ test.describe('Item Management and Claiming', () => {
     console.log('Testing item assignment and transfer...');
     
     // This test would require multiple participants
-    // For now, we'll test the UI elements for assignment
+    // For now, we'll test the UI elements for assignment using proven utilities
     
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Assignment Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing item assignment');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Assignment Test Event', 'Testing item assignment');
     
     // Add items
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');

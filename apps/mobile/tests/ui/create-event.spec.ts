@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsHost } from './event-test-utilities';
 
 test.describe('Create Event Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,15 +7,13 @@ test.describe('Create Event Flow', () => {
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     
-    // Login first
+    // Login first using proven utilities
     await page.waitForFunction(() => {
       const hasLoading = !!document.querySelector('[data-testid="loading-container"]');
       return !hasLoading;
     }, { timeout: 10000 });
     
-    await page.getByTestId('email-input').fill('host@test.dev');
-    await page.getByTestId('password-input').fill('password123');
-    await page.getByTestId('sign-in-button').click();
+    await loginAsHost(page);
     
     // Wait for events list and navigate to create event
     await expect(page.getByTestId('events-header')).toBeVisible({ timeout: 15000 });

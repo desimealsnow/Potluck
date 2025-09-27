@@ -69,6 +69,7 @@ function AuthForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -170,15 +171,24 @@ function AuthForm() {
           testID="email-input"
         />
         
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="rgba(255,255,255,0.7)"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          testID="password-input"
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="rgba(255,255,255,0.7)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            testID="password-input"
+          />
+          <Pressable 
+            onPress={() => setShowPassword(!showPassword)} 
+            style={styles.eyeIcon}
+            testID="password-toggle"
+          >
+            <Text style={styles.eyeIconText}>{showPassword ? "👁️" : "👁️‍🗨️"}</Text>
+          </Pressable>
+        </View>
         
         <Pressable
           style={[styles.button, loading && styles.buttonDisabled]}
@@ -255,6 +265,20 @@ const styles = StyleSheet.create({
     padding: 15,
     color: "white",
     fontSize: 16,
+    flex: 1,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 10,
+    paddingRight: 15,
+  },
+  eyeIcon: {
+    padding: 10,
+  },
+  eyeIconText: {
+    fontSize: 18,
   },
   button: {
     backgroundColor: "rgba(255,255,255,0.3)",

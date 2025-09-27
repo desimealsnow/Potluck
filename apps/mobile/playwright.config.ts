@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/ui',
   timeout: 120_000, // Increased timeout for complex multi-user scenarios
+  workers: 1, // Run tests sequentially to avoid race conditions
   expect: {
     timeout: 15000, // Increased expect timeout
   },
@@ -59,7 +60,6 @@ export default defineConfig({
   // Retry configuration
   retries: process.env.CI ? 2 : 0,
   // Parallel execution configuration
-  workers: process.env.CI ? 2 : 4,
   // Test match patterns
   testMatch: [
     '**/*.spec.ts',

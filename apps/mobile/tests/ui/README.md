@@ -17,21 +17,22 @@ The test suite covers all major functionality of the Potluck platform, including
 
 ## ✅ Current Status
 
-**Last Updated**: September 27, 2024
+**Last Updated**: December 2024
 
-### What's Working
-- ✅ **Authentication tests** - All login/signup flows working
-- ✅ **Test ID coverage** - Comprehensive testID attributes added to all UI components
-- ✅ **TypeScript compilation** - All type errors resolved
-- ✅ **JavaScript bundle** - App loads successfully in browser
-- ✅ **Playwright configuration** - Multi-browser testing setup complete
+### Test Architecture
+- ✅ **Reusable Test Utilities** - Comprehensive utility functions for common test operations
+- ✅ **Smart Login Detection** - Automatic detection of existing login state
+- ✅ **Event Lifecycle Management** - Complete event creation, publishing, cancellation, and deletion workflows
+- ✅ **Multi-User Scenarios** - Host and guest interaction patterns
+- ✅ **Test ID Coverage** - Comprehensive testID attributes for reliable element selection
+- ✅ **Sequential Test Execution** - Configured to prevent state corruption between tests
 
-### Recent Fixes
-- **Fixed missing dependency**: Added `react-native-gesture-handler` for web compatibility
-- **Added testID support**: Updated Card, Chip, ProgressBar components to support testID props
-- **Resolved TypeScript errors**: Fixed import conflicts and type definitions
-- **Enhanced authentication UI**: Added comprehensive test IDs to auth forms
-- **Updated component interfaces**: All UI components now support testID attributes
+### Key Features Implemented
+- **Event Test Utilities** (`event-test-utilities.ts`): Reusable functions for event management
+- **Smart Login System**: Checks if user is already logged in before attempting login
+- **Comprehensive Test Coverage**: 15+ test files covering all major functionality
+- **Error Handling**: Robust error handling and recovery mechanisms
+- **Cross-Platform Testing**: Desktop, mobile, and tablet configurations
 
 ## 📁 Test Structure
 
@@ -113,85 +114,282 @@ MOBILE_WEB_URL=http://localhost:3000 npm run test:playwright all
 
 ## 🧪 Test Scenarios
 
-### Authentication Flows
+### Authentication Flows (`auth.spec.ts`)
 
-Tests user authentication and validation:
-
-- **Login Flow**: Valid credentials, invalid credentials, empty fields
+**Functional Coverage:**
+- **Login Flow**: Valid credentials, invalid credentials, empty fields validation
 - **Signup Flow**: New user registration, email validation, password requirements
 - **Form Validation**: Real-time validation feedback, error messages
-- **Password Toggle**: Show/hide password functionality
+- **Password Toggle**: Show/hide password functionality (React Native Web `type` attribute)
 - **Mode Switching**: Toggle between login and signup modes
-- **Forgot Password**: Password reset functionality
+- **Button States**: Disabled state validation using `aria-disabled` attribute
 
-### Multi-User Scenarios
-
-Tests realistic host-guest interactions:
-
-- **Happy Path**: Host creates event → Guest requests → Host approves → Guest joins
-- **Rejection Path**: Host creates event → Guest requests → Host rejects
-- **Event Cancellation**: Host cancels event after guest joins
-- **Item Management**: Host and guest manage items together
-- **Capacity Limits**: Test waitlist functionality when event is full
-
-### Event Lifecycle
-
-Tests complete event management:
-
-- **Draft → Published → Completed**: Full event lifecycle
-- **Event Cancellation**: Cancel published events
-- **Event Deletion**: Delete and restore events
-- **Status Transitions**: Test all event status changes
-
-### Join Request Workflows
-
-Tests guest joining process:
-
-- **Request → Approve → Join**: Complete approval workflow
-- **Request → Reject**: Rejection workflow
-- **Waitlist Management**: Handle capacity overflow
-- **Bulk Operations**: Manage multiple requests
-
-### Item Management
-
-Tests item claiming and management:
-
-- **Host Item Management**: Add, edit, delete items
-- **Guest Item Claiming**: Claim and unclaim items
-- **Progress Tracking**: Monitor item completion
-- **Category Management**: Organize items by category
-
-### Edge Cases
-
-Tests error handling and edge cases:
-
-- **Capacity Limits**: Handle event overflow
-- **Network Issues**: Offline behavior and recovery
-- **Invalid Data**: Validation error handling
-- **Concurrent Actions**: Race condition handling
-- **Data Persistence**: Recovery after crashes
-
-## 🛠️ Test Utilities
-
-The `test-utilities.ts` file provides helper functions for common test operations:
-
+**Reusable Logic:**
 ```typescript
-import { PotluckTestUtils, TEST_USERS, TEST_EVENTS } from './test-utilities';
+// Smart login detection
+const isLoggedIn = await checkLoginState(page);
+if (!isLoggedIn) {
+  await performLogin(page, email, password);
+}
+```
 
-// Create test utilities
-const utils = new PotluckTestUtils(page);
+### Event Lifecycle Management (`event-lifecycle.spec.ts`)
 
-// Login as host
-await utils.login(TEST_USERS.HOST);
+**Functional Coverage:**
+- **Complete Event Creation**: 4-step wizard (details, location, menu, participants)
+- **Event Publishing**: Draft → Published transition
+- **Event Cancellation**: Published → Cancelled transition
+- **Event Deletion**: Complete removal with confirmation
+- **Status Verification**: All event status changes and UI updates
 
-// Create event
-const eventId = await utils.createEvent(TEST_EVENTS.BASIC);
+**Reusable Logic:**
+```typescript
+// Event creation utility
+await createAndPublishEvent(page, title, description, minGuests, maxGuests);
 
-// Add items
-await utils.addItem(TEST_ITEMS.MAIN_COURSE);
+// Event management utilities
+await cancelEvent(page);
+await deleteEvent(page);
+await verifyEventStatus(page, expectedStatus);
+```
 
-// Claim items
-await utils.claimItem(0);
+### Multi-User Scenarios (`multi-user-scenarios.spec.ts`, `multi-user-simplified.spec.ts`)
+
+**Functional Coverage:**
+- **Host-Guest Workflow**: Host creates event → Guest requests → Host approves/rejects
+- **Event Participation**: Guest joins approved events
+- **Item Management**: Host and guest collaborate on item claiming
+- **Capacity Management**: Waitlist functionality when events are full
+- **Concurrent Actions**: Multiple users interacting simultaneously
+
+**Reusable Logic:**
+```typescript
+// Multi-user setup
+await setupHostGuestScenario(hostPage, guestPage, eventTitle);
+
+// Guest operations
+await requestToJoinEvent(page, eventId);
+await approveGuestRequest(page, guestDisplayName);
+await rejectGuestRequest(page, guestDisplayName);
+```
+
+### Event List & Filtering (`event-list.spec.ts`)
+
+**Functional Coverage:**
+- **Event Display**: List all events with proper formatting
+- **Search Functionality**: Real-time search across events
+- **Filter Operations**: Status, ownership, and dietary preference filters
+- **Navigation**: Header actions and navigation buttons
+- **Empty States**: Handling when no events are present
+
+**Reusable Logic:**
+```typescript
+// Filter interactions
+await page.getByTestId('filter-toggle-button').click();
+await page.getByTestId('status-filter-option-upcoming').click();
+await page.getByTestId('ownership-mine').click();
+```
+
+### Join Request Workflows (`join-request-workflow.spec.ts`)
+
+**Functional Coverage:**
+- **Request Management**: Guest requests to join events
+- **Approval Process**: Host approves/rejects requests
+- **Status Tracking**: Request status updates and notifications
+- **Bulk Operations**: Managing multiple join requests
+- **Expiration Handling**: Cleanup of expired requests
+
+**Reusable Logic:**
+```typescript
+// Join request utilities
+await requestToJoinEvent(page, eventId);
+await approveGuestRequest(page, guestDisplayName);
+await rejectGuestRequest(page, guestDisplayName);
+```
+
+### Item Management (`item-management.spec.ts`)
+
+**Functional Coverage:**
+- **Item Creation**: Host adds items to events
+- **Item Claiming**: Guests claim and unclaim items
+- **Progress Tracking**: Monitor item completion status
+- **Category Management**: Organize items by categories
+- **Quantity Management**: Per-guest quantity calculations
+
+### Edge Cases (`edge-cases.spec.ts`)
+
+**Functional Coverage:**
+- **Network Issues**: Offline behavior and recovery
+- **Capacity Limits**: Event overflow handling
+- **Concurrent Actions**: Race condition prevention
+- **Data Persistence**: Recovery after crashes
+- **Error Handling**: Invalid data and validation errors
+
+### Complete User Journey (`complete-user-journey.spec.ts`)
+
+**Functional Coverage:**
+- **End-to-End Flow**: Complete user experience from login to event completion
+- **Navigation Testing**: All major navigation paths
+- **State Persistence**: Data persistence across navigation
+- **Filter Integration**: Testing filters in real user scenarios
+- **Event Management**: Complete event lifecycle in user context
+
+**Reusable Logic:**
+```typescript
+// Complete journey utilities
+await loginAsHost(page);
+await createAndPublishEvent(page, title, description);
+await navigateToEventDetails(page);
+await manageEventFilters(page);
+```
+
+## 🛠️ Reusable Test Utilities
+
+### Core Utility Files
+
+#### 1. `event-test-utilities.ts` - Event Management Utilities
+**Purpose**: Centralized functions for event lifecycle management and user authentication.
+
+**Key Functions:**
+```typescript
+// Authentication
+await loginUser(page, email, password, userType);
+await loginAsHost(page);
+await loginAsGuest(page, guestNumber);
+
+// Event Management
+await createEvent(page, title, description, minGuests, maxGuests);
+await publishEvent(page);
+await createAndPublishEvent(page, title, description, minGuests, maxGuests);
+await cancelEvent(page);
+await deleteEvent(page);
+
+// Guest Operations
+await requestToJoinEvent(page, eventId);
+await approveGuestRequest(page, guestDisplayName);
+await rejectGuestRequest(page, guestDisplayName);
+
+// Verification
+await verifyEventStatus(page, expectedStatus);
+await verifyGuestJoined(page, guestDisplayName);
+
+// Multi-user Setup
+await setupHostGuestScenario(hostPage, guestPage, eventTitle);
+```
+
+**Smart Login Detection:**
+```typescript
+// Automatically detects if user is already logged in
+const isLoggedIn = await checkLoginState(page);
+if (!isLoggedIn) {
+  await performLogin(page, email, password);
+}
+```
+
+#### 2. `test-utilities.ts` - Test Data and Constants
+**Purpose**: Test user credentials, event templates, and common test data.
+
+**Test Users:**
+```typescript
+export const TEST_USERS = {
+  HOST: {
+    email: 'host@test.dev',
+    password: 'password123',
+    displayName: 'Ram'
+  },
+  GUEST: {
+    email: 'guest@test.dev', 
+    password: 'password123',
+    displayName: 'Guest User'
+  }
+};
+```
+
+#### 3. Reusable Patterns
+
+**Event Creation Pattern:**
+```typescript
+// Use this pattern for all event creation tests
+await loginAsHost(page);
+await createAndPublishEvent(page, 'Test Event', 'Description', '5', '20');
+```
+
+**Multi-User Pattern:**
+```typescript
+// Use this pattern for host-guest scenarios
+await setupHostGuestScenario(hostPage, guestPage, 'Test Event');
+```
+
+**Filter Testing Pattern:**
+```typescript
+// Use this pattern for filter interactions
+await page.getByTestId('filter-toggle-button').click();
+await page.getByTestId('status-filter-option-upcoming').click();
+```
+
+## 📋 Pending Test Issues
+
+### High Priority Issues
+1. **Plans.spec.ts** - 2 failing tests
+   - Promo code functionality test - missing validation message
+   - Plan cancellation flow test - missing cancel subscription dialog
+
+2. **UI Element Mismatches** - Multiple test files
+   - Missing test IDs in some components
+   - Incorrect selector expectations
+   - React Native Web rendering differences
+
+### Medium Priority Issues
+1. **Multi-User Scenarios** - Item management and capacity limits
+2. **Edge Cases** - Complex concurrent user actions
+3. **Manual Event Creation** - Some tests still use manual patterns instead of utilities
+
+### Low Priority Issues
+1. **Subscription.spec.ts** - Missing UI elements
+2. **Settings.spec.ts** - Minor UI element mismatches
+3. **Test Refactoring** - Convert remaining manual patterns to utilities
+
+### Known Limitations
+1. **Supabase Cleanup** - No automated test data cleanup utilities
+2. **Guest User Setup** - Currently using host credentials for guest tests
+3. **Network Testing** - Limited offline scenario testing
+4. **Performance Testing** - No performance benchmarks implemented
+
+## 🔧 Test Data Management
+
+### Current Test Data Strategy
+- **Static Test Users**: Predefined users in `test-utilities.ts`
+- **Dynamic Events**: Events created during test execution
+- **No Cleanup**: Tests rely on app state management for cleanup
+
+### Recommended Improvements
+1. **Add Supabase Cleanup Utilities**:
+```typescript
+// Add to global-teardown.ts
+async function cleanupTestData() {
+  // Delete test events
+  // Reset test user data
+  // Clear test databases
+}
+```
+
+2. **Implement Test Data Factories**:
+```typescript
+// Create test data factories for consistent test data
+export const createTestEvent = (overrides = {}) => ({
+  title: 'Test Event',
+  description: 'Test Description',
+  ...overrides
+});
+```
+
+3. **Add Test Isolation**:
+```typescript
+// Ensure each test starts with clean state
+beforeEach(async () => {
+  await page.reload();
+  await clearTestData();
+});
 ```
 
 ## 📊 Test Results

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsHost } from './event-test-utilities';
 
 test.describe('Plans and Billing Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -6,27 +7,25 @@ test.describe('Plans and Billing Flow', () => {
     await page.goto(url);
     await page.waitForLoadState('domcontentloaded');
     
-    // Login first
+    // Login first using proven utilities
     await page.waitForFunction(() => {
       const hasLoading = !!document.querySelector('[data-testid="loading-container"]');
       return !hasLoading;
     }, { timeout: 10000 });
     
-    await page.getByTestId('email-input').fill('host@test.dev');
-    await page.getByTestId('password-input').fill('password123');
-    await page.getByTestId('sign-in-button').click();
+    await loginAsHost(page);
     
     // Navigate to plans
     await expect(page.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
     await page.getByTestId('plans-button').click();
     
     // Wait for plans screen
-    await expect(page.getByText('Plans')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Plans').first()).toBeVisible({ timeout: 10000 });
   });
 
   test('should display plans screen with billing cycle toggle', async ({ page }) => {
     // Check plans header
-    await expect(page.getByText('Plans')).toBeVisible();
+    await expect(page.getByText('Plans').first()).toBeVisible();
     
     // Check billing cycle toggle
     await expect(page.getByText('Monthly')).toBeVisible();

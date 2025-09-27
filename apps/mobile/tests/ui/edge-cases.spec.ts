@@ -1,4 +1,5 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { loginAsHost, loginAsGuest, createAndPublishEvent } from './event-test-utilities';
 
 test.describe('Edge Cases and Error Handling', () => {
   let hostContext: BrowserContext;
@@ -44,52 +45,16 @@ test.describe('Edge Cases and Error Handling', () => {
     console.log('Testing event capacity limits...');
     
     // Host creates event with very limited capacity
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event with minimal capacity
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Capacity Limit Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing capacity limits');
-    
-    // Set very low capacity
-    const minGuestsInput = hostPage.locator('input').filter({ hasText: /min/i }).or(hostPage.getByPlaceholder(/min/i)).first();
-    const maxGuestsInput = hostPage.locator('input').filter({ hasText: /max/i }).or(hostPage.getByPlaceholder(/max/i)).first();
-    
-    if (await minGuestsInput.isVisible()) {
-      await minGuestsInput.clear();
-      await minGuestsInput.fill('1');
-    }
-    if (await maxGuestsInput.isVisible()) {
-      await maxGuestsInput.clear();
-      await maxGuestsInput.fill('2'); // Very limited capacity
-    }
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    await loginAsHost(hostPage);
+    const eventId = await createAndPublishEvent(hostPage, 'Capacity Limit Test Event', 'Testing capacity limits', '1', '1');
     
     // Multiple guests try to join (exceed capacity)
     const guestEmails = ['guest1@test.dev', 'guest2@test.dev', 'guest3@test.dev', 'guest4@test.dev'];
     
     for (let i = 0; i < guestEmails.length; i++) {
       const guestPage = await guestContext.newPage();
+      
+      // Navigate to login page and ensure clean state
       await guestPage.goto(process.env.MOBILE_WEB_URL || 'http://localhost:8081/');
       await guestPage.waitForLoadState('domcontentloaded');
       
@@ -98,11 +63,11 @@ test.describe('Edge Cases and Error Handling', () => {
         return !hasLoading;
       }, { timeout: 15000 });
       
-      await guestPage.getByTestId('email-input').fill(guestEmails[i]);
-      await guestPage.getByTestId('password-input').fill('password123');
-      await guestPage.getByTestId('sign-in-button').click();
+      // Wait a bit more to ensure page is fully loaded
+      await guestPage.waitForTimeout(2000);
       
-      await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+      // Use the working login utility
+      await loginAsGuest(guestPage);
       
       const eventCards = guestPage.locator('[data-testid^="event-card-"]');
       if (await eventCards.count() > 0) {
@@ -170,30 +135,34 @@ test.describe('Edge Cases and Error Handling', () => {
   test('Network connectivity issues and offline handling', async () => {
     console.log('Testing network connectivity issues...');
     
-    // Test offline behavior
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    // Test offline behavior using proven utilities
+    await loginAsHost(hostPage);
     
     // Simulate network issues by going offline
     await hostPage.context().setOffline(true);
     
     // Try to create event while offline
+    // Note: We can't use createAndPublishEvent here as it expects online behavior
+    // So we'll test the offline UI behavior manually
     await hostPage.getByTestId('create-event-button').click();
     await hostPage.getByTestId('event-title-input').fill('Offline Test Event');
     await hostPage.getByTestId('event-description-input').fill('Testing offline behavior');
     
     // Quick create
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
+    
+    // Try to create event (should fail due to offline)
+    try {
+      await hostPage.getByTestId('create-event-final-button').click();
+      await hostPage.waitForTimeout(2000);
+    } catch (error) {
+      console.log('Expected error due to offline state:', error.message);
+    }
     
     // Should show offline error
     const offlineMessage = hostPage.getByText(/offline|network|connection/i);
@@ -222,18 +191,14 @@ test.describe('Edge Cases and Error Handling', () => {
   test('Invalid data handling and validation errors', async () => {
     console.log('Testing invalid data handling...');
     
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    await loginAsHost(hostPage);
     
     // Test invalid event creation
     await hostPage.getByTestId('create-event-button').click();
     
     // Test empty title
     await hostPage.getByTestId('event-title-input').fill('');
-    await hostPage.getByTestId('next-step-button').click();
+    await hostPage.getByTestId('next-step-inline').click();
     
     // Should show validation error
     const titleError = hostPage.getByTestId('title-error');
@@ -280,34 +245,11 @@ test.describe('Edge Cases and Error Handling', () => {
   test('Concurrent user actions and race conditions', async () => {
     console.log('Testing concurrent user actions...');
     
-    // Host creates event
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    // Host creates event using proven utilities
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Concurrent Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing concurrent actions');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create event using proven utilities
+    const eventId = await createAndPublishEvent(hostPage, 'Concurrent Test Event', 'Testing concurrent actions');
     
     // Multiple guests try to join simultaneously
     const guestPromises = [];
@@ -354,26 +296,10 @@ test.describe('Edge Cases and Error Handling', () => {
     console.log('Testing data persistence and recovery...');
     
     // Host creates event with data
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Persistence Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing data persistence');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
+    // Create and publish event
+    const eventId = await createAndPublishEvent(hostPage, 'Persistence Test Event', 'Testing data persistence');
     
     // Add some items
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -419,11 +345,7 @@ test.describe('Edge Cases and Error Handling', () => {
       return !hasLoading;
     }, { timeout: 15000 });
     
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    await loginAsHost(hostPage);
     
     // Check if event data persisted
     const persistedEventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -452,33 +374,10 @@ test.describe('Edge Cases and Error Handling', () => {
   test('Large dataset handling and performance', async () => {
     console.log('Testing large dataset handling...');
     
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
+    await loginAsHost(hostPage);
     
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
-    
-    // Create event
-    await hostPage.getByTestId('create-event-button').click();
-    await hostPage.getByTestId('event-title-input').fill('Large Dataset Test Event');
-    await hostPage.getByTestId('event-description-input').fill('Testing large dataset handling');
-    
-    // Quick create
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('next-step-button').click();
-    await hostPage.waitForTimeout(500);
-    await hostPage.getByTestId('create-event-final-button').click();
-    await hostPage.waitForTimeout(2000);
-    
-    // Publish
-    const publishButton = hostPage.getByTestId('publish-button');
-    if (await publishButton.isVisible()) {
-      await publishButton.click();
-      await hostPage.waitForTimeout(2000);
-    }
+    // Create and publish event
+    const eventId = await createAndPublishEvent(hostPage, 'Large Dataset Test Event', 'Testing large dataset handling');
     
     // Add many items to test performance
     const eventCards = hostPage.locator('[data-testid^="event-card-"]');
@@ -532,11 +431,7 @@ test.describe('Edge Cases and Error Handling', () => {
     console.log('Testing error boundary and graceful degradation...');
     
     // Test with invalid API responses
-    await hostPage.getByTestId('email-input').fill('host@test.dev');
-    await hostPage.getByTestId('password-input').fill('password123');
-    await hostPage.getByTestId('sign-in-button').click();
-    
-    await expect(hostPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+    await loginAsHost(hostPage);
     
     // Try to access non-existent event
     await hostPage.goto(`${process.env.MOBILE_WEB_URL || 'http://localhost:8081/'}/events/non-existent-event-id`);
@@ -579,7 +474,7 @@ test.describe('Edge Cases and Error Handling', () => {
   });
 });
 
-// Helper function for concurrent guest actions
+// Helper function for concurrent guest actions using proven utilities
 async function joinEventAsGuest(guestPage: Page, email: string) {
   await guestPage.goto(process.env.MOBILE_WEB_URL || 'http://localhost:8081/');
   await guestPage.waitForLoadState('domcontentloaded');
@@ -589,11 +484,17 @@ async function joinEventAsGuest(guestPage: Page, email: string) {
     return !hasLoading;
   }, { timeout: 15000 });
   
-  await guestPage.getByTestId('email-input').fill(email);
-  await guestPage.getByTestId('password-input').fill('password123');
-  await guestPage.getByTestId('sign-in-button').click();
-  
-  await expect(guestPage.getByTestId('events-header')).toBeVisible({ timeout: 15000 });
+  // Check if already logged in, if not then login
+  const eventsHeader = guestPage.getByTestId('events-header');
+  const eventCardsCheck = guestPage.locator('[data-testid^="event-card-"]');
+  const isEventsHeaderVisible = await eventsHeader.isVisible();
+  const eventCardsCount = await eventCardsCheck.count();
+  const isAlreadyLoggedIn = isEventsHeaderVisible || eventCardsCount > 0;
+
+  if (!isAlreadyLoggedIn) {
+    // Use our proven login utility
+    await loginAsGuest(guestPage);
+  }
   
   const eventCards = guestPage.locator('[data-testid^="event-card-"]');
   if (await eventCards.count() > 0) {
