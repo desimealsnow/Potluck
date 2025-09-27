@@ -38,7 +38,7 @@ export default function SupabaseAuthScreen() {
     return (
       <LinearGradient colors={["#5A60F6", "#3C8CE7", "#00B8D4"]} style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <View style={styles.loadingContainer}>
+          <View style={styles.loadingContainer} testID="loading-container">
             {/* You can add a loading spinner here */}
           </View>
         </SafeAreaView>
@@ -55,7 +55,7 @@ export default function SupabaseAuthScreen() {
   return (
     <LinearGradient colors={["#5A60F6", "#3C8CE7", "#00B8D4"]} style={styles.container}>
       <SafeAreaView style={styles.container}>
-        <View style={styles.authContainer}>
+        <View style={styles.authContainer} testID="auth-container">
           <AuthForm />
         </View>
       </SafeAreaView>
@@ -148,11 +148,15 @@ function AuthForm() {
   };
 
   return (
-    <View style={styles.formContainer}>
+    <View style={styles.formContainer} testID="auth-form-container">
       {/* You can replace this with a more styled form or use a library like react-native-elements */}
       <View style={styles.form}>
-        <Text style={styles.title}>
+        <Text style={styles.title} testID="welcome-title">
           {isSignUp ? "Create Account" : "Welcome Back"}
+        </Text>
+        
+        <Text style={styles.subtitle} testID="welcome-subtitle">
+          {isSignUp ? "Sign up to create and manage your events" : "Sign in to manage your events"}
         </Text>
         
         <TextInput
@@ -163,6 +167,7 @@ function AuthForm() {
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
+          testID="email-input"
         />
         
         <TextInput
@@ -172,12 +177,14 @@ function AuthForm() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+          testID="password-input"
         />
         
         <Pressable
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleAuth}
           disabled={loading}
+          testID="sign-in-button"
         >
           <Text style={styles.buttonText}>
             {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
@@ -188,17 +195,18 @@ function AuthForm() {
           style={styles.button}
           onPress={handleGoogleAuth}
           disabled={loading}
+          testID="google-auth-button"
         >
           <Text style={styles.buttonText}>Continue with Google</Text>
         </Pressable>
         
-        <Pressable onPress={() => setIsSignUp(!isSignUp)}>
-          <Text style={styles.linkText}>
+        <Pressable onPress={() => setIsSignUp(!isSignUp)} testID="toggle-auth-mode">
+          <Text style={styles.linkText} testID="toggle-auth-text">
             {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
           </Text>
         </Pressable>
         
-        <Pressable onPress={handleForgotPassword}>
+        <Pressable onPress={handleForgotPassword} testID="forgot-password-button">
           <Text style={styles.linkText}>Forgot Password?</Text>
         </Pressable>
       </View>
@@ -232,6 +240,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
     textAlign: "center",
     marginBottom: 20,
   },

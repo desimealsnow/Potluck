@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { Image } from 'expo-image';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Icon, Segmented, ProgressBar } from "@/ui";
+import { Icon, Segmented, ProgressBar, Card as UICard, Chip as UIChip } from "@/ui";
 import Header from "@/layout/Header";
 import { gradients } from "@/theme";
 import ItemLibrarySheet from "@/events/components/ItemLibrarySheet";
@@ -855,7 +855,7 @@ function EventHeader({
         {formatDateRange(event.start, event.end)}
       </Text>
       {/* Location Card */}
-      <Card>
+      <UICard>
         <View style={styles.locationHeader} testID="location-header">
           <Icon name="MapPin" size={20} color="#A22AD0" testID="location-icon" />
           <Text style={styles.locationTitle} testID="location-title">📍 Event Location</Text>
@@ -881,14 +881,14 @@ function EventHeader({
             </Pressable>
           )}
         </View>
-      </Card>
+      </UICard>
 
       {/* Event Details Chips */}
       <View style={styles.chipContainer} testID="event-chips-container">
         {(event.perks ?? []).map((p) => (
-          <Chip key={p} icon="Utensils" tone="emerald" testID={`perk-chip-${p}`}>{p}</Chip>
+          <UIChip key={p} icon="Utensils" tone="emerald" testID={`perk-chip-${p}`}>{p}</UIChip>
         ))}
-        <Chip icon="Users" tone="violet" testID="attending-count-chip">{event.attendingCount} attending</Chip>
+        <UIChip icon="Users" tone="violet" testID="attending-count-chip">{event.attendingCount} attending</UIChip>
       </View>
 
       {/* Debug/Test UI removed */}
@@ -985,15 +985,15 @@ function OverviewTab({
     <View style={styles.tabContent} testID="overview-tab-content">
       {/* Join Request (guest) or Host info */}
       {!isHost ? (
-        <Card testID="join-request-card">
+        <UICard testID="join-request-card">
           <Text style={styles.sectionTitle} testID="join-request-title">Request to Join</Text>
           <RequestToJoinButton eventId={eventId} eventTitle={event.title} />
-        </Card>
+        </UICard>
       ) : null}
 
 
       {/* Notes */}
-      <Card testID="notes-card">
+      <UICard testID="notes-card">
         <View style={styles.sectionHeader} testID="notes-header">
           <View style={styles.sectionIcon} testID="notes-icon">
             <Text style={styles.emoji}>💬</Text>
@@ -1008,10 +1008,10 @@ function OverviewTab({
           textAlignVertical="top"
           testID="notes-input"
         />
-      </Card>
+      </UICard>
 
       {/* Host */}
-      <Card testID="host-card">
+      <UICard testID="host-card">
         <Text style={styles.sectionTitle} testID="host-title">Event Host</Text>
         <View style={styles.hostContainer} testID="host-container">
           <Avatar name={event.host.name} src={event.host.avatar} />
@@ -1019,10 +1019,10 @@ function OverviewTab({
             <Text style={styles.hostName} testID="host-name">{event.host.name}</Text>
           </View>
         </View>
-      </Card>
+      </UICard>
 
       {/* Details */}
-      <Card testID="event-details-card">
+      <UICard testID="event-details-card">
         <Text style={styles.sectionTitle} testID="event-details-title">Event Details</Text>
         <Text style={styles.eventIntro} testID="event-intro">{event.details.intro}</Text>
         <Text style={styles.eventDetail} testID="event-detail-bring">
@@ -1031,7 +1031,7 @@ function OverviewTab({
         <Text style={styles.eventDetail} testID="event-detail-backup">
           <Text style={styles.eventDetailLabel}>Weather backup:</Text> {event.details.backup}
         </Text>
-      </Card>
+      </UICard>
     </View>
   );
 }
@@ -1127,7 +1127,7 @@ function ItemsTab({
         const pct = clamp01(it.claimedQty / it.requiredQty);
         const complete = it.claimedQty >= it.requiredQty;
         return (
-          <Card key={it.id} testID={`item-card-${it.id}`}>
+          <UICard key={it.id} testID={`item-card-${it.id}`}>
             <View style={styles.itemHeader} testID={`item-header-${it.id}`}>
               <InlineEditableItem
                 item={it}
@@ -1148,7 +1148,7 @@ function ItemsTab({
             {complete && (
               <Text style={styles.completeText} testID={`item-complete-${it.id}`}>✓ Complete</Text>
             )}
-          </Card>
+          </UICard>
         );
       })}
     </View>
@@ -1182,7 +1182,7 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
   }, [selectedItem]);
   
   return (
-    <Card testID="add-item-card">
+    <UICard testID="add-item-card">
       <View style={styles.cardHeader} testID="add-item-header">
         <Text style={styles.cardTitle} testID="add-item-title">✨ Add New Item</Text>
         <View style={{ flexDirection: 'row', gap: 8 }} testID="add-item-actions">
@@ -1253,7 +1253,7 @@ function AddItemRow({ onAdd, onOpenPicker, selectedItem }: {
           <Text style={styles.addButtonText} testID="add-item-button-text">Add Item</Text>
         </Pressable>
       </View>
-    </Card>
+    </UICard>
   );
 }
 
